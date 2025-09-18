@@ -3,6 +3,9 @@
 :root {
   --background: #ffffff;
   --foreground: #171717;
+  --color-text-primary: #51356e;
+  /* Added primary text color */
+
 }
 
 @theme inline {
@@ -18,9 +21,250 @@
     --foreground: #ededed;
   }
 }
+.custom-hover-bg:hover {
+    background-color: var(--color-text-primary) !important;
+    color: #fff !important;
+}
+.btn-animate {
+  transition: transform 0.2s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.btn-animate:hover {
+  transform: translateY(-3px) scale(1.04);
+  box-shadow: 0 8px 24px 0 rgba(81, 53, 110, 0.12);
+}
+
+.btn-animate:active {
+  transform: translateY(-1px) scale(0.98);
+  box-shadow: 0 4px 12px 0 rgba(81, 53, 110, 0.10);
+}
 
 body {
   background: var(--background);
   color: var(--foreground);
   font-family: Arial, Helvetica, sans-serif;
+  overflow-x: hidden;
+  margin: 0;
+  padding: 0;
+}
+
+html {
+  overflow-x: hidden;
+}
+
+/* Prevent horizontal scrolling on all elements */
+* {
+  max-width: 100%;
+  box-sizing: border-box;
+}
+
+/* Mobile-specific responsive constraints */
+@media (max-width: 768px) {
+  .table-container {
+    width: 100%;
+    overflow-x: auto;
+  }
+
+  table {
+    min-width: 100%;
+  }
+
+  /* Ensure no element causes horizontal overflow */
+  body, html, #__next, [data-reactroot] {
+    width: 100%;
+    overflow-x: hidden;
+  }
+}
+
+/* Hero Section Enhancements */
+.hero-image-container {
+  overflow: visible;
+  border-radius: 20px;
+  position: relative;
+  backdrop-filter: blur(10px);
+}
+
+.hero-bg-gradient {
+  background: linear-gradient(135deg,
+    rgba(81, 53, 110, 0.08) 0%,
+    rgba(142, 103, 182, 0.06) 50%,
+    rgba(99, 102, 241, 0.04) 100%);
+  border-radius: 20px;
+}
+
+.hero-image-wrapper {
+  padding: 20px;
+  position: relative;
+}
+
+.hero-image {
+  object-fit: cover;
+  object-position: center;
+  border-radius: 16px;
+  transition: transform 0.3s ease, filter 0.3s ease;
+  box-shadow: 0 20px 40px rgba(81, 53, 110, 0.15);
+}
+
+.hero-image:hover {
+  transform: scale(1.02);
+  filter: brightness(1.05);
+}
+
+/* Enhanced Floating Elements */
+.floating-element {
+  position: absolute;
+  border-radius: 50%;
+  animation: float 6s ease-in-out infinite;
+  backdrop-filter: blur(8px);
+}
+
+.floating-element-1 {
+  top: 10px;
+  left: 10px;
+  width: 80px;
+  height: 80px;
+  background: #ffd700;
+  opacity: 0.3;
+  animation-delay: 0s;
+}
+
+.floating-element-2 {
+  bottom: 10px;
+  right: 10px;
+  width: 120px;
+  height: 120px;
+  background: linear-gradient(135deg, #8b5cf6, #a855f7);
+  opacity: 0.25;
+  animation-delay: 2s;
+}
+
+.floating-element-3 {
+  top: 50%;
+  right: 5px;
+  width: 60px;
+  height: 60px;
+  background: linear-gradient(135deg, #10b981, #059669);
+  opacity: 0.3;
+  animation-delay: 4s;
+}
+
+.floating-element-4 {
+  top: 20%;
+  left: 5px;
+  width: 40px;
+  height: 40px;
+  background: linear-gradient(135deg, #3b82f6, #1d4ed8);
+  opacity: 0.35;
+  animation-delay: 1s;
+}
+
+@keyframes float {
+  0%, 100% {
+    transform: translateY(0px) rotate(0deg);
+  }
+  33% {
+    transform: translateY(-20px) rotate(120deg);
+  }
+  66% {
+    transform: translateY(10px) rotate(240deg);
+  }
+}
+
+/* Mobile Optimizations */
+@media (max-width: 640px) {
+  .hero-image-container {
+    border-radius: 16px;
+    margin: 0 -8px;
+  }
+
+  .hero-image-wrapper {
+    padding: 16px;
+  }
+
+  .hero-image {
+    border-radius: 12px;
+    object-fit: contain;
+  }
+
+  .floating-element-1 {
+    width: 60px;
+    height: 60px;
+    top: 8px;
+    left: 8px;
+  }
+
+  .floating-element-2 {
+    width: 80px;
+    height: 80px;
+    bottom: 8px;
+    right: 8px;
+  }
+
+  .floating-element-3 {
+    width: 40px;
+    height: 40px;
+    right: 5px;
+  }
+
+  .floating-element-4 {
+    width: 30px;
+    height: 30px;
+    left: 5px;
+  }
+}
+
+/* Tablet Optimizations */
+@media (min-width: 641px) and (max-width: 1024px) {
+  .hero-image {
+    object-fit: cover;
+  }
+}
+
+/* Featured Courses Slider Styles */
+.slider-container {
+  scroll-behavior: smooth;
+  -webkit-overflow-scrolling: touch;
+}
+
+.slider-container::-webkit-scrollbar {
+  display: none;
+}
+
+.scrollbar-hide {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+.card-shadow-hover {
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.card-shadow-hover:hover {
+  transform: translateY(-8px);
+  box-shadow: 0 20px 40px rgba(81, 53, 110, 0.15);
+}
+
+/* Mobile slider optimizations */
+@media (max-width: 640px) {
+  .slider-container {
+    margin: 0;
+    padding: 0;
+    scroll-snap-type: x mandatory;
+    gap: 0 !important;
+  }
+
+  .slider-container > div {
+    scroll-snap-align: center;
+    scroll-snap-stop: always;
+    min-width: calc(100vw - 2rem);
+    max-width: calc(100vw - 2rem);
+    flex-shrink: 0;
+  }
+}
+
+/* Ensure cards fit properly in container */
+@media (min-width: 1024px) {
+  .slider-container {
+    gap: 2rem;
+  }
 }
