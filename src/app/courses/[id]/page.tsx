@@ -13,6 +13,7 @@ import { useAuth } from '@/components/contexts/AuthContext';
 import { UserService } from '@/services/userService';
 import { useParams } from 'next/navigation';
 import { courseService } from '@/services/courseService';
+export const runtime = 'edge';
 
 
 const StarRating = ({ rating }: { rating: number }) => {
