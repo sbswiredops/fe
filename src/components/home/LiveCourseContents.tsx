@@ -1,7 +1,7 @@
-'use client';
+"use client";
 
-import React, { useState } from 'react';
-import { useLanguage } from '../contexts/LanguageContext';
+import React, { useState } from "react";
+import { useLanguage } from "../contexts/LanguageContext";
 import {
   Zap,
   Users,
@@ -14,7 +14,7 @@ import {
   CheckCircle2,
   PlaySquare,
   Check,
-} from 'lucide-react';
+} from "lucide-react";
 
 interface LiveCourseFeature {
   id: string;
@@ -36,92 +36,92 @@ interface LiveCourseStats {
 
 const features: LiveCourseFeature[] = [
   {
-    id: '1',
-    title: 'Dedicated job placement team',
+    id: "1",
+    title: "Dedicated job placement team",
     description:
-      'Our dedicated team helps you secure job opportunities in your field with personalized career guidance',
+      "Our dedicated team helps you secure job opportunities in your field with personalized career guidance",
     icon: <Users className="w-8 h-8 text-red-600" />,
-    color: '',
-    bgGradient: 'from-blue-50 to-cyan-50',
+    color: "",
+    bgGradient: "from-blue-50 to-cyan-50",
   },
   {
-    id: '2',
-    title: 'CV Builder and Expert CV Review',
+    id: "2",
+    title: "CV Builder and Expert CV Review",
     description:
-      'Professional CV building tools and expert review for better job prospects and interview preparation',
+      "Professional CV building tools and expert review for better job prospects and interview preparation",
     icon: <FileText className="w-8 h-8 text-green-600" />,
-    color: '',
-    bgGradient: 'from-green-50 to-emerald-50',
+    color: "",
+    bgGradient: "from-green-50 to-emerald-50",
   },
   {
-    id: '3',
-    title: '18 hours live support for specific courses',
+    id: "3",
+    title: "18 hours live support for specific courses",
     description:
-      'Get dedicated live support for 18 hours during your course journey with instant problem solving',
+      "Get dedicated live support for 18 hours during your course journey with instant problem solving",
     icon: <Clock className="w-8 h-8 text-purple-600" />,
-    color: '',
-    bgGradient: 'from-purple-50 to-pink-50',
+    color: "",
+    bgGradient: "from-purple-50 to-pink-50",
   },
   {
-    id: '4',
-    title: 'Pro Batch Special CV and Job Support',
+    id: "4",
+    title: "Pro Batch Special CV and Job Support",
     description:
-      'Exclusive CV preparation and job placement support for Pro Batch students with premium benefits',
+      "Exclusive CV preparation and job placement support for Pro Batch students with premium benefits",
     icon: <Briefcase className="w-8 h-8 text-indigo-600" />,
-    color: '',
-    bgGradient: 'from-indigo-50 to-blue-50',
+    color: "",
+    bgGradient: "from-indigo-50 to-blue-50",
   },
   {
-    id: '5',
-    title: 'Opportunity to assess yourself in live tests',
+    id: "5",
+    title: "Opportunity to assess yourself in live tests",
     description:
-      'Regular live assessments to track your progress and identify improvement areas with detailed feedback',
+      "Regular live assessments to track your progress and identify improvement areas with detailed feedback",
     icon: <BarChart3 className="w-8 h-8 text-orange-600" />,
-    color: '',
-    bgGradient: 'from-orange-50 to-red-50',
+    color: "",
+    bgGradient: "from-orange-50 to-red-50",
   },
   {
-    id: '6',
-    title: 'Up to 3 support classes per day for specific courses',
+    id: "6",
+    title: "Up to 3 support classes per day for specific courses",
     description:
-      'Additional support classes to ensure you master every concept with personalized attention',
+      "Additional support classes to ensure you master every concept with personalized attention",
     icon: <BookOpen className="w-8 h-8 text-pink-600" />,
-    color: '',
-    bgGradient: 'from-pink-50 to-rose-50',
+    color: "",
+    bgGradient: "from-pink-50 to-rose-50",
   },
 ];
 
 const stats: LiveCourseStats[] = [
   {
-    id: '1',
-    label: 'Job Placement',
-    value: '9,000+',
-    color: 'from-green-500 to-emerald-600',
-    description: 'Students successfully placed',
+    id: "1",
+    label: "Job Placement",
+    value: "9,000+",
+    color: "from-green-500 to-emerald-600",
+    description: "Students successfully placed",
     icon: <Briefcase className="w-6 h-6" />,
   },
   {
-    id: '2',
-    label: 'Learner',
-    value: '149,996+',
-    color: 'from-blue-500 to-indigo-600',
-    description: 'Active learners worldwide',
+    id: "2",
+    label: "Learner",
+    value: "149,996+",
+    color: "from-blue-500 to-indigo-600",
+    description: "Active learners worldwide",
     icon: <UsersIcon className="w-6 h-6" />,
   },
   {
-    id: '3',
-    label: 'Course Completion Rate',
-    value: '83%',
-    color: 'from-orange-500 to-red-600',
-    description: 'Students complete courses',
+    id: "3",
+    label: "Course Completion Rate",
+    value: "83%",
+    color: "from-orange-500 to-red-600",
+    description: "Students complete courses",
     icon: <CheckCircle2 className="w-6 h-6" />,
   },
   {
-    id: '4',
-    label: 'Live Course',
-    value: '28',
-    color: 'from-yellow-500 to-orange-600',
-    description: 'Active live courses',
+    id: "4",
+    label: "Live Course",
+    value: "28",
+    color: "from-yellow-500 to-orange-600",
+    description: "Active live courses",
     icon: <PlaySquare className="w-6 h-6" />,
   },
 ];
@@ -149,7 +149,8 @@ export default function LiveCourseContents() {
             Live Course Contents
           </h2>
           <p className="text-xl text-gray-600 max-w-3xl mx-auto leading-relaxed">
-            Comprehensive features and benefits that come with our live courses for your success
+            Comprehensive features and benefits that come with our live courses
+            for your success
           </p>
         </div>
 
@@ -163,7 +164,7 @@ export default function LiveCourseContents() {
               onMouseLeave={() => setHoveredFeature(null)}
               style={{
                 animationDelay: `${index * 0.1}s`,
-                animation: 'fadeInUp 0.6s ease-out forwards',
+                animation: "fadeInUp 0.6s ease-out forwards",
               }}
             >
               {/* Background Gradient */}
@@ -195,14 +196,14 @@ export default function LiveCourseContents() {
         </div>
 
         {/* Stats Section */}
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-6 mb-16">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 mb-16">
           {stats.map((stat, index) => (
             <div
               key={stat.id}
-              className="group relative bg-white/90 backdrop-blur-sm rounded-3xl p-8 text-center shadow-xl border border-white/20 hover:shadow-2xl transition-all duration-500 hover:-translate-y-1"
+              className="group relative bg-white/90 backdrop-blur-sm rounded-3xl p-6 sm:p-8 text-center shadow-xl border border-white/20 hover:shadow-2xl transition-all duration-500 hover:-translate-y-1 w-full"
               style={{
                 animationDelay: `${(index + 6) * 0.1}s`,
-                animation: 'fadeInUp 0.6s ease-out forwards',
+                animation: "fadeInUp 0.6s ease-out forwards",
               }}
             >
               {/* Icon */}
@@ -220,7 +221,9 @@ export default function LiveCourseContents() {
               </div>
 
               {/* Label */}
-              <h3 className="text-lg font-semibold text-gray-900 mb-2">{stat.label}</h3>
+              <h3 className="text-lg font-semibold text-gray-900 mb-2">
+                {stat.label}
+              </h3>
 
               {/* Description */}
               <p className="text-sm text-gray-600">{stat.description}</p>
@@ -251,24 +254,29 @@ export default function LiveCourseContents() {
                 Why Choose Our Live Courses?
               </h3>
               <p className="text-xl text-white/90 max-w-4xl mx-auto leading-relaxed mb-8">
-                Our live courses provide an interactive learning environment with dedicated support, job placement
-                assistance, and comprehensive assessment tools. Join thousands of successful learners who have
-                transformed their careers through our programs.
+                Our live courses provide an interactive learning environment
+                with dedicated support, job placement assistance, and
+                comprehensive assessment tools. Join thousands of successful
+                learners who have transformed their careers through our
+                programs.
               </p>
 
               {/* Features List */}
               <div className="flex flex-wrap justify-center gap-6 text-white/90">
-                {['Live Interactive Sessions', 'Expert Instructors', 'Job Placement Support', '24/7 Support'].map(
-                  (item, index) => (
-                    <div
-                      key={index}
-                      className="flex items-center bg-white/10 backdrop-blur-sm rounded-full px-6 py-3 border border-white/20"
-                    >
-                      <Check className="w-5 h-5 text-green-300 mr-3" />
-                      <span className="font-medium">{item}</span>
-                    </div>
-                  ),
-                )}
+                {[
+                  "Live Interactive Sessions",
+                  "Expert Instructors",
+                  "Job Placement Support",
+                  "24/7 Support",
+                ].map((item, index) => (
+                  <div
+                    key={index}
+                    className="flex items-center bg-white/10 backdrop-blur-sm rounded-full px-6 py-3 border border-white/20"
+                  >
+                    <Check className="w-5 h-5 text-green-300 mr-3" />
+                    <span className="font-medium">{item}</span>
+                  </div>
+                ))}
               </div>
             </div>
 

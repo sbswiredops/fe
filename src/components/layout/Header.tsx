@@ -78,7 +78,7 @@ export default function Header() {
                 onClick={() =>
                   setIsLanguageDropdownOpen(!isLanguageDropdownOpen)
                 }
-                className="flex items-center space-x-1 bg-gray-100 hover:bg-gray-200 px-3 py-1.5 rounded-lg transition-colors border border-gray-300 h-12"
+                className="flex items-center space-x-1 bg-gray-100 hover:bg-gray-200 px-3 py-1.5 rounded-lg transition-colors border border-gray-300 h-8"
               >
                 <span className="text-lg">{currentLanguage.flag}</span>
                 <span className="text-sm font-medium text-gray-700">
@@ -195,7 +195,7 @@ export default function Header() {
               <div className="hidden md:flex items-center space-x-3">
                 <Button
                   size="sm"
-                  className="h-12 w-22"
+                  className="h-8 w-22"
                   onClick={() => {
                     setAuthDrawerMode("login");
                     setIsAuthDrawerOpen(true);

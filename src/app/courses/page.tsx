@@ -226,7 +226,7 @@ function AllCoursesClient() {
         </div>
       </div>
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
+      <div className="max-w-7xl mx-auto px-4 bg-gray-50 sm:px-6 lg:px-8 py-10">
         <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
           <aside className="lg:col-span-1">
             <div className="bg-white rounded-2xl shadow-lg border border-gray-100 p-6 sticky top-6">
@@ -252,7 +252,7 @@ function AllCoursesClient() {
                     />
                   </svg>
                   <input
-                    className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#51356e] focus:border-transparent"
+                    className="w-full pl-10 pr-4 py-3 text-gray-700 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#51356e] focus:border-transparent"
                     placeholder={
                       currentLanguage.code === "bn"
                         ? "ক���র্স খুঁজুন"
@@ -353,7 +353,7 @@ function AllCoursesClient() {
                   {currentLanguage.code === "bn" ? "সাজান:" : "Sort by:"}
                 </label>
                 <select
-                  className="border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#51356e]"
+                  className="border text-gray-700 border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#51356e]"
                   value={sortBy}
                   onChange={(e) => setSortBy(e.target.value)}
                 >

@@ -93,20 +93,22 @@ export default function HeroSection() {
                   </svg>
                 </Button>
               </Link>
-              <button
-                className="w-full sm:w-auto btn-hover justify-center btn-animate border-[2px] rounded-lg flex items-center px-6 py-3"
-                style={{
-                  borderColor: "var(--color-text-primary)",
-                  color: "var(--color-text-primary)",
-                  backgroundColor: "rgba(80, 53, 110, 0.05)",
-                  minWidth: "0",
-                  maxWidth: "100%",
-                }}
-              >
-                <span className="flex items-center justify-center">
-                  <span>{t("hero.watchDemo")}</span>
-                </span>
-              </button>
+              <Link href="/demo">
+                <button
+                  className="w-full sm:w-auto btn-hover justify-center btn-animate border-[2px] rounded-lg flex items-center px-6 py-3"
+                  style={{
+                    borderColor: "var(--color-text-primary)",
+                    color: "var(--color-text-primary)",
+                    backgroundColor: "rgba(80, 53, 110, 0.05)",
+                    minWidth: "0",
+                    maxWidth: "100%",
+                  }}
+                >
+                  <span className="flex items-center justify-center">
+                    <span>{t("hero.watchDemo")}</span>
+                  </span>
+                </button>
+              </Link>
             </div>
 
             {/* Stats */}
@@ -142,24 +144,24 @@ export default function HeroSection() {
               </div>
             </div>
           </div>
-    <div className="relative flex justify-center  lg:justify-end items-center">
-  <div className="absolute inset-0 "></div>
+          <div className="relative flex justify-center  lg:justify-end items-center">
+            <div className="absolute inset-0 "></div>
 
-  <div className="relative w-full max-w-none lg:max-w-[780px] xl:max-w-[920px] aspect-[4/3] sm:aspect-[4/3] lg:aspect-[16/10] rounded-tl-2xl rounded-br-2xl overflow-hidden">
-    <Image
-      src="/my.png"
-      alt="Learning Platform Hero"
-      fill
-      sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 45vw"
-      className="object-contain object-top"  // removed rounded here
-      priority
-    />
-  </div>
-  <div className="floating-element floating-element-1"></div>
-  <div className="floating-element floating-element-2"></div>
-  <div className="floating-element floating-element-3"></div>
-  <div className="floating-element floating-element-4"></div>
-</div>
+            <div className="relative w-full max-w-none lg:max-w-[780px] xl:max-w-[920px] aspect-[4/3] sm:aspect-[4/3] lg:aspect-[16/10] rounded-tl-2xl rounded-br-2xl overflow-hidden">
+              <Image
+                src="/my.png"
+                alt="Learning Platform Hero"
+                fill
+                sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 45vw"
+                className="object-contain object-top" // removed rounded here
+                priority
+              />
+            </div>
+            <div className="floating-element floating-element-1"></div>
+            <div className="floating-element floating-element-2"></div>
+            <div className="floating-element floating-element-3"></div>
+            <div className="floating-element floating-element-4"></div>
+          </div>
         </div>
       </div>
     </section>
