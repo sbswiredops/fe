@@ -33,7 +33,7 @@ export default function CourseCard({ course }: { course: Course }) {
     >
       <div className="flex-shrink-0 w-full sm:w-[330px] bg-white rounded-xl border border-gray-200 transition-transform duration-300 hover:scale-105 hover:shadow-xl hover:z-30 relative will-change-transform cursor-pointer">
         {/* Course Thumbnail */}
-        <div className="relative h-40 bg-gradient-to-br from-blue-100 to-indigo-200 flex items-center justify-center rounded-t-xl overflow-hidden">
+        <div className="relative h-50 bg-gradient-to-br from-blue-100 to-indigo-200 flex items-center justify-center rounded-t-xl overflow-hidden">
           <svg
             className="w-16 h-16 text-blue-500 opacity-50"
             fill="none"
@@ -50,7 +50,7 @@ export default function CourseCard({ course }: { course: Course }) {
         </div>
 
         {/* Course Content */}
-        <div className="p-5 flex flex-col justify-between h-[340px]">
+        <div className="p-5 flex flex-col justify-between h-[280px]">
           <div>
             {/* Category Badge */}
             <span className="inline-block mb-2 px-3 py-1 bg-gray-100 text-gray-700 text-xs rounded font-medium">

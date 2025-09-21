@@ -1,48 +1,60 @@
- 
-'use client';
+"use client";
 
-import React from 'react';
-import Link from 'next/link';
-import { useLanguage } from '../contexts/LanguageContext';
+import React from "react";
+import Link from "next/link";
+import { useLanguage } from "../contexts/LanguageContext";
 
 export default function Footer() {
   const { t } = useLanguage();
 
   const exploreLinks = [
-    { name: t('nav.home'), href: '/' },
-    { name: t('nav.courses'), href: '/courses' },
-    { name: t('nav.liveClasses'), href: '/live-classes' },
-    { name: t('nav.about'), href: '/about' },
-    { name: 'API Documentation', href: '/api-docs' },
+    { name: t("nav.home"), href: "/" },
+    { name: t("nav.courses"), href: "/courses" },
+    { name: t("nav.liveClasses"), href: "/live-classes" },
+    { name: t("nav.about"), href: "/about" },
+    { name: "API Documentation", href: "/api-docs" },
   ];
 
   const learnLinks = [
-    { name: t('footer.support'), href: '/support' },
-    { name: t('footer.contactUs'), href: '/contact' },
-    { name: t('footer.privacyPolicy'), href: '/privacy' },
-    { name: t('footer.termsOfService'), href: '/terms' },
+    { name: t("footer.support"), href: "/support" },
+    { name: t("footer.contactUs"), href: "/contact" },
+    { name: t("footer.privacyPolicy"), href: "/privacy" },
+    { name: t("footer.termsOfService"), href: "/terms" },
   ];
 
   const moreLinks = [
-    { name: t('nav.dashboard'), href: '/dashboard' },
-    { name: 'Student Profile', href: '/dashboard/student/profile' },
-    { name: 'Teacher', href: '/dashboard/teacher' },
-    { name: 'About Shekhabo', href: '/about' },
+    { name: t("nav.dashboard"), href: "/dashboard" },
+    { name: "Student Profile", href: "/dashboard/student/profile" },
+    { name: "Teacher", href: "/dashboard/teacher" },
+    { name: "About Shekhabo", href: "/about" },
   ];
 
   const socialLinks = [
-    { name: 'Pinterest', href: '#', icon: 'p' },
-    { name: 'Facebook', href: '#', icon: 'f' },
-    { name: 'Twitter', href: '#', icon: 't' },
-    { name: 'Instagram', href: '#', icon: 'i' },
+    { name: "Pinterest", href: "#", icon: "p" },
+    { name: "Facebook", href: "#", icon: "f" },
+    { name: "Twitter", href: "#", icon: "t" },
+    { name: "Instagram", href: "#", icon: "i" },
   ];
 
   return (
-    <footer className="relative text-gray-800 bg-gradient-to-b from-green-100 to-green-200">
+    <footer
+      className="relative text-gray-800"
+      style={{ backgroundColor: "#8e67b6" }}
+    >
       {/* Decorative wave top */}
-      <div className="absolute inset-x-0 -top-10 pointer-events-none select-none" aria-hidden>
-        <svg className="w-full h-10" viewBox="0 0 1440 80" preserveAspectRatio="none">
-          <path d="M0,40 C120,60 360,80 540,56 C720,32 900,-8 1080,6 C1260,20 1380,52 1440,64 L1440,80 L0,80 Z" fill="#a7f3d0" />
+      <div
+        className="absolute inset-x-0 -top-10 pointer-events-none select-none"
+        aria-hidden
+      >
+        <svg
+          className="w-full h-10"
+          viewBox="0 0 1440 80"
+          preserveAspectRatio="none"
+        >
+          <path
+            d="M0,40 C120,60 360,80 540,56 C720,32 900,-8 1080,6 C1260,20 1380,52 1440,64 L1440,80 L0,80 Z"
+            fill="#8e67b6"
+          />
         </svg>
       </div>
 
@@ -50,11 +62,16 @@ export default function Footer() {
         <div className="grid grid-cols-1 gap-10 md:grid-cols-2 lg:grid-cols-4">
           {/* Column: Explore */}
           <div>
-            <h3 className="mb-4 text-lg font-semibold text-gray-900">{t('footer.quickLinks')}</h3>
+            <h3 className="mb-4 text-lg font-semibold text-white">
+              {t("footer.quickLinks")}
+            </h3>
             <ul className="space-y-2">
               {exploreLinks.map((link) => (
                 <li key={link.name}>
-                  <Link href={link.href} className="text-gray-700 hover:text-green-700 transition-colors">
+                  <Link
+                    href={link.href}
+                    className="text-zinc-800 hover:text-[#ebebeb] transition-colors"
+                  >
                     {link.name}
                   </Link>
                 </li>
@@ -64,11 +81,14 @@ export default function Footer() {
 
           {/* Column: Learn */}
           <div>
-            <h3 className="mb-4 text-lg font-semibold text-gray-900">Learn</h3>
+            <h3 className="mb-4 text-lg font-semibold  text-white">Learn</h3>
             <ul className="space-y-2">
               {learnLinks.map((link) => (
                 <li key={link.name}>
-                  <Link href={link.href} className="text-gray-700 hover:text-green-700 transition-colors">
+                  <Link
+                    href={link.href}
+                    className="text-zinc-800 hover:text-[#ebebeb] transition-colors"
+                  >
                     {link.name}
                   </Link>
                 </li>
@@ -78,11 +98,16 @@ export default function Footer() {
 
           {/* Column: More from Shekhabo */}
           <div>
-            <h3 className="mb-4 text-lg font-semibold text-gray-900">More from Shekhabo</h3>
+            <h3 className="mb-4 text-lg font-semibold text-white">
+              More from Shekhabo
+            </h3>
             <ul className="space-y-2">
               {moreLinks.map((link) => (
                 <li key={link.name}>
-                  <Link href={link.href} className="text-gray-700 hover:text-green-700 transition-colors">
+                  <Link
+                    href={link.href}
+                    className="text-zinc-800 hover:text-[#ebebeb] transition-colors"
+                  >
                     {link.name}
                   </Link>
                 </li>
@@ -92,7 +117,9 @@ export default function Footer() {
 
           {/* Column: Social */}
           <div className="lg:pl-6">
-            <h3 className="mb-4 text-lg font-semibold text-gray-900">{t('footer.followUs')}</h3>
+            <h3 className="mb-4 text-lg font-semibold text-gray-900">
+              {t("footer.followUs")}
+            </h3>
             <div className="flex items-center gap-3">
               {socialLinks.map((s) => (
                 <Link
@@ -101,7 +128,9 @@ export default function Footer() {
                   aria-label={s.name}
                   className="w-9 h-9 rounded-full bg-green-600 text-white flex items-center justify-center hover:bg-green-700 transition-colors"
                 >
-                  <span className="font-semibold uppercase text-sm">{s.icon}</span>
+                  <span className="font-semibold uppercase text-sm">
+                    {s.icon}
+                  </span>
                 </Link>
               ))}
             </div>
@@ -110,12 +139,34 @@ export default function Footer() {
 
         {/* Bottom bar */}
         <div className="mt-10 border-t border-green-200 pt-6 flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-          <p className="text-sm text-gray-600">© {new Date().getFullYear()} shekhabo.co</p>
+          <p className="text-sm text-gray-600">
+            © {new Date().getFullYear()} shekhabo.co
+          </p>
           <div className="flex flex-wrap items-center gap-6 text-sm">
-            <Link href="/terms" className="text-gray-600 hover:text-green-700 transition-colors">{t('footer.termsOfService')}</Link>
-            <Link href="/privacy" className="text-gray-600 hover:text-green-700 transition-colors">{t('footer.privacyPolicy')}</Link>
-            <Link href="/support" className="text-gray-600 hover:text-green-700 transition-colors">Refund Policy</Link>
-            <Link href="/support" className="text-gray-600 hover:text-green-700 transition-colors">Accessibility Policy</Link>
+            <Link
+              href="/terms"
+              className="text-gray-600 hover:text-green-700 transition-colors"
+            >
+              {t("footer.termsOfService")}
+            </Link>
+            <Link
+              href="/privacy"
+              className="text-gray-600 hover:text-green-700 transition-colors"
+            >
+              {t("footer.privacyPolicy")}
+            </Link>
+            <Link
+              href="/support"
+              className="text-gray-600 hover:text-green-700 transition-colors"
+            >
+              Refund Policy
+            </Link>
+            <Link
+              href="/support"
+              className="text-gray-600 hover:text-green-700 transition-colors"
+            >
+              Accessibility Policy
+            </Link>
           </div>
         </div>
       </div>
