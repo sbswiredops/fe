@@ -23,7 +23,6 @@ interface FreeMasterclass {
   createdAt: Date;
 }
 
-
 function MasterclassCard({ masterclass }: { masterclass: FreeMasterclass }) {
   return (
     <div className="relative">
@@ -42,54 +41,69 @@ export default function FreeLiveMasterclass() {
   const sliderRef = useRef<HTMLDivElement>(null);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [isHovered, setIsHovered] = useState(false);
-  const [apiMasterclasses, setApiMasterclasses] = useState<FreeMasterclass[]>([]);
+  const [apiMasterclasses, setApiMasterclasses] = useState<FreeMasterclass[]>(
+    []
+  );
 
   useEffect(() => {
     let ignore = false;
     (async () => {
       try {
-        const res = await courseService.getCoursesByType("masterclass", { limit: 12, sortBy: "createdAt", sortOrder: "DESC" });
+        // Only fetch courses with type 'Free Live'
+        const res = await courseService.getCoursesByType("Free Live", {
+          limit: 12,
+          sortBy: "createdAt",
+          sortOrder: "DESC",
+        });
         const list = (res?.data as any)?.courses || [];
         if (!ignore && res?.success && Array.isArray(list)) {
-          const mapped: FreeMasterclass[] = list
-            .filter((c: any) => Number(c?.price ?? 0) === 0)
-            .map((c: any) => {
-              const instructorName = c?.instructor?.name || [c?.instructor?.firstName, c?.instructor?.lastName].filter(Boolean).join(" ") || c?.instructorId || "Instructor";
-              const categoryName = c?.category?.name || c?.category || "General";
-              const created = c?.createdAt ? new Date(c.createdAt) : new Date();
-              const durationStr = typeof c?.totalDuration === "string" && c?.totalDuration
+          const mapped: FreeMasterclass[] = list.map((c: any) => {
+            const instructorName =
+              c?.instructor?.name ||
+              [c?.instructor?.firstName, c?.instructor?.lastName]
+                .filter(Boolean)
+                .join(" ") ||
+              c?.instructorId ||
+              "Instructor";
+            const categoryName = c?.category?.name || c?.category || "General";
+            const created = c?.createdAt ? new Date(c.createdAt) : new Date();
+            const durationStr =
+              typeof c?.totalDuration === "string" && c?.totalDuration
                 ? c.totalDuration
                 : typeof c?.duration === "number"
-                  ? `${c.duration} min`
-                  : String(c?.duration || "");
-              const typeStr = String(c?.courseType || "").toLowerCase();
-              const live = typeStr.includes("live") || typeStr.includes("master");
-              return {
-                id: String(c.id),
-                title: String(c.title || ""),
-                description: String(c.description || ""),
-                instructor: String(instructorName),
-                instructorId: String(c.instructorId || c?.instructor?.id || ""),
-                price: Number(c.price ?? 0),
-                duration: durationStr,
-                thumbnail: c.thumbnail || "/placeholder-course.jpg",
-                category: String(categoryName),
-                enrolledStudents: Number(c.enrollmentCount ?? 0),
-                rating: Number(c.rating ?? 0),
-                createdAt: created,
-                isLive: live,
-              } as FreeMasterclass;
-            });
+                ? `${c.duration} min`
+                : String(c?.duration || "");
+            const typeStr = String(c?.courseType || "").toLowerCase();
+            const live = typeStr.includes("live");
+            return {
+              id: String(c.id),
+              title: String(c.title || ""),
+              description: String(c.description || ""),
+              instructor: String(instructorName),
+              instructorId: String(c.instructorId || c?.instructor?.id || ""),
+              price: Number(c.price ?? 0),
+              duration: durationStr,
+              thumbnail: c.thumbnail || "/placeholder-course.jpg",
+              category: String(categoryName),
+              enrolledStudents: Number(c.enrollmentCount ?? 0),
+              rating: Number(c.rating ?? 0),
+              createdAt: created,
+              isLive: live,
+            } as FreeMasterclass;
+          });
           setApiMasterclasses(mapped);
         }
       } catch {
         if (!ignore) setApiMasterclasses([]);
       }
     })();
-    return () => { ignore = true; };
+    return () => {
+      ignore = true;
+    };
   }, []);
 
-  const filteredMasterclasses = apiMasterclasses;
+  // Always show only the latest 5 courses
+  const filteredMasterclasses = apiMasterclasses.slice(0, 5);
 
   useEffect(() => {
     setCurrentIndex(0);
@@ -112,7 +126,7 @@ export default function FreeLiveMasterclass() {
     if (sliderRef.current) {
       const track = sliderRef.current;
       const scroller = track.parentElement as HTMLElement;
-      const firstCard = track.querySelector('[data-card]') as HTMLElement;
+      const firstCard = track.querySelector("[data-card]") as HTMLElement;
       if (firstCard && scroller) {
         const slideWidth = firstCard.offsetWidth;
         const computedStyle = window.getComputedStyle(track);
@@ -206,7 +220,9 @@ export default function FreeLiveMasterclass() {
                 <div
                   key={masterclass.id}
                   data-card
-                  className={`${idx === 0 ? "ml-4 sm:ml-8" : ""} transition-all duration-300`}
+                  className={`${
+                    idx === 0 ? "ml-4 sm:ml-8" : ""
+                  } transition-all duration-300`}
                   style={{ position: "relative", zIndex: 1 }}
                 >
                   <MasterclassCard masterclass={masterclass} />

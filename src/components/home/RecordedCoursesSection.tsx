@@ -80,6 +80,9 @@ export default function RecordedCoursesSection() {
     </div>
   );
 
+  // Only show the latest 5 recorded courses
+  const displayedCourses = courses.slice(0, 5);
+
   return (
     <section className="pt-16 pb-8 bg-white">
       <div className="max-w-7xl mx-auto px-4 sm:px-10 lg:px-50">
@@ -99,12 +102,12 @@ export default function RecordedCoursesSection() {
             <div className="col-span-4 text-center py-12 text-lg text-gray-500">
               Loading...
             </div>
-          ) : courses.length === 0 ? (
+          ) : displayedCourses.length === 0 ? (
             <div className="col-span-4 text-center py-12 text-lg text-gray-500">
               No courses found.
             </div>
           ) : (
-            courses.map((course) => (
+            displayedCourses.map((course) => (
               <div
                 key={course.id}
                 className="bg-white rounded-xl shadow-lg border border-gray-200 overflow-hidden card-shadow-hover"
@@ -148,7 +151,11 @@ export default function RecordedCoursesSection() {
                       <div className="w-8 h-8 bg-gray-300 rounded-full mr-3"></div>
                       <div>
                         <p className="text-sm font-medium text-gray-900">
-                          {typeof (course as any)?.instructor === 'string' ? (course as any).instructor : ((course as any)?.instructor?.name || (course as any)?.instructorId || 'Instructor')}
+                          {typeof (course as any)?.instructor === "string"
+                            ? (course as any).instructor
+                            : (course as any)?.instructor?.name ||
+                              (course as any)?.instructorId ||
+                              "Instructor"}
                         </p>
                         <p className="text-xs text-gray-500">
                           {course.duration}

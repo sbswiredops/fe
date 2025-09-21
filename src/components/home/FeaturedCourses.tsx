@@ -21,7 +21,7 @@ export default function FeaturedCourses() {
     let ignore = false;
     (async () => {
       try {
-        const tryTypes = ["featured", "Featured", "FEATURED"];
+        const tryTypes = ["Featured"];
         let list: any[] | null = null;
         for (const t of tryTypes) {
           const res = await courseService.getCoursesByType(t, { limit: 12, sortBy: "createdAt", sortOrder: "DESC" });

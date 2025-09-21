@@ -15,7 +15,7 @@ export default function LiveClasses() {
     let ignore = false;
     (async () => {
       try {
-        const res = await courseService.getCoursesByType("live", {
+        const res = await courseService.getCoursesByType("Upcoming Live", {
           limit: 9,
           sortBy: "createdAt",
           sortOrder: "DESC",
