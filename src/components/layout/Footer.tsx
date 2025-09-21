@@ -58,8 +58,28 @@ export default function Footer() {
         </svg>
       </div>
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-        <div className="grid grid-cols-1 gap-10 md:grid-cols-2 lg:grid-cols-4">
+      <div className="max-w-7xl mx-auto px-14 sm:px-6 lg:px-70 py-12">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-2">
+          {/* Column: Social */}
+          <div className="lg:pl-6">
+            <h3 className="mb-4 text-lg font-semibold text-white">
+              {t("footer.followUs")}
+            </h3>
+            <div className="flex items-center gap-3">
+              {socialLinks.map((s) => (
+                <Link
+                  key={s.name}
+                  href={s.href}
+                  aria-label={s.name}
+                  className="w-9 h-9 rounded-full bg-green-600 text-white flex items-center justify-center hover:bg-green-700 transition-colors"
+                >
+                  <span className="font-semibold uppercase text-sm">
+                    {s.icon}
+                  </span>
+                </Link>
+              ))}
+            </div>
+          </div>
           {/* Column: Explore */}
           <div>
             <h3 className="mb-4 text-lg font-semibold text-white">
@@ -114,60 +134,13 @@ export default function Footer() {
               ))}
             </ul>
           </div>
-
-          {/* Column: Social */}
-          <div className="lg:pl-6">
-            <h3 className="mb-4 text-lg font-semibold text-gray-900">
-              {t("footer.followUs")}
-            </h3>
-            <div className="flex items-center gap-3">
-              {socialLinks.map((s) => (
-                <Link
-                  key={s.name}
-                  href={s.href}
-                  aria-label={s.name}
-                  className="w-9 h-9 rounded-full bg-green-600 text-white flex items-center justify-center hover:bg-green-700 transition-colors"
-                >
-                  <span className="font-semibold uppercase text-sm">
-                    {s.icon}
-                  </span>
-                </Link>
-              ))}
-            </div>
-          </div>
         </div>
 
         {/* Bottom bar */}
         <div className="mt-10 border-t border-green-200 pt-6 flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-          <p className="text-sm text-gray-600">
-            © {new Date().getFullYear()} shekhabo.co
+          <p className="text-sm text-zinc-800 hover:text-[#ebebeb]">
+            © {new Date().getFullYear()} shekhabo.com
           </p>
-          <div className="flex flex-wrap items-center gap-6 text-sm">
-            <Link
-              href="/terms"
-              className="text-gray-600 hover:text-green-700 transition-colors"
-            >
-              {t("footer.termsOfService")}
-            </Link>
-            <Link
-              href="/privacy"
-              className="text-gray-600 hover:text-green-700 transition-colors"
-            >
-              {t("footer.privacyPolicy")}
-            </Link>
-            <Link
-              href="/support"
-              className="text-gray-600 hover:text-green-700 transition-colors"
-            >
-              Refund Policy
-            </Link>
-            <Link
-              href="/support"
-              className="text-gray-600 hover:text-green-700 transition-colors"
-            >
-              Accessibility Policy
-            </Link>
-          </div>
         </div>
       </div>
     </footer>

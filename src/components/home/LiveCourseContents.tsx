@@ -131,14 +131,7 @@ export default function LiveCourseContents() {
   const [hoveredFeature, setHoveredFeature] = useState<string | null>(null);
 
   return (
-    <section className="relative py-20  mx-auto px-4 sm:px-10 lg:px-50 bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100 overflow-hidden">
-      {/* Background Elements */}
-      <div className="absolute inset-0">
-        <div className="absolute top-0 left-0 w-72 h-72 bg-gradient-to-br from-blue-300/20 to-purple-400/20 rounded-full blur-3xl"></div>
-        <div className="absolute bottom-0 right-0 w-96 h-96 bg-gradient-to-br from-pink-300/20 to-orange-400/20 rounded-full blur-3xl"></div>
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-64 h-64 bg-gradient-to-br from-cyan-300/10 to-blue-400/10 rounded-full blur-2xl"></div>
-      </div>
-
+    <section className="relative py-20  mx-auto px-4 sm:px-10 lg:px-50 bg-gray-50  overflow-hidden">
       <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Header */}
         <div className="text-center mb-16">

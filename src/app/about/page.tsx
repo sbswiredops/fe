@@ -8,7 +8,7 @@ function AboutContent() {
   const { t } = useLanguage();
 
   return (
-    <div className="bg-white min-h-screen">
+    <div className="bg-white min-h-screen ">
       {/* Hero Section */}
       <section className="hero-section py-20 text-center">
         <div className="container mx-auto px-4">
@@ -22,7 +22,7 @@ function AboutContent() {
       </section>
 
       {/* Our Story Section */}
-      <section className="story-section py-16 bg-gray-50">
+      <section className="story-section py-16 px-4 sm:px-10 lg:px-50 bg-gray-50">
         <div className="container mx-auto px-4">
           <h2 className="section-title text-4xl font-bold text-center text-black mb-8">
             {t('about.ourStory.title')}
@@ -81,7 +81,7 @@ function AboutContent() {
       </section>
 
       {/* Mission and Vision Section */}
-      <section className="mission-vision-section py-16">
+      <section className="mission-vision-section py-16 px-4 sm:px-10 lg:px-50">
         <div className="container mx-auto px-4">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 max-w-6xl mx-auto">
             <div className="mission-card bg-gradient-to-br from-red-50 to-rose-100 p-8 rounded-xl shadow-lg border border-red-200 hover:border-red-300 hover:shadow-2xl hover:scale-105 transform transition-all duration-300">
@@ -108,7 +108,7 @@ function AboutContent() {
       </section>
 
       {/* Failure Management Section */}
-      <section className="failure-management-section py-16 ">
+      <section className="failure-management-section py-16 px-4 sm:px-10 lg:px-50 ">
         <div className="container mx-auto px-4">
           <h2 className="text-4xl md:text-5xl font-bold text-center text-black mb-6">
             Failure Management – Turning Setbacks into Comebacks
@@ -156,7 +156,7 @@ function AboutContent() {
         </div>
       </section>
 
-      <section className="industry-workshops-section py-16">
+      <section className="industry-workshops-section py-16 px-4 sm:px-10 lg:px-50">
         <div className="container mx-auto px-4">
           <h2 className="text-4xl font-bold text-center text-black mb-6">
             Industry-Specific Workshops
@@ -209,7 +209,7 @@ function AboutContent() {
         </div>
       </section>
 
-      <section className="why-choose-us-section py-16">
+      <section className="why-choose-us-section py-16 px-4 sm:px-10 lg:px-50">
         <div className="container mx-auto px-4">
           <h2 className="text-4xl font-bold text-center text-black mb-10">
             Why Choose Us
@@ -261,7 +261,7 @@ function AboutContent() {
         </div>
       </section>
 
-      <section className="industries-career-section py-16">
+      <section className="industries-career-section py-16 px-4 sm:px-10 lg:px-50">
         <div className="container mx-auto px-4">
           <h2 className="text-4xl font-bold text-center text-black mb-10">
             Industries & Career Paths We Cover
@@ -304,21 +304,21 @@ function AboutContent() {
       </section>
 
       {/* CTA Section */}
-      <section className="cta-section py-20 bg-gradient-to-br from-indigo-400 to-purple-600">
+      <section className="cta-section py-20 bg-white">
         <div className="container mx-auto px-4 text-center">
           <div className="cta-content bg-opacity-10 backdrop-blur-sm rounded-2xl p-12 max-w-4xl mx-auto">
-            <h2 className="cta-title text-3xl md:text-4xl font-bold text-white mb-6">
+            <h2 className="cta-title text-3xl md:text-4xl font-bold text-black mb-6">
               The Shekhabo Promise
             </h2>
-            <p className="text-xl text-white mb-2">
+            <p className="text-xl text-black mb-2">
               We don't just train you; we <span className="font-bold">walk with you</span> until you succeed.
             </p>
-            <p className="text-xl text-white mb-2">
+            <p className="text-xl text-black mb-2">
               With expert instructors, personalized support, and a proven structure, Shekhabo.com is where your <span className="font-bold">learning truly turns into earning.</span>
             </p>
             <div className="mt-8 flex items-center justify-center">
               <UserCheck className="text-green-400 w-8 h-8 mr-2" />
-              <span className="text-2xl font-bold text-white">No learner is left behind.</span>
+              <span className="text-2xl font-bold text-black">No learner is left behind.</span>
             </div>
           </div>
         </div>
