@@ -122,33 +122,9 @@ export default function FreeLiveMasterclass() {
     }
   }, [isHovered, filteredMasterclasses.length]);
 
-  useEffect(() => {
-    if (sliderRef.current) {
-      const track = sliderRef.current;
-      const scroller = track.parentElement as HTMLElement;
-      const firstCard = track.querySelector("[data-card]") as HTMLElement;
-      if (firstCard && scroller) {
-        const slideWidth = firstCard.offsetWidth;
-        const computedStyle = window.getComputedStyle(track);
-        const gap = parseInt(computedStyle.gap) || 16;
-        const scrollPosition = currentIndex * (slideWidth + gap);
-        scroller.scrollTo({ left: scrollPosition, behavior: "smooth" });
-      }
-    }
-  }, [currentIndex]);
+  // Removed scroll effect
 
-  const nextSlide = () => {
-    setCurrentIndex((prevIndex) => {
-      const maxIndex = filteredMasterclasses.length - 1;
-      return prevIndex >= maxIndex ? 0 : prevIndex + 1;
-    });
-  };
-
-  const prevSlide = () => {
-    setCurrentIndex((prevIndex) => {
-      return prevIndex <= 0 ? filteredMasterclasses.length - 1 : prevIndex - 1;
-    });
-  };
+  // Removed nextSlide and prevSlide functions
 
   return (
     <section className="pt-16 pb-8 bg-white">
@@ -164,57 +140,14 @@ export default function FreeLiveMasterclass() {
           </p>
         </div>
 
-        {/* Slider Container */}
+        {/* Slider Container (no arrows, no scroll) */}
         <div className="relative">
-          {/* Navigation Buttons */}
-          <button
-            onClick={prevSlide}
-            className="absolute left-0 top-1/2 -translate-y-1/2 z-10 bg-white rounded-full shadow-lg p-3 hover:bg-gray-50 transition-colors duration-200 hidden md:flex items-center justify-center"
-            style={{ marginLeft: "-20px" }}
-          >
-            <svg
-              className="w-6 h-6 text-gray-600"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M15 19l-7-7 7-7"
-              />
-            </svg>
-          </button>
-
-          <button
-            onClick={nextSlide}
-            className="absolute right-0 top-1/2 -translate-y-1/2 z-10 bg-white rounded-full shadow-lg p-3 hover:bg-gray-50 transition-colors duration-200 hidden md:flex items-center justify-center"
-            style={{ marginRight: "-20px" }}
-          >
-            <svg
-              className="w-6 h-6 text-gray-600"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M9 5l7 7-7 7"
-              />
-            </svg>
-          </button>
-
-          {/* Slider */}
-          <div className="overflow-x-auto overflow-y-visible scrollbar-hide pl-6 pr-4 sm:pl-8 sm:pr-8 -my-4 py-4">
+          <div className="pl-6 pr-4 sm:pl-8 sm:pr-8 -my-4 py-4">
             <div
               ref={sliderRef}
               className="flex gap-0 sm:gap-6 lg:gap-8 overflow-visible slider-container"
               onMouseEnter={() => setIsHovered(true)}
               onMouseLeave={() => setIsHovered(false)}
-              style={{ scrollSnapType: "x mandatory" }}
             >
               {filteredMasterclasses.map((masterclass, idx) => (
                 <div
@@ -232,20 +165,7 @@ export default function FreeLiveMasterclass() {
           </div>
         </div>
 
-        {/* Dots Indicator */}
-        <div className="flex justify-center mt-8 space-x-2">
-          {filteredMasterclasses.map((_, index) => (
-            <button
-              key={index}
-              onClick={() => setCurrentIndex(index)}
-              className={`w-3 h-3 rounded-full transition-colors duration-200 ${
-                index === currentIndex
-                  ? "bg-blue-600"
-                  : "bg-gray-300 hover:bg-gray-400"
-              }`}
-            />
-          ))}
-        </div>
+        {/* Dots Indicator removed */}
 
         {/* View All Courses */}
         <div className="text-center mt-12">

@@ -2,6 +2,7 @@
 
 import React, { Suspense, useMemo, useState, useEffect } from "react";
 import Link from "next/link";
+import CourseCard from "@/components/ui/CourseCard";
 import MainLayout from "@/components/layout/MainLayout";
 import Button from "@/components/ui/Button";
 import { useLanguage } from "@/components/contexts/LanguageContext";
@@ -11,17 +12,22 @@ import { courseService } from "@/services/courseService";
 import { categoryService } from "@/services/categoryService";
 
 // Types for the three public-facing course groups
-export type CourseTypeKey = "recorded" | "masterclass" | "live";
+export enum CourseType {
+  RECORDED = "Recorded",
+  FREE_LIVE = "Free Live",
+  UPCOMING_LIVE = "Upcoming Live",
+  FEATURED = "Featured",
+}
 
-type CourseWithType = Course & { type: CourseTypeKey };
+type CourseWithType = Course & { type: CourseType };
 
-function normalizeType(input?: string | null): CourseTypeKey | "all" {
+function normalizeType(input?: string | null): CourseType | "all" {
   if (!input) return "all";
   const v = decodeURIComponent(String(input)).toLowerCase();
-  if (v.includes("recorded")) return "recorded";
-  if (v.includes("free") || v.includes("master")) return "masterclass";
-  if (v.includes("upcoming") || v === "live" || v.includes("live"))
-    return "live";
+  if (v.includes("recorded")) return CourseType.RECORDED;
+  if (v.includes("free")) return CourseType.FREE_LIVE;
+  if (v.includes("upcoming")) return CourseType.UPCOMING_LIVE;
+  if (v.includes("live")) return CourseType.UPCOMING_LIVE;
   return "all";
 }
 
@@ -33,7 +39,7 @@ function AllCoursesClient() {
   const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
   const [showFreeOnly, setShowFreeOnly] = useState(false);
   const [sortBy, setSortBy] = useState("popularity");
-  const [selectedType, setSelectedType] = useState<CourseTypeKey | "all">(() =>
+  const [selectedType, setSelectedType] = useState<CourseType | "all">(() =>
     normalizeType(searchParams.get("type"))
   );
   const [courses, setCourses] = useState<CourseWithType[]>([]);
@@ -65,9 +71,11 @@ function AllCoursesClient() {
           ? `${c.duration} min`
           : String(c?.duration || "");
       const courseTypeRaw = (c?.courseType || "").toString().toLowerCase();
-      let type: CourseTypeKey = "recorded";
-      if (courseTypeRaw.includes("live")) type = "live";
-      else if (courseTypeRaw.includes("master")) type = "masterclass";
+      let type: CourseType = CourseType.RECORDED;
+      if (courseTypeRaw.includes("free")) type = CourseType.FREE_LIVE;
+      else if (courseTypeRaw.includes("upcoming"))
+        type = CourseType.UPCOMING_LIVE;
+      else if (courseTypeRaw.includes("live")) type = CourseType.UPCOMING_LIVE;
 
       return {
         id: c.id,
@@ -105,10 +113,9 @@ function AllCoursesClient() {
             setCourses(res.data.courses.map(mapApiCourseToUi));
           }
         } else {
-          const res = await courseService.getCoursesByType(
-            String(selectedType),
-            { limit: 1000 }
-          );
+          const res = await courseService.getCoursesByType(selectedType, {
+            limit: 1000,
+          });
           const list = (res?.data as any)?.courses || [];
           if (!ignore && res?.success && Array.isArray(list)) {
             setCourses(list.map(mapApiCourseToUi));
@@ -124,6 +131,7 @@ function AllCoursesClient() {
     return () => {
       ignore = true;
     };
+    // Only depend on selectedType, enum values are static
   }, [selectedType]);
 
   const categories = useMemo(() => categoriesState, [categoriesState]);
@@ -171,8 +179,16 @@ function AllCoursesClient() {
     );
   };
 
+  // Update: Use CourseType enum for typeTabs
+  enum CourseType {
+    RECORDED = "Recorded",
+    FREE_LIVE = "Free Live",
+    UPCOMING_LIVE = "Upcoming Live",
+    FEATURED = "Featured",
+  }
+
   const typeTabs: {
-    key: CourseTypeKey | "all";
+    key: string;
     label: string;
     href: string;
   }[] = [
@@ -182,19 +198,19 @@ function AllCoursesClient() {
       href: "/courses",
     },
     {
-      key: "masterclass",
-      label: currentLanguage.code === "bn" ? "মাস্টারক্লাস" : "Masterclasses",
-      href: "/courses?type=masterclass",
+      key: CourseType.FREE_LIVE,
+      label: currentLanguage.code === "bn" ? "ফ্রি লাইভ" : "Free Live",
+      href: `/courses?type=${encodeURIComponent(CourseType.FREE_LIVE)}`,
     },
     {
-      key: "live",
-      label: currentLanguage.code === "bn" ? "লাইভ ���্লাস" : "Live Classes",
-      href: "/courses?type=live",
+      key: CourseType.UPCOMING_LIVE,
+      label: currentLanguage.code === "bn" ? "আপকামিং লাইভ" : "Upcoming Live",
+      href: `/courses?type=${encodeURIComponent(CourseType.UPCOMING_LIVE)}`,
     },
     {
-      key: "recorded",
+      key: CourseType.RECORDED,
       label: currentLanguage.code === "bn" ? "রেকর্ডেড" : "Recorded Courses",
-      href: "/courses?type=recorded",
+      href: `/courses?type=${encodeURIComponent(CourseType.RECORDED)}`,
     },
   ];
 
@@ -407,144 +423,9 @@ function AllCoursesClient() {
                 <p className="text-gray-500">Loading courses...</p>
               </div>
             ) : filtered.length > 0 ? (
-              <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-6">
+              <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-6">
                 {filtered.map((course) => (
-                  <div
-                    key={course.id}
-                    className="bg-white rounded-2xl shadow-md border border-gray-100 overflow-hidden transition-all duration-300 hover:shadow-xl hover:-translate-y-1"
-                  >
-                    <div className="absolute top-3 left-3 z-10">
-                      <span
-                        className={`text-xs font-medium px-2.5 py-1 rounded-full ${
-                          course.type === "live"
-                            ? "bg-red-100 text-red-800"
-                            : course.type === "masterclass"
-                            ? "bg-purple-100 text-purple-800"
-                            : "bg-blue-100 text-blue-800"
-                        }`}
-                      >
-                        {course.type === "live"
-                          ? "LIVE"
-                          : course.type === "masterclass"
-                          ? "MASTERCLASS"
-                          : "RECORDED"}
-                      </span>
-                    </div>
-
-                    <div className="relative h-48 bg-gradient-to-br from-blue-50 to-indigo-100 overflow-hidden">
-                      <div className="absolute inset-0 flex items-center justify-center">
-                        <svg
-                          className="w-16 h-16 text-blue-400 opacity-60"
-                          fill="none"
-                          stroke="currentColor"
-                          viewBox="0 0 24 24"
-                        >
-                          <path
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                            strokeWidth={1}
-                            d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"
-                          />
-                        </svg>
-                      </div>
-                      {course.price === 0 && (
-                        <span className="absolute top-3 right-3 bg-green-500 text-white text-xs font-semibold px-2.5 py-1.5 rounded-full shadow-md">
-                          {currentLanguage.code === "bn" ? "ফ্রি" : "FREE"}
-                        </span>
-                      )}
-                    </div>
-
-                    <div className="p-5">
-                      <div className="mb-4">
-                        <div className="flex items-center mb-2">
-                          <span className="text-xs font-medium text-gray-500 bg-gray-100 px-2 py-1 rounded">
-                            {course.category}
-                          </span>
-                        </div>
-                        <h3 className="text-lg font-semibold text-gray-900 line-clamp-2 mb-2 hover:text-[#51356e] transition-colors">
-                          {course.title}
-                        </h3>
-                        <p className="text-sm text-gray-600 line-clamp-2 mb-4">
-                          {course.description}
-                        </p>
-                      </div>
-
-                      <div className="flex items-center mb-4">
-                        <div className="w-8 h-8 bg-gray-200 rounded-full mr-3 flex-shrink-0"></div>
-                        <div className="min-w-0">
-                          <p className="text-sm font-medium text-gray-900 truncate">
-                            {typeof (course as any)?.instructor === "string"
-                              ? (course as any).instructor
-                              : (course as any)?.instructor?.name ||
-                                (course as any)?.instructorId ||
-                                "Instructor"}
-                          </p>
-                          <p className="text-xs text-gray-500">
-                            {course.duration}
-                          </p>
-                        </div>
-                      </div>
-
-                      <div className="flex items-center justify-between mb-4">
-                        <div className="flex items-center">
-                          <div className="flex items-center space-x-0.5 mr-2">
-                            {[1, 2, 3, 4, 5].map((s) => (
-                              <svg
-                                key={s}
-                                className={`w-4 h-4 ${
-                                  s <= Math.round(course.rating)
-                                    ? "text-yellow-400"
-                                    : "text-gray-300"
-                                }`}
-                                fill="currentColor"
-                                viewBox="0 0 20 20"
-                              >
-                                <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
-                              </svg>
-                            ))}
-                          </div>
-                          <span className="text-sm font-medium text-gray-700">
-                            {course.rating}
-                          </span>
-                        </div>
-                        <span className="text-sm text-gray-600">
-                          {course.enrolledStudents.toLocaleString()}{" "}
-                          {t("featuredCourses.students") || "students"}
-                        </span>
-                      </div>
-
-                      <div className="flex items-center justify-between pt-4 border-t border-gray-100">
-                        <div className="text-xl font-bold text-[#51356e]">
-                          {course.price === 0
-                            ? currentLanguage.code === "bn"
-                              ? "ফ্রি"
-                              : "Free"
-                            : `৳${course.price}`}
-                        </div>
-                        <div className="flex gap-2">
-                          <Link href={`/courses/${course.id}`}>
-                            <Button
-                              size="sm"
-                              variant="outline"
-                              className="border-[#51356e] text-[#51356e] hover:bg-[#51356e] hover:text-white transition-colors"
-                            >
-                              {currentLanguage.code === "bn"
-                                ? "বিস্তারিত"
-                                : "Details"}
-                            </Button>
-                          </Link>
-                          <Link href={`/courses/${course.id}/enroll`}>
-                            <Button
-                              size="sm"
-                              className="bg-[#51356e] hover:bg-[#3f2957] transition-colors"
-                            >
-                              {t("featuredCourses.enroll") || "Enroll Now"}
-                            </Button>
-                          </Link>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
+                  <CourseCard key={course.id} course={course} />
                 ))}
               </div>
             ) : (
