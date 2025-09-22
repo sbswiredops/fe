@@ -4,6 +4,7 @@ import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import Button from "@/components/ui/Button";
 import CourseCard from "@/components/ui/CourseCard";
+import CardSlider from "@/components/ui/CardSlider";
 import { useLanguage } from "../contexts/LanguageContext";
 import courseService from "@/services/courseService";
 
@@ -85,40 +86,41 @@ export default function RecordedCoursesSection() {
           </p>
         </div>
 
-        {/* Courses Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-          {loading ? (
-            <div className="col-span-4 text-center py-12 text-lg text-gray-500">
-              Loading...
-            </div>
-          ) : displayedCourses.length === 0 ? (
-            <div className="col-span-4 text-center py-12 text-lg text-gray-500">
-              No courses found.
-            </div>
-          ) : (
-            displayedCourses.map((course) => (
-              <CourseCard
-                key={course.id}
-                course={{
-                  ...course,
-                  duration:
-                    typeof course.duration === "string"
-                      ? course.duration
-                      : String(course.duration),
-                  thumbnail: course.thumbnail ?? "",
-                  rating:
-                    typeof course.rating === "number"
-                      ? course.rating
-                      : Number(course.rating),
-                  createdAt:
-                    typeof course.createdAt === "string"
-                      ? new Date(course.createdAt)
-                      : course.createdAt,
-                }}
-              />
-            ))
-          )}
-        </div>
+        {/* Courses Slider */}
+        {loading ? (
+          <div className="text-center py-12 text-lg text-gray-500">
+            Loading...
+          </div>
+        ) : courses.length === 0 ? (
+          <div className="text-center py-12 text-lg text-gray-500">
+            No courses found.
+          </div>
+        ) : (
+          <CardSlider
+            items={courses.map((course) => ({
+              ...course,
+              duration:
+                typeof course.duration === "string"
+                  ? course.duration
+                  : String(course.duration),
+              thumbnail: course.thumbnail ?? "",
+              rating:
+                typeof course.rating === "number"
+                  ? course.rating
+                  : Number(course.rating),
+              createdAt:
+                typeof course.createdAt === "string"
+                  ? new Date(course.createdAt)
+                  : course.createdAt,
+            }))}
+            title={t("Recorded Courses") || "Recorded Courses"}
+            categories={[
+              ...new Set(courses.map((c) => c.category || "General")),
+            ]}
+            className="mb-8"
+            renderItem={(course) => <CourseCard course={course} />}
+          />
+        )}
 
         {/* View All Courses */}
         <div className="text-center mt-12">
