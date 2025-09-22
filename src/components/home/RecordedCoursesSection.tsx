@@ -71,7 +71,7 @@ export default function RecordedCoursesSection() {
   // Removed StarRating, using CourseCard instead
 
   // Only show the latest 5 recorded courses
-  const displayedCourses = courses.slice(0, 5);
+  const displayedCourses = courses.slice(0, 4);
 
   return (
     <section className="pt-16 pb-8 bg-white">
