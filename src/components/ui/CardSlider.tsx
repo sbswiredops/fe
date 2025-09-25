@@ -1,7 +1,6 @@
 import React, { useMemo, useRef, useState, useEffect } from "react";
 import CourseCard from "./CourseCard";
 import { Course } from "../types";
-import Button from "./Button";
 
 export interface CardSliderProps {
   items: Course[];
@@ -52,11 +51,11 @@ export default function CardSlider({
       } else {
         // Scroll right by one slide
         const child = el.querySelector<HTMLElement>("[data-slider-item]");
-        const gap = 16;
+        const styles = getComputedStyle(el);
+        const gap = parseFloat(styles.columnGap || styles.gap || "16");
         const childWidth = child
           ? child.getBoundingClientRect().width
           : el.clientWidth / visibleSlides;
-        // For auto-move, only scroll by one card (plus one gap)
         const distance = childWidth + gap;
         el.scrollTo({ left: el.scrollLeft + distance, behavior: "smooth" });
       }
@@ -76,11 +75,11 @@ export default function CardSlider({
     if (!el) return;
     // Calculate slide width using first child
     const child = el.querySelector<HTMLElement>("[data-slider-item]");
-    const gap = 16; // matches tailwind gap-4 (approx)
+    const styles = getComputedStyle(el);
+    const gap = parseFloat(styles.columnGap || styles.gap || "16");
     const childWidth = child
       ? child.getBoundingClientRect().width
       : el.clientWidth / visibleSlides;
-    // For exact 4 cards, don't multiply gap by visibleSlides (only (n-1) gaps between n cards)
     const distance = childWidth * visibleSlides + gap * (visibleSlides - 1);
     const target =
       direction === "left"
@@ -236,7 +235,7 @@ export default function CardSlider({
               data-slider-item
               role="listitem"
               className={
-                `flex-shrink-0 w-[90vw] sm:w-[320px] md:w-[300px] lg:w-[24%] xl:w-[24%] 2xl:w-[24%]` +
+                `flex-shrink-0 w-[90vw] sm:w-[320px] md:w-[300px] slider-item-1of4` +
                 (idx === filtered.length - 1 ? " mr-0" : "")
               }
             >
@@ -257,7 +256,8 @@ export default function CardSlider({
               const el = containerRef.current;
               if (!el) return;
               const child = el.querySelector<HTMLElement>("[data-slider-item]");
-              const gap = 16;
+              const styles = getComputedStyle(el);
+              const gap = parseFloat(styles.columnGap || styles.gap || "16");
               const childWidth = child
                 ? child.getBoundingClientRect().width
                 : el.clientWidth / visibleSlides;

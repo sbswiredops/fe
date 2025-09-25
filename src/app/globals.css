@@ -1,11 +1,8 @@
 @import "tailwindcss";
-
 :root {
   --background: #ffffff;
   --foreground: #171717;
   --color-text-primary: #51356e;
-  /* Added primary text color */
-
 }
 
 @theme inline {
@@ -267,4 +264,11 @@ html {
   .slider-container {
     gap: 2rem;
   }
+}
+
+/* Slider computed gaps and exact 4-up layout */
+.card-slider-section { --slider-gap: 1rem; }
+@media (min-width: 1024px) {
+  .card-slider-section { --slider-gap: 2rem; }
+  .slider-item-1of4 { flex: 0 0 calc((100% - var(--slider-gap) * 3) / 4); }
 }
