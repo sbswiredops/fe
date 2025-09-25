@@ -9,6 +9,7 @@ export class QuizService {
     this.client = client;
   }
 
+  
   async list(params?: PaginationQuery & { search?: string; courseId?: string; sectionId?: string; status?: 'active' | 'inactive' }): Promise<ApiResponse<Quiz[]>> {
     return this.client.get<Quiz[]>(API_CONFIG.ENDPOINTS.QUIZZES, params);
   }
