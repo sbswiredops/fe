@@ -64,17 +64,9 @@ export default function CardSlider({
     return () => clearInterval(interval);
   }, [filtered, visibleSlides, isHovered]);
 
+  // Always show 4 cards per screen
   useEffect(() => {
-    const onResize = () => {
-      const w = window.innerWidth;
-      if (w < 640) setVisibleSlides(1);
-      else if (w < 1024) setVisibleSlides(2);
-      else if (w < 1280) setVisibleSlides(3);
-      else setVisibleSlides(4); // 4 cards for xl and up
-    };
-    onResize();
-    window.addEventListener("resize", onResize);
-    return () => window.removeEventListener("resize", onResize);
+    setVisibleSlides(4);
   }, []);
 
   // ...filtered is now declared at the top, remove this duplicate...
@@ -128,7 +120,7 @@ export default function CardSlider({
 
   return (
     <section
-      className={`card-slider-section ${className}`}
+      className={`card-slider-section overflow-visible ${className}`}
       aria-labelledby={title ? "card-slider-title" : undefined}
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
@@ -235,15 +227,18 @@ export default function CardSlider({
       <div className="relative w-full flex justify-center">
         <div
           ref={containerRef}
-          className="slider-container overflow-x-auto overflow-y-visible scrollbar-hide flex gap-4 snap-x snap-mandatory no-scrollbar touch-pan-x scroll-smooth max-w-screen-xl w-full"
+          className="slider-container overflow-x-auto overflow-y-visible scrollbar-hide flex gap-4 snap-x snap-mandatory no-scrollbar touch-pan-x scroll-smooth max-w-screen-xl w-full py-3 lg:py-4 px-4 sm:px-6 lg:px-8"
           role="list"
         >
-          {filtered.map((it) => (
+          {filtered.map((it, idx) => (
             <div
               key={it.id}
               data-slider-item
               role="listitem"
-              className="flex-shrink-0 w-[90vw] sm:w-[320px] md:w-[300px] lg:w-[300px] xl:w-[320px] 2xl:w-[320px]"
+              className={
+                `flex-shrink-0 w-[90vw] sm:w-[320px] md:w-[300px] lg:w-[24%] xl:w-[24%] 2xl:w-[24%]` +
+                (idx === filtered.length - 1 ? " mr-0" : "")
+              }
             >
               {renderItem ? renderItem(it) : <CourseCard course={it} />}
             </div>

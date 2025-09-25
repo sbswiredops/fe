@@ -167,4 +167,3 @@ export default function RecordedCoursesSection() {
     </section>
   );
 }
-// ...existing code...
