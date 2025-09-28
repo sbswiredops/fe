@@ -34,15 +34,28 @@ export interface User {
   phone?: string;
   specialization?: string;
   experience?: string;
-  role?:  string;
+  role?: string;
   status: 'active' | 'inactive' | 'suspended';
   avatar?: string;
   joinDate: string;
   lastLogin?: string;
-    profileImage?: string;
+  profileImage?: string;
 
   permissions?: Permission[];
   profile?: UserProfile;
+  address?: {
+    street?: string;
+    city?: string;
+    state?: string;
+    country?: string;
+    zipCode?: string;
+  };
+  clgInfo?: {
+    name?: string;
+    address?: string;
+    degree?: string;
+    year?: string;
+  };
 }
 
 export interface Role {

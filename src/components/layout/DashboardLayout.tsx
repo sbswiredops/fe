@@ -7,6 +7,27 @@ import { usePathname, useRouter } from "next/navigation";
 import { useAuth } from "../contexts/AuthContext";
 import { useLanguage } from "../contexts/LanguageContext";
 import Image from "next/image";
+import {
+  Home,
+  Users,
+  Briefcase,
+  BookOpen,
+  Video,
+  CreditCard,
+  BarChart3,
+  Settings,
+  GraduationCap,
+  PieChart,
+  DollarSign,
+  MessageSquare,
+  FileText,
+  Trophy,
+  User,
+  Menu,
+  X,
+  ChevronDown,
+  LogOut
+} from "lucide-react";
 
 interface DashboardLayoutProps {
   children: React.ReactNode;
@@ -121,47 +142,47 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
         ? "/dashboard/student"
         : "/dashboard";
 
-    const commonItems = [{ name: "Dashboard", href: basePath, icon: "🏠" }];
+    const commonItems = [{ name: "Dashboard", href: basePath, icon: Home }];
 
     switch (roleGroup) {
       case "admin":
         return [
           ...commonItems,
-          { name: "Users", href: `${basePath}/users`, icon: "👥" },
-          { name: "Employees", href: `${basePath}/employees`, icon: "👨‍💼" },
-          { name: "Courses", href: `${basePath}/courses`, icon: "📚" },
+          { name: "Users", href: `${basePath}/users`, icon: Users },
+          { name: "Employees", href: `${basePath}/employees`, icon: Briefcase },
+          { name: "Courses", href: `${basePath}/courses`, icon: BookOpen },
           {
             name: "Live Classes",
             href: `${basePath}/live-classes`,
-            icon: "🎥",
+            icon: Video,
           },
-          { name: "Payments", href: `${basePath}/payments`, icon: "💰" },
-          { name: "Reports", href: `${basePath}/reports`, icon: "📊" },
-          { name: "Settings", href: `${basePath}/settings`, icon: "⚙️" },
+          { name: "Payments", href: `${basePath}/payments`, icon: CreditCard },
+          { name: "Reports", href: `${basePath}/reports`, icon: BarChart3 },
+          { name: "Settings", href: `${basePath}/settings`, icon: Settings },
         ];
       case "teacher":
         return [
           ...commonItems,
-          { name: "My Courses", href: `${basePath}/courses`, icon: "📚" },
+          { name: "My Courses", href: `${basePath}/courses`, icon: BookOpen },
           {
             name: "Live Classes",
             href: `${basePath}/live-classes`,
-            icon: "🎥",
+            icon: Video,
           },
-          { name: "Students", href: `${basePath}/students`, icon: "🎓" },
-          { name: "Analytics", href: `${basePath}/analytics`, icon: "📊" },
-          { name: "Earnings", href: `${basePath}/earnings`, icon: "💰" },
-          { name: "Messages", href: `${basePath}/messages`, icon: "💬" },
+          { name: "Students", href: `${basePath}/students`, icon: GraduationCap },
+          { name: "Analytics", href: `${basePath}/analytics`, icon: PieChart },
+          { name: "Earnings", href: `${basePath}/earnings`, icon: DollarSign },
+          { name: "Messages", href: `${basePath}/messages`, icon: MessageSquare },
         ];
       case "student":
         return [
           ...commonItems,
-          { name: "My Courses", href: `${basePath}/courses`, icon: "📚" },
-          { name: "Profile", href: `${basePath}/profile`, icon: "📝" },
+          { name: "My Courses", href: `${basePath}/courses`, icon: BookOpen },
+          { name: "Profile Settings", href: `/profile`, icon: User },
           {
             name: "Certificates",
             href: `${basePath}/certificates`,
-            icon: "🏆",
+            icon: Trophy,
           },
         ];
       default:
@@ -208,19 +229,7 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
               className="lg:hidden p-1 rounded-md text-gray-400 hover:text-gray-600"
               aria-label="Close sidebar"
             >
-              <svg
-                className="w-6 h-6"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M6 18L18 6M6 6l12 12"
-                />
-              </svg>
+              <X className="w-6 h-6" />
             </button>
           </div>
 
@@ -244,6 +253,7 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
             {navigationItems.map((item) => {
               const active =
                 pathname === item.href || pathname.startsWith(item.href + "/");
+              const IconComponent = item.icon;
               return (
                 <Link
                   key={item.name}
@@ -254,7 +264,7 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
                       : "text-gray-600 hover:bg-gray-100 hover:text-gray-900"
                   }`}
                 >
-                  <span className="mr-3 text-lg">{item.icon}</span>
+                  <IconComponent className="mr-3 h-5 w-5" />
                   {item.name}
                 </Link>
               );
@@ -267,6 +277,7 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
             onClick={logout}
             className="w-full flex items-center justify-center bg-red-800 px-3 py-2 text-sm font-medium text-white hover:bg-red-700 rounded-lg transition-colors"
           >
+            <LogOut className="w-4 h-4 mr-2" />
             Logout
           </button>
         </div>
@@ -282,19 +293,7 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
               className="lg:hidden p-2 rounded-md text-gray-400 hover:text-gray-600 hover:bg-gray-100"
               aria-label="Open sidebar"
             >
-              <svg
-                className="w-6 h-6"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M4 6h16M4 12h16M4 18h16"
-                />
-              </svg>
+              <Menu className="w-6 h-6" />
             </button>
             <h1 className="ml-2 text-lg md:text-xl font-semibold text-gray-900 lg:ml-0 truncate">
               {activeTitle}
@@ -314,21 +313,11 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
                 <span className="hidden sm:inline text-sm font-medium text-gray-700">
                   {currentLanguage.code.toUpperCase()}
                 </span>
-                <svg
+                <ChevronDown
                   className={`w-3 h-3 transition-transform text-gray-500 ${
                     isLanguageDropdownOpen ? "rotate-180" : ""
                   }`}
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M19 9l-7 7-7-7"
-                  />
-                </svg>
+                />
               </button>
 
               {isLanguageDropdownOpen && (
@@ -367,21 +356,11 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
                     {displayInitial}
                   </span>
                 </div>
-                <svg
+                <ChevronDown
                   className={`w-4 h-4 transition-transform ${
                     isUserDropdownOpen ? "rotate-180" : ""
                   }`}
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M19 9l-7 7-7-7"
-                  />
-                </svg>
+                />
               </button>
 
               {isUserDropdownOpen && (

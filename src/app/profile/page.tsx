@@ -11,20 +11,26 @@ import { userService } from "@/services/userService";
 import type { UpdateUserRequest, User } from "@/types/api";
 
 // Role helpers (kept consistent with layout/protected route)
-const ADMIN_ROLES = ['admin', 'super_admin', 'sales_marketing', 'finance_accountant', 'content_creator'];
-const TEACHER_ROLES = ['teacher', 'instructor'];
+const ADMIN_ROLES = [
+  "admin",
+  "super_admin",
+  "sales_marketing",
+  "finance_accountant",
+  "content_creator",
+];
+const TEACHER_ROLES = ["teacher", "instructor"];
 const normalizeRole = (role: any) =>
-  String(typeof role === 'string' ? role : role?.name ?? '')
+  String(typeof role === "string" ? role : role?.name ?? "")
     .trim()
     .toLowerCase()
-    .replace(/[\s-]+/g, '_');
-const getRoleGroup = (role: any): 'admin' | 'teacher' | 'student' | 'other' => {
+    .replace(/[\s-]+/g, "_");
+const getRoleGroup = (role: any): "admin" | "teacher" | "student" | "other" => {
   const r = normalizeRole(role);
-  if (!r) return 'other';
-  if (ADMIN_ROLES.includes(r)) return 'admin';
-  if (TEACHER_ROLES.includes(r)) return 'teacher';
-  if (r === 'student') return 'student';
-  return 'other';
+  if (!r) return "other";
+  if (ADMIN_ROLES.includes(r)) return "admin";
+  if (TEACHER_ROLES.includes(r)) return "teacher";
+  if (r === "student") return "student";
+  return "other";
 };
 
 export default function ProfileSettingsPage() {
@@ -41,7 +47,6 @@ function ProfileSettings() {
   const { user, getCurrentUser } = useAuth();
   const { showToast, ToastContainer } = useToast();
   const roleGroup = useMemo(() => getRoleGroup(user?.role), [user]);
-
   const initial = useMemo(() => {
     const u = user as User | null;
     return {
@@ -68,10 +73,16 @@ function ProfileSettings() {
           website: u?.profile?.socialLinks?.website || "",
         },
       },
-    } as UpdateUserRequest;
+      clgInfo: u?.clgInfo || {
+        name: "",
+        address: "",
+        degree: "",
+        year: "",
+      },
+    } as UpdateUserRequest & { clgInfo?: any };
   }, [user]);
 
-  const [form, setForm] = useState<UpdateUserRequest>(initial);
+  const [form, setForm] = useState<any>(initial);
   const [saving, setSaving] = useState(false);
   const [loading, setLoading] = useState(false);
 
@@ -94,7 +105,7 @@ function ProfileSettings() {
   }, [user, getCurrentUser]);
 
   const updateField = (path: string, value: string) => {
-    setForm(prev => {
+    setForm((prev: any) => {
       const next: any = { ...prev };
       const keys = path.split(".");
       let cur: any = next;
@@ -104,13 +115,13 @@ function ProfileSettings() {
         cur = cur[k];
       }
       cur[keys[keys.length - 1]] = value;
-      return next as UpdateUserRequest;
+      return next;
     });
   };
 
   const pruneEmpty = (obj: any) => {
     if (obj === null || obj === undefined) return undefined;
-    if (typeof obj !== 'object') return obj === '' ? undefined : obj;
+    if (typeof obj !== "object") return obj === "" ? undefined : obj;
     const out: any = Array.isArray(obj) ? [] : {};
     Object.entries(obj).forEach(([k, v]) => {
       const p = pruneEmpty(v);
@@ -119,65 +130,59 @@ function ProfileSettings() {
     return Object.keys(out).length ? out : undefined;
   };
 
-  const buildPayload = (): UpdateUserRequest => {
-    const base: UpdateUserRequest = {
-      firstName: form.firstName?.trim(),
-      lastName: form.lastName?.trim(),
-      email: form.email?.trim(),
-      phone: form.phone?.trim(),
-    };
-
-    if (roleGroup === 'teacher') {
-      base.specialization = form.specialization?.trim();
-      base.experience = form.experience?.trim();
-      base.profile = {
-        bio: form.profile?.bio?.trim(),
-        socialLinks: {
-          linkedin: form.profile?.socialLinks?.linkedin?.trim(),
-          twitter: form.profile?.socialLinks?.twitter?.trim(),
-          github: form.profile?.socialLinks?.github?.trim(),
-          website: form.profile?.socialLinks?.website?.trim(),
-        },
-      };
-    }
-
-    if (roleGroup === 'student') {
-      base.profile = {
-        bio: form.profile?.bio?.trim(),
-        dateOfBirth: form.profile?.dateOfBirth?.trim(),
-        address: {
-          street: form.profile?.address?.street?.trim(),
-          city: form.profile?.address?.city?.trim(),
-          state: form.profile?.address?.state?.trim(),
-          country: form.profile?.address?.country?.trim(),
-          zipCode: form.profile?.address?.zipCode?.trim(),
-        },
-      };
-    }
-
-    if (roleGroup === 'admin') {
-      // Admin keeps basic info only; optional bio
-      if (form.profile?.bio) {
-        base.profile = { bio: form.profile?.bio?.trim() };
-      }
-    }
-
-    return pruneEmpty(base) as UpdateUserRequest;
-  };
-
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!user?.id) return;
     try {
       setSaving(true);
-      const payload = buildPayload();
-      const res = await userService.update(user.id, payload);
-      const updated = (res as any)?.data || null;
-      if (updated) {
-        localStorage.setItem("user", JSON.stringify(updated));
-        await getCurrentUser();
+      // Update basic profile
+      const payload: UpdateUserRequest = {
+        firstName: form.firstName?.trim(),
+        lastName: form.lastName?.trim(),
+        email: form.email?.trim(),
+        phone: form.phone?.trim(),
+      };
+      if (roleGroup === "teacher") {
+        payload.specialization = form.specialization?.trim();
+        payload.experience = form.experience?.trim();
+        payload.profile = {
+          bio: form.profile?.bio?.trim(),
+          socialLinks: {
+            linkedin: form.profile?.socialLinks?.linkedin?.trim(),
+            twitter: form.profile?.socialLinks?.twitter?.trim(),
+            github: form.profile?.socialLinks?.github?.trim(),
+            website: form.profile?.socialLinks?.website?.trim(),
+          },
+        };
       }
-      showToast((res as any)?.message || "Profile updated successfully", "success");
+      if (roleGroup === "student") {
+        payload.profile = {
+          bio: form.profile?.bio?.trim(),
+          dateOfBirth: form.profile?.dateOfBirth?.trim(),
+        };
+      }
+      if (roleGroup === "admin") {
+        if (form.profile?.bio) {
+          payload.profile = { bio: form.profile?.bio?.trim() };
+        }
+      }
+      await userService.update(user.id, pruneEmpty(payload));
+
+      // Student: update address and college info
+      if (roleGroup === "student") {
+        // Address
+        const addressPayload = pruneEmpty(form.profile?.address);
+        if (addressPayload) {
+          await userService.createAddress(user.id, addressPayload);
+        }
+        // College Info
+        if (form.clgInfo && Object.values(form.clgInfo).some((v) => v)) {
+          await userService.createClgInfo(user.id, pruneEmpty(form.clgInfo));
+        }
+      }
+
+      await getCurrentUser();
+      showToast("Profile updated successfully", "success");
     } catch (err: any) {
       showToast(err?.message || "Failed to update profile", "error");
     } finally {
@@ -185,84 +190,230 @@ function ProfileSettings() {
     }
   };
 
-  const showTeacherFields = roleGroup === 'teacher';
-  const showStudentFields = roleGroup === 'student';
-  const showAdminFields = roleGroup === 'admin';
+  const showTeacherFields = roleGroup === "teacher";
+  const showStudentFields = roleGroup === "student";
+  const showAdminFields = roleGroup === "admin";
 
   return (
     <div className="p-6">
       <ToastContainer position="top-right" newestOnTop />
-
       <div className="mb-8">
         <h1 className="text-2xl font-bold text-gray-900">Profile Settings</h1>
-        <p className="text-gray-600 mt-1">Your role: <span className="font-medium capitalize">{roleGroup}</span></p>
+        <p className="text-gray-600 mt-1">
+          Your role: <span className="font-medium capitalize">{roleGroup}</span>
+        </p>
       </div>
-
       <form onSubmit={handleSubmit} className="space-y-8">
         <section className="bg-white rounded-lg shadow-lg border border-gray-200 p-6">
-          <h2 className="text-lg font-semibold text-gray-900 mb-4">Basic Information</h2>
+          <h2 className="text-lg font-semibold text-gray-900 mb-4">
+            Basic Information
+          </h2>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <Input label="First Name" value={form.firstName || ""} onChange={e => updateField("firstName", e.target.value)} />
-            <Input label="Last Name" value={form.lastName || ""} onChange={e => updateField("lastName", e.target.value)} />
-            <Input type="email" label="Email" value={form.email || ""} onChange={e => updateField("email", e.target.value)} />
-            <Input label="Phone" value={form.phone || ""} onChange={e => updateField("phone", e.target.value)} />
+            <Input
+              label="First Name"
+              value={form.firstName || ""}
+              onChange={(e) => updateField("firstName", e.target.value)}
+            />
+            <Input
+              label="Last Name"
+              value={form.lastName || ""}
+              onChange={(e) => updateField("lastName", e.target.value)}
+            />
+            <Input
+              type="email"
+              label="Email"
+              value={form.email || ""}
+              onChange={(e) => updateField("email", e.target.value)}
+            />
+            <Input
+              label="Phone"
+              value={form.phone || ""}
+              onChange={(e) => updateField("phone", e.target.value)}
+            />
             {showTeacherFields && (
               <>
-                <Input label="Specialization" value={form.specialization || ""} onChange={e => updateField("specialization", e.target.value)} />
-                <Input label="Experience" value={form.experience || ""} onChange={e => updateField("experience", e.target.value)} />
+                <Input
+                  label="Specialization"
+                  value={form.specialization || ""}
+                  onChange={(e) =>
+                    updateField("specialization", e.target.value)
+                  }
+                />
+                <Input
+                  label="Experience"
+                  value={form.experience || ""}
+                  onChange={(e) => updateField("experience", e.target.value)}
+                />
               </>
             )}
           </div>
         </section>
-
-        {(showTeacherFields || showStudentFields || (showAdminFields && (form.profile?.bio || true))) && (
+        {(showTeacherFields ||
+          showStudentFields ||
+          (showAdminFields && (form.profile?.bio || true))) && (
           <section className="bg-white rounded-lg shadow-lg border border-gray-200 p-6">
-            <h2 className="text-lg font-semibold text-gray-900 mb-4">Profile Details</h2>
+            <h2 className="text-lg font-semibold text-gray-900 mb-4">
+              Profile Details
+            </h2>
             <div className="grid grid-cols-1 gap-4">
               <div className="space-y-1">
-                <label className="block text-sm font-medium text-gray-700">Bio</label>
+                <label className="block text-sm font-medium text-gray-700">
+                  Bio
+                </label>
                 <textarea
                   className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition-colors text-gray-900 font-medium placeholder:text-gray-400 placeholder:font-normal border-gray-300 focus:border-blue-500"
                   rows={4}
                   value={form.profile?.bio || ""}
-                  onChange={e => updateField("profile.bio", e.target.value)}
+                  onChange={(e) => updateField("profile.bio", e.target.value)}
                 />
               </div>
               {showStudentFields && (
-                <Input label="Date of Birth" value={form.profile?.dateOfBirth || ""} onChange={e => updateField("profile.dateOfBirth", e.target.value)} placeholder="YYYY-MM-DD" />
+                <Input
+                  label="Date of Birth"
+                  value={form.profile?.dateOfBirth || ""}
+                  onChange={(e) =>
+                    updateField("profile.dateOfBirth", e.target.value)
+                  }
+                  placeholder="YYYY-MM-DD"
+                />
               )}
             </div>
-
             {showStudentFields && (
               <>
-                <h3 className="text-md font-semibold text-gray-900 mt-6 mb-3">Address</h3>
+                <h3 className="text-md font-semibold text-gray-900 mt-6 mb-3">
+                  Address
+                </h3>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <Input label="Street" value={form.profile?.address?.street || ""} onChange={e => updateField("profile.address.street", e.target.value)} />
-                  <Input label="City" value={form.profile?.address?.city || ""} onChange={e => updateField("profile.address.city", e.target.value)} />
-                  <Input label="State" value={form.profile?.address?.state || ""} onChange={e => updateField("profile.address.state", e.target.value)} />
-                  <Input label="Country" value={form.profile?.address?.country || ""} onChange={e => updateField("profile.address.country", e.target.value)} />
-                  <Input label="ZIP Code" value={form.profile?.address?.zipCode || ""} onChange={e => updateField("profile.address.zipCode", e.target.value)} />
+                  <Input
+                    label="Street"
+                    value={form.profile?.address?.street || ""}
+                    onChange={(e) =>
+                      updateField("profile.address.street", e.target.value)
+                    }
+                  />
+                  <Input
+                    label="City"
+                    value={form.profile?.address?.city || ""}
+                    onChange={(e) =>
+                      updateField("profile.address.city", e.target.value)
+                    }
+                  />
+                  <Input
+                    label="State"
+                    value={form.profile?.address?.state || ""}
+                    onChange={(e) =>
+                      updateField("profile.address.state", e.target.value)
+                    }
+                  />
+                  <Input
+                    label="Country"
+                    value={form.profile?.address?.country || ""}
+                    onChange={(e) =>
+                      updateField("profile.address.country", e.target.value)
+                    }
+                  />
+                  <Input
+                    label="ZIP Code"
+                    value={form.profile?.address?.zipCode || ""}
+                    onChange={(e) =>
+                      updateField("profile.address.zipCode", e.target.value)
+                    }
+                  />
+                </div>
+                <h3 className="text-md font-semibold text-gray-900 mt-6 mb-3">
+                  College Info
+                </h3>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <Input
+                    label="College Name"
+                    value={form.clgInfo?.name || ""}
+                    onChange={(e) =>
+                      updateField("clgInfo.name", e.target.value)
+                    }
+                  />
+                  <Input
+                    label="College Address"
+                    value={form.clgInfo?.address || ""}
+                    onChange={(e) =>
+                      updateField("clgInfo.address", e.target.value)
+                    }
+                  />
+                  <Input
+                    label="Degree"
+                    value={form.clgInfo?.degree || ""}
+                    onChange={(e) =>
+                      updateField("clgInfo.degree", e.target.value)
+                    }
+                  />
+                  <Input
+                    label="Year"
+                    value={form.clgInfo?.year || ""}
+                    onChange={(e) =>
+                      updateField("clgInfo.year", e.target.value)
+                    }
+                  />
                 </div>
               </>
             )}
-
             {showTeacherFields && (
               <>
-                <h3 className="text-md font-semibold text-gray-900 mt-6 mb-3">Social Links</h3>
+                <h3 className="text-md font-semibold text-gray-900 mt-6 mb-3">
+                  Social Links
+                </h3>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <Input label="LinkedIn" value={form.profile?.socialLinks?.linkedin || ""} onChange={e => updateField("profile.socialLinks.linkedin", e.target.value)} />
-                  <Input label="Twitter" value={form.profile?.socialLinks?.twitter || ""} onChange={e => updateField("profile.socialLinks.twitter", e.target.value)} />
-                  <Input label="GitHub" value={form.profile?.socialLinks?.github || ""} onChange={e => updateField("profile.socialLinks.github", e.target.value)} />
-                  <Input label="Website" value={form.profile?.socialLinks?.website || ""} onChange={e => updateField("profile.socialLinks.website", e.target.value)} />
+                  <Input
+                    label="LinkedIn"
+                    value={form.profile?.socialLinks?.linkedin || ""}
+                    onChange={(e) =>
+                      updateField(
+                        "profile.socialLinks.linkedin",
+                        e.target.value
+                      )
+                    }
+                  />
+                  <Input
+                    label="Twitter"
+                    value={form.profile?.socialLinks?.twitter || ""}
+                    onChange={(e) =>
+                      updateField("profile.socialLinks.twitter", e.target.value)
+                    }
+                  />
+                  <Input
+                    label="GitHub"
+                    value={form.profile?.socialLinks?.github || ""}
+                    onChange={(e) =>
+                      updateField("profile.socialLinks.github", e.target.value)
+                    }
+                  />
+                  <Input
+                    label="Website"
+                    value={form.profile?.socialLinks?.website || ""}
+                    onChange={(e) =>
+                      updateField("profile.socialLinks.website", e.target.value)
+                    }
+                  />
                 </div>
               </>
             )}
           </section>
         )}
-
         <div className="flex items-center justify-end gap-3">
-          <Button type="button" variant="ghost" onClick={() => setForm(initial)} disabled={saving || loading}>Cancel</Button>
-          <Button type="submit" variant="primary" loading={saving} disabled={loading}>Save Changes</Button>
+          <Button
+            type="button"
+            variant="ghost"
+            onClick={() => setForm(initial)}
+            disabled={saving || loading}
+          >
+            Cancel
+          </Button>
+          <Button
+            type="submit"
+            variant="primary"
+            loading={saving}
+            disabled={loading}
+          >
+            Save Changes
+          </Button>
         </div>
       </form>
     </div>

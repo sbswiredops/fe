@@ -2,6 +2,7 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
+import { BookOpen, CheckCircle2, Video, Award } from "lucide-react";
 
 import Button from "@/components/ui/Button";
 import ProtectedRoute from "@/components/auth/ProtectedRoute";
@@ -18,10 +19,17 @@ function StudentDashboard() {
 
   const displayName = (() => {
     const u: any = user as any;
-    const primary = typeof u?.name === 'string' && u.name.trim() ? u.name.trim() : '';
-    const secondary = typeof u?.email === 'string' && u.email.trim() ? u.email.trim() : '';
-    const roleStr = typeof u?.role === 'string' ? u.role : (typeof u?.role?.name === 'string' ? u.role.name : '');
-    return primary || secondary || roleStr || 'User';
+    const primary =
+      typeof u?.name === "string" && u.name.trim() ? u.name.trim() : "";
+    const secondary =
+      typeof u?.email === "string" && u.email.trim() ? u.email.trim() : "";
+    const roleStr =
+      typeof u?.role === "string"
+        ? u.role
+        : typeof u?.role?.name === "string"
+        ? u.role.name
+        : "";
+    return primary || secondary || roleStr || "User";
   })();
   const userService = new UserService();
   const router = useRouter();
@@ -65,7 +73,6 @@ function StudentDashboard() {
       .finally(() => setLoading(false));
   }, [user?.id]);
 
-
   return (
     <DashboardLayout>
       <div className="p-6">
@@ -76,70 +83,176 @@ function StudentDashboard() {
               <h1 className="text-2xl font-bold text-gray-900 mb-2">
                 {t("dashboard.student.title")}
               </h1>
-              <p className="text-gray-600">
-                Welcome back, {displayName}! Continue your learning journey.
+              <p className="text-gray-600 flex items-center gap-2">
+                Welcome back, <span className="font-bold">{displayName}</span>
+                <BookOpen size={18} className="inline text-blue-500" /> Continue
+                your learning journey.
               </p>
             </div>
             <div className="flex space-x-3">
               <Button variant="outline" size="md">
+                <BookOpen size={18} className="inline text-blue-500 mr-1" />{" "}
                 Browse Courses
               </Button>
-              <Button size="md">Join Live Class</Button>
+              <Button size="md">
+                <Video size={18} className="inline text-purple-500 mr-1" /> Join
+                Live Class
+              </Button>
             </div>
           </div>
         </div>
 
         {/* Stats Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-          <div className="bg-white rounded-lg p-6 shadow-lg border border-gray-200 card-shadow-hover">
-            <div className="flex items-center justify-between">
+          <div
+            className="rounded-lg p-6 shadow-lg border border-gray-200 card-shadow-hover animate-red-gradient"
+            style={{
+              background:
+                "linear-gradient(270deg, #ff5858, #ff2525, #ff6e7f, #b31217, #ff5858)",
+              backgroundSize: "800% 800%",
+              color: "#fff",
+            }}
+          >
+            <style>{`
+          @keyframes redGradientMove {
+            0% {background-position:0% 50%}
+            50% {background-position:100% 50%}
+            100% {background-position:0% 50%}
+          }
+          .animate-red-gradient {
+            animation: redGradientMove 8s ease infinite;
+          }
+        `}</style>
+            <div className="flex items-center justify-between ">
               <div>
-                <p className="text-sm text-gray-500 mb-1">Enrolled Courses</p>
-                <p className="text-2xl font-bold text-gray-900">
+                <p className="text-sm mb-1" style={{ color: "#fff" }}>
+                  Enrolled Courses
+                </p>
+                <p className="text-2xl font-bold" style={{ color: "#fff" }}>
                   {stats.enrolledCourses}
                 </p>
               </div>
-              <div className="text-3xl">📚</div>
+              <div className="text-3xl">
+                <BookOpen size={32} className="text-white" />
+              </div>
             </div>
           </div>
-          <div className="bg-white rounded-lg p-6 shadow-lg border border-gray-200 card-shadow-hover">
+          <div
+            className="rounded-lg p-6 shadow-lg border border-gray-200 card-shadow-hover animate-blue-gradient"
+            style={{
+              background:
+                "linear-gradient(270deg, #2193b0, #6dd5ed, #1e3c72, #2980b9, #2193b0)",
+              backgroundSize: "800% 800%",
+              color: "#fff",
+            }}
+          >
+            <style>{`
+          @keyframes blueGradientMove {
+            0% {background-position:0% 50%}
+            50% {background-position:100% 50%}
+            100% {background-position:0% 50%}
+          }
+          .animate-blue-gradient {
+            animation: blueGradientMove 8s ease infinite;
+          }
+        `}</style>
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm text-gray-500 mb-1">Completed</p>
-                <p className="text-2xl font-bold text-gray-900">
+                <p className="text-sm mb-1" style={{ color: "#fff" }}>
+                  Completed
+                </p>
+                <p className="text-2xl font-bold" style={{ color: "#fff" }}>
                   {stats.completed}
                 </p>
-                <p className="text-sm text-blue-600 mt-1">
+                <p className="text-sm mt-1" style={{ color: "#fff" }}>
                   {stats.inProgress} in progress
                 </p>
               </div>
-              <div className="text-3xl">✅</div>
+              <div className="text-3xl">
+                <CheckCircle2 size={32} className="text-white" />
+              </div>
             </div>
           </div>
-          <div className="bg-white rounded-lg p-6 shadow-lg border border-gray-200 card-shadow-hover">
+          <div
+            className="rounded-lg p-6 shadow-lg border border-gray-200 card-shadow-hover animate-green-gradient"
+            style={{
+              background:
+                "linear-gradient(270deg, #43e97b, #66bb6a, #b2ff59, #00ff99, #00e676, #388e3c, #43e97b)",
+              backgroundSize: "800% 800%",
+              color: "#fff",
+            }}
+          >
+            <style>{`
+          @keyframes greenGradientMove {
+            0% {background-position:0% 50%}
+            50% {background-position:100% 50%}
+            100% {background-position:0% 50%}
+          }
+          .animate-green-gradient {
+            animation: greenGradientMove 8s ease infinite;
+          }
+        `}</style>
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm text-gray-500 mb-1">Live Classes</p>
-                <p className="text-2xl font-bold text-gray-900">
+                <p className="text-sm mb-1" style={{ color: "#fff" }}>
+                  Live Classes
+                </p>
+                <p className="text-2xl font-bold" style={{ color: "#fff" }}>
                   {stats.liveClasses}
                 </p>
-                <p className="text-sm text-blue-600 mt-1">Upcoming</p>
+                <p className="text-sm mt-1" style={{ color: "#fff" }}>
+                  Upcoming
+                </p>
               </div>
-              <div className="text-3xl">🎥</div>
+              <div className="text-3xl">
+                <Video size={32} className="text-white" />
+              </div>
             </div>
           </div>
-          <div className="bg-white rounded-lg p-6 shadow-lg border border-gray-200 card-shadow-hover">
+          <div
+            className="rounded-lg p-6 shadow-lg border border-gray-200 card-shadow-hover animate-purple-gradient"
+            style={{
+              background:
+                "linear-gradient(270deg, #a4508b, #5f0a87, #c471f5, #833ab4, #e040fb, #8e24aa, #a4508b)",
+              backgroundSize: "800% 800%",
+              color: "#fff",
+            }}
+          >
+            <style>{`
+            @keyframes purpleGradientMove {
+              0% {background-position:0% 50%}
+              50% {background-position:100% 50%}
+              100% {background-position:0% 50%}
+            }
+            .animate-purple-gradient {
+              animation: purpleGradientMove 8s ease infinite;
+            }
+          `}</style>
+            <style>{`
+          @keyframes yellowGradientMove {
+            0% {background-position:0% 50%}
+            50% {background-position:100% 50%}
+            100% {background-position:0% 50%}
+          }
+          .animate-yellow-gradient {
+            animation: yellowGradientMove 8s ease infinite;
+          }
+        `}</style>
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm text-gray-500 mb-1">Certificates</p>
-                <p className="text-2xl font-bold text-gray-900">
+                <p className="text-sm mb-1" style={{ color: "#fff" }}>
+                  Certificates
+                </p>
+                <p className="text-2xl font-bold" style={{ color: "#fff" }}>
                   {stats.certificates}
                 </p>
-                <p className="text-sm text-blue-600 mt-1">
+                <p className="text-sm mt-1" style={{ color: "#fff" }}>
                   {stats.completed} completed
                 </p>
               </div>
-              <div className="text-3xl">🏆</div>
+              <div className="text-3xl">
+                <Award size={32} className="text-white" />
+              </div>
             </div>
           </div>
         </div>
@@ -152,6 +265,7 @@ function StudentDashboard() {
                 My Courses
               </h2>
               <Button size="sm" variant="outline">
+                <BookOpen size={16} className="inline text-blue-500 mr-1" />{" "}
                 View All
               </Button>
             </div>
@@ -167,14 +281,18 @@ function StudentDashboard() {
                         {course.title}
                       </h3>
                       <p className="text-sm text-gray-500">
-                        by {typeof (course as any)?.instructor === 'string'
+                        by{" "}
+                        {typeof (course as any)?.instructor === "string"
                           ? (course as any).instructor
-                          : ((course as any)?.instructor?.name
-                              || [ (course as any)?.instructor?.firstName, (course as any)?.instructor?.lastName ]
-                                  .filter(Boolean)
-                                  .join(' ')
-                              || (course as any)?.instructorId
-                              || 'Instructor')}
+                          : (course as any)?.instructor?.name ||
+                            [
+                              (course as any)?.instructor?.firstName,
+                              (course as any)?.instructor?.lastName,
+                            ]
+                              .filter(Boolean)
+                              .join(" ") ||
+                            (course as any)?.instructorId ||
+                            "Instructor"}
                       </p>
                     </div>
                     <span
@@ -231,10 +349,14 @@ function StudentDashboard() {
                         Continue Learning
                       </Button>
                     )}
-                    <Button size="md" variant="outline" onClick={() => {
-                      setLastSelectedCourseId(String(course.id));
-                      router.push(`/courses/${course.id}`);
-                    }}>
+                    <Button
+                      size="md"
+                      variant="outline"
+                      onClick={() => {
+                        setLastSelectedCourseId(String(course.id));
+                        router.push(`/courses/${course.id}`);
+                      }}
+                    >
                       View Details
                     </Button>
                   </div>

@@ -150,10 +150,10 @@ export class UserService {
     return apiClient.post<AssignPermissionsResponse>(this.endpoints.USER_PERMISSIONS(id), payload, undefined, options);
   }
 
-    // User's enrolled courses
- async getEnrolledCourses(id: string, options?: { signal?: AbortSignal }) {
-  return apiClient.get<{ courses: any[] }>(this.endpoints.USER_ENROLLED_COURSES(id), undefined, options);
-}
+  // User's enrolled courses
+  async getEnrolledCourses(id: string, options?: { signal?: AbortSignal }) {
+    return apiClient.get<{ courses: any[] }>(this.endpoints.USER_ENROLLED_COURSES(id), undefined, options);
+  }
 
   // User's course stats
   async getCourseStats(id: string, options?: { signal?: AbortSignal }) {
@@ -166,9 +166,9 @@ export class UserService {
   }
 
   ///GET: User's continue learning courses
-async getContinueLearning(id: string, options?: { signal?: AbortSignal }) {
-  return apiClient.get<{ courses: any[] }>(this.endpoints.USER_CONTINUE_LEARNING(id), undefined, options);
-}
+  async getContinueLearning(id: string, options?: { signal?: AbortSignal }) {
+    return apiClient.get<{ courses: any[] }>(this.endpoints.USER_CONTINUE_LEARNING(id), undefined, options);
+  }
 
 
   async removePermissions(
@@ -179,6 +179,22 @@ async getContinueLearning(id: string, options?: { signal?: AbortSignal }) {
     const ids = Array.from(new Set(permissionIds.map(s => String(s).trim()).filter(Boolean)));
     const query = ids.length ? `?permissionIds=${encodeURIComponent(ids.join(','))}` : '';
     return apiClient.delete<RemovePermissionsResponse>(`${this.endpoints.USER_PERMISSIONS(id)}${query}`, options);
+  }
+
+  // User Address
+  async createAddress(id: string, payload: any, options?: { signal?: AbortSignal }) {
+    return apiClient.post<any>(this.endpoints.USER_CREATE_ADDRESS(id), payload, undefined, options);
+  }
+  async updateAddress(id: string, addressId: string, payload: any, options?: { signal?: AbortSignal }) {
+    return apiClient.patch<any>(this.endpoints.USER_UPDATE_ADDRESS(id, addressId), payload, options);
+  }
+
+  // User College Info
+  async createClgInfo(id: string, payload: any, options?: { signal?: AbortSignal }) {
+    return apiClient.post<any>(this.endpoints.USER_CREATE_CLG_INFO(id), payload, undefined, options);
+  }
+  async updateClgInfo(id: string, clgInfoId: string, payload: any, options?: { signal?: AbortSignal }) {
+    return apiClient.patch<any>(this.endpoints.USER_UPDATE_CLG_INFO(id, clgInfoId), payload, options);
   }
 }
 

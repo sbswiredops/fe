@@ -28,6 +28,14 @@ export const API_CONFIG = {
     USER_COMPLETED_CERTIFICATES: (id: string) => `/users/${id}/completed-certificates`, // GET: User's completed certificates
     USER_CONTINUE_LEARNING: (id: string) => `/users/${id}/continue-learning`, // GET: User's continue learning courses
 
+    // User Address
+    USER_CREATE_ADDRESS: (id: string) => `/users/${id}/address`, // POST: Create user address
+    USER_UPDATE_ADDRESS: (id: string, addressId: string) => `/users/${id}/address/${addressId}`, // PATCH: Update user address
+
+    // User College Info
+    USER_CREATE_CLG_INFO: (id: string) => `/users/${id}/clg-info`, // POST: Create user college info
+    USER_UPDATE_CLG_INFO: (id: string, clgInfoId: string) => `/users/${id}/clg-info/${clgInfoId}`, // PATCH: Update user college info
+
 
     // Courses
     COURSES: '/courses',
