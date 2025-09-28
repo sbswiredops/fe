@@ -10,7 +10,6 @@ import { useAuth } from "@/components/contexts/AuthContext";
 import { userService } from "@/services/userService";
 import type { UpdateUserRequest, User } from "@/types/api";
 
-// Role helpers (kept consistent with layout/protected route)
 const ADMIN_ROLES = [
   "admin",
   "super_admin",
