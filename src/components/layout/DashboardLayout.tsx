@@ -164,15 +164,15 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
         return [
           ...commonItems,
           { name: "My Courses", href: `${basePath}/courses`, icon: BookOpen },
-          {
-            name: "Live Classes",
-            href: `${basePath}/live-classes`,
-            icon: Video,
-          },
-          { name: "Students", href: `${basePath}/students`, icon: GraduationCap },
+          // {
+          //   name: "Live Classes",
+          //   href: `${basePath}/live-classes`,
+          //   icon: Video,
+          // },
+          // { name: "Students", href: `${basePath}/students`, icon: GraduationCap },
           { name: "Analytics", href: `${basePath}/analytics`, icon: PieChart },
-          { name: "Earnings", href: `${basePath}/earnings`, icon: DollarSign },
-          { name: "Messages", href: `${basePath}/messages`, icon: MessageSquare },
+          { name: "Revenue", href: `${basePath}/revenues`, icon: DollarSign },
+          // { name: "Messages", href: `${basePath}/messages`, icon: MessageSquare },
         ];
       case "student":
         return [
