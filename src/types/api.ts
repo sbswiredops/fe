@@ -139,6 +139,9 @@ export interface Course {
   price: number;
   originalPrice?: number;
   discount?: number;
+  discountPrice?: number;
+  discountPercentage?: number;
+  total?: number;
   duration: number | string; // minutes or formatted string
   level: 'beginner' | 'intermediate' | 'advanced' | 'BEGINNER' | 'INTERMEDIATE' | 'ADVANCED';
   language?: string;
