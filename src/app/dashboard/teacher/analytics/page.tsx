@@ -76,7 +76,7 @@ function LineChart({
 }
 
 type BarChartProps = {
-  data: { label: string; value: number }[];
+  data: { label: string; value: number; color?: string }[];
   height?: number;
   barColor?: string;
 };
@@ -91,7 +91,7 @@ function BarChart({ data, height = 180, barColor = "#8e67b6" }: BarChartProps) {
           <div key={i} className="flex-1 flex flex-col items-center">
             <div
               className="w-full rounded-t-md"
-              style={{ height: h, background: barColor }}
+              style={{ height: h, background: d.color || barColor }}
               title={`${d.label}: ${d.value}`}
             />
             <div className="mt-1 text-[10px] text-gray-500 truncate w-full text-center">
@@ -213,18 +213,18 @@ function TeacherAnalyticsContent() {
   ];
 
   const topCourses = [
-    { label: "React", value: 240 },
-    { label: "JS", value: 180 },
-    { label: "Node", value: 120 },
-    { label: "Full Stack", value: 300 },
+    { label: "React", value: 240, color: "#51356e" },
+    { label: "JS", value: 180, color: "#8e67b6" },
+    { label: "Node", value: 120, color: "#a789c8" },
+    { label: "Full Stack", value: 300, color: "#c6b2de" },
   ];
 
   // Added mock data for additional graphs
   const enrollmentsByCourse = [
-    { label: "React Masterclass", value: 120 },
-    { label: "JS Essentials", value: 90 },
-    { label: "Node.js Guide", value: 60 },
-    { label: "Full Stack Bootcamp", value: 150 },
+    { label: "React Masterclass", value: 120, color: "#51356e" },
+    { label: "JS Essentials", value: 90, color: "#8e67b6" },
+    { label: "Node.js Guide", value: 60, color: "#51356e" },
+    { label: "Full Stack Bootcamp", value: 150, color: "#8e67b6" },
   ];
   const completionRates = [80, 65, 70, 90];
   const completionLabels = ["React", "JS", "Node", "Full Stack"];
@@ -321,7 +321,7 @@ function TeacherAnalyticsContent() {
               </h2>
               <span className="text-sm text-gray-500">Current period</span>
             </div>
-            <BarChart data={topCourses} barColor="#51356e" />
+            <BarChart data={topCourses} />
           </div>
 
           {/* 3. Enrollments by Course (Bar) */}
@@ -332,7 +332,7 @@ function TeacherAnalyticsContent() {
               </h2>
               <span className="text-sm text-gray-500">Current period</span>
             </div>
-            <BarChart data={enrollmentsByCourse} barColor="#8e67b6" />
+            <BarChart data={enrollmentsByCourse} />
           </div>
 
           {/* 4. Completion Rate by Course (Line) */}
