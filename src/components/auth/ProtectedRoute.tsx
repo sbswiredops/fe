@@ -1,8 +1,9 @@
 'use client';
 
-import React, { useEffect } from 'react';
+import React, { useLayoutEffect, useMemo } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '../contexts/AuthContext';
+import authService from '@/services/authService';
 
 interface ProtectedRouteProps {
   children: React.ReactNode;
@@ -36,41 +37,32 @@ export default function ProtectedRoute({
   const { user, isLoading } = useAuth();
   const router = useRouter();
 
-  useEffect(() => {
+  const effectiveUser = useMemo(() => user || authService.getCurrentUserFromStorage<any>() || null, [user]);
+
+  useLayoutEffect(() => {
     if (isLoading) return;
 
-    if (!user) {
+    if (!effectiveUser) {
       router.replace(redirectTo);
       return;
     }
 
-    const group = getRoleGroup(user.role);
+    const group = getRoleGroup(effectiveUser.role);
     if (allowedRoles && !allowedRoles.includes(group as 'admin' | 'teacher' | 'student')) {
       router.replace('/dashboard');
       return;
     }
-  }, [user, isLoading, allowedRoles, redirectTo, router]);
+  }, [effectiveUser, isLoading, allowedRoles, redirectTo, router]);
 
-  if (isLoading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-blue-600"></div>
-      </div>
-    );
+  // If we have a user (from context or storage), optimistically render children
+  if (effectiveUser) {
+    const group = getRoleGroup(effectiveUser.role);
+    if (allowedRoles && !allowedRoles.includes(group as 'admin' | 'teacher' | 'student')) {
+      return null;
+    }
+    return <>{children}</>;
   }
 
-  // Redirect চলার সময় ফ্ল্যাশ এড়াতে
-  const group = getRoleGroup(user?.role);
-  if (!user || (allowedRoles && !allowedRoles.includes(group as 'admin' | 'teacher' | 'student'))) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="text-center">
-          <h2 className="text-xl font-semibold text-gray-900">Redirecting...</h2>
-          <p className="text-gray-600">Please wait while we redirect you.</p>
-        </div>
-      </div>
-    );
-  }
-
-  return <>{children}</>;
+  // No user yet; render nothing while redirecting
+  return null;
 }

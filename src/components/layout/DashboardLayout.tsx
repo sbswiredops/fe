@@ -1,7 +1,7 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 "use client";
 
-import React, { useState, useMemo, useEffect, useRef, use } from "react";
+import React, { useState, useMemo, useEffect, useLayoutEffect, useRef, use } from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useAuth } from "../contexts/AuthContext";
@@ -36,6 +36,7 @@ interface DashboardLayoutProps {
 export default function DashboardLayout({ children }: DashboardLayoutProps) {
   const { currentLanguage, setLanguage, languages } = useLanguage();
   const { user, logout, isAuthenticated, isLoading } = useAuth();
+  const authFromStorage = typeof window !== 'undefined' ? !!localStorage.getItem('access_token') : false;
   const pathname = usePathname();
   const router = useRouter();
 
@@ -46,11 +47,11 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
   const langRef = useRef<HTMLDivElement>(null);
   const userRef = useRef<HTMLDivElement>(null);
 
-  useEffect(() => {
-    if (!isLoading && !isAuthenticated) {
+  useLayoutEffect(() => {
+    if (!isLoading && !isAuthenticated && !authFromStorage) {
       router.replace("/");
     }
-  }, [isLoading, isAuthenticated, router]);
+  }, [isLoading, isAuthenticated, authFromStorage, router]);
 
   useEffect(() => {
     setIsSidebarOpen(false);
@@ -198,12 +199,9 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
     );
   }, [pathname, navigationItems]);
 
-  if (isLoading || (!isAuthenticated && typeof window !== "undefined")) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-50">
-        <div className="animate-pulse text-gray-500">Loading...</div>
-      </div>
-    );
+  const effectiveAuth = isAuthenticated || authFromStorage;
+  if (!effectiveAuth && typeof window !== "undefined") {
+    return null;
   }
 
   return (
