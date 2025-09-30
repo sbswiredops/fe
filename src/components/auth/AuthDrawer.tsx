@@ -9,6 +9,7 @@ import { useLanguage } from "../contexts/LanguageContext";
 import { useAuth } from "../contexts/AuthContext";
 import useToast from "../hoock/toast";
 import Image from "next/image";
+import authService from "@/services/authService";
 interface AuthDrawerProps {
   isOpen: boolean;
   onClose: () => void;
@@ -185,8 +186,26 @@ export default function AuthDrawer({
         setErrors({ password: "Invalid email or password" });
         return;
       }
-      handleClose();
-      router.push("/dashboard"); // changed to router
+
+      // Navigate directly to role dashboard to avoid intermediate blank page
+      const storedUser = authService.getCurrentUserFromStorage<any>();
+      const roleRaw = storedUser?.role;
+      const roleValue = typeof roleRaw === "string" ? roleRaw : String(roleRaw?.name || "").trim().toLowerCase().replace(/[\s-]+/g, "_");
+
+      let target = "/dashboard";
+      if (["admin","super_admin","sales_marketing","finance_accountant","content_creator"].includes(roleValue)) {
+        target = "/dashboard/admin";
+      } else if (["teacher","instructor"].includes(roleValue)) {
+        target = "/dashboard/teacher";
+      } else if (roleValue === "student") {
+        target = "/dashboard/student";
+      }
+
+      showToast("Login successful. ", "success");
+      setTimeout(() => {
+        router.replace(target);
+        handleClose();
+      }, 2000);
     } catch (err: any) {
       const msg = String(err?.message || "Login failed");
       setErrors({ password: msg });
