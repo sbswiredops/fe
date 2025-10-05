@@ -1,7 +1,13 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 "use client";
 
-import React, { useState, useMemo, useEffect, useLayoutEffect, useRef } from "react";
+import React, {
+  useState,
+  useMemo,
+  useEffect,
+  useLayoutEffect,
+  useRef,
+} from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useAuth } from "../contexts/AuthContext";
@@ -28,7 +34,7 @@ import {
   ChevronDown,
   LogOut,
   ChevronLeft,
-  ChevronRight
+  ChevronRight,
 } from "lucide-react";
 
 interface DashboardLayoutProps {
@@ -38,12 +44,16 @@ interface DashboardLayoutProps {
 export default function DashboardLayout({ children }: DashboardLayoutProps) {
   const { currentLanguage, setLanguage, languages } = useLanguage();
   const { user, logout, isAuthenticated, isLoading } = useAuth();
-  const authFromStorage = typeof window !== "undefined" ? !!localStorage.getItem("access_token") : false;
+  const authFromStorage =
+    typeof window !== "undefined"
+      ? !!localStorage.getItem("access_token")
+      : false;
   const pathname = usePathname();
   const router = useRouter();
 
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
-  const [isDesktopSidebarExpanded, setIsDesktopSidebarExpanded] = useState(false);
+  const [isDesktopSidebarExpanded, setIsDesktopSidebarExpanded] =
+    useState(false);
   const [isLanguageDropdownOpen, setIsLanguageDropdownOpen] = useState(false);
   const [isUserDropdownOpen, setIsUserDropdownOpen] = useState(false);
 
@@ -205,29 +215,44 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
   }
 
   const showSidebarDetails = isSidebarOpen || isDesktopSidebarExpanded;
-  const desktopSidebarWidthClass = isDesktopSidebarExpanded ? "lg:w-72" : "lg:w-24";
+  const desktopSidebarWidthClass = isDesktopSidebarExpanded
+    ? "lg:w-72"
+    : "lg:w-24";
   const headerPaddingClass = showSidebarDetails ? "px-4" : "px-3";
-  const headerJustifyClass = showSidebarDetails ? "justify-between" : "justify-center lg:justify-between";
-  const profilePaddingClass = showSidebarDetails ? "p-4" : "p-3 lg:px-3 lg:py-4";
-  const navigationPaddingClass = showSidebarDetails ? "px-4 space-y-1" : "px-2 space-y-2";
+  const headerJustifyClass = showSidebarDetails
+    ? "justify-between"
+    : "justify-center lg:justify-between";
+  const profilePaddingClass = showSidebarDetails
+    ? "p-4"
+    : "p-3 lg:px-3 lg:py-4";
+  const navigationPaddingClass = showSidebarDetails
+    ? "px-4 space-y-1"
+    : "px-2 space-y-2";
   const footerPaddingClass = showSidebarDetails ? "p-4" : "p-3 lg:px-3 lg:py-4";
   const ToggleIcon = isDesktopSidebarExpanded ? ChevronLeft : ChevronRight;
 
   return (
     <div className="min-h-screen bg-gray-50 flex overflow-hidden">
       <div
-        className={`fixed inset-y-0 left-0 z-50 w-64 bg-white shadow-lg transform ${
-          isSidebarOpen ? "translate-x-0" : "-translate-x-full"
-        } transition-transform duration-200 ease-in-out lg:translate-x-0 lg:static lg:inset-0 ${desktopSidebarWidthClass} flex flex-col`}
+        className={`fixed inset-y-0 left-0 z-50 bg-white shadow-lg flex flex-col
+    ${desktopSidebarWidthClass}
+    transition-all duration-300 ease-in-out
+    ${isDesktopSidebarExpanded ? "lg:w-72" : "lg:w-24"}
+    ${isSidebarOpen ? "translate-x-0" : "-translate-x-full"}
+    lg:translate-x-0 lg:static lg:inset-0
+  `}
       >
         <div className="flex-1 flex flex-col">
-          <div className={`flex items-center ${headerPaddingClass} ${headerJustifyClass} h-16 border-b border-gray-200`}>
+          <div
+            className={`flex items-center ${headerPaddingClass} ${headerJustifyClass} h-16 border-b border-gray-200 relative`}
+          >
             <Link href="/" className="flex items-center justify-center">
               <Image
-                src="/logo.png"
+                src={showSidebarDetails ? "/logo.png" : "/icone5.png"}
                 alt="Shekhabo Logo"
-                width={102}
-                height={102}
+                width={showSidebarDetails ? 102 : 45} // Reduce width when collapsed
+                height={showSidebarDetails ? 102 : 45} // Reduce height when collapsed
+                style={showSidebarDetails ? {} : { objectFit: "contain" }} // Optional: prevent overflow
               />
             </Link>
             <button
@@ -239,15 +264,29 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
             </button>
             <button
               onClick={() => setIsDesktopSidebarExpanded((prev) => !prev)}
-              className="hidden lg:flex items-center justify-center p-1.5 rounded-full border border-gray-200 text-gray-500 hover:text-blue-600 hover:border-blue-300 transition-colors"
-              aria-label={isDesktopSidebarExpanded ? "Collapse sidebar" : "Expand sidebar"}
+              className="hidden lg:flex items-center justify-center p-1.5 rounded-full border border-gray-200 text-gray-500 hover:text-blue-600 hover:border-blue-300 transition-colors absolute"
+              style={{
+                top: "50%",
+                right: "-18px",
+                transform: "translateY(-50%)",
+                background: "white",
+                boxShadow: "0 0 6px rgba(0,0,0,0.07)",
+                zIndex: 10,
+              }}
+              aria-label={
+                isDesktopSidebarExpanded ? "Collapse sidebar" : "Expand sidebar"
+              }
             >
-              <ToggleIcon className="w-4 h-4" />
+              <ToggleIcon className="w-5 h-5" />
             </button>
           </div>
 
           <div className={`${profilePaddingClass} border-b border-gray-200`}>
-            <div className={`flex items-center ${showSidebarDetails ? "space-x-3" : "justify-center"}`}>
+            <div
+              className={`flex items-center ${
+                showSidebarDetails ? "space-x-3" : "justify-center"
+              }`}
+            >
               <div className="w-10 h-10 bg-blue-600 rounded-full flex items-center justify-center">
                 <span className="text-white font-medium">{displayInitial}</span>
               </div>
@@ -262,44 +301,38 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
             </div>
           </div>
 
-          <nav className={`flex-1 py-4 overflow-y-auto ${navigationPaddingClass}`}>
-            {navigationItems.map((item) => {
-              const active =
-                pathname === item.href || pathname.startsWith(item.href + "/");
-              const IconComponent = item.icon;
-              const baseStyles = active
-                ? "bg-blue-100 text-blue-700"
-                : "text-gray-600 hover:bg-gray-100 hover:text-gray-900";
-              const alignmentClass = showSidebarDetails ? "justify-start px-3" : "justify-center px-2";
-
-              return (
-                <Link
-                  key={item.name}
-                  href={item.href}
-                  title={showSidebarDetails ? undefined : item.name}
-                  className={`flex items-center ${alignmentClass} py-2 text-sm font-medium rounded-lg transition-colors ${baseStyles}`}
-                >
-                  <IconComponent
-                    className={`${showSidebarDetails ? "mr-3" : ""} h-5 w-5`}
-                  />
-                  {showSidebarDetails && item.name}
-                </Link>
-              );
-            })}
-          </nav>
-        </div>
-
-        <div className={`${footerPaddingClass} border-t border-gray-200`}>
-          <button
-            onClick={logout}
-            title={showSidebarDetails ? undefined : "Logout"}
-            className={`w-full flex items-center ${
-              showSidebarDetails ? "justify-center" : "justify-center"
-            } bg-red-800 px-3 py-2 text-sm font-medium text-white hover:bg-red-700 rounded-lg transition-colors`}
+          <nav
+            className={`flex-1 py-4 overflow-y-auto ${navigationPaddingClass}`}
           >
-            <LogOut className={`${showSidebarDetails ? "mr-2" : ""} w-4 h-4`} />
-            {showSidebarDetails && "Logout"}
-          </button>
+            <div className="flex flex-col gap-4 px-4 py-3">
+              {navigationItems.map((item) => {
+                const active =
+                  pathname === item.href ||
+                  pathname.startsWith(item.href + "/");
+                const IconComponent = item.icon;
+                const baseStyles = active
+                  ? "bg-[#e1d3ea] text-[color:var(--color-text-primary)]" // changed background to #e1d3ea
+                  : "text-gray-600 hover:bg-gray-100 hover:text-gray-900";
+                const alignmentClass = showSidebarDetails
+                  ? "justify-start"
+                  : "justify-center";
+
+                return (
+                  <Link
+                    key={item.name}
+                    href={item.href}
+                    title={showSidebarDetails ? undefined : item.name}
+                    className={`flex items-center ${alignmentClass} py-2 px-3 text-sm font-medium rounded-lg transition-colors ${baseStyles}`}
+                  >
+                    <IconComponent
+                      className={`${showSidebarDetails ? "mr-3" : ""} h-10 w-7`}
+                    />
+                    {showSidebarDetails && item.name}
+                  </Link>
+                );
+              })}
+            </div>
+          </nav>
         </div>
       </div>
 
@@ -313,9 +346,6 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
             >
               <Menu className="w-6 h-6" />
             </button>
-            <h1 className="ml-2 text-lg md:text-xl font-semibold text-gray-900 lg:ml-0 truncate">
-              {activeTitle}
-            </h1>
           </div>
 
           <div className="flex items-center space-x-2 md:space-x-4">

@@ -8,6 +8,7 @@ import Modal from "@/components/ui/Modal";
 import Input from "@/components/ui/Input";
 import ConfirmationModal from "@/components/ui/ConfirmationModal";
 import DataTable from "@/components/ui/DataTable";
+import { userService } from "@/services/userService"; // Add this import
 
 interface User {
   id: string;
@@ -19,46 +20,41 @@ interface User {
 }
 
 function UsersManagement() {
-  const [users, setUsers] = useState<User[]>([
-    {
-      id: "1",
-      name: "John Doe",
-      email: "john@example.com",
-      status: "active",
-      joinDate: "2024-01-15",
-      lastLogin: "2024-01-20",
-    },
-    {
-      id: "3",
-      name: "Mike Chen",
-      email: "mike@example.com",
-      status: "inactive",
-      joinDate: "2024-01-08",
-      lastLogin: "2024-01-18",
-    },
-    {
-      id: "5",
-      name: "Emily Johnson",
-      email: "emily@example.com",
-      status: "active",
-      joinDate: "2024-01-12",
-      lastLogin: "2024-01-21",
-    },
-    {
-      id: "6",
-      name: "David Brown",
-      email: "david@example.com",
-      status: "active",
-      joinDate: "2024-01-18",
-      lastLogin: "2024-01-22",
-    },
-  ]);
-
+  const [users, setUsers] = useState<User[]>([]);
+  const [loading, setLoading] = useState(false);
   const [isViewModalOpen, setIsViewModalOpen] = useState(false);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [selectedUser, setSelectedUser] = useState<User | null>(null);
   const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
+
+  // Fetch users from API
+  useEffect(() => {
+    const fetchUsers = async () => {
+      setLoading(true);
+      try {
+        const res = await userService.list({
+          role: "student", // or whatever role you want to fetch
+        });
+        const data = Array.isArray(res)
+          ? res
+          : Array.isArray((res as any)?.data?.users)
+          ? (res as any).data.users
+          : Array.isArray((res as any)?.users)
+          ? (res as any).users
+          : Array.isArray((res as any)?.data)
+          ? (res as any).data
+          : [];
+        setUsers(data);
+      } catch (e) {
+        // Optionally handle error
+        setUsers([]);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchUsers();
+  }, []);
 
   const handleDeleteUser = () => {
     if (!selectedUser) return;
@@ -217,10 +213,11 @@ function UsersManagement() {
                   render: (user) => (
                     <span
                       className={`inline-flex px-2 py-1 text-xs font-medium rounded-full ${getStatusColor(
-                        user.status
+                        user.status || "inactive"
                       )}`}
                     >
-                      {user.status.charAt(0).toUpperCase() + user.status.slice(1)}
+                      {(user.status || "inactive").charAt(0).toUpperCase() +
+                        (user.status || "inactive").slice(1)}
                     </span>
                   ),
                 },
@@ -313,11 +310,11 @@ function UsersManagement() {
                   <div className="flex-shrink-0">
                     <span
                       className={`inline-flex px-2 py-1 text-[10px] font-medium rounded-full ${getStatusColor(
-                        user.status
+                        user.status || "inactive"
                       )}`}
                     >
-                      {user.status.charAt(0).toUpperCase() +
-                        user.status.slice(1)}
+                      {(user.status || "inactive").charAt(0).toUpperCase() +
+                        (user.status || "inactive").slice(1)}
                     </span>
                   </div>
                 </div>
@@ -327,7 +324,7 @@ function UsersManagement() {
                     Joined: {new Date(user.joinDate).toLocaleDateString()}
                   </div>
                   <div className="text-xs text-gray-600">
-                    Last login: {" "}
+                    Last login:{" "}
                     {user.lastLogin
                       ? new Date(user.lastLogin).toLocaleDateString()
                       : "Never"}
