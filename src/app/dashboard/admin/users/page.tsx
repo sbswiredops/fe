@@ -140,8 +140,36 @@ function UsersManagement() {
 
           {/* Filters */}
           <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4 sm:p-6 mb-6">
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-              <div className="w-full">
+            <div className="flex justify-between items-center">
+              {/* Left side: Info boxes */}
+              <div className="flex items-center gap-4">
+                {/* Total Students */}
+                <div className="bg-[#f5f3fa] rounded-lg px-4 py-2 text-center shadow-sm border border-[#e5e1ee]">
+                  <div className="text-xs text-gray-500">Total Students</div>
+                  <div className="text-xl font-bold text-[#51356e]">
+                    {users.length}
+                  </div>
+                </div>
+                {/* Today's New Students */}
+                <div className="bg-blue-50 rounded-lg px-4 py-2 text-center shadow-sm border border-blue-100">
+                  <div className="text-xs text-blue-700">New Today</div>
+                  <div className="text-xl font-bold text-blue-700">
+                    {
+                      users.filter((u) => {
+                        const today = new Date();
+                        const joinDate = new Date(u.joinDate);
+                        return (
+                          joinDate.getDate() === today.getDate() &&
+                          joinDate.getMonth() === today.getMonth() &&
+                          joinDate.getFullYear() === today.getFullYear()
+                        );
+                      }).length
+                    }
+                  </div>
+                </div>
+              </div>
+              {/* Right side: Search box */}
+              <div className="w-full sm:w-80">
                 <label className="block text-sm font-medium text-gray-700 mb-1">
                   Search
                 </label>
@@ -150,34 +178,8 @@ function UsersManagement() {
                   placeholder="Search by name or email"
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
-                  className="w-full"
+                  className="w-full border border-gray-300 "
                 />
-              </div>
-              <div className="w-full">
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Status
-                </label>
-                <select
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  value={statusFilter}
-                  onChange={(e) => setStatusFilter(e.target.value)}
-                >
-                  <option value="all">All Status</option>
-                  <option value="active">Active</option>
-                  <option value="inactive">Inactive</option>
-                </select>
-              </div>
-              <div className="w-full sm:col-span-2 lg:col-span-1 flex items-end">
-                <Button
-                  variant="outline"
-                  onClick={() => {
-                    setSearchTerm("");
-                    setStatusFilter("all");
-                  }}
-                  className="w-full"
-                >
-                  Clear Filters
-                </Button>
               </div>
             </div>
           </div>
@@ -191,7 +193,7 @@ function UsersManagement() {
                   header: "User",
                   render: (user) => (
                     <div className="flex items-center">
-                      <div className="w-10 h-10 bg-blue-600 rounded-full flex items-center justify-center">
+                      <div className="w-10 h-10 bg-[#51356e] rounded-full flex items-center justify-center">
                         <span className="text-white font-medium text-sm">
                           {user.name.charAt(0).toUpperCase()}
                         </span>
@@ -352,40 +354,6 @@ function UsersManagement() {
               </div>
             ))}
           </div>
-
-          {/* Mobile pagination */}
-          {filteredUsers.length > 0 && (
-            <div className="md:hidden mt-3 bg-white rounded-lg border border-gray-200 p-3">
-              <div className="flex flex-col gap-3">
-                <div className="flex items-center justify-between text-sm text-gray-600">
-                  <span>
-                    Page {currentPage} of {totalPages}
-                  </span>
-                  <span>
-                    {startIndex + 1}-{endIndex} of {filteredUsers.length}
-                  </span>
-                </div>
-                <div className="grid grid-cols-2 gap-2">
-                  <Button
-                    variant="outline"
-                    onClick={prevPage}
-                    disabled={currentPage === 1}
-                    className="w-full"
-                  >
-                    Previous
-                  </Button>
-                  <Button
-                    variant="outline"
-                    onClick={nextPage}
-                    disabled={currentPage === totalPages}
-                    className="w-full"
-                  >
-                    Next
-                  </Button>
-                </div>
-              </div>
-            </div>
-          )}
 
           {/* View User Modal */}
           <Modal

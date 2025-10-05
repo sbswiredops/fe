@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState } from "react";
 
 interface InputProps extends React.InputHTMLAttributes<HTMLInputElement> {
   label?: string;
@@ -10,24 +10,32 @@ export default function Input({
   label,
   error,
   helperText,
-  className = '',
+  className = "",
   type,
   ...props
 }: InputProps) {
   const [showPassword, setShowPassword] = useState(false);
-  const isPasswordField = type === 'password';
+  const isPasswordField = type === "password";
 
   // Prevent accidental children prop from being passed to native <input/>
-  const { children: _omitChildren, value: rawValue, ...restInputProps } = props as any;
+  const {
+    children: _omitChildren,
+    value: rawValue,
+    ...restInputProps
+  } = props as any;
 
   // Sanitize NaN values for controlled inputs
-  const safeValue = (typeof rawValue === 'number' && Number.isNaN(rawValue)) ? '' : rawValue;
+  const safeValue =
+    typeof rawValue === "number" && Number.isNaN(rawValue) ? "" : rawValue;
 
   const inputClasses = `
-    w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition-colors
+    w-full px-3 py-2 border rounded-lg
+    focus:outline-none focus:ring-2 focus:ring-[#51356e] focus:border-[#51356e]
+    hover:border-[#51356e]
+    transition-colors
     text-gray-900 font-medium placeholder:text-gray-400 placeholder:font-normal
-    ${error ? 'border-red-500' : 'border-gray-300 focus:border-blue-500'}
-    ${isPasswordField ? 'pr-10' : ''}
+    ${error ? "border-red-500" : "border-gray-300"}
+    ${isPasswordField ? "pr-10" : ""}
     ${className}
   `;
 
@@ -45,7 +53,7 @@ export default function Input({
       <div className="relative">
         <input
           className={inputClasses}
-          type={isPasswordField ? (showPassword ? 'text' : 'password') : type}
+          type={isPasswordField ? (showPassword ? "text" : "password") : type}
           value={safeValue}
           {...restInputProps}
         />
@@ -57,7 +65,12 @@ export default function Input({
             tabIndex={-1}
           >
             {showPassword ? (
-              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <svg
+                className="w-5 h-5"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
                 <path
                   strokeLinecap="round"
                   strokeLinejoin="round"
@@ -66,7 +79,12 @@ export default function Input({
                 />
               </svg>
             ) : (
-              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <svg
+                className="w-5 h-5"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
                 <path
                   strokeLinecap="round"
                   strokeLinejoin="round"
@@ -84,9 +102,7 @@ export default function Input({
           </button>
         )}
       </div>
-      {error && (
-        <p className="text-sm text-red-600">{error}</p>
-      )}
+      {error && <p className="text-sm text-red-600">{error}</p>}
       {helperText && !error && (
         <p className="text-sm text-gray-500">{helperText}</p>
       )}
