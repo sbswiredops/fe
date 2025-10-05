@@ -389,11 +389,13 @@ function UsersManagement() {
                     </label>
                     <span
                       className={`inline-flex px-2 py-1 text-xs font-medium rounded-full ${getStatusColor(
-                        selectedUser.status
+                        selectedUser.status || "inactive"
                       )}`}
                     >
-                      {selectedUser.status.charAt(0).toUpperCase() +
-                        selectedUser.status.slice(1)}
+                      {(selectedUser.status || "inactive")
+                        .charAt(0)
+                        .toUpperCase() +
+                        (selectedUser.status || "inactive").slice(1)}
                     </span>
                   </div>
                   <div>
