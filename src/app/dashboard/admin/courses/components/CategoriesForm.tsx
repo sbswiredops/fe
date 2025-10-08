@@ -14,16 +14,16 @@ export default function CategoriesForm({ formData, onChange, setFormData }: Prop
       <Input label="Category Name" name="name" value={formData.name || ''} onChange={onChange} placeholder="Enter category name" required />
       <div>
         <label className="block text-sm font-medium text-gray-700 mb-1">Description</label>
-        <textarea name="description" value={formData.description || ''} onChange={onChange} placeholder="Enter category description" className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" rows={3} />
+        <textarea name="description" value={formData.description || ''} onChange={onChange} placeholder="Enter category description" className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#51356e] text-gray-900" rows={3} />
       </div>
       <div>
         <label className="block text-sm font-medium text-gray-700 mb-1">Avatar (image/video)</label>
-        <input type="file" name="categories_avatar" accept="image/*,video/*" onChange={onChange} className="block w-full text-sm text-gray-700 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100" />
+        <input type="file" name="categories_avatar" accept="image/*,video/*" onChange={onChange} className="block w-full text-sm text-gray-700 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-[#51356e] hover:file:bg-blue-100" />
         {formData.categories_avatar instanceof File && (<p className="mt-1 text-xs text-gray-500">Selected: {formData.categories_avatar.name}</p>)}
       </div>
       <div>
         <label className="block text-sm font-medium text-gray-700 mb-1">Icon (image)</label>
-        <input type="file" name="icon" accept="image/*" onChange={onChange} className="block w-full text-sm text-gray-700 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100" />
+        <input type="file" name="icon" accept="image/*" onChange={onChange} className="block w-full text-sm text-gray-700 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-[#51356e] hover:file:bg-blue-100" />
         {formData.icon instanceof File && (<p className="mt-1 text-xs text-gray-500">Selected: {formData.icon.name}</p>)}
       </div>
       <div className="flex items-center gap-2 pt-2">

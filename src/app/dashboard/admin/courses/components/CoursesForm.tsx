@@ -43,7 +43,7 @@ export default function CoursesForm({
           name="courseType"
           value={formData.courseType || ''}
           onChange={onChange}
-          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#51356e] text-gray-900"
         >
           <option value="">Select a type</option>
           <option value="Recorded">Recorded</option>
@@ -62,7 +62,7 @@ export default function CoursesForm({
           value={formData.shortDescription || ""}
           onChange={onChange}
           placeholder="Enter short description"
-          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#51356e] text-gray-900"
           rows={2}
         />
       </div>
@@ -76,7 +76,7 @@ export default function CoursesForm({
           value={formData.description || ""}
           onChange={onChange}
           placeholder="Enter full course description"
-          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#51356e] text-gray-900"
           rows={4}
           required
         />
@@ -91,7 +91,7 @@ export default function CoursesForm({
           name="thumbnail"
           accept="image/*,video/*"
           onChange={onChange}
-          className="block w-full text-sm text-gray-700 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"
+          className="block w-full text-sm text-gray-700 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-[#51356e]  hover:file:bg-blue-100"
         />
         {formData.thumbnail instanceof File && (
           <p className="mt-1 text-xs text-gray-500">
@@ -108,7 +108,7 @@ export default function CoursesForm({
           name="categoryId"
           value={formData.categoryId || ""}
           onChange={onChange}
-          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#51356e] text-gray-900"
         >
           <option value="">Select a category</option>
           {categoryList
@@ -157,7 +157,7 @@ export default function CoursesForm({
             name="level"
             value={formData.level || "beginner"}
             onChange={onChange}
-            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#51356e] text-gray-900 h-10"
             required
           >
             <option value="beginner">Beginner</option>
@@ -210,7 +210,7 @@ export default function CoursesForm({
             rows={2}
             value={formData.tags || ""}
             onChange={onChange}
-            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#51356e] text-gray-900"
           />
         </div>
         <div>
@@ -222,7 +222,7 @@ export default function CoursesForm({
             rows={2}
             value={formData.requirements || ""}
             onChange={onChange}
-            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#51356e] text-gray-900"
           />
         </div>
         <div>
@@ -234,7 +234,7 @@ export default function CoursesForm({
             rows={2}
             value={formData.learningOutcomes || ""}
             onChange={onChange}
-            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#51356e] text-gray-900"
           />
         </div>
       </div>

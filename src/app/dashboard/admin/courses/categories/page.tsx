@@ -227,20 +227,36 @@ function CategoriesManagement() {
 
         <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4 md:p-6 mb-6">
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <div>
+            <div className="flex flex-col justify-end">
               <label className="block text-sm font-medium text-gray-700 mb-1">Search</label>
-              <Input type="text" placeholder={`Search categories...`} value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} />
+              <Input
+                type="text"
+                placeholder={`Search categories...`}
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="h-12"
+              />
             </div>
-            <div>
+            <div className="flex flex-col justify-end">
               <label className="block text-sm font-medium text-gray-700 mb-1">Status</label>
-              <select className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" value={statusFilter} onChange={(e) => setStatusFilter(e.target.value)}>
+              <select
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#51356e] text-gray-900 h-12"
+                value={statusFilter}
+                onChange={(e) => setStatusFilter(e.target.value)}
+              >
                 <option value="all">All Status</option>
                 <option value="active">Active</option>
                 <option value="inactive">Inactive</option>
               </select>
             </div>
             <div className="flex items-end">
-              <Button variant="outline" onClick={() => { setSearchTerm(""); setStatusFilter("all"); }} className="w-full">Clear Filters</Button>
+              <Button
+                variant="dangerOutline"
+                onClick={() => { setSearchTerm(""); setStatusFilter("all"); }}
+                className="w-full h-12 flex items-center justify-center"
+              >
+                Clear Filters
+              </Button>
             </div>
           </div>
         </div>
@@ -274,7 +290,7 @@ function CategoriesManagement() {
           <div className="space-y-4">
             <CategoriesForm formData={formData} onChange={handleInputChange} setFormData={setFormData} />
             <div className="flex justify-end space-x-3 pt-4">
-              <Button variant="outline" onClick={() => { setIsAddModalOpen(false); setIsEditModalOpen(false); setSelectedItem(null); resetForm(); }}>Cancel</Button>
+              <Button variant="danger" onClick={() => { setIsAddModalOpen(false); setIsEditModalOpen(false); setSelectedItem(null); resetForm(); }}>Cancel</Button>
               <Button onClick={isAddModalOpen ? handleAdd : handleEdit}>{isAddModalOpen ? "Add" : "Save Changes"}</Button>
             </div>
           </div>
@@ -298,7 +314,7 @@ function CategoriesManagement() {
                 ))}
               </div>
               <div className="flex justify-end pt-4">
-                <Button variant="outline" onClick={() => { setIsViewModalOpen(false); setSelectedItem(null); }}>Close</Button>
+                <Button variant="danger" onClick={() => { setIsViewModalOpen(false); setSelectedItem(null); }}>Close</Button>
               </div>
             </div>
           )}

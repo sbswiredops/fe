@@ -12,9 +12,23 @@ import courseService, { CourseService } from "@/services/courseService";
 import { Course } from "@/types/api";
 import useToast from "@/components/hoock/toast";
 
+// Dummy Category Content
+function CategoryTab() {
+  return (
+    <div className="p-8 text-center text-gray-600">
+      <h2 className="text-xl font-semibold mb-2">Category Management</h2>
+      <p>Manage your course categories here.</p>
+    </div>
+  );
+}
+
 function formatCurrency(n: number) {
   try {
-    return new Intl.NumberFormat("en-US", { style: "currency", currency: "USD", maximumFractionDigits: 0 }).format(n);
+    return new Intl.NumberFormat("en-US", {
+      style: "currency",
+      currency: "USD",
+      maximumFractionDigits: 0,
+    }).format(n);
   } catch {
     return `$${n}`;
   }
@@ -33,20 +47,41 @@ function TeacherCoursesContent() {
   const [submitting, setSubmitting] = useState<string | null>(null);
   const svc = useMemo(() => new CourseService(), []);
 
+  // Tab state: "category" or "courses"
+  const [activeTab, setActiveTab] = useState<"category" | "courses">(
+    "category"
+  );
+
   const load = async () => {
     if (!user?.id) return;
     try {
       setLoading(true);
-      // We may not always get pagination meta from mock; compute fallback
-      const res = await svc.getCourses({ instructorId: user.id, page, limit, search: search || undefined, status: status || undefined, sortBy: "createdAt", sortOrder: "desc" });
+      const res = await svc.getCourses({
+        instructorId: user.id,
+        page,
+        limit,
+        search: search || undefined,
+        status: status || undefined,
+        sortBy: "createdAt",
+        sortOrder: "desc",
+      });
       const data = (res as any)?.data ?? [];
-      const arr: Course[] = Array.isArray(data?.courses) ? data.courses : Array.isArray(data) ? data : [];
+      const arr: Course[] = Array.isArray(data?.courses)
+        ? data.courses
+        : Array.isArray(data)
+        ? data
+        : [];
       setCourses(arr);
       const meta = (res as any)?.meta;
-      const totalFromMeta = Number(meta?.total ?? meta?.totalItems ?? meta?.count ?? (Array.isArray(data?.courses) ? data.total : arr.length));
+      const totalFromMeta = Number(
+        meta?.total ??
+          meta?.totalItems ??
+          meta?.count ??
+          (Array.isArray(data?.courses) ? data.total : arr.length)
+      );
       setTotal(Number.isFinite(totalFromMeta) ? totalFromMeta : arr.length);
     } catch (e: any) {
-      showToast(e?.message || "Failed to load courses", 'error');
+      showToast(e?.message || "Failed to load courses", "error");
       setCourses([]);
       setTotal(0);
     } finally {
@@ -55,9 +90,11 @@ function TeacherCoursesContent() {
   };
 
   useEffect(() => {
-    load();
+    if (activeTab === "courses") {
+      load();
+    }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [user?.id, page, limit, status]);
+  }, [user?.id, page, limit, status, activeTab]);
 
   const onSearchSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -68,16 +105,20 @@ function TeacherCoursesContent() {
   const togglePublish = async (c: Course) => {
     try {
       setSubmitting(c.id);
-      const target = (c.status === "published" || c.isPublished) ? "draft" : "published";
+      const target =
+        c.status === "published" || c.isPublished ? "draft" : "published";
       const res = await svc.updateCourseStatus(c.id, target as any);
       if (res.success) {
-        showToast(target === "published" ? "Course published" : "Moved to draft", 'success');
+        showToast(
+          target === "published" ? "Course published" : "Moved to draft",
+          "success"
+        );
         await load();
       } else {
-        showToast(res.error || "Failed to update status", 'error');
+        showToast(res.error || "Failed to update status", "error");
       }
     } catch (e: any) {
-      showToast(e?.message || "Failed to update status", 'error');
+      showToast(e?.message || "Failed to update status", "error");
     } finally {
       setSubmitting(null);
     }
@@ -88,13 +129,18 @@ function TeacherCoursesContent() {
       setSubmitting(c.id);
       const res = await svc.toggleFeatured(c.id, !c.featured && !c.isFeatured);
       if (res.success) {
-        showToast(!c.featured && !c.isFeatured ? "Marked as featured" : "Removed from featured", 'success');
+        showToast(
+          !c.featured && !c.isFeatured
+            ? "Marked as featured"
+            : "Removed from featured",
+          "success"
+        );
         await load();
       } else {
-        showToast(res.error || "Failed to toggle featured", 'error');
+        showToast(res.error || "Failed to toggle featured", "error");
       }
     } catch (e: any) {
-      showToast(e?.message || "Failed to toggle featured", 'error');
+      showToast(e?.message || "Failed to toggle featured", "error");
     } finally {
       setSubmitting(null);
     }
@@ -106,17 +152,16 @@ function TeacherCoursesContent() {
       setSubmitting(c.id);
       const res = await svc.deleteCourse(c.id);
       if (res.success) {
-        showToast("Course deleted", 'success');
-        // If last item on page deleted, move up a page when possible
+        showToast("Course deleted", "success");
         const remaining = Math.max(0, total - 1);
         const maxPage = Math.max(1, Math.ceil(remaining / limit));
         if (page > maxPage) setPage(maxPage);
         await load();
       } else {
-        showToast(res.error || "Failed to delete course", 'error');
+        showToast(res.error || "Failed to delete course", "error");
       }
     } catch (e: any) {
-      showToast(e?.message || "Failed to delete course", 'error');
+      showToast(e?.message || "Failed to delete course", "error");
     } finally {
       setSubmitting(null);
     }
@@ -131,40 +176,65 @@ function TeacherCoursesContent() {
         <div className="flex items-center gap-3">
           {r.thumbnail ? (
             // eslint-disable-next-line @next/next/no-img-element
-            <img src={r.thumbnail} alt={r.title} className="w-12 h-12 rounded-md object-cover border border-gray-200" />
+            <img
+              src={r.thumbnail}
+              alt={r.title}
+              className="w-12 h-12 rounded-md object-cover border border-gray-200"
+            />
           ) : (
             <div className="w-12 h-12 rounded-md bg-gray-100 border border-gray-200" />
           )}
           <div className="min-w-0">
-            <div className="text-sm font-medium text-gray-900 truncate">{r.title}</div>
-            <div className="text-xs text-gray-500 truncate">{r.category?.name || "Uncategorized"}</div>
+            <div className="text-sm font-medium text-gray-900 truncate">
+              {r.title}
+            </div>
+            <div className="text-xs text-gray-500 truncate">
+              {r.category?.name || "Uncategorized"}
+            </div>
           </div>
         </div>
-      )
+      ),
     },
     {
       key: "price",
       header: "Price",
-      render: (r) => <span className="text-sm text-gray-900">{formatCurrency(r.price)}</span>
+      render: (r) => (
+        <span className="text-sm text-gray-900">{formatCurrency(r.price)}</span>
+      ),
     },
     {
       key: "enrollmentCount",
       header: "Students",
-      render: (r) => <span className="text-sm text-gray-900">{r.enrollmentCount}</span>
+      render: (r) => (
+        <span className="text-sm text-gray-900">{r.enrollmentCount}</span>
+      ),
     },
     {
       key: "rating",
       header: "Rating",
-      render: (r) => <span className="text-sm text-gray-900">{r.rating?.toFixed?.(1) ?? r.rating}</span>
+      render: (r) => (
+        <span className="text-sm text-gray-900">
+          {r.rating?.toFixed?.(1) ?? r.rating}
+        </span>
+      ),
     },
     {
       key: "status",
       header: "Status",
       render: (r) => (
-        <span className={["px-2 py-1 rounded-full text-xs font-medium", (r.status === "published" || r.isPublished) ? "bg-green-100 text-green-800" : r.status === "archived" ? "bg-gray-100 text-gray-700" : "bg-yellow-100 text-yellow-800"].join(" ")}> 
+        <span
+          className={[
+            "px-2 py-1 rounded-full text-xs font-medium",
+            r.status === "published" || r.isPublished
+              ? "bg-green-100 text-green-800"
+              : r.status === "archived"
+              ? "bg-gray-100 text-gray-700"
+              : "bg-yellow-100 text-yellow-800",
+          ].join(" ")}
+        >
           {r.status || (r.isPublished ? "published" : "draft")}
         </span>
-      )
+      ),
     },
     {
       key: "actions",
@@ -172,20 +242,27 @@ function TeacherCoursesContent() {
       className: "text-right",
       render: (r) => (
         <div className="flex items-center justify-end gap-2">
-          <Link href={`/courses/${r.id}`} className="text-sm text-blue-600 hover:underline">View</Link>
+          <Link
+            href={`/courses/${r.id}`}
+            className="text-sm text-blue-600 hover:underline"
+          >
+            View
+          </Link>
           <button
             className="text-sm text-gray-700 hover:text-blue-700 px-2 py-1 rounded-md border border-gray-200 hover:border-blue-300"
             onClick={() => togglePublish(r)}
             disabled={submitting === r.id}
           >
-            {(r.status === "published" || r.isPublished) ? "Move to Draft" : "Publish"}
+            {r.status === "published" || r.isPublished
+              ? "Move to Draft"
+              : "Publish"}
           </button>
           <button
             className="text-sm text-gray-700 hover:text-blue-700 px-2 py-1 rounded-md border border-gray-200 hover:border-blue-300"
             onClick={() => toggleFeatured(r)}
             disabled={submitting === r.id}
           >
-            {(r.featured || r.isFeatured) ? "Unfeature" : "Feature"}
+            {r.featured || r.isFeatured ? "Unfeature" : "Feature"}
           </button>
           <button
             className="text-sm text-red-600 hover:text-white hover:bg-red-600 px-2 py-1 rounded-md border border-red-200"
@@ -195,71 +272,115 @@ function TeacherCoursesContent() {
             Delete
           </button>
         </div>
-      )
-    }
+      ),
+    },
   ];
 
   return (
     <DashboardLayout>
       <div className="p-6">
-        <div className="flex items-start justify-between mb-6">
-          <div>
-            <h1 className="text-2xl font-bold text-gray-900">My Courses</h1>
-            <p className="text-gray-600">Manage and organize your courses. Use filters to narrow results.</p>
-          </div>
-          <div className="flex items-center gap-2">
-            {/* Keep visual style consistent; link can be wired when create flow exists */}
-            <Button variant="outline">Create Course</Button>
-          </div>
+        {/* Tabs */}
+        <div className="flex border-b mb-6">
+          <button
+            className={`px-4 py-2 font-semibold border-b-2 transition-colors ${
+              activeTab === "category"
+                ? "border-[#51356e] text-[#51356e]"
+                : "border-transparent text-gray-500 hover:text-[#51356e]"
+            }`}
+            onClick={() => setActiveTab("category")}
+          >
+            Category
+          </button>
+          <button
+            className={`ml-2 px-4 py-2 font-semibold border-b-2 transition-colors ${
+              activeTab === "courses"
+                ? "border-[#51356e] text-[#51356e]"
+                : "border-transparent text-gray-500 hover:text-[#51356e]"
+            }`}
+            onClick={() => setActiveTab("courses")}
+          >
+            Courses
+          </button>
         </div>
 
-        {/* Filters */}
-        <form onSubmit={onSearchSubmit} className="bg-white rounded-lg border border-gray-200 p-4 mb-4">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
-            <div className="flex items-center gap-2">
-              <input
-                value={search}
-                onChange={(e) => setSearch(e.target.value)}
-                placeholder="Search by title..."
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-              />
-              <Button type="submit" size="sm">Search</Button>
+        {/* Tab Content */}
+        {activeTab === "category" && <CategoryTab />}
+        {activeTab === "courses" && (
+          <>
+            <div className="flex items-start justify-between mb-6">
+              <div>
+                <h1 className="text-2xl font-bold text-gray-900">My Courses</h1>
+                <p className="text-gray-600">
+                  Manage and organize your courses. Use filters to narrow
+                  results.
+                </p>
+              </div>
+              <div className="flex items-center gap-2">
+                <Button variant="outline">Create Course</Button>
+              </div>
             </div>
-            <div>
-              <select
-                value={status}
-                onChange={(e) => { setStatus(e.target.value); setPage(1); }}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-              >
-                <option value="">All Status</option>
-                <option value="published">Published</option>
-                <option value="draft">Draft</option>
-                <option value="archived">Archived</option>
-              </select>
-            </div>
-          </div>
-        </form>
 
-        <div className="bg-white rounded-lg border border-gray-200 p-0">
-          {loading ? (
-            <div className="py-16"><Loading text="Loading courses..." /></div>
-          ) : courses.length === 0 ? (
-            <div className="p-8 text-center text-gray-600">No courses found.</div>
-          ) : (
-            <div className="overflow-hidden">
-              <DataTable<Course>
-                columns={columns}
-                rows={courses}
-                getRowKey={(r) => r.id}
-                page={page}
-                pageSize={limit}
-                totalItems={total}
-                onPageChange={(p) => setPage(p)}
-                tableClassName="min-w-full divide-y divide-gray-200"
-              />
+            {/* Filters */}
+            <form
+              onSubmit={onSearchSubmit}
+              className="bg-white rounded-lg border border-gray-200 p-4 mb-4"
+            >
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+                <div className="flex items-center gap-2">
+                  <input
+                    value={search}
+                    onChange={(e) => setSearch(e.target.value)}
+                    placeholder="Search by title..."
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#51356e] text-gray-900 h-12"
+                  />
+                  <Button type="submit" size="sm">
+                    Search
+                  </Button>
+                </div>
+                <div>
+                  <select
+                    value={status}
+                    onChange={(e) => {
+                      setStatus(e.target.value);
+                      setPage(1);
+                    }}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#51356e] text-gray-900 h-12"
+                  >
+                    <option value="">All Status</option>
+                    <option value="published">Published</option>
+                    <option value="draft">Draft</option>
+                    <option value="archived">Archived</option>
+                  </select>
+                </div>
+              </div>
+            </form>
+
+            <div className="bg-white rounded-lg border border-gray-200 p-0">
+              {loading ? (
+                <div className="py-16">
+                  <Loading text="Loading courses..." />
+                </div>
+              ) : courses.length === 0 ? (
+                <div className="p-8 text-center text-gray-600">
+                  No courses found.
+                </div>
+              ) : (
+                <div className="overflow-hidden">
+                  <DataTable<Course>
+                    columns={columns}
+                    rows={courses}
+                    getRowKey={(r) => r.id}
+                    page={page}
+                    pageSize={limit}
+                    totalItems={total}
+                    onPageChange={(p) => setPage(p)}
+                    tableClassName="min-w-full divide-y divide-gray-200"
+                  />
+                </div>
+              )}
             </div>
-          )}
-        </div>
+          </>
+        )}
       </div>
       <ToastContainer position="bottom-right" />
     </DashboardLayout>

@@ -25,7 +25,9 @@ function QuizzesManagement() {
 
   const [quizzes, setQuizzes] = React.useState<Quiz[]>([]);
   const [courses, setCourses] = React.useState<Course[]>([]);
-  const [sections, setSections] = React.useState<(Section & { courseName?: string })[]>([]);
+  const [sections, setSections] = React.useState<
+    (Section & { courseName?: string })[]
+  >([]);
   const [refreshTick, setRefreshTick] = React.useState(0);
 
   const [isAddModalOpen, setIsAddModalOpen] = React.useState(false);
@@ -52,8 +54,17 @@ function QuizzesManagement() {
     const loadCourses = async () => {
       if (!serverEnabled) return;
       try {
-        const res: any = await CourseService.getCourses({ page: 1, limit: 1000 });
-        const arr: any[] = Array.isArray(res?.data) ? res.data : (Array.isArray(res?.data?.courses) ? res.data.courses : (Array.isArray(res?.courses) ? res.courses : []));
+        const res: any = await CourseService.getCourses({
+          page: 1,
+          limit: 1000,
+        });
+        const arr: any[] = Array.isArray(res?.data)
+          ? res.data
+          : Array.isArray(res?.data?.courses)
+          ? res.data.courses
+          : Array.isArray(res?.courses)
+          ? res.courses
+          : [];
         setCourses(arr as any);
       } catch {}
     };
@@ -65,8 +76,18 @@ function QuizzesManagement() {
       if (!serverEnabled) return;
       try {
         const res: any = await sectionService.listAll({ page: 1, limit: 1000 });
-        const secs: any[] = Array.isArray(res?.data) ? res.data : (Array.isArray(res?.data?.sections) ? res.data.sections : (Array.isArray(res?.sections) ? res.sections : []));
-        const mapped = secs.map((s: any) => ({ ...s, courseId: s?.course?.id, courseName: s?.course?.title || s?.course?.name || "" }));
+        const secs: any[] = Array.isArray(res?.data)
+          ? res.data
+          : Array.isArray(res?.data?.sections)
+          ? res.data.sections
+          : Array.isArray(res?.sections)
+          ? res.sections
+          : [];
+        const mapped = secs.map((s: any) => ({
+          ...s,
+          courseId: s?.course?.id,
+          courseName: s?.course?.title || s?.course?.name || "",
+        }));
         setSections(mapped as any);
       } catch {}
     };
@@ -80,7 +101,9 @@ function QuizzesManagement() {
   }, [serverEnabled]);
 
   const handleInputChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>
+    e: React.ChangeEvent<
+      HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement
+    >
   ) => {
     const target = e.target as HTMLInputElement & { files?: FileList };
     const { name } = target;
@@ -90,9 +113,19 @@ function QuizzesManagement() {
 
   const resetForm = () => setFormData({});
 
-  const openViewModal = (item: any) => { setSelectedItem(item); setIsViewModalOpen(true); };
-  const openEditModal = (item: any) => { setSelectedItem(item); setFormData(item); setIsEditModalOpen(true); };
-  const openDeleteModal = (item: any) => { setSelectedItem(item); setIsDeleteModalOpen(true); };
+  const openViewModal = (item: any) => {
+    setSelectedItem(item);
+    setIsViewModalOpen(true);
+  };
+  const openEditModal = (item: any) => {
+    setSelectedItem(item);
+    setFormData(item);
+    setIsEditModalOpen(true);
+  };
+  const openDeleteModal = (item: any) => {
+    setSelectedItem(item);
+    setIsDeleteModalOpen(true);
+  };
 
   const handleAdd = async () => {
     try {
@@ -103,7 +136,10 @@ function QuizzesManagement() {
         description: formData.description,
         isLocked: !!formData.isLocked,
         isPaid: !!formData.isPaid,
-        price: formData.price !== '' && formData.price !== undefined ? parseFloat(formData.price as any) : undefined,
+        price:
+          formData.price !== "" && formData.price !== undefined
+            ? parseFloat(formData.price as any)
+            : undefined,
       };
       const res = await quizService.create(payload);
       if (res.success) {
@@ -126,14 +162,25 @@ function QuizzesManagement() {
       const payload: any = {
         title: formData.title,
         description: formData.description,
-        isLocked: typeof formData.isLocked === 'boolean' ? formData.isLocked : undefined,
-        isPaid: typeof formData.isPaid === 'boolean' ? formData.isPaid : undefined,
-        price: formData.price !== '' && formData.price !== undefined ? parseFloat(formData.price as any) : undefined,
+        isLocked:
+          typeof formData.isLocked === "boolean"
+            ? formData.isLocked
+            : undefined,
+        isPaid:
+          typeof formData.isPaid === "boolean" ? formData.isPaid : undefined,
+        price:
+          formData.price !== "" && formData.price !== undefined
+            ? parseFloat(formData.price as any)
+            : undefined,
       };
       const res = await quizService.update(selectedItem.id, payload);
       if (res.success) {
         showToast("Quiz updated", "success");
-        setQuizzes((prev) => prev.map((q: any) => (q.id === selectedItem.id ? { ...q, ...payload } : q)));
+        setQuizzes((prev) =>
+          prev.map((q: any) =>
+            q.id === selectedItem.id ? { ...q, ...payload } : q
+          )
+        );
         setRefreshTick((x) => x + 1);
       } else {
         showToast(res.error || "Failed to update quiz", "error");
@@ -166,7 +213,11 @@ function QuizzesManagement() {
 
   const filtered = React.useMemo(() => {
     return quizzes.filter((item: any) => {
-      const matchesSearch = (item.title || "").toLowerCase().includes(searchTerm.toLowerCase()) || (item.course?.title || item.courseName || "").toLowerCase().includes(searchTerm.toLowerCase());
+      const matchesSearch =
+        (item.title || "").toLowerCase().includes(searchTerm.toLowerCase()) ||
+        (item.course?.title || item.courseName || "")
+          .toLowerCase()
+          .includes(searchTerm.toLowerCase());
       return matchesSearch;
     });
   }, [quizzes, searchTerm]);
@@ -179,19 +230,88 @@ function QuizzesManagement() {
   const renderClientTable = () => (
     <DataTable
       columns={[
-        { key: "title", header: "Title", render: (q: any) => (<span className="text-sm font-medium text-gray-900">{q.title}</span>) },
-        { key: "courseName", header: "Course", render: (q: any) => (<span className="text-sm text-gray-900">{q.courseName || '-'}</span>) },
-        { key: "sectionName", header: "Section", render: (q: any) => (<span className="text-sm text-gray-900">{q.sectionName || '-'}</span>) },
-        { key: "isLocked", header: "Locked", render: (q: any) => (<span className="text-sm text-gray-900">{q.isLocked ? 'Yes' : 'No'}</span>) },
-        { key: "isPaid", header: "Paid", render: (q: any) => (<span className="text-sm text-gray-900">{q.isPaid ? 'Yes' : 'No'}</span>) },
-        { key: "price", header: "Price", render: (q: any) => (<span className="text-sm text-gray-900">{typeof q.price === 'number' ? `$${q.price}` : '-'}</span>) },
-        { key: "actions", header: "Actions", render: (q: any) => (
-          <div className="flex flex-col md:flex-row md:items-center md:space-x-2 space-y-1 md:space-y-0">
-            <Button size="sm" variant="ghost" onClick={() => openViewModal(q)} className="text-blue-600 hover:text-blue-900 w-full md:w-auto justify-center md:justify-start">View</Button>
-            <Button size="sm" variant="ghost" onClick={() => openEditModal(q)} className="text-yellow-600 hover:text-yellow-900 w-full md:w-auto justify-center md:justify-start">Edit</Button>
-            <Button size="sm" variant="ghost" onClick={() => openDeleteModal(q)} className="text-red-600 hover:text-red-900 w-full md:w-auto justify-center md:justify-start">Delete</Button>
-          </div>
-        ) },
+        {
+          key: "title",
+          header: "Title",
+          render: (q: any) => (
+            <span className="text-sm font-medium text-gray-900">{q.title}</span>
+          ),
+        },
+        {
+          key: "courseName",
+          header: "Course",
+          render: (q: any) => (
+            <span className="text-sm text-gray-900">{q.courseName || "-"}</span>
+          ),
+        },
+        {
+          key: "sectionName",
+          header: "Section",
+          render: (q: any) => (
+            <span className="text-sm text-gray-900">
+              {q.sectionName || "-"}
+            </span>
+          ),
+        },
+        {
+          key: "isLocked",
+          header: "Locked",
+          render: (q: any) => (
+            <span className="text-sm text-gray-900">
+              {q.isLocked ? "Yes" : "No"}
+            </span>
+          ),
+        },
+        {
+          key: "isPaid",
+          header: "Paid",
+          render: (q: any) => (
+            <span className="text-sm text-gray-900">
+              {q.isPaid ? "Yes" : "No"}
+            </span>
+          ),
+        },
+        {
+          key: "price",
+          header: "Price",
+          render: (q: any) => (
+            <span className="text-sm text-gray-900">
+              {typeof q.price === "number" ? `$${q.price}` : "-"}
+            </span>
+          ),
+        },
+        {
+          key: "actions",
+          header: "Actions",
+          render: (q: any) => (
+            <div className="flex flex-col md:flex-row md:items-center md:space-x-2 space-y-1 md:space-y-0">
+              <Button
+                size="sm"
+                variant="ghost"
+                onClick={() => openViewModal(q)}
+                className="text-blue-600 hover:text-blue-900 w-full md:w-auto justify-center md:justify-start"
+              >
+                View
+              </Button>
+              <Button
+                size="sm"
+                variant="ghost"
+                onClick={() => openEditModal(q)}
+                className="text-yellow-600 hover:text-yellow-900 w-full md:w-auto justify-center md:justify-start"
+              >
+                Edit
+              </Button>
+              <Button
+                size="sm"
+                variant="ghost"
+                onClick={() => openDeleteModal(q)}
+                className="text-red-600 hover:text-red-900 w-full md:w-auto justify-center md:justify-start"
+              >
+                Delete
+              </Button>
+            </div>
+          ),
+        },
       ]}
       rows={paginated as any}
       getRowKey={(row: any) => row.id}
@@ -208,11 +328,30 @@ function QuizzesManagement() {
         <div className="mb-6 md:mb-8">
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
             <div>
-              <h1 className="text-xl md:text-2xl font-bold text-gray-900 mb-2">Quizzes</h1>
-              <p className="text-sm md:text-base text-gray-600">Manage course quizzes</p>
+              <h1 className="text-xl md:text-2xl font-bold text-gray-900 mb-2">
+                Quizzes
+              </h1>
+              <p className="text-sm md:text-base text-gray-600">
+                Manage course quizzes
+              </p>
             </div>
-            <Button onClick={() => setIsAddModalOpen(true)} className="flex items-center gap-2 w-full sm:w-auto justify-center">
-              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6"/></svg>
+            <Button
+              onClick={() => setIsAddModalOpen(true)}
+              className="flex items-center gap-2 w-full sm:w-auto justify-center"
+            >
+              <svg
+                className="w-5 h-5"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M12 6v6m0 0v6m0-6h6m-6 0H6"
+                />
+              </svg>
               <span className="hidden sm:inline">Add Quiz</span>
               <span className="sm:hidden">Add</span>
             </Button>
@@ -222,13 +361,32 @@ function QuizzesManagement() {
         <TabsNav />
 
         <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4 md:p-6 mb-6">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Search</label>
-              <Input type="text" placeholder={`Search quizzes...`} value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} />
+          <div className="flex flex-col md:flex-row md:items-end gap-4">
+            <div className="flex-1 flex flex-col">
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Search
+              </label>
+              <Input
+                type="text"
+                placeholder={`Search quizzes...`}
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="h-12"
+              />
             </div>
-            <div className="flex items-end">
-              <Button variant="outline" onClick={() => { setSearchTerm(""); }} className="w-full">Clear Filters</Button>
+            <div className="flex-1 flex flex-col">
+              <label className="block text-sm font-medium text-transparent mb-1 select-none">
+                Clear
+              </label>
+              <Button
+                variant="dangerOutline"
+                onClick={() => {
+                  setSearchTerm("");
+                }}
+                className="w-full h-12 flex items-center justify-center"
+              >
+                Clear Filters
+              </Button>
             </div>
           </div>
         </div>
@@ -254,22 +412,48 @@ function QuizzesManagement() {
 
         <Modal
           isOpen={isAddModalOpen || isEditModalOpen}
-          onClose={() => { setIsAddModalOpen(false); setIsEditModalOpen(false); setSelectedItem(null); resetForm(); }}
+          onClose={() => {
+            setIsAddModalOpen(false);
+            setIsEditModalOpen(false);
+            setSelectedItem(null);
+            resetForm();
+          }}
           title={isAddModalOpen ? "Add Quiz" : "Edit Quiz"}
           size="lg"
         >
           <div className="space-y-4">
-            <QuizzesForm formData={formData} onChange={handleInputChange} setFormData={setFormData} courses={courses as any} sections={sections as any} />
+            <QuizzesForm
+              formData={formData}
+              onChange={handleInputChange}
+              setFormData={setFormData}
+              courses={courses as any}
+              sections={sections as any}
+            />
             <div className="flex justify-end space-x-3 pt-4">
-              <Button variant="outline" onClick={() => { setIsAddModalOpen(false); setIsEditModalOpen(false); setSelectedItem(null); resetForm(); }}>Cancel</Button>
-              <Button onClick={isAddModalOpen ? handleAdd : handleEdit}>{isAddModalOpen ? "Add" : "Save Changes"}</Button>
+              <Button
+                variant="danger"
+                onClick={() => {
+                  setIsAddModalOpen(false);
+                  setIsEditModalOpen(false);
+                  setSelectedItem(null);
+                  resetForm();
+                }}
+              >
+                Cancel
+              </Button>
+              <Button onClick={isAddModalOpen ? handleAdd : handleEdit}>
+                {isAddModalOpen ? "Add" : "Save Changes"}
+              </Button>
             </div>
           </div>
         </Modal>
 
         <Modal
           isOpen={isViewModalOpen}
-          onClose={() => { setIsViewModalOpen(false); setSelectedItem(null); }}
+          onClose={() => {
+            setIsViewModalOpen(false);
+            setSelectedItem(null);
+          }}
           title={`Quiz Details`}
           size="lg"
         >
@@ -278,13 +462,29 @@ function QuizzesManagement() {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 {Object.entries(selectedItem).map(([key, value]) => (
                   <div key={key}>
-                    <label className="block text-sm font-medium text-gray-700 capitalize">{key.replace(/([A-Z])/g, " $1").trim()}</label>
-                    <p className="text-sm text-gray-900">{typeof value === "string" || typeof value === "number" ? value.toString() : Array.isArray(value) ? `${value.length} items` : "N/A"}</p>
+                    <label className="block text-sm font-medium text-gray-700 capitalize">
+                      {key.replace(/([A-Z])/g, " $1").trim()}
+                    </label>
+                    <p className="text-sm text-gray-900">
+                      {typeof value === "string" || typeof value === "number"
+                        ? value.toString()
+                        : Array.isArray(value)
+                        ? `${value.length} items`
+                        : "N/A"}
+                    </p>
                   </div>
                 ))}
               </div>
               <div className="flex justify-end pt-4">
-                <Button variant="outline" onClick={() => { setIsViewModalOpen(false); setSelectedItem(null); }}>Close</Button>
+                <Button
+                  variant="outline"
+                  onClick={() => {
+                    setIsViewModalOpen(false);
+                    setSelectedItem(null);
+                  }}
+                >
+                  Close
+                </Button>
               </div>
             </div>
           )}
@@ -292,7 +492,10 @@ function QuizzesManagement() {
 
         <ConfirmationModal
           isOpen={isDeleteModalOpen}
-          onClose={() => { setIsDeleteModalOpen(false); setSelectedItem(null); }}
+          onClose={() => {
+            setIsDeleteModalOpen(false);
+            setSelectedItem(null);
+          }}
           onConfirm={handleDelete}
           title={`Delete Quiz`}
           message={`Are you sure you want to delete this quiz? This action cannot be undone.`}

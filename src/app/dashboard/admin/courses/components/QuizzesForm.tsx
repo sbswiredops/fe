@@ -26,7 +26,7 @@ export default function QuizzesForm({ formData, onChange, setFormData, courses, 
             onChange={(e) => {
               setFormData((p: any) => ({ ...p, courseId: e.target.value || undefined, sectionId: '' }));
             }}
-            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#51356e] text-gray-900 h-10"
           >
             <option value="">Optional: Select course</option>
             {courses.map((c) => (
@@ -40,7 +40,7 @@ export default function QuizzesForm({ formData, onChange, setFormData, courses, 
             name="sectionId"
             value={formData.sectionId || ''}
             onChange={onChange}
-            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#51356e] text-gray-900 h-10"
           >
             <option value="">Optional: Select section</option>
             {courseSections.map((s) => (
@@ -58,7 +58,7 @@ export default function QuizzesForm({ formData, onChange, setFormData, courses, 
           value={formData.description || ''}
           onChange={onChange}
           placeholder="Enter quiz description"
-          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#51356e] text-gray-900"
           rows={4}
         />
       </div>

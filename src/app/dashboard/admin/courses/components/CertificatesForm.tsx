@@ -19,7 +19,7 @@ export default function CertificatesForm({ formData, onChange, setFormData, cour
             name="courseId"
             value={formData.courseId || ''}
             onChange={onChange}
-            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#51356e] text-gray-900 h-10"
             required
           >
             <option value="">Select a course</option>

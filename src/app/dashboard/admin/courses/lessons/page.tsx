@@ -67,7 +67,6 @@ function LessonsManagement() {
     load();
   }, [serverEnabled, refreshTick]);
 
-  // ...existing code...
   const handleInputChange = (
     e: React.ChangeEvent<
       HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement
@@ -231,8 +230,8 @@ function LessonsManagement() {
         <TabsNav />
 
         <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4 md:p-6 mb-6">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <div>
+          <div className="flex flex-col md:flex-row md:items-end gap-4">
+            <div className="flex-1 flex flex-col">
               <label className="block text-sm font-medium text-gray-700 mb-1">
                 Search
               </label>
@@ -241,14 +240,15 @@ function LessonsManagement() {
                 placeholder={`Search lessons...`}
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
+                className="h-12"
               />
             </div>
-            <div>
+            <div className="flex-1 flex flex-col">
               <label className="block text-sm font-medium text-gray-700 mb-1">
                 Status
               </label>
               <select
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#51356e] text-gray-900 h-12"
                 value={statusFilter}
                 onChange={(e) => setStatusFilter(e.target.value)}
               >
@@ -257,14 +257,17 @@ function LessonsManagement() {
                 <option value="inactive">Draft</option>
               </select>
             </div>
-            <div className="flex items-end">
+            <div className="flex-1 flex flex-col">
+              <label className="block text-sm font-medium text-transparent mb-1 select-none">
+                Clear
+              </label>
               <Button
-                variant="outline"
+                variant="dangerOutline"
                 onClick={() => {
                   setSearchTerm("");
                   setStatusFilter("all");
                 }}
-                className="w-full"
+                className="w-full h-12 flex items-center justify-center"
               >
                 Clear Filters
               </Button>
@@ -307,7 +310,7 @@ function LessonsManagement() {
             />
             <div className="flex justify-end space-x-3 pt-4">
               <Button
-                variant="outline"
+                variant="danger"
                 onClick={() => {
                   setIsAddModalOpen(false);
                   setIsEditModalOpen(false);
@@ -352,7 +355,7 @@ function LessonsManagement() {
               </div>
               <div className="flex justify-end pt-4">
                 <Button
-                  variant="outline"
+                  variant="danger"
                   onClick={() => {
                     setIsViewModalOpen(false);
                     setSelectedItem(null);

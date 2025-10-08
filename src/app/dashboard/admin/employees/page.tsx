@@ -167,14 +167,14 @@ function EmployeesManagement() {
             name="role"
             value={formData.role ?? defaultTeacherRole}
             onChange={handleInputChange}
-            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-900"
             required
           >
-            <option value="">
+            <option value="" className="text-gray-900">
               {rolesLoading ? "Loading..." : "Select role"}
             </option>
             {roles.map((r) => (
-              <option key={r} value={r}>
+              <option key={r} value={r} className="text-gray-900">
                 {r.charAt(0).toUpperCase() + r.slice(1)}
               </option>
             ))}
@@ -188,11 +188,15 @@ function EmployeesManagement() {
             name="status"
             value={formData.status || "active"}
             onChange={handleInputChange}
-            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-900"
             required
           >
-            <option value="active">Active</option>
-            <option value="inactive">Inactive</option>
+            <option value="active" className="text-gray-900">
+              Active
+            </option>
+            <option value="inactive" className="text-gray-900">
+              Inactive
+            </option>
           </select>
         </div>
       </>
@@ -328,7 +332,7 @@ function EmployeesManagement() {
         {/* Filters */}
         <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4 md:p-6 mb-6">
           <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-            <div className="md:col-span-2">
+            <div className="md:col-span-2 flex flex-col justify-end">
               <label className="block text-sm font-medium text-gray-700 mb-1">
                 Search
               </label>
@@ -337,52 +341,48 @@ function EmployeesManagement() {
                 placeholder="Search teachers..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
+                className="h-[48px]  border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-900"
               />
             </div>
-            <div>
+            <div className="flex flex-col justify-end">
               <label className="block text-sm font-medium text-gray-700 mb-1">
                 Status
               </label>
               <select
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full px-3 py-2 h-[48px] border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-900"
                 value={statusFilter}
                 onChange={(e) => setStatusFilter(e.target.value)}
               >
-                <option value="all">All Status</option>
-                <option value="active">Active</option>
-                <option value="inactive">Inactive</option>
+                <option value="all" className="text-gray-900">
+                  All Status
+                </option>
+                <option value="active" className="text-gray-900">
+                  Active
+                </option>
+                <option value="inactive" className="text-gray-900">
+                  Inactive
+                </option>
               </select>
             </div>
-            <div>
+            <div className="flex flex-col justify-end">
               <label className="block text-sm font-medium text-gray-700 mb-1">
                 Role
               </label>
               <select
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full px-3 py-2 h-[48px] border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-900"
                 value={roleFilter}
                 onChange={(e) => setRoleFilter(e.target.value)}
                 disabled={rolesLoading}
               >
-                <option value="all">All Roles</option>
+                <option value="all" className="text-gray-900">
+                  All Roles
+                </option>
                 {roles.map((r) => (
-                  <option key={r} value={r}>
+                  <option key={r} value={r} className="text-gray-900">
                     {r.charAt(0).toUpperCase() + r.slice(1)}
                   </option>
                 ))}
               </select>
-            </div>
-            <div className="md:col-span-4 flex items-end">
-              <Button
-                variant="outline"
-                onClick={() => {
-                  setSearchTerm("");
-                  setStatusFilter("all");
-                  setRoleFilter("all");
-                }}
-                className="w-full md:w-auto"
-              >
-                Clear Filters
-              </Button>
             </div>
           </div>
         </div>
@@ -398,7 +398,7 @@ function EmployeesManagement() {
                     header: "Teacher",
                     render: (teacher: Teacher) => (
                       <div className="flex items-center">
-                        <div className="w-10 h-10 bg-blue-600 rounded-full flex items-center justify-center">
+                        <div className="w-10 h-10 bg-[#51356e] rounded-full flex items-center justify-center">
                           <span className="text-white font-medium text-sm">
                             {teacher.name.charAt(0).toUpperCase()}
                           </span>
@@ -577,7 +577,7 @@ function EmployeesManagement() {
             {getFormFields()}
             <div className="flex justify-end space-x-3 pt-4">
               <Button
-                variant="outline"
+                variant="danger"
                 onClick={() => {
                   setIsAddModalOpen(false);
                   setIsEditModalOpen(false);
@@ -639,7 +639,7 @@ function EmployeesManagement() {
               </div>
               <div className="flex justify-end pt-4">
                 <Button
-                  variant="outline"
+                  variant="danger"
                   onClick={() => {
                     setIsViewModalOpen(false);
                     setSelectedItem(null);
