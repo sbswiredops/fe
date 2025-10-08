@@ -1,4 +1,4 @@
-'use client';
+"use client";
 
 import MainLayout from "@/components/layout/MainLayout";
 import { useLanguage } from "@/components/contexts/LanguageContext";
@@ -6,49 +6,123 @@ import { useState } from "react";
 
 function SupportContent() {
   const { t } = useLanguage();
-  const [activeTab, setActiveTab] = useState('general');
+  const [activeTab, setActiveTab] = useState("general");
 
   const faqData = {
     general: [
       {
-        question: "How do I create an account?",
-        answer: "To create an account, click on the 'Register' button and fill out the required information."
+        question: "What is Shekhabo, and how does it work?",
+        answer:
+          "Shekhabo is an online learning and career support platform that helps students, fresh graduates, and professionals develop in-demand skills through interactive courses, expert mentorship, and job placement support.",
       },
       {
-        question: "Is there a mobile app available?",
-        answer: "Currently, we offer a web-based platform that works on all devices including mobile browsers."
-      }
+        question:
+          "Who can join—fresh graduates, professionals, or career changers?",
+        answer:
+          "Shekhabo courses are open to fresh graduates, working professionals, and career changers. Whether you’re starting out or upskilling, there’s a suitable path for you.",
+      },
+      {
+        question: "Do I need prior knowledge or skills to get started?",
+        answer:
+          "No prior experience is needed for most beginner-friendly courses. Advanced programs may require some background knowledge, which will be clearly mentioned in the course details.",
+      },
+      {
+        question:
+          "Are your certificates recognized by employers and industry partners?",
+        answer:
+          "Yes, Shekhabo’s certificates are industry-recognized and valued by employers across multiple sectors.",
+      },
+      {
+        question:
+          "Does Shekhabo provide career counseling or interview preparation?",
+        answer:
+          "Yes, learners receive career guidance, resume-building support, and mock interview sessions to help with job readiness.",
+      },
+      {
+        question: "Does Shekhabo help with job and internship placements?",
+        answer:
+          "Yes, through our hiring network, Shekhabo offers job and internship opportunities to qualified learners.",
+      },
     ],
     courses: [
       {
-        question: "How do I enroll in a course?",
-        answer: "Browse our course catalog, select a course, and click 'Enroll Now' to get started."
+        question: "Are classes live, self-paced, or both?",
+        answer:
+          "Shekhabo offers live instructor-led classes, recorded sessions, and self-paced modules for flexible learning.",
       },
       {
-        question: "Can I get a refund?",
-        answer: "Refund policies vary by course. Please check the specific course page for refund terms."
-      }
+        question:
+          "Do the courses include real-world projects and hands-on learning?",
+        answer:
+          "Yes, Shekhabo courses feature practical projects, enabling you to build a portfolio with real-world experience.",
+      },
+      {
+        question: "Will I be guided by mentors or industry experts?",
+        answer:
+          "Absolutely. Expert mentors provide feedback, guidance, and career advice throughout your learning experience.",
+      },
+      {
+        question: "Can I watch recorded sessions if I miss a live class?",
+        answer:
+          "Yes, all live sessions are recorded and accessible anytime for review.",
+      },
+      {
+        question: "Can I ask trainers questions during or after classes?",
+        answer:
+          "Yes, learners can ask questions during live classes or post them in Shekhabo’s discussion forums for trainer feedback.",
+      },
+      {
+        question: "Will I get a certificate after completing a course?",
+        answer:
+          "Yes, every Shekhabo course awards a digital certificate upon successful completion.",
+      },
     ],
     technical: [
       {
-        question: "I'm having trouble accessing my course",
-        answer: "Try clearing your browser cache or contact our technical support team."
+        question:
+          "How can I contact the support team if I face technical issues?",
+        answer:
+          "You can contact the Shekhabo support team via email, live chat, or phone for quick assistance. (See contact details above.)",
       },
       {
-        question: "Video not playing properly",
-        answer: "Ensure you have a stable internet connection and try refreshing the page."
-      }
+        question: "Where can I find your terms of service and privacy policy?",
+        answer:
+          "They are available at the bottom of the Shekhabo website and in your account dashboard.",
+      },
+      {
+        question: "Can I share my account with friends or family?",
+        answer:
+          "No, Shekhabo accounts are individual and non-transferable to maintain a personalized learning experience.",
+      },
     ],
     billing: [
       {
-        question: "What payment methods do you accept?",
-        answer: "We accept major credit cards, mobile banking, and bank transfers."
+        question: "How do I sign up for a course?",
+        answer:
+          'Go to your desired course page, click "Enroll Now," and complete the quick registration process. (A sign-up tutorial video can be added.)',
       },
       {
-        question: "How do I update my payment information?",
-        answer: "You can update your payment details in your account settings under 'Billing'."
-      }
-    ]
+        question: "What payment methods are accepted?",
+        answer:
+          "Shekhabo accepts Bkash, Nagad, credit/debit cards, and other secure online payment options.",
+      },
+      {
+        question: "Do you offer installment plans or student discounts?",
+        answer:
+          "While installments are not currently available, student discounts apply to selected courses.",
+      },
+      {
+        question: "How much do courses cost?",
+        answer:
+          "Prices vary by program and are listed on each course page. (Include “View All Courses” link.)",
+      },
+      {
+        question:
+          "What is your refund policy if I’m not satisfied with a course?",
+        answer:
+          "Refunds are available within a defined period. Details are on the refund policy page.",
+      },
+    ],
   };
 
   return (
@@ -57,10 +131,10 @@ function SupportContent() {
       <section className="hero-section py-20 text-center bg-gray-50">
         <div className="container mx-auto px-4">
           <h1 className="hero-title text-5xl md:text-6xl font-bold text-gray-800 mb-6">
-            {t('support.title')}
+            {t("support.title")}
           </h1>
           <p className="hero-subtitle text-xl text-gray-600 max-w-3xl mx-auto">
-            {t('support.subtitle')}
+            {t("support.subtitle")}
           </p>
         </div>
       </section>
@@ -70,63 +144,64 @@ function SupportContent() {
         <div className="container mx-auto px-4">
           <div className="max-w-6xl mx-auto">
             <h2 className="text-4xl font-bold text-center text-gray-800 mb-12">
-              {t('support.faq.title')}
+              {t("support.faq.title")}
             </h2>
 
             {/* FAQ Tabs */}
             <div className="faq-tabs flex flex-wrap justify-center mb-8 space-x-2">
               <button
-                onClick={() => setActiveTab('general')}
+                onClick={() => setActiveTab("general")}
                 className={`px-6 py-3 rounded-lg font-medium transition-colors duration-300 ${
-                  activeTab === 'general'
-                    ? 'bg-orange-500 text-white'
-                    : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                  activeTab === "general"
+                    ? "bg-orange-500 text-white"
+                    : "bg-gray-100 text-gray-700 hover:bg-gray-200"
                 }`}
               >
-                {t('support.faq.general')}
+                {t("support.faq.general")}
               </button>
               <button
-                onClick={() => setActiveTab('courses')}
+                onClick={() => setActiveTab("courses")}
                 className={`px-6 py-3 rounded-lg font-medium transition-colors duration-300 ${
-                  activeTab === 'courses'
-                    ? 'bg-orange-500 text-white'
-                    : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                  activeTab === "courses"
+                    ? "bg-orange-500 text-white"
+                    : "bg-gray-100 text-gray-700 hover:bg-gray-200"
                 }`}
               >
-                {t('support.faq.courses')}
+                {t("support.faq.courses")}
               </button>
               <button
-                onClick={() => setActiveTab('technical')}
+                onClick={() => setActiveTab("technical")}
                 className={`px-6 py-3 rounded-lg font-medium transition-colors duration-300 ${
-                  activeTab === 'technical'
-                    ? 'bg-orange-500 text-white'
-                    : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                  activeTab === "technical"
+                    ? "bg-orange-500 text-white"
+                    : "bg-gray-100 text-gray-700 hover:bg-gray-200"
                 }`}
               >
-                {t('support.faq.technical')}
+                {t("support.faq.technical")}
               </button>
               <button
-                onClick={() => setActiveTab('billing')}
+                onClick={() => setActiveTab("billing")}
                 className={`px-6 py-3 rounded-lg font-medium transition-colors duration-300 ${
-                  activeTab === 'billing'
-                    ? 'bg-orange-500 text-white'
-                    : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                  activeTab === "billing"
+                    ? "bg-orange-500 text-white"
+                    : "bg-gray-100 text-gray-700 hover:bg-gray-200"
                 }`}
               >
-                {t('support.faq.billing')}
+                {t("support.faq.billing")}
               </button>
             </div>
 
             {/* FAQ Content */}
             <div className="faq-content space-y-4 max-w-4xl mx-auto">
               {faqData[activeTab as keyof typeof faqData].map((faq, index) => (
-                <div key={index} className="faq-item bg-white p-6 rounded-xl shadow-md border border-gray-100">
+                <div
+                  key={index}
+                  className="faq-item bg-white p-6 rounded-xl shadow-md border border-gray-100"
+                >
                   <h3 className="faq-question text-lg font-semibold text-gray-800 mb-3">
                     {faq.question}
                   </h3>
-                  <p className="faq-answer text-gray-600">
-                    {faq.answer}
-                  </p>
+                  <p className="faq-answer text-gray-600">{faq.answer}</p>
                 </div>
               ))}
             </div>
@@ -135,7 +210,7 @@ function SupportContent() {
       </section>
 
       {/* Support Options Section */}
-      <section className="support-options-section py-16 bg-gray-50  mx-auto px-4 sm:px-10 lg:px-50" >
+      <section className="support-options-section py-16 bg-gray-50  mx-auto px-4 sm:px-10 lg:px-50">
         <div className="container mx-auto px-4">
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 max-w-6xl mx-auto">
             {/* Help Desk */}
@@ -144,13 +219,13 @@ function SupportContent() {
                 <span className="text-blue-500 text-3xl">🎫</span>
               </div>
               <h3 className="text-xl font-bold text-center text-gray-800 mb-4">
-                {t('support.helpDesk.title')}
+                {t("support.helpDesk.title")}
               </h3>
               <p className="text-gray-600 text-center mb-6">
-                {t('support.helpDesk.description')}
+                {t("support.helpDesk.description")}
               </p>
               <button className="w-full bg-blue-500 hover:bg-blue-600 text-white font-bold py-3 px-6 rounded-lg transition-colors duration-300">
-                {t('support.helpDesk.submitTicket')}
+                {t("support.helpDesk.submitTicket")}
               </button>
             </div>
 
@@ -160,20 +235,32 @@ function SupportContent() {
                 <span className="text-green-500 text-3xl">📚</span>
               </div>
               <h3 className="text-xl font-bold text-center text-gray-800 mb-4">
-                {t('support.resources.title')}
+                {t("support.resources.title")}
               </h3>
               <div className="resources-list space-y-3">
-                <a href="#" className="block text-blue-600 hover:text-blue-800 transition-colors duration-300">
-                  {t('support.resources.userGuide')}
+                <a
+                  href="#"
+                  className="block text-blue-600 hover:text-blue-800 transition-colors duration-300"
+                >
+                  {t("support.resources.userGuide")}
                 </a>
-                <a href="#" className="block text-blue-600 hover:text-blue-800 transition-colors duration-300">
-                  {t('support.resources.videoTutorials')}
+                <a
+                  href="#"
+                  className="block text-blue-600 hover:text-blue-800 transition-colors duration-300"
+                >
+                  {t("support.resources.videoTutorials")}
                 </a>
-                <a href="#" className="block text-blue-600 hover:text-blue-800 transition-colors duration-300">
-                  {t('support.resources.downloads')}
+                <a
+                  href="#"
+                  className="block text-blue-600 hover:text-blue-800 transition-colors duration-300"
+                >
+                  {t("support.resources.downloads")}
                 </a>
-                <a href="#" className="block text-blue-600 hover:text-blue-800 transition-colors duration-300">
-                  {t('support.resources.systemRequirements')}
+                <a
+                  href="#"
+                  className="block text-blue-600 hover:text-blue-800 transition-colors duration-300"
+                >
+                  {t("support.resources.systemRequirements")}
                 </a>
               </div>
             </div>
@@ -184,26 +271,32 @@ function SupportContent() {
                 <span className="text-orange-500 text-3xl">📞</span>
               </div>
               <h3 className="text-xl font-bold text-center text-gray-800 mb-4">
-                {t('support.contact.title')}
+                {t("support.contact.title")}
               </h3>
               <div className="contact-options space-y-4">
                 <div className="contact-option">
-                  <h4 className="font-semibold text-gray-800">{t('support.contact.phone')}</h4>
+                  <h4 className="font-semibold text-gray-800">
+                    {t("support.contact.phone")}
+                  </h4>
                   <p className="text-gray-600">+880 1234-567890</p>
                 </div>
                 <div className="contact-option">
-                  <h4 className="font-semibold text-gray-800">{t('support.contact.email')}</h4>
+                  <h4 className="font-semibold text-gray-800">
+                    {t("support.contact.email")}
+                  </h4>
                   <p className="text-gray-600">support@shekhabo.com</p>
                 </div>
                 <div className="contact-option">
-                  <h4 className="font-semibold text-gray-800">{t('support.contact.chat')}</h4>
+                  <h4 className="font-semibold text-gray-800">
+                    {t("support.contact.chat")}
+                  </h4>
                   <button className="text-blue-600 hover:text-blue-800 transition-colors duration-300">
                     Start Live Chat
                   </button>
                 </div>
               </div>
               <p className="text-sm text-gray-500 mt-4 text-center">
-                {t('support.contact.hours')}
+                {t("support.contact.hours")}
               </p>
             </div>
           </div>
@@ -217,10 +310,13 @@ function SupportContent() {
             <div className="emergency-icon w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mb-6 mx-auto">
               <span className="text-red-500 text-3xl">🚨</span>
             </div>
-            <h3 className="text-2xl font-bold text-gray-800 mb-4">Emergency Support</h3>
+            <h3 className="text-2xl font-bold text-gray-800 mb-4">
+              Emergency Support
+            </h3>
             <p className="text-gray-600 mb-6">
-              If you're experiencing critical issues that prevent you from accessing your courses or account, 
-              please contact our emergency support line immediately.
+              If you're experiencing critical issues that prevent you from
+              accessing your courses or account, please contact our emergency
+              support line immediately.
             </p>
             <button className="bg-red-500 hover:bg-red-600 text-white font-bold py-3 px-8 rounded-lg transition-colors duration-300">
               Contact Emergency Support
