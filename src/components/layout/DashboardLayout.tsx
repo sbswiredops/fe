@@ -201,13 +201,6 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
     }
   }, [user]);
 
-  const activeTitle = useMemo(() => {
-    return (
-      navigationItems.find(
-        (item) => pathname === item.href || pathname.startsWith(item.href + "/")
-      )?.name || "Dashboard"
-    );
-  }, [pathname, navigationItems]);
 
   const effectiveAuth = isAuthenticated || authFromStorage;
   if (!effectiveAuth && typeof window !== "undefined") {
