@@ -203,24 +203,24 @@ export default function CoursesForm({
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-1">
-            Tags (comma separated)
+            Skills (comma separated)
           </label>
           <textarea
-            name="tags"
+            name="skills"
             rows={2}
-            value={formData.tags || ""}
+            value={formData.skills || ""}
             onChange={onChange}
             className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#51356e] text-gray-900"
           />
         </div>
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-1">
-            Requirements (comma separated)
+            Prerequisites (comma separated)
           </label>
           <textarea
-            name="requirements"
+            name="prerequisites"
             rows={2}
-            value={formData.requirements || ""}
+            value={formData.prerequisites || ""}
             onChange={onChange}
             className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#51356e] text-gray-900"
           />
@@ -233,6 +233,18 @@ export default function CoursesForm({
             name="learningOutcomes"
             rows={2}
             value={formData.learningOutcomes || ""}
+            onChange={onChange}
+            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#51356e] text-gray-900"
+          />
+        </div>
+          <div>
+          <label className="block text-sm font-medium text-gray-700 mb-1">
+            Course for (comma separated)
+          </label>
+          <textarea
+            name="courseFor"
+            rows={2}
+            value={formData.courseFor || ""}
             onChange={onChange}
             className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#51356e] text-gray-900"
           />

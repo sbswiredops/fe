@@ -11,6 +11,7 @@ const tabs = [
   { href: "/dashboard/admin/courses/lessons", label: "Lessons" },
   { href: "/dashboard/admin/courses/quiz", label: "Quiz" },
   { href: "/dashboard/admin/courses/certificate", label: "Certificate" },
+  { href: "/dashboard/admin/courses/faqs", label: "FAQs" },
 ];
 
 export default function TabsNav() {
@@ -22,13 +23,21 @@ export default function TabsNav() {
         {tabs.map((t) => {
           const active =
             pathname === t.href ||
-            (t.href !== "/dashboard/admin/courses" && pathname?.startsWith(t.href));
+            (t.href !== "/dashboard/admin/courses" &&
+              pathname?.startsWith(t.href));
           const classes = [
             "px-4 py-2 text-sm font-medium rounded-md transition-colors",
-            active ? "bg-[#51356e] text-white" : "text-gray-700 hover:bg-gray-100",
+            active
+              ? "bg-[#51356e] text-white"
+              : "text-gray-700 hover:bg-gray-100",
           ].join(" ");
           return (
-            <Link key={t.href} href={t.href} className={classes} prefetch={false}>
+            <Link
+              key={t.href}
+              href={t.href}
+              className={classes}
+              prefetch={false}
+            >
               {t.label}
             </Link>
           );
