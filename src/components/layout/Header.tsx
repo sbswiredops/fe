@@ -7,10 +7,12 @@ import Button from "@/components/ui/Button";
 import { useLanguage } from "../contexts/LanguageContext";
 import { useAuth } from "../contexts/AuthContext";
 import AuthDrawer from "../auth/AuthDrawer";
+import { useRouter } from "next/navigation";
 
 export default function Header() {
   const { t, currentLanguage, setLanguage, languages } = useLanguage();
-  const { user, logout } = useAuth();
+  const { user, logout, isLoading } = useAuth();
+  const router = useRouter();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isLanguageDropdownOpen, setIsLanguageDropdownOpen] = useState(false);
   const [isUserDropdownOpen, setIsUserDropdownOpen] = useState(false);
@@ -42,6 +44,49 @@ export default function Header() {
     return primary || secondary || roleStr || "";
   })();
   const displayInitial = displayName ? displayName[0].toUpperCase() : "";
+
+  // Role-based dashboard redirect handler
+  const handleDashboardRedirect = async (e?: React.MouseEvent) => {
+    if (e) e.preventDefault();
+    if (isLoading) return;
+    // 1s wait (optional)
+    await new Promise((res) => setTimeout(res, 1000));
+    let roleValue = "";
+    if (user) {
+      roleValue =
+        typeof (user as any).role === "string"
+          ? (user as any).role
+          : String((user as any).role?.name || "")
+              .trim()
+              .toLowerCase()
+              .replace(/[\s-]+/g, "_");
+    }
+    if (
+      [
+        "admin",
+        "super_admin",
+        "sales_marketing",
+        "finance_accountant",
+        "content_creator",
+      ].includes(roleValue)
+    ) {
+      router.push("/dashboard/admin");
+    } else if (["teacher", "instructor"].includes(roleValue)) {
+      router.push("/dashboard/teacher");
+    } else if (roleValue === "student") {
+      router.push("/dashboard/student");
+    } else {
+      router.push("/");
+    }
+  };
+
+  // Logout handler with delay
+  const handleLogout = async () => {
+    await new Promise((res) => setTimeout(res, 1000));
+    logout();
+    setIsUserDropdownOpen(false);
+    setIsMenuOpen(false);
+  };
 
   return (
     <header className="bg-white shadow-sm border-b border-gray-200 sticky top-0 z-30">
@@ -156,13 +201,13 @@ export default function Header() {
 
                   {isUserDropdownOpen && (
                     <div className="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg border border-gray-200 py-1 z-50">
-                      <Link
+                      <a
                         href="/dashboard"
                         className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
-                        onClick={() => setIsUserDropdownOpen(false)}
+                        onClick={handleDashboardRedirect}
                       >
                         {t("nav.dashboard")}
-                      </Link>
+                      </a>
                       <Link
                         href="/profile"
                         className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
@@ -179,10 +224,7 @@ export default function Header() {
                       </Link>
                       <hr className="my-1" />
                       <button
-                        onClick={() => {
-                          logout();
-                          setIsUserDropdownOpen(false);
-                        }}
+                        onClick={handleLogout}
                         className="block w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-gray-100"
                       >
                         Logout
@@ -268,7 +310,12 @@ export default function Header() {
                       href="/dashboard"
                       onClick={() => setIsMenuOpen(false)}
                     >
-                      <Button variant="ghost" size="sm" className="w-full">
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        className="w-full"
+                        onClick={handleDashboardRedirect}
+                      >
                         {t("nav.dashboard")}
                       </Button>
                     </Link>
@@ -276,10 +323,7 @@ export default function Header() {
                       variant="outline"
                       size="sm"
                       className="w-full"
-                      onClick={() => {
-                        logout();
-                        setIsMenuOpen(false);
-                      }}
+                      onClick={handleLogout}
                     >
                       Logout
                     </Button>
