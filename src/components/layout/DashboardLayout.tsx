@@ -242,7 +242,7 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
     lg:translate-x-0 lg:static lg:inset-0
   `}
       >
-        <div className="flex-1 flex flex-col">
+        <div className="flex-1 flex flex-col bg">
           <div
             className={`flex items-center ${headerPaddingClass} ${headerJustifyClass} h-16 border-b border-gray-200 relative`}
           >
@@ -264,12 +264,12 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
             </button>
             <button
               onClick={() => setIsDesktopSidebarExpanded((prev) => !prev)}
-              className="hidden lg:flex items-center justify-center p-1.5 rounded-full border border-gray-200 text-gray-500 hover:text-blue-600 hover:border-blue-300 transition-colors absolute"
+              className="hidden lg:flex items-center justify-center p-1.5 rounded-full border border-gray-200 text-gray-100 hover:text-[#51356e] hover:border-[#51356e] transition-colors absolute"
               style={{
                 top: "50%",
                 right: "-18px",
                 transform: "translateY(-50%)",
-                background: "white",
+                background: "#51356e",
                 boxShadow: "0 0 6px rgba(0,0,0,0.07)",
                 zIndex: 10,
               }}
@@ -277,7 +277,7 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
                 isDesktopSidebarExpanded ? "Collapse sidebar" : "Expand sidebar"
               }
             >
-              <ToggleIcon className="w-5 h-5" />
+              <ToggleIcon className="w-5 h-5 text-gray-100" />
             </button>
           </div>
 
