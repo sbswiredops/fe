@@ -3,6 +3,7 @@
 import React from "react";
 import Link from "next/link";
 import { useLanguage } from "../contexts/LanguageContext";
+import { Mail, MapPin, Facebook, Instagram, Linkedin } from "lucide-react";
 
 export default function Footer() {
   const { t } = useLanguage();
@@ -22,18 +23,22 @@ export default function Footer() {
     { name: t("footer.termsOfService"), href: "/terms" },
   ];
 
-  const moreLinks = [
-    { name: t("nav.dashboard"), href: "/dashboard" },
-    { name: "Student Profile", href: "/dashboard/student/profile" },
-    { name: "Teacher", href: "/dashboard/teacher" },
-    { name: "About Shekhabo", href: "/about" },
-  ];
-
   const socialLinks = [
-    { name: "Pinterest", href: "#", icon: "p" },
-    { name: "Facebook", href: "#", icon: "f" },
-    { name: "Twitter", href: "#", icon: "t" },
-    { name: "Instagram", href: "#", icon: "i" },
+    {
+      name: "LinkedIn",
+      href: "https://www.linkedin.com/company/shekhabo-limited",
+      icon: Linkedin,
+    },
+    {
+      name: "Instagram",
+      href: "https://www.instagram.com/shekhabo.insta?",
+      icon: Instagram,
+    },
+    {
+      name: "Facebook",
+      href: "https://www.facebook.com/profile.php?id=61579715964796",
+      icon: Facebook,
+    },
   ];
 
   return (
@@ -66,18 +71,21 @@ export default function Footer() {
               {t("footer.followUs")}
             </h3>
             <div className="flex items-center gap-3">
-              {socialLinks.map((s) => (
-                <Link
-                  key={s.name}
-                  href={s.href}
-                  aria-label={s.name}
-                  className="w-9 h-9 rounded-full bg-green-600 text-white flex items-center justify-center hover:bg-green-700 transition-colors"
-                >
-                  <span className="font-semibold uppercase text-sm">
-                    {s.icon}
-                  </span>
-                </Link>
-              ))}
+              {socialLinks.map((s) => {
+                const Icon = s.icon;
+                return (
+                  <a
+                    key={s.name}
+                    href={s.href}
+                    aria-label={s.name}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="w-9 h-9 rounded-full bg-green-600 text-white flex items-center justify-center hover:bg-green-700 transition-colors"
+                  >
+                    <Icon size={16} />
+                  </a>
+                );
+              })}
             </div>
           </div>
           {/* Column: Explore */}
@@ -116,22 +124,33 @@ export default function Footer() {
             </ul>
           </div>
 
-          {/* Column: More from Shekhabo */}
+          {/* Column: Contact (replaces More from Shekhabo) */}
           <div>
-            <h3 className="mb-4 text-lg font-semibold text-white">
-              More from Shekhabo
-            </h3>
-            <ul className="space-y-2">
-              {moreLinks.map((link) => (
-                <li key={link.name}>
-                  <Link
-                    href={link.href}
-                    className="text-zinc-800 hover:text-[#ebebeb] transition-colors"
-                  >
-                    {link.name}
-                  </Link>
-                </li>
-              ))}
+            <h3 className="mb-4 text-lg font-semibold text-white">Contact</h3>
+            <ul className="space-y-3 text-zinc-800">
+              <li className="flex items-start gap-3">
+                <Mail
+                  className="pt-1 text-white"
+                  size={18}
+                  aria-hidden="true"
+                />
+                <a
+                  href="mailto:teamshekhabo@gmail.com"
+                  className="hover:text-[#ebebeb] transition-colors"
+                >
+                  teamshekhabo@gmail.com
+                </a>
+              </li>
+              <li className="flex items-start gap-3">
+                <MapPin
+                  className="pt-1 text-white"
+                  size={18}
+                  aria-hidden="true"
+                />
+                <span className="text-zinc-800">
+                  House 364, Road 27, Mohakhali DOHS, Dhaka - 1206
+                </span>
+              </li>
             </ul>
           </div>
         </div>

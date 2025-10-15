@@ -138,7 +138,7 @@ export default function LiveCourseContents() {
           <div className="inline-flex items-center justify-center mb-6">
             <Zap className="w-10 h-10 text-blue-600" />
           </div>
-          <h2 className="text-4xl lg:text-5xl font-bold bg-gradient-to-r from-gray-900 via-blue-800 to-purple-800 bg-clip-text text-transparent mb-6">
+          <h2 className="text-3xl lg:text-4xl font-bold bg-gradient-to-r from-gray-900 via-blue-800 to-purple-800 bg-clip-text text-transparent mb-6">
             Live Course Contents
           </h2>
           <p className="text-xl text-gray-600 max-w-3xl mx-auto leading-relaxed">

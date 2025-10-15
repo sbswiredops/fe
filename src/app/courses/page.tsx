@@ -198,6 +198,11 @@ function AllCoursesClient() {
       href: "/courses",
     },
     {
+      key: CourseType.RECORDED,
+      label: currentLanguage.code === "bn" ? "রেকর্ডেড" : "Recorded Courses",
+      href: `/courses?type=${encodeURIComponent(CourseType.RECORDED)}`,
+    },
+    {
       key: CourseType.FREE_LIVE,
       label: currentLanguage.code === "bn" ? "ফ্রি লাইভ" : "Free Live",
       href: `/courses?type=${encodeURIComponent(CourseType.FREE_LIVE)}`,
@@ -206,11 +211,6 @@ function AllCoursesClient() {
       key: CourseType.UPCOMING_LIVE,
       label: currentLanguage.code === "bn" ? "আপকামিং লাইভ" : "Upcoming Live",
       href: `/courses?type=${encodeURIComponent(CourseType.UPCOMING_LIVE)}`,
-    },
-    {
-      key: CourseType.RECORDED,
-      label: currentLanguage.code === "bn" ? "রেকর্ডেড" : "Recorded Courses",
-      href: `/courses?type=${encodeURIComponent(CourseType.RECORDED)}`,
     },
   ];
 
