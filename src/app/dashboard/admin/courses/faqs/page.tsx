@@ -10,12 +10,10 @@ import Input from "@/components/ui/Input";
 import ConfirmationModal from "@/components/ui/ConfirmationModal";
 import useToast from "@/components/hoock/toast";
 
-type FaqStatus = "active" | "draft";
 interface Faq {
   id: string;
   question: string;
   answer: string;
-  status: FaqStatus;
   updatedAt: string;
   courseId: string;
 }
@@ -38,7 +36,6 @@ function FaqsManagement() {
       question: "How long do I have access to the course?",
       answer:
         "You get lifetime access, including future updates and improvements.",
-      status: "active",
       updatedAt: new Date().toISOString(),
       courseId: "c-101",
     },
@@ -46,16 +43,12 @@ function FaqsManagement() {
       id: "2",
       question: "Do I need prior experience?",
       answer: "No prior experience is required. We start from basics.",
-      status: "draft",
       updatedAt: new Date().toISOString(),
       courseId: "c-102",
     },
   ]);
 
   const [search, setSearch] = React.useState("");
-  const [statusFilter, setStatusFilter] = React.useState<"all" | FaqStatus>(
-    "all"
-  );
 
   const [isAddOpen, setIsAddOpen] = React.useState(false);
   const [isEditOpen, setIsEditOpen] = React.useState(false);
@@ -65,7 +58,6 @@ function FaqsManagement() {
   const [form, setForm] = React.useState<Partial<Faq>>({
     question: "",
     answer: "",
-    status: "active",
     courseId: "",
   });
 
@@ -74,15 +66,13 @@ function FaqsManagement() {
       !search ||
       f.question.toLowerCase().includes(search.toLowerCase()) ||
       f.answer.toLowerCase().includes(search.toLowerCase());
-    const matchesStatus = statusFilter === "all" || f.status === statusFilter;
-    return matchesSearch && matchesStatus;
+    return matchesSearch;
   });
 
   const openAdd = () => {
     setForm({
       question: "",
       answer: "",
-      status: "active",
       courseId: "",
     });
     setSelected(null);
@@ -123,7 +113,6 @@ function FaqsManagement() {
       id: String(Date.now()),
       question: String(form.question),
       answer: String(form.answer),
-      status: (form.status as FaqStatus) || "active",
       updatedAt: new Date().toISOString(),
       courseId: String(form.courseId),
     };
@@ -149,7 +138,6 @@ function FaqsManagement() {
               ...f,
               question: String(form.question),
               answer: String(form.answer),
-              status: (form.status as FaqStatus) || "active",
               updatedAt: new Date().toISOString(),
               courseId: String(form.courseId),
             }
@@ -181,15 +169,6 @@ function FaqsManagement() {
                 value={search}
                 onChange={(e: any) => setSearch(e.target.value)}
               />
-              <select
-                className="border border-gray-300 rounded-md px-3 py-2 text-sm text-gray-600"
-                value={statusFilter}
-                onChange={(e) => setStatusFilter(e.target.value as any)}
-              >
-                <option value="all">All</option>
-                <option value="active">Active</option>
-                <option value="draft">Draft</option>
-              </select>
               <Button
                 onClick={openAdd}
                 className="btn-hover text-white"
@@ -209,7 +188,6 @@ function FaqsManagement() {
                 <tr className="text-left text-gray-600 border-b">
                   <th className="py-2 pr-4">Question</th>
                   <th className="py-2 pr-4">Answer</th>
-                  <th className="py-2 pr-4">Status</th>
                   <th className="py-2 pr-4">Course</th>
                   <th className="py-2 pr-4">Updated</th>
                   <th className="py-2 pr-4 text-right">Actions</th>
@@ -218,7 +196,7 @@ function FaqsManagement() {
               <tbody>
                 {filtered.length === 0 && (
                   <tr>
-                    <td className="py-6 text-center text-gray-500" colSpan={6}>
+                    <td className="py-6 text-center text-gray-500" colSpan={5}>
                       No FAQs found
                     </td>
                   </tr>
@@ -230,17 +208,6 @@ function FaqsManagement() {
                     </td>
                     <td className="py-3 pr-4 text-gray-700 max-w-[420px] truncate">
                       {row.answer}
-                    </td>
-                    <td className="py-3 pr-4">
-                      <span
-                        className={`px-2 py-1 rounded-full text-xs ${
-                          row.status === "active"
-                            ? "bg-green-100 text-green-700"
-                            : "bg-gray-100 text-gray-700"
-                        }`}
-                      >
-                        {row.status}
-                      </span>
                     </td>
                     <td className="py-3 pr-4 text-gray-700">
                       <span className="px-2 py-1 rounded-full bg-blue-50 text-blue-700 text-xs">
@@ -319,21 +286,6 @@ function FaqsManagement() {
               ))}
             </select>
           </div>
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              Status
-            </label>
-            <select
-              className="border border-gray-300 rounded-md px-3 py-2 text-sm text-gray-600"
-              value={form.status || "active"}
-              onChange={(e) =>
-                setForm((f) => ({ ...f, status: e.target.value as FaqStatus }))
-              }
-            >
-              <option value="active">Active</option>
-              <option value="draft">Draft</option>
-            </select>
-          </div>
           <div className="flex justify-end gap-2">
             <Button variant="danger" onClick={closeAll}>
               Cancel
@@ -402,21 +354,6 @@ function FaqsManagement() {
             </select>
           </div>
 
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              Status
-            </label>
-            <select
-              className="border border-gray-300 rounded-md px-3 py-2 text-sm text-gray-600"
-              value={form.status || "active"}
-              onChange={(e) =>
-                setForm((f) => ({ ...f, status: e.target.value as FaqStatus }))
-              }
-            >
-              <option value="active">Active</option>
-              <option value="draft">Draft</option>
-            </select>
-          </div>
           <div className="flex justify-end gap-2">
             <Button variant="danger" onClick={closeAll}>
               Cancel
