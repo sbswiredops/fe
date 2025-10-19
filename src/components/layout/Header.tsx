@@ -123,15 +123,13 @@ export default function Header() {
                 onClick={() =>
                   setIsLanguageDropdownOpen(!isLanguageDropdownOpen)
                 }
-                className="flex items-center gap-2 px-3 py-1.5 rounded-lg border bg-white shadow-sm hover:shadow-md transition-colors focus:outline-none whitespace-nowrap min-w-[120px] h-8"
+                className="flex items-center gap-1.5 px-2.5 py-1 rounded-md border bg-white shadow transition-colors hover:shadow-md focus:outline-none whitespace-nowrap h-8"
               >
-                {/* Removed left-side flag/code to avoid the "US" fallback text */}
-                <span className="text-sm font-medium text-gray-700 truncate">
+                {/* Show only language name */}
+                <span className="text-[13px] font-medium text-gray-700 truncate">
                   {currentLanguage.name}
                 </span>
-                <span className="ml-2 text-xs text-gray-400">
-                  {currentLanguage.code.toUpperCase()}
-                </span>
+
                 <svg
                   className={`w-3 h-3 transition-transform text-gray-500 ${
                     isLanguageDropdownOpen ? "rotate-180" : ""
@@ -150,7 +148,7 @@ export default function Header() {
               </button>
 
               {isLanguageDropdownOpen && (
-                <div className="absolute right-0 mt-2 w-auto min-w-[160px] bg-white rounded-md shadow-lg border border-gray-200 py-1 z-50">
+                <div className="absolute right-0 mt-1.5 w-max min-w-[120px] bg-white rounded-md shadow border border-gray-200 p-1 z-50">
                   {languages.map((language) => (
                     <button
                       key={language.code}
@@ -158,16 +156,13 @@ export default function Header() {
                         setLanguage(language);
                         setIsLanguageDropdownOpen(false);
                       }}
-                      className={`w-full px-4 py-2 text-left text-sm hover:bg-gray-100 flex items-center gap-2 whitespace-nowrap ${
+                      className={`w-full px-3 py-1.5 text-left text-sm hover:bg-gray-100 rounded-md flex items-center gap-2 whitespace-nowrap ${
                         currentLanguage.code === language.code
                           ? "bg-blue-50 text-blue-600"
                           : "text-gray-700"
                       }`}
                     >
                       <span className="truncate">{language.name}</span>
-                      <span className="ml-auto text-xs text-gray-400">
-                        {language.code.toUpperCase()}
-                      </span>
                     </button>
                   ))}
                 </div>

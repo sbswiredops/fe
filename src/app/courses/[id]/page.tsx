@@ -14,6 +14,7 @@ import { UserService } from "@/services/userService";
 import { useParams } from "next/navigation";
 import { courseService } from "@/services/courseService";
 export const runtime = "edge";
+import { useRouter } from "next/navigation";
 
 const StarRating = ({ rating }: { rating: number }) => {
   return (
@@ -41,6 +42,7 @@ export default function CourseDetailsPage() {
   const { t } = useLanguage();
   const { id } = useParams<{ id: string }>();
   const { user } = useAuth();
+  const router = useRouter();
   const { getById, setCourses } = useEnrolledCourses();
   const [isEnrolled, setIsEnrolled] = useState<boolean>(false);
   const [checkingEnroll, setCheckingEnroll] = useState<boolean>(false);
@@ -417,7 +419,14 @@ export default function CourseDetailsPage() {
                               backgroundColor: "var(--color-text-primary)",
                               borderColor: "var(--color-text-primary)",
                             }}
-                            disabled={checkingEnroll}
+                            disabled={checkingEnroll || loadingCourse}
+                            onClick={() => {
+                              if (!user) {
+                                router.push(`/login?next=/courses/${id}`);
+                                return;
+                              }
+                              router.push(`/enroll?courseId=${id}`);
+                            }}
                           >
                             Enroll Now
                           </Button>
