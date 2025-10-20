@@ -6,6 +6,7 @@ import Button from "@/components/ui/Button";
 import { LiveClass } from "../types";
 import { useLanguage } from "../contexts/LanguageContext";
 import courseService from "@/services/courseService";
+import { Dot } from "lucide-react"; // added
 
 export default function LiveClasses() {
   const { t } = useLanguage();
@@ -114,7 +115,12 @@ export default function LiveClasses() {
                     className="bg-white bg-opacity-20 text-xs font-semibold px-2 py-1 rounded-full"
                     style={{ color: "#7123bbff" }}
                   >
-                    🔴 LIVE
+                    {/* replaced emoji with Lucide icon */}
+                    <Dot
+                      className="inline-block w-3 h-3 mr-1 text-red-500"
+                      aria-hidden="true"
+                    />
+                    LIVE
                   </span>
                   <span className="text-sm opacity-90">
                     {formatDuration(liveClass.duration)}
