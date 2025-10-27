@@ -3,7 +3,7 @@
 import Link from "next/link";
 import MainLayout from "@/components/layout/MainLayout";
 import Button from "@/components/ui/Button";
-
+export const runtime = 'edge';
 export default function EnrollSuccessPage({
   searchParams,
 }: {
