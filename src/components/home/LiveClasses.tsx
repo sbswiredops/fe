@@ -21,6 +21,7 @@ export default function LiveClasses() {
           sortBy: "createdAt",
           sortOrder: "DESC",
         });
+        
         const list = (res?.data as any)?.courses || [];
         if (!ignore && res?.success && Array.isArray(list)) {
           const mapped: LiveClass[] = list.map((c: any) => {
