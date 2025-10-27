@@ -1,13 +1,15 @@
 "use client";
 
 import Link from "next/link";
-import { useSearchParams } from "next/navigation";
 import MainLayout from "@/components/layout/MainLayout";
 import Button from "@/components/ui/Button";
 
-export default function EnrollSuccessPage() {
-  const params = useSearchParams();
-  const courseId = params.get("courseId");
+export default function EnrollSuccessPage({
+  searchParams,
+}: {
+  searchParams?: { courseId?: string };
+}) {
+  const courseId = searchParams?.courseId ?? "";
 
   return (
     <MainLayout>

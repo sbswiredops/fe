@@ -1,8 +1,9 @@
 "use client";
 
 import React, { useEffect, useMemo, useState } from "react";
+import Image from "next/image";
 import Link from "next/link";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useRouter } from "next/navigation";
 import MainLayout from "@/components/layout/MainLayout";
 import Button from "@/components/ui/Button";
 import { useAuth } from "@/components/contexts/AuthContext";
@@ -15,8 +16,15 @@ const userService = new UserService();
 
 export default function EnrollPage() {
   const router = useRouter();
-  const params = useSearchParams();
-  const courseId = useMemo(() => params.get("courseId") || "", [params]);
+  // replaced useSearchParams() (caused SSR/suspense error) with client-side URL parsing
+  const [courseId, setCourseId] = useState<string>("");
+
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    const params = new URLSearchParams(window.location.search);
+    setCourseId(params.get("courseId") || "");
+  }, []);
+
   const { user } = useAuth();
   const { setCourses, getById } = useEnrolledCourses();
 
@@ -135,11 +143,13 @@ export default function EnrollPage() {
         throw new Error(msg);
       }
 
-      setCourses((prev => {
-        const has = prev.some((c: any) => String(c.id) === String(course.id));
-        if (has) return prev;
-        return [...prev, course];
-      })(getById ? [getById(String(course.id))].filter(Boolean) : []));
+      setCourses(
+        ((prev) => {
+          const has = prev.some((c: any) => String(c.id) === String(course.id));
+          if (has) return prev;
+          return [...prev, course];
+        })(getById ? [getById(String(course.id))].filter(Boolean) : [])
+      );
 
       router.replace(`/enroll/success?courseId=${course.id}`);
     } catch (e: any) {
@@ -155,9 +165,13 @@ export default function EnrollPage() {
         <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="bg-white rounded-xl shadow-md p-6 lg:p-10">
             <nav className="mb-6 text-sm text-gray-600">
-              <Link href="/" className="hover:text-blue-600">Home</Link>
+              <Link href="/" className="hover:text-blue-600">
+                Home
+              </Link>
               {" / "}
-              <Link href="/courses" className="hover:text-blue-600">Courses</Link>
+              <Link href="/courses" className="hover:text-blue-600">
+                Courses
+              </Link>
               {" / "}
               <span className="text-gray-900">Enroll</span>
             </nav>
@@ -171,70 +185,133 @@ export default function EnrollPage() {
                 </div>
               </div>
             ) : error ? (
-              <div className="rounded-lg border border-red-200 bg-red-50 p-4 text-red-700">{error}</div>
+              <div className="rounded-lg border border-red-200 bg-red-50 p-4 text-red-700">
+                {error}
+              </div>
             ) : !course ? (
-              <div className="rounded-lg border bg-white p-6">Course not found.</div>
+              <div className="rounded-lg border bg-white p-6">
+                Course not found.
+              </div>
             ) : (
               <div className="enroll-card bg-white p-6 sm:p-8">
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-6 items-start">
-                  <div className="md:col-span-1">
-                    <div className="relative">
-                      <img src={course.thumbnail} alt={course.title} className="course-thumbnail w-full" />
-                      <div className="absolute top-3 left-3 price-badge">{course.category}</div>
+                  <div className="relative">
+                    <Image
+                      src={course.thumbnail}
+                      alt={course.title}
+                      className="course-thumbnail w-full"
+                      width={800}
+                      height={450}
+                      priority
+                    />
+                    <div className="absolute top-3 left-3 price-badge">
+                      {course.category}
                     </div>
-                    <div className="mt-4 flex items-center gap-3">
-                      <div className="text-sm text-gray-500">Instructor</div>
-                      <div className="text-sm font-semibold text-gray-900">{course.instructor}</div>
-                    </div>
-                    <div className="mt-3 text-sm text-gray-600">{course.enrolledStudents} students • {course.rating}⭐</div>
                   </div>
 
                   <div className="md:col-span-2">
-                    <div className="flex items-start justify-between">
+                    <div className="mt-4 flex items-center gap-3">
+                      <div className="text-sm text-gray-500">Instructor</div>
+                      <div className="text-sm font-semibold text-gray-900">
+                        {course.instructor}
+                      </div>
+                    </div>
+                    <div className="mt-3 text-sm text-gray-600">
+                      {course.enrolledStudents} students • {course.rating}⭐
+                    </div>
+
+                    <div className="flex items-start justify-between mt-4">
                       <div>
-                        <h2 className="text-2xl lg:text-3xl font-bold text-gray-900">{course.title}</h2>
-                        <p className="mt-2 text-gray-600">{course.description || "No description provided."}</p>
+                        <h2 className="text-2xl lg:text-3xl font-bold text-gray-900">
+                          {course.title}
+                        </h2>
+                        <p className="mt-2 text-gray-600">
+                          {course.description || "No description provided."}
+                        </p>
                       </div>
                       <div className="text-right">
                         <div className="text-sm text-gray-500">Price</div>
-                        <div className="text-3xl font-extrabold text-gray-900">৳{Number(course.price ?? 0)}</div>
-                        <div className="mt-2 text-sm text-gray-500">{course.duration}</div>
+                        <div className="text-3xl font-extrabold text-gray-900">
+                          ৳{Number(course.price ?? 0)}
+                        </div>
+                        <div className="mt-2 text-sm text-gray-500">
+                          {course.duration}
+                        </div>
                       </div>
                     </div>
 
                     <div className="mt-6 grid grid-cols-1 sm:grid-cols-3 gap-3">
                       <div className="p-3 rounded-lg border bg-gray-50">
-                        <div className="text-sm font-medium text-gray-700">Certificate</div>
-                        <div className="text-xs text-gray-500">Validated certificate on completion</div>
+                        <div className="text-sm font-medium text-gray-700">
+                          Certificate
+                        </div>
+                        <div className="text-xs text-gray-500">
+                          Validated certificate on completion
+                        </div>
                       </div>
                       <div className="p-3 rounded-lg border bg-gray-50">
-                        <div className="text-sm font-medium text-gray-700">1:1 Mentor</div>
-                        <div className="text-xs text-gray-500">Personalized guidance</div>
+                        <div className="text-sm font-medium text-gray-700">
+                          1:1 Mentor
+                        </div>
+                        <div className="text-xs text-gray-500">
+                          Personalized guidance
+                        </div>
                       </div>
                       <div className="p-3 rounded-lg border bg-gray-50">
-                        <div className="text-sm font-medium text-gray-700">Job Support</div>
-                        <div className="text-xs text-gray-500">CV review & interview prep</div>
+                        <div className="text-sm font-medium text-gray-700">
+                          Job Support
+                        </div>
+                        <div className="text-xs text-gray-500">
+                          CV review & interview prep
+                        </div>
                       </div>
                     </div>
 
                     {alreadyEnrolled && (
                       <div className="mt-5 rounded-md border border-green-200 bg-green-50 p-3 text-green-700">
-                        You are already enrolled in this course. <Link href={`/dashboard/student/learn/${courseId}`} className="underline">Go to course</Link>
+                        You are already enrolled in this course.{" "}
+                        <Link
+                          href={`/dashboard/student/learn/${courseId}`}
+                          className="underline"
+                        >
+                          Go to course
+                        </Link>
                       </div>
                     )}
 
                     <div className="mt-6 flex flex-col sm:flex-row items-center gap-3">
-                      <Button className={`enroll-cta-primary btn-animate w-full sm:w-auto`} size="lg" disabled={enrolling || alreadyEnrolled} onClick={handleEnroll}>
-                        {enrolling ? "Enrolling..." : alreadyEnrolled ? "Continue Course" : "Confirm Enrollment"}
+                      <Button
+                        className={`enroll-cta-primary btn-animate w-full sm:w-auto`}
+                        size="lg"
+                        disabled={enrolling || alreadyEnrolled}
+                        onClick={handleEnroll}
+                      >
+                        {enrolling
+                          ? "Enrolling..."
+                          : alreadyEnrolled
+                          ? "Continue Course"
+                          : "Confirm Enrollment"}
                       </Button>
 
-                      <Button variant="outline" size="lg" onClick={() => router.back()} className="w-full sm:w-auto">Cancel</Button>
+                      <Button
+                        variant="outline"
+                        size="lg"
+                        onClick={() => router.back()}
+                        className="w-full sm:w-auto"
+                      >
+                        Cancel
+                      </Button>
                     </div>
 
-                    <p className="mt-4 text-xs text-gray-500">By enrolling, you agree to the Terms and acknowledge the Privacy Policy.</p>
+                    <p className="mt-4 text-xs text-gray-500">
+                      By enrolling, you agree to the Terms and acknowledge the
+                      Privacy Policy.
+                    </p>
 
                     <div className="mt-6">
-                      <h3 className="text-lg font-semibold text-gray-900">What you'll learn</h3>
+                      <h3 className="text-lg font-semibold text-gray-900">
+                        What you'll learn
+                      </h3>
                       <ul className="mt-3 grid grid-cols-1 sm:grid-cols-2 gap-2 text-sm text-gray-600">
                         <li>• Practical, hands-on projects</li>
                         <li>• Industry-relevant skills</li>

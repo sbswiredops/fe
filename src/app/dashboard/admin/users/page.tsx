@@ -46,8 +46,9 @@ function UsersManagement() {
           ? (res as any).data
           : [];
         setUsers(data);
-      } catch (e) {
+      } catch (error) {
         // Optionally handle error
+        console.error(error);
         setUsers([]);
       } finally {
         setLoading(false);
