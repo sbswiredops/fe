@@ -43,19 +43,91 @@ function CategoriesManagement() {
     setPage(1);
   }, [searchTerm, statusFilter, categories]);
 
-  const handleInputChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>
-  ) => {
-    const target = e.target as HTMLInputElement & { files?: FileList };
-    const { name } = target;
-    if (target.type === "file" && target.files) {
-      const file = target.files[0];
-      setFormData((prev: any) => ({ ...prev, [name]: file }));
-      return;
+const handleInputChange = (
+  e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>
+) => {
+  const target = e.target as HTMLInputElement & { files?: FileList };
+  const name = target.name;
+
+  // file input
+  if (target.type === "file") {
+    // support single or multiple files
+    if (target.files && target.files.length > 0) {
+      // if input has multiple attribute, store array, otherwise single File
+      const value = (target as HTMLInputElement).multiple
+        ? Array.from(target.files)
+        : target.files[0];
+      setFormData((prev: any) => ({ ...prev, [name]: value }));
+    } else {
+      // user cleared file input
+      setFormData((prev: any) => ({ ...prev, [name]: undefined }));
     }
-    const value = (target as any).value;
-    setFormData((prev: any) => ({ ...prev, [name]: value }));
-  };
+    return;
+  }
+
+  // checkbox
+  if (target.type === "checkbox") {
+    const checked = (target as HTMLInputElement).checked;
+    setFormData((prev: any) => ({ ...prev, [name]: checked }));
+    return;
+  }
+
+  // number inputs -> convert to number or undefined if empty
+  if (target.type === "number") {
+    const raw = (target as HTMLInputElement).value;
+    setFormData((prev: any) => ({ ...prev, [name]: raw === "" ? undefined : Number(raw) }));
+    return;
+  }
+
+  // default (text/select/textarea)
+  const value = (target as HTMLInputElement).value;
+  setFormData((prev: any) => ({ ...prev, [name]: value }));
+};
+const handleAdd = async () => {
+  try {
+    const isActive = typeof formData.isActive === "boolean"
+      ? formData.isActive
+      : (formData.status === "inactive" ? false : true);
+    const payload: any = {
+      name: formData.name,
+      description: formData.description,
+
+    };
+    if (formData.avatar instanceof File) {
+      payload.avatar = formData.avatar;
+    } else if (typeof formData.avatar === "string" && formData.avatar) {
+      payload.avatar = formData.avatar;
+    }
+    if (formData.icon instanceof File) {
+      payload.icon = formData.icon;
+    } else if (typeof formData.icon === "string" && formData.icon) {
+      payload.icon = formData.icon;
+    }
+
+    const hasFile = payload.avatar instanceof File || payload.icon instanceof File;
+
+    // Include isActive in the payload (will be appended as a form field when files are present)
+    payload.isActive = isActive;
+
+    const res = await categoryService.createCategory(payload as any);
+
+    if (res.success) {
+      showToast("Category created", "success");
+      if (res.data) setCategories((p) => [res.data as any, ...p]);
+      setRefreshTick((x) => x + 1);
+    } else {
+      showToast(res.error || "Failed to create category", "error");
+    }
+    
+    // no follow-up patch: we send isActive as a form field
+  } catch (e: any) {
+    showToast(e?.message || "Failed to create category", "error");
+  } finally {
+      setIsAddModalOpen(false);
+      resetForm();
+    }
+};
+
 
   const resetForm = () => setFormData({});
 
@@ -78,45 +150,43 @@ function CategoriesManagement() {
     setIsDeleteModalOpen(true);
   };
 
-  const handleAdd = async () => {
-    try {
-      const derivedStatus = typeof formData.isActive === "boolean"
-        ? (formData.isActive ? "active" : "inactive")
-        : (formData.status || "active");
 
-      const res = await categoryService.createCategory({
-        name: formData.name,
-        description: formData.description,
-        status: derivedStatus,
-        isActive: derivedStatus === "active",
-      } as any);
-      if (res.success) {
-        showToast("Category created", "success");
-        if (res.data) setCategories((p) => [res.data as any, ...p]);
-        setRefreshTick((x) => x + 1);
-      } else {
-        showToast(res.error || "Failed to create category", "error");
-      }
-    } catch (e: any) {
-      showToast(e?.message || "Failed to create category", "error");
-    }
-    setIsAddModalOpen(false);
-    resetForm();
-  };
 
   const handleEdit = async () => {
     if (!selectedItem) return;
     try {
+      const desiredIsActive = typeof formData.isActive === "boolean"
+        ? formData.isActive
+        : (formData.status === 'inactive' ? false : undefined);
+
+      const payload: any = {
+        name: formData.name,
+        description: formData.description,
+      };
+
+      if (formData.avatar instanceof File) {
+        payload.avatar = formData.avatar;
+      } else if (typeof formData.avatar === 'string' && formData.avatar) {
+        payload.avatar = formData.avatar;
+      }
+      if (formData.icon instanceof File) {
+        payload.icon = formData.icon;
+      } else if (typeof formData.icon === 'string' && formData.icon) {
+        payload.icon = formData.icon;
+      }
+
+      const hasFile = payload.avatar instanceof File || payload.icon instanceof File;
+
+      // Include isActive in the payload (will be appended as a form field when files are present)
+      if (typeof desiredIsActive === 'boolean') payload.isActive = desiredIsActive;
+
+      // status handling (keep existing behavior)
       const derivedStatus = typeof formData.isActive === "boolean"
         ? (formData.isActive ? "active" : "inactive")
         : (formData.status || undefined);
+      if (derivedStatus) payload.status = derivedStatus;
 
-      const res = await categoryService.updateCategory(selectedItem.id, {
-        name: formData.name,
-        description: formData.description,
-        status: derivedStatus,
-        isActive: typeof derivedStatus === "string" ? derivedStatus === "active" : undefined,
-      } as any);
+      const res = await categoryService.updateCategory(selectedItem.id, payload as any);
       if (res.success) {
         showToast("Category updated", "success");
         if (res.data) {
@@ -128,6 +198,8 @@ function CategoriesManagement() {
       } else {
         showToast(res.error || "Failed to update category", "error");
       }
+
+      // No follow-up patch: we send isActive as a form field in the initial request
     } catch (e: any) {
       showToast(e?.message || "Failed to update category", "error");
     }

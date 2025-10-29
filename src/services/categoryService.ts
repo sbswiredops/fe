@@ -33,17 +33,31 @@ export class CategoryService {
    */
   async createCategory(categoryData: CreateCategoryRequest): Promise<ApiResponse<Category>> {
     const hasFile =
-      (categoryData as any)?.categories_avatar instanceof File ||
+      (categoryData as any)?.avatar instanceof File ||
       (categoryData as any)?.icon instanceof File;
 
     if (hasFile) {
       const form = new FormData();
+      const meta: Record<string, any> = {};
       Object.entries(categoryData as any).forEach(([k, v]) => {
         if (v === undefined || v === null) return;
         if (v instanceof File) {
+          // append files with their original key names (e.g., 'avatar', 'icon')
           form.append(k, v);
         } else {
-          form.append(k, String(v));
+          // collect non-file fields into a meta object so we can append a JSON payload
+          meta[k] = v;
+        }
+      });
+      // Append non-file fields individually so backend receives normal multipart fields
+      Object.entries(meta).forEach(([mk, mv]) => {
+        if (mv === undefined || mv === null) return;
+        // Append non-file fields as plain strings. Multipart form fields are strings
+        // by default; the server should perform type coercion (recommended).
+        if (typeof mv === 'object') {
+          form.append(mk, JSON.stringify(mv));
+        } else {
+          form.append(mk, String(mv));
         }
       });
       return apiClient.post<Category>(API_CONFIG.ENDPOINTS.CATEGORIES, form);
@@ -57,19 +71,30 @@ export class CategoryService {
    */
   async updateCategory(id: string, categoryData: UpdateCategoryRequest): Promise<ApiResponse<Category>> {
     const hasFile =
-      (categoryData as any)?.categories_avatar instanceof File ||
+      (categoryData as any)?.avatar instanceof File ||
       (categoryData as any)?.icon instanceof File;
 
     if (hasFile) {
       const form = new FormData();
+      const meta: Record<string, any> = {};
       Object.entries(categoryData as any).forEach(([k, v]) => {
         if (v === undefined || v === null) return;
         if (v instanceof File) {
           form.append(k, v);
         } else {
-          form.append(k, String(v));
+          meta[k] = v;
         }
       });
+      // Append non-file fields individually
+      Object.entries(meta).forEach(([mk, mv]) => {
+        if (mv === undefined || mv === null) return;
+        if (typeof mv === 'object') {
+          form.append(mk, JSON.stringify(mv));
+        } else {
+          form.append(mk, String(mv));
+        }
+      });
+
       return apiClient.patch<Category>(API_CONFIG.ENDPOINTS.CATEGORY_BY_ID(id), form);
     }
 

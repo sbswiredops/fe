@@ -418,7 +418,9 @@ export interface Category {
   parentId?: string;
   icon?: string;
   image?: string;
+  // common aliases — backend may return either `categories_avatar` or `avatar`
   categories_avatar?: string;
+  avatar?: string;
   isActive?: boolean;
   courseCount: number;
   featured: boolean;
@@ -434,7 +436,9 @@ export interface CreateCategoryRequest {
   description?: string;
   parentId?: string;
   icon?: string | File;
+  // some backends expect `categories_avatar`, others expect `avatar` — support both
   categories_avatar?: string | File;
+  avatar?: string | File;
   featured?: boolean;
   isActive?: boolean;
   status?: 'active' | 'inactive';
@@ -447,6 +451,7 @@ export interface UpdateCategoryRequest {
   parentId?: string;
   icon?: string | File;
   categories_avatar?: string | File;
+  avatar?: string | File;
   featured?: boolean;
   isActive?: boolean;
   status?: 'active' | 'inactive';
