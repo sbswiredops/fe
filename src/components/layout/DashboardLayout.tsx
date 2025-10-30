@@ -44,10 +44,20 @@ interface DashboardLayoutProps {
 export default function DashboardLayout({ children }: DashboardLayoutProps) {
   const { currentLanguage, setLanguage, languages } = useLanguage();
   const { user, logout, isAuthenticated, isLoading } = useAuth();
-  const authFromStorage =
-    typeof window !== "undefined"
-      ? !!localStorage.getItem("access_token")
-      : false;
+  const [authFromStorage, setAuthFromStorage] = useState<boolean>(false);
+  const [hasCheckedAuth, setHasCheckedAuth] = useState<boolean>(false);
+
+  useEffect(() => {
+    try {
+      const token = localStorage.getItem("access_token");
+      setAuthFromStorage(!!token);
+    } catch {
+      setAuthFromStorage(false);
+    } finally {
+      setHasCheckedAuth(true);
+    }
+  }, []);
+
   const pathname = usePathname();
   const router = useRouter();
 
@@ -60,11 +70,13 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
   const langRef = useRef<HTMLDivElement>(null);
   const userRef = useRef<HTMLDivElement>(null);
 
-  useLayoutEffect(() => {
+  // Redirect only after we checked localStorage (client-only)
+  useEffect(() => {
+    if (!hasCheckedAuth) return;
     if (!isLoading && !isAuthenticated && !authFromStorage) {
       router.replace("/");
     }
-  }, [isLoading, isAuthenticated, authFromStorage, router]);
+  }, [isLoading, isAuthenticated, authFromStorage, router, hasCheckedAuth]);
 
   useEffect(() => {
     setIsSidebarOpen(false);
@@ -201,11 +213,10 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
     }
   }, [user]);
 
-
+  // Wait until client auth check completed before rendering the dashboard shell.
+  if (!hasCheckedAuth) return null;
   const effectiveAuth = isAuthenticated || authFromStorage;
-  if (!effectiveAuth && typeof window !== "undefined") {
-    return null;
-  }
+  if (!effectiveAuth) return null;
 
   const showSidebarDetails = isSidebarOpen || isDesktopSidebarExpanded;
   const desktopSidebarWidthClass = isDesktopSidebarExpanded

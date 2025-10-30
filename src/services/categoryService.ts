@@ -42,18 +42,13 @@ export class CategoryService {
       Object.entries(categoryData as any).forEach(([k, v]) => {
         if (v === undefined || v === null) return;
         if (v instanceof File) {
-          // append files with their original key names (e.g., 'avatar', 'icon')
           form.append(k, v);
         } else {
-          // collect non-file fields into a meta object so we can append a JSON payload
           meta[k] = v;
         }
       });
-      // Append non-file fields individually so backend receives normal multipart fields
       Object.entries(meta).forEach(([mk, mv]) => {
         if (mv === undefined || mv === null) return;
-        // Append non-file fields as plain strings. Multipart form fields are strings
-        // by default; the server should perform type coercion (recommended).
         if (typeof mv === 'object') {
           form.append(mk, JSON.stringify(mv));
         } else {
