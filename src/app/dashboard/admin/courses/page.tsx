@@ -2,6 +2,7 @@
 "use client";
 
 import React from "react";
+import Image from "next/image";
 import DashboardLayout from "@/components/layout/DashboardLayout";
 import ProtectedRoute from "@/components/auth/ProtectedRoute";
 import Button from "@/components/ui/Button";
@@ -59,6 +60,19 @@ function CoursesManagement() {
   const [isDeleteModalOpen, setIsDeleteModalOpen] = React.useState(false);
   const [selectedItem, setSelectedItem] = React.useState<any>(null);
   const [formData, setFormData] = React.useState<any>({});
+  const [imageError, setImageError] = React.useState(false);
+
+  const resolveThumbnailUrl = (thumb: any) => {
+    if (!thumb) return undefined;
+    try {
+      const s = String(thumb || "");
+      if (/^https?:\/\//i.test(s)) return s;
+      const base = (API_CONFIG.BASE_URL || "").replace(/\/$/, "");
+      return base ? `${base}/${s.replace(/^\/+/, "")}` : s;
+    } catch {
+      return undefined;
+    }
+  };
 
   const [searchTerm, setSearchTerm] = React.useState("");
   const [statusFilter, setStatusFilter] = React.useState("all");
@@ -126,6 +140,9 @@ function CoursesManagement() {
   const resetForm = () => setFormData({});
 
   const openViewModal = (item: any) => {
+    // reset image error state and log thumbnail for debugging
+    setImageError(false);
+    console.log("openViewModal item:", item, "thumbnail:", item?.thumbnail);
     setSelectedItem(item);
     setIsViewModalOpen(true);
   };
@@ -693,19 +710,57 @@ function CoursesManagement() {
         >
           {selectedItem && (
             <div className="space-y-4">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                {Object.entries(selectedItem).map(([key, value]) => (
-                  <div key={key}>
-                    <label className="block text-sm font-medium text-gray-700 capitalize">
-                      {key.replace(/([A-Z])/g, " $1").trim()}
-                    </label>
-                    <p className="text-sm text-gray-900">
-                      {typeof value === "string" || typeof value === "number"
-                        ? value.toString()
-                        : "N/A"}
-                    </p>
+              {/* Thumbnail display */}
+              {(() => {
+                const thumbUrl = resolveThumbnailUrl(selectedItem.thumbnail);
+                if (!thumbUrl) return null;
+                return (
+                  <div className="w-full flex items-center justify-center">
+                    <div className="w-full max-w-[420px] h-[220px] relative overflow-hidden rounded-lg border border-gray-200">
+                      {!imageError ? (
+                        <Image
+                          src={thumbUrl}
+                          alt={selectedItem.title || "course thumbnail"}
+                          fill
+                          sizes="(max-width: 420px) 420px, 33vw"
+                          className="object-cover"
+                          onError={() => setImageError(true)}
+                          onLoadingComplete={() => setImageError(false)}
+                        />
+                      ) : (
+                        <div className="w-full h-full flex flex-col items-center justify-center bg-gray-50 p-3">
+                          <div className="text-sm text-red-600 mb-2">Image failed to load.</div>
+                          <a
+                            href={thumbUrl}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="text-sm text-blue-600 underline"
+                          >
+                            Open image in new tab
+                          </a>
+                        </div>
+                      )}
+                    </div>
                   </div>
-                ))}
+                );
+              })()}
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {Object.entries(selectedItem)
+                  // Avoid printing the thumbnail URL again in the key/value list
+                  .filter(([key]) => key !== "thumbnail")
+                  .map(([key, value]) => (
+                    <div key={key}>
+                      <label className="block text-sm font-medium text-gray-700 capitalize">
+                        {key.replace(/([A-Z])/g, " $1").trim()}
+                      </label>
+                      <p className="text-sm text-gray-900">
+                        {typeof value === "string" || typeof value === "number"
+                          ? value.toString()
+                          : "N/A"}
+                      </p>
+                    </div>
+                  ))}
               </div>
               <div className="flex justify-end pt-4">
                 <Button
