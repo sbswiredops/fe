@@ -60,19 +60,33 @@ export class CourseService {
   }
 
   // Create a new course
-  async createCourse(courseData: CreateCourseRequest): Promise<ApiResponse<Course>> {
+  async createCourse(courseData: CreateCourseRequest | FormData): Promise<ApiResponse<Course>> {
+    // If caller already provided FormData, forward it as-is
+    if (typeof FormData !== "undefined" && courseData instanceof FormData) {
+      return this.client.post<Course>(API_CONFIG.ENDPOINTS.COURSES, courseData);
+    }
+
     const hasFile = (courseData as any)?.thumbnail instanceof File;
     if (hasFile) {
       const form = new FormData();
       Object.entries(courseData as any).forEach(([k, v]) => {
         if (v === undefined || v === null) return;
-        if (v instanceof File) form.append(k, v);
-        else if (Array.isArray(v)) form.append(k, JSON.stringify(v));
-        else form.append(k, String(v));
+        if (v instanceof File) {
+          form.append(k, v);
+        } else {
+          // Preserve type info for numbers/booleans/objects/arrays by JSON-stringifying them.
+          // Strings remain as-is to avoid double-quotes on server if not expected.
+          if (typeof v === "string") {
+            form.append(k, v);
+          } else {
+            form.append(k, JSON.stringify(v));
+          }
+        }
       });
       return this.client.post<Course>(API_CONFIG.ENDPOINTS.COURSES, form);
     }
-    return this.client.post<Course>(API_CONFIG.ENDPOINTS.COURSES, courseData);
+
+    return this.client.post<Course>(API_CONFIG.ENDPOINTS.COURSES, courseData as CreateCourseRequest);
   }
 
   // Update course
@@ -82,9 +96,15 @@ export class CourseService {
       const form = new FormData();
       Object.entries(courseData as any).forEach(([k, v]) => {
         if (v === undefined || v === null) return;
-        if (v instanceof File) form.append(k, v);
-        else if (Array.isArray(v)) form.append(k, JSON.stringify(v));
-        else form.append(k, String(v));
+        if (v instanceof File) {
+          form.append(k, v);
+        } else {
+          if (typeof v === "string") {
+            form.append(k, v);
+          } else {
+            form.append(k, JSON.stringify(v));
+          }
+        }
       });
       return this.client.patch<Course>(API_CONFIG.ENDPOINTS.COURSE_BY_ID(id), form);
     }

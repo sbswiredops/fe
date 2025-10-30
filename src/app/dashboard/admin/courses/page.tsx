@@ -141,44 +141,66 @@ function CoursesManagement() {
 
   const handleAdd = async () => {
     try {
+      // Helpers
+      const toNumber = (v: any) =>
+        v === undefined || v === "" || v === null ? undefined : Number(v);
+
+      const toArray = (v: any) => {
+        if (Array.isArray(v))
+          return v.map((s) => String(s).trim()).filter(Boolean);
+        if (typeof v === "string") {
+          try {
+            const parsed = JSON.parse(v);
+            if (Array.isArray(parsed))
+              return parsed.map((s) => String(s).trim());
+          } catch {}
+          return v
+            .split(",")
+            .map((s) => s.trim())
+            .filter(Boolean);
+        }
+        return undefined;
+      };
+
+      // Build payload with correct types
       const payload: any = {
-        title: formData.title,
-        description: formData.description,
-        shortDescription: formData.shortDescription || undefined,
-        categoryId: formData.categoryId || undefined,
-        price: formData.price ? parseFloat(formData.price as any) : 0,
-        duration: formData.duration
-          ? parseInt(formData.duration as any, 10)
-          : 0,
-        level: formData.level || "BEGINNER",
-        isPublished: !!formData.isPublished,
-        isFeatured: !!formData.isFeatured,
-        courseType: formData.courseType || undefined,
-        tags:
-          typeof formData.tags === "string"
-            ? formData.tags
-                .split(",")
-                .map((s: string) => s.trim())
-                .filter(Boolean)
-            : formData.tags,
-        requirements:
-          typeof formData.requirements === "string"
-            ? formData.requirements
-                .split(",")
-                .map((s: string) => s.trim())
-                .filter(Boolean)
-            : formData.requirements,
-        learningOutcomes:
-          typeof formData.learningOutcomes === "string"
-            ? formData.learningOutcomes
-                .split(",")
-                .map((s: string) => s.trim())
-                .filter(Boolean)
-            : formData.learningOutcomes,
+        title: String(formData.title || ""),
+        description: String(formData.description || ""),
+        shortDescription: formData.shortDescription
+          ? String(formData.shortDescription)
+          : undefined,
+        categoryId: formData.categoryId
+          ? String(formData.categoryId)
+          : undefined,
+        price: toNumber(formData.price) ?? 0,
+        duration: toNumber(formData.duration) ?? 0,
+        level: formData.level
+          ? String(formData.level).toLowerCase()
+          : "beginner",
+        isPublished: Boolean(formData.isPublished),
+        isFeatured: Boolean(formData.isFeatured),
+        type: formData.type ? String(formData.type) : undefined,
+        tags: toArray(formData.tags),
+        requirements: toArray(formData.requirements),
+        learningOutcomes: toArray(formData.learningOutcomes),
+        discountPrice: toNumber(formData.discountPrice),
+        discountPercentage: toNumber(formData.discountPercentage),
+        total: toNumber(formData.total),
         thumbnail:
           formData.thumbnail instanceof File ? formData.thumbnail : undefined,
       };
+
+      // Remove undefined keys so service gets a clean object.
+      Object.keys(payload).forEach(
+        (k) => payload[k] === undefined && delete payload[k]
+      );
+
+      console.log("Creating course with payload:", payload);
+
+      // Let the service detect File fields and build FormData when necessary
       const res = await CourseService.createCourse(payload);
+
+      console.log("Create course response:", res);
       if (res.success) {
         showToast("Course created", "success");
         if (res.data) setCourses((p) => [res.data as any, ...p]);
@@ -189,6 +211,7 @@ function CoursesManagement() {
     } catch (e: any) {
       showToast(e?.message || "Failed to create course", "error");
     }
+
     setIsAddModalOpen(false);
     resetForm();
   };
@@ -196,50 +219,87 @@ function CoursesManagement() {
   const handleEdit = async () => {
     if (!selectedItem) return;
     try {
+      const toNumber = (v: any) =>
+        v === undefined || v === "" || v === null ? undefined : Number(v);
+
+      const toArray = (v: any) => {
+        if (Array.isArray(v))
+          return v.map((s) => String(s).trim()).filter(Boolean);
+        if (typeof v === "string")
+          return v
+            .split(",")
+            .map((s: string) => s.trim())
+            .filter(Boolean);
+        return undefined;
+      };
+
       const payload: any = {
         title: formData.title,
         description: formData.description,
         shortDescription: formData.shortDescription || undefined,
         categoryId: formData.categoryId || undefined,
-        price: formData.price ? parseFloat(formData.price as any) : undefined,
-        duration: formData.duration
-          ? parseInt(formData.duration as any, 10)
+        price:
+          toNumber(formData.price) !== undefined
+            ? toNumber(formData.price)
+            : undefined,
+        duration:
+          toNumber(formData.duration) !== undefined
+            ? parseInt(String(toNumber(formData.duration)), 10)
+            : undefined,
+        level: formData.level
+          ? String(formData.level).toLowerCase()
           : undefined,
-        level: formData.level,
         isPublished:
           typeof formData.isPublished === "boolean"
             ? formData.isPublished
-            : undefined,
+            : formData.isPublished === undefined
+            ? undefined
+            : !!formData.isPublished,
         isFeatured:
           typeof formData.isFeatured === "boolean"
             ? formData.isFeatured
+            : formData.isFeatured === undefined
+            ? undefined
+            : !!formData.isFeatured,
+        type: formData.type || undefined,
+        tags: toArray(formData.tags),
+        requirements: toArray(formData.requirements),
+        learningOutcomes: toArray(formData.learningOutcomes),
+        discountPrice:
+          toNumber(formData.discountPrice) !== undefined
+            ? toNumber(formData.discountPrice)
             : undefined,
-        courseType: formData.courseType || undefined,
-        tags:
-          typeof formData.tags === "string"
-            ? formData.tags
-                .split(",")
-                .map((s: string) => s.trim())
-                .filter(Boolean)
-            : formData.tags,
-        requirements:
-          typeof formData.requirements === "string"
-            ? formData.requirements
-                .split(",")
-                .map((s: string) => s.trim())
-                .filter(Boolean)
-            : formData.requirements,
-        learningOutcomes:
-          typeof formData.learningOutcomes === "string"
-            ? formData.learningOutcomes
-                .split(",")
-                .map((s: string) => s.trim())
-                .filter(Boolean)
-            : formData.learningOutcomes,
+        discountPercentage:
+          toNumber(formData.discountPercentage) !== undefined
+            ? toNumber(formData.discountPercentage)
+            : undefined,
+        total:
+          toNumber(formData.total) !== undefined
+            ? toNumber(formData.total)
+            : undefined,
         thumbnail:
           formData.thumbnail instanceof File ? formData.thumbnail : undefined,
       };
-      const res = await CourseService.updateCourse(selectedItem.id, payload);
+
+      // Prepare body: send JSON when no file, otherwise FormData with individual fields
+      let bodyToSend: any = payload;
+      if (payload.thumbnail instanceof File) {
+        const fd = new FormData();
+        fd.append("thumbnail", payload.thumbnail);
+        // append other fields individually (no "data" wrapper)
+        const dataCopy: any = { ...payload, thumbnail: undefined };
+        Object.keys(dataCopy).forEach(
+          (k) => dataCopy[k] === undefined && delete dataCopy[k]
+        );
+        fd.append("data", JSON.stringify(dataCopy));
+        bodyToSend = fd;
+      } else {
+        Object.keys(bodyToSend).forEach(
+          (k) => bodyToSend[k] === undefined && delete bodyToSend[k]
+        );
+      }
+
+      const res = await CourseService.updateCourse(selectedItem.id, bodyToSend);
       if (res.success) {
         showToast("Course updated", "success");
         setCourses((prev) =>

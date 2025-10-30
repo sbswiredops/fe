@@ -38,10 +38,12 @@ export default function CoursesForm({
       />
 
       <div>
-        <label className="block text-sm font-medium text-gray-700 mb-1">Course Type</label>
+        <label className="block text-sm font-medium text-gray-700 mb-1">
+          Course Type
+        </label>
         <select
-          name="courseType"
-          value={formData.courseType || ''}
+          name="type" // changed from courseType -> type to match entity field
+          value={formData.type || ""}
           onChange={onChange}
           className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#51356e] text-gray-900"
         >
@@ -149,6 +151,29 @@ export default function CoursesForm({
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <Input
+          label="Discount Price ($)"
+          name="discountPrice"
+          type="number"
+          step="0.01"
+          value={formData.discountPrice ?? ""}
+          onChange={onChange}
+          placeholder="Enter discount price"
+        />
+        <Input
+          label="Discount Percentage (%)"
+          name="discountPercentage"
+          type="number"
+          step="0.01"
+          min="0"
+          max="100"
+          value={formData.discountPercentage ?? ""}
+          onChange={onChange}
+          placeholder="Enter discount percentage"
+        />
+      </div>
+
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-1">
             Level
@@ -203,24 +228,24 @@ export default function CoursesForm({
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-1">
-            Skills (comma separated)
+            Tags (comma separated)
           </label>
           <textarea
-            name="skills"
+            name="tags" // changed from skills -> tags to match entity 'tags'
             rows={2}
-            value={formData.skills || ""}
+            value={formData.tags || ""}
             onChange={onChange}
             className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#51356e] text-gray-900"
           />
         </div>
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-1">
-            Prerequisites (comma separated)
+            Requirements (comma separated)
           </label>
           <textarea
-            name="prerequisites"
+            name="requirements" // changed from prerequisites -> requirements to match entity 'requirements'
             rows={2}
-            value={formData.prerequisites || ""}
+            value={formData.requirements || ""}
             onChange={onChange}
             className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#51356e] text-gray-900"
           />
@@ -232,12 +257,12 @@ export default function CoursesForm({
           <textarea
             name="learningOutcomes"
             rows={2}
-            value={formData.learningOutcomes || ""}
+            value={formData.learningOutcomes || ""} // matches entity
             onChange={onChange}
             className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#51356e] text-gray-900"
           />
         </div>
-          <div>
+        <div>
           <label className="block text-sm font-medium text-gray-700 mb-1">
             Course for (comma separated)
           </label>
