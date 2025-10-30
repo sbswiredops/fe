@@ -59,30 +59,54 @@ export class CourseService {
     return this.client.get<Course>(API_CONFIG.ENDPOINTS.COURSE_BY_ID(id));
   }
 
-  // Create a new course
   async createCourse(courseData: CreateCourseRequest | FormData): Promise<ApiResponse<Course>> {
-    // If caller already provided FormData, forward it as-is
     if (typeof FormData !== "undefined" && courseData instanceof FormData) {
       return this.client.post<Course>(API_CONFIG.ENDPOINTS.COURSES, courseData);
     }
+    const payload = courseData as any;
+    const hasFile = payload && Object.values(payload).some((v: any) =>
+      typeof v === 'object' && v !== null && (v instanceof File || (typeof (v as any).name === 'string' && typeof (v as any).size === 'number'))
+    );
 
-    const hasFile = (courseData as any)?.thumbnail instanceof File;
     if (hasFile) {
       const form = new FormData();
-      Object.entries(courseData as any).forEach(([k, v]) => {
+      Object.entries(payload).forEach(([k, v]) => {
         if (v === undefined || v === null) return;
         if (v instanceof File) {
           form.append(k, v);
-        } else {
-          // Preserve type info for numbers/booleans/objects/arrays by JSON-stringifying them.
-          // Strings remain as-is to avoid double-quotes on server if not expected.
-          if (typeof v === "string") {
-            form.append(k, v);
-          } else {
-            form.append(k, JSON.stringify(v));
-          }
+          return;
         }
+        if (Array.isArray(v) && v.length > 0 && v[0] instanceof File) {
+          (v as File[]).forEach((f: File) => form.append(k, f));
+          return;
+        }
+
+        // Arrays and objects -> JSON string
+        if (Array.isArray(v) || (typeof v === 'object' && v !== null)) {
+          form.append(k, JSON.stringify(v));
+          return;
+        }
+
+        // Primitives (number/boolean/string) -> string
+        form.append(k, String(v));
       });
+      try {
+        if (typeof window !== 'undefined' && process.env.NODE_ENV !== 'production') {
+          console.groupCollapsed('[CourseService] FormData to POST');
+          for (const entry of (form as any).entries()) {
+            const [key, value] = entry as [string, any];
+            if (value instanceof File) {
+              console.log(key, { name: value.name, size: value.size, type: value.type });
+            } else {
+              console.log(key, value);
+            }
+          }
+          console.groupEnd();
+        }
+      } catch {
+        // ignore logging failures
+      }
+
       return this.client.post<Course>(API_CONFIG.ENDPOINTS.COURSES, form);
     }
 
@@ -91,24 +115,59 @@ export class CourseService {
 
   // Update course
   async updateCourse(id: string, courseData: UpdateCourseRequest): Promise<ApiResponse<Course>> {
-    const hasFile = (courseData as any)?.thumbnail instanceof File;
+    // If caller provided a FormData (e.g. page built it), forward as-is
+    if (typeof FormData !== "undefined" && courseData instanceof FormData) {
+      return this.client.patch<Course>(API_CONFIG.ENDPOINTS.COURSE_BY_ID(id), courseData);
+    }
+
+    const payload = courseData as any;
+    const hasFile = payload && Object.values(payload).some((v: any) =>
+      typeof v === 'object' && v !== null && (v instanceof File || (typeof (v as any).name === 'string' && typeof (v as any).size === 'number'))
+    );
+
     if (hasFile) {
       const form = new FormData();
-      Object.entries(courseData as any).forEach(([k, v]) => {
+      Object.entries(payload).forEach(([k, v]) => {
         if (v === undefined || v === null) return;
         if (v instanceof File) {
           form.append(k, v);
-        } else {
-          if (typeof v === "string") {
-            form.append(k, v);
-          } else {
-            form.append(k, JSON.stringify(v));
-          }
+          return;
         }
+        if (Array.isArray(v) && v.length > 0 && v[0] instanceof File) {
+          (v as File[]).forEach((f: File) => form.append(k, f));
+          return;
+        }
+
+        if (Array.isArray(v) || (typeof v === 'object' && v !== null)) {
+          form.append(k, JSON.stringify(v));
+          return;
+        }
+
+        form.append(k, String(v));
       });
+
+      // Development-only: log FormData contents to help debugging multipart encoding
+      try {
+        if (typeof window !== 'undefined' && process.env.NODE_ENV !== 'production') {
+          console.groupCollapsed('[CourseService] FormData to PATCH');
+          for (const entry of (form as any).entries()) {
+            const [key, value] = entry as [string, any];
+            if (value instanceof File) {
+              console.log(key, { name: value.name, size: value.size, type: value.type });
+            } else {
+              console.log(key, value);
+            }
+          }
+          console.groupEnd();
+        }
+      } catch {
+        // ignore logging failures
+      }
+
       return this.client.patch<Course>(API_CONFIG.ENDPOINTS.COURSE_BY_ID(id), form);
     }
-    return this.client.patch<Course>(API_CONFIG.ENDPOINTS.COURSE_BY_ID(id), courseData);
+
+    return this.client.patch<Course>(API_CONFIG.ENDPOINTS.COURSE_BY_ID(id), courseData as UpdateCourseRequest);
   }
 
   // Delete course
