@@ -169,7 +169,8 @@ function SectionsManagement() {
       const payload = {
         title: formData.title,
         description: formData.description,
-        order: parseInt(formData.order, 10) || 0,
+        // Backend does not accept 'order' on create (validation rejects unknown property).
+        // Do not send order here; server will assign default ordering. Keep local fallback to 0.
       } as any;
       const res = await sectionService.createSection(
         formData.courseId,
@@ -178,14 +179,16 @@ function SectionsManagement() {
       if (res.success) {
         showToast("Section created", "success");
         const course = courses.find((c: any) => c.id === formData.courseId);
+        const srvData: any = res.data || {};
         const newItem: any = {
-          id: (res.data as any)?.id,
+          id: srvData.id || (res.data as any)?.id,
           title: payload.title,
           description: payload.description,
-          order: payload.order,
-          status: "active",
-          lessonCount: 0,
-          createdAt: new Date().toISOString(),
+          // server may provide order/position; fallback to 0
+          order: srvData.order ?? 0,
+          status: srvData.status ?? "active",
+          lessonCount: srvData.lessonCount ?? 0,
+          createdAt: srvData.createdAt || new Date().toISOString(),
           courseId: formData.courseId,
           courseName: course?.title || "",
         };
