@@ -1,3 +1,4 @@
+/* eslint-disable @next/next/no-img-element */
 /* eslint-disable react-hooks/exhaustive-deps */
 "use client";
 
@@ -19,6 +20,7 @@ import TabsNav from "./components/TabsNav";
 
 import CourseService from "@/services/courseService";
 import { categoryService } from "@/services/categoryService";
+import { userService } from "@/services/userService";
 import type { Course, Category } from "@/types/api";
 
 function getLevelColor(level: string) {
@@ -52,6 +54,7 @@ function CoursesManagement() {
 
   const [courses, setCourses] = React.useState<Course[]>([]);
   const [categories, setCategories] = React.useState<Category[]>([]);
+  const [instructors, setInstructors] = React.useState<any[]>([]);
   const [refreshTick, setRefreshTick] = React.useState(0);
 
   const [isAddModalOpen, setIsAddModalOpen] = React.useState(false);
@@ -61,6 +64,8 @@ function CoursesManagement() {
   const [selectedItem, setSelectedItem] = React.useState<any>(null);
   const [formData, setFormData] = React.useState<any>({});
   const [imageError, setImageError] = React.useState(false);
+  const [imageErrorEdit, setImageErrorEdit] = React.useState(false);
+  const [previewUrl, setPreviewUrl] = React.useState<string | undefined>();
 
   const resolveThumbnailUrl = (thumb: any) => {
     if (!thumb) return undefined;
@@ -121,6 +126,53 @@ function CoursesManagement() {
     load();
   }, [serverEnabled]);
 
+  React.useEffect(() => {
+    const loadInstructors = async () => {
+      try {
+        if (!serverEnabled) return;
+        console.log(
+          "loadInstructors: serverEnabled",
+          serverEnabled,
+          "BASE_URL",
+          API_CONFIG.BASE_URL
+        );
+        const res = await userService.list({
+          page: 1,
+          limit: 100,
+          role: "teacher",
+        });
+        console.log("loadInstructors: response", res);
+        if (res?.success) {
+          let list: any[] = [];
+          if (Array.isArray(res.data)) {
+            list = res.data as any[];
+          } else if (res.data && Array.isArray((res.data as any).users)) {
+            list = (res.data as any).users;
+          } else if (
+            res.data &&
+            Array.isArray((res.data as { items?: any[] }).items)
+          ) {
+            list = (res.data as { items: any[] }).items;
+          } else if (res.data && Array.isArray((res.data as any).data)) {
+            list = (res.data as any).data;
+          }
+          console.log(
+            "loadInstructors: parsed list length",
+            list.length,
+            list.slice(0, 5)
+          );
+          setInstructors(list);
+        } else {
+          showToast(res?.error || "Failed to load instructors", "error");
+        }
+      } catch (e: any) {
+        console.error("loadInstructors: error", e);
+        showToast(e?.message || "Failed to load instructors", "error");
+      }
+    };
+    loadInstructors();
+  }, [serverEnabled]);
+
   const handleInputChange = (
     e: React.ChangeEvent<
       HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement
@@ -138,6 +190,25 @@ function CoursesManagement() {
   };
 
   const resetForm = () => setFormData({});
+
+  // Maintain a preview URL for the Add/Edit modal (works for File objects and remote URLs)
+  React.useEffect(() => {
+    let objUrl: string | undefined;
+    const thumb = formData?.thumbnail;
+    if (!thumb) {
+      setPreviewUrl(undefined);
+      return;
+    }
+    if (thumb instanceof File) {
+      objUrl = URL.createObjectURL(thumb);
+      setPreviewUrl(objUrl);
+      return () => {
+        if (objUrl) URL.revokeObjectURL(objUrl);
+      };
+    }
+    setPreviewUrl(resolveThumbnailUrl(thumb));
+    return () => {};
+  }, [formData?.thumbnail]);
 
   const openViewModal = (item: any) => {
     // reset image error state and log thumbnail for debugging
@@ -188,6 +259,9 @@ function CoursesManagement() {
           : undefined,
         categoryId: formData.categoryId
           ? String(formData.categoryId)
+          : undefined,
+        instructorId: formData.instructorId
+          ? String(formData.instructorId)
           : undefined,
         price: toNumber(formData.price) ?? 0,
         duration: toNumber(formData.duration) ?? 0,
@@ -255,6 +329,7 @@ function CoursesManagement() {
         description: formData.description,
         shortDescription: formData.shortDescription || undefined,
         categoryId: formData.categoryId || undefined,
+        instructorId: formData.instructorId || undefined,
         price:
           toNumber(formData.price) !== undefined
             ? toNumber(formData.price)
@@ -303,12 +378,18 @@ function CoursesManagement() {
       if (payload.thumbnail instanceof File) {
         const fd = new FormData();
         fd.append("thumbnail", payload.thumbnail);
-        // append other fields individually (no "data" wrapper)
+        // append other fields individually (no "data" wrapper) — backend expects top-level fields
         const dataCopy: any = { ...payload, thumbnail: undefined };
-        Object.keys(dataCopy).forEach(
-          (k) => dataCopy[k] === undefined && delete dataCopy[k]
-        );
-        fd.append("data", JSON.stringify(dataCopy));
+        Object.keys(dataCopy).forEach((k) => dataCopy[k] === undefined && delete dataCopy[k]);
+        // Append each field separately. Arrays/objects are JSON-stringified so server can parse.
+        Object.entries(dataCopy).forEach(([k, v]) => {
+          if (v === undefined || v === null) return;
+          if (Array.isArray(v) || typeof v === "object") {
+            fd.append(k, JSON.stringify(v));
+          } else {
+            fd.append(k, String(v));
+          }
+        });
         bodyToSend = fd;
       } else {
         Object.keys(bodyToSend).forEach(
@@ -673,11 +754,55 @@ function CoursesManagement() {
           size="lg"
         >
           <div className="space-y-4">
+            {/* Preview for Add/Edit modal (shows selected file or resolved remote URL) */}
+            {previewUrl ? (
+              <div className="w-full flex items-center justify-center">
+                <div className="w-full max-w-[360px] h-[180px] relative overflow-hidden rounded-lg border border-gray-200">
+                  {/* Use native img for blob/data URLs, next/image for remote URLs */}
+                  {previewUrl.startsWith("blob:") ||
+                  previewUrl.startsWith("data:") ? (
+                    !imageErrorEdit ? (
+                      <img
+                        src={previewUrl}
+                        alt={formData?.title || "thumbnail preview"}
+                        className="w-full h-full object-cover"
+                        onError={() => setImageErrorEdit(true)}
+                        onLoad={() => setImageErrorEdit(false)}
+                      />
+                    ) : (
+                      <div className="w-full h-full flex items-center justify-center bg-gray-50 p-3">
+                        <div className="text-sm text-red-600">
+                          Image preview failed
+                        </div>
+                      </div>
+                    )
+                  ) : !imageErrorEdit ? (
+                    <Image
+                      src={previewUrl}
+                      alt={formData?.title || "thumbnail preview"}
+                      fill
+                      sizes="(max-width: 360px) 360px, 33vw"
+                      className="object-cover"
+                      onError={() => setImageErrorEdit(true)}
+                      onLoadingComplete={() => setImageErrorEdit(false)}
+                    />
+                  ) : (
+                    <div className="w-full h-full flex items-center justify-center bg-gray-50 p-3">
+                      <div className="text-sm text-red-600">
+                        Image preview failed
+                      </div>
+                    </div>
+                  )}
+                </div>
+              </div>
+            ) : null}
+
             <CoursesForm
               formData={formData}
               onChange={handleInputChange}
               setFormData={setFormData}
               categories={categories as any}
+              instructors={instructors as any}
             />
             <div className="flex justify-end space-x-3 pt-4">
               <Button
@@ -729,7 +854,9 @@ function CoursesManagement() {
                         />
                       ) : (
                         <div className="w-full h-full flex flex-col items-center justify-center bg-gray-50 p-3">
-                          <div className="text-sm text-red-600 mb-2">Image failed to load.</div>
+                          <div className="text-sm text-red-600 mb-2">
+                            Image failed to load.
+                          </div>
                           <a
                             href={thumbUrl}
                             target="_blank"

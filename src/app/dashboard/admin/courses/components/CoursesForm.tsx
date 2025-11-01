@@ -11,6 +11,7 @@ interface Props {
   ) => void;
   setFormData: React.Dispatch<React.SetStateAction<any>>;
   categories: any[] | { items?: any[] } | undefined;
+  instructors?: any[] | { items?: any[] } | undefined;
 }
 
 export default function CoursesForm({
@@ -18,6 +19,7 @@ export default function CoursesForm({
   onChange,
   setFormData,
   categories,
+  instructors,
 }: Props) {
   const categoryList = React.useMemo(() => {
     if (Array.isArray(categories)) return categories;
@@ -25,6 +27,14 @@ export default function CoursesForm({
       return (categories as any).items;
     return [];
   }, [categories]);
+
+  const instructorList = React.useMemo(() => {
+    if (!instructors) return [];
+    if (Array.isArray(instructors)) return instructors;
+    if (instructors && Array.isArray((instructors as any).items))
+      return (instructors as any).items;
+    return [];
+  }, [instructors]);
 
   return (
     <>
@@ -128,6 +138,35 @@ export default function CoursesForm({
         </select>
       </div>
 
+  <div>
+        <label className="block text-sm font-medium text-gray-700 mb-1">
+          Instructor
+        </label>
+        <select
+          name="instructorId"
+          value={formData.instructorId || ""}
+          onChange={onChange}
+          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#51356e] text-gray-900"
+        >
+          <option value="">Select an instructor</option>
+          {instructorList.length > 0
+            ? instructorList.map((instr: any) => {
+                const label =
+                  instr.name || instr.fullName || instr.email || `${instr.firstName || ''} ${instr.lastName || ''}`;
+                return (
+                  <option key={instr.id} value={instr.id}>
+                    {label}
+                  </option>
+                );
+              })
+            : null}
+          {instructorList.length === 0 && (
+            <option value="" disabled>
+              No instructors available
+            </option>
+          )}
+        </select>
+      </div>
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <Input
           label="Price ($)"
