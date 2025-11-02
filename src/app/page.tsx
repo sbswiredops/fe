@@ -14,8 +14,8 @@ export default function Home() {
     <MainLayout>
       <HeroSection />
       <FeaturedCourses />
-      <LiveClasses />
-      <FreeLiveMasterclass />
+      {/* <LiveClasses /> */}
+      {/* <FreeLiveMasterclass /> */}
       <RecordedCoursesSection />
       <LiveCourseContents />
       <Testimonials />
