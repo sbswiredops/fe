@@ -229,7 +229,7 @@ function AllCoursesClient() {
         </div>
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
           <div className="rounded-2xl p-8 sm:p-10 text-center text-white">
-            <h1 className="text-3xl sm:text-4xl font-bold mb-4">
+            <h1 className="text-5xl  font-bold mb-4">
               {currentLanguage.code === "bn"
                 ? "বাংলা অনলাইন কোর্স"
                 : t("nav.courses")}

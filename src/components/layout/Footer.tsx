@@ -11,9 +11,9 @@ export default function Footer() {
   const exploreLinks = [
     { name: t("nav.home"), href: "/" },
     { name: t("nav.courses"), href: "/courses" },
-    { name: t("nav.liveClasses"), href: "/live-classes" },
+    // { name: t("nav.liveClasses"), href: "/live-classes" },
     { name: t("nav.about"), href: "/about" },
-    { name: "API Documentation", href: "/api-docs" },
+    // { name: "API Documentation", href: "/api-docs" },
   ];
 
   const learnLinks = [

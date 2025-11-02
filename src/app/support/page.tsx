@@ -3,6 +3,8 @@
 import MainLayout from "@/components/layout/MainLayout";
 import { useLanguage } from "@/components/contexts/LanguageContext";
 import { useState } from "react";
+import { AlertTriangle } from "lucide-react";
+import Link from "next/link";
 
 function SupportContent() {
   const { t } = useLanguage();
@@ -153,7 +155,7 @@ function SupportContent() {
                 onClick={() => setActiveTab("general")}
                 className={`px-6 py-3 rounded-lg font-medium transition-colors duration-300 ${
                   activeTab === "general"
-                    ? "bg-orange-500 text-white"
+                    ? "bg-purple-500 text-white"
                     : "bg-gray-100 text-gray-700 hover:bg-gray-200"
                 }`}
               >
@@ -163,7 +165,7 @@ function SupportContent() {
                 onClick={() => setActiveTab("courses")}
                 className={`px-6 py-3 rounded-lg font-medium transition-colors duration-300 ${
                   activeTab === "courses"
-                    ? "bg-orange-500 text-white"
+                    ? "bg-purple-500 text-white"
                     : "bg-gray-100 text-gray-700 hover:bg-gray-200"
                 }`}
               >
@@ -173,7 +175,7 @@ function SupportContent() {
                 onClick={() => setActiveTab("technical")}
                 className={`px-6 py-3 rounded-lg font-medium transition-colors duration-300 ${
                   activeTab === "technical"
-                    ? "bg-orange-500 text-white"
+                    ? "bg-purple-500 text-white"
                     : "bg-gray-100 text-gray-700 hover:bg-gray-200"
                 }`}
               >
@@ -183,7 +185,7 @@ function SupportContent() {
                 onClick={() => setActiveTab("billing")}
                 className={`px-6 py-3 rounded-lg font-medium transition-colors duration-300 ${
                   activeTab === "billing"
-                    ? "bg-orange-500 text-white"
+                    ? "bg-purple-500 text-white"
                     : "bg-gray-100 text-gray-700 hover:bg-gray-200"
                 }`}
               >
@@ -210,105 +212,13 @@ function SupportContent() {
       </section>
 
       {/* Support Options Section */}
-      <section className="support-options-section py-16 bg-gray-50  mx-auto px-4 sm:px-10 lg:px-50">
-        <div className="container mx-auto px-4">
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 max-w-6xl mx-auto">
-            {/* Help Desk */}
-            <div className="support-card bg-white p-8 rounded-xl shadow-lg border border-gray-100">
-              <div className="support-icon w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mb-6 mx-auto">
-                <span className="text-blue-500 text-3xl">🎫</span>
-              </div>
-              <h3 className="text-xl font-bold text-center text-gray-800 mb-4">
-                {t("support.helpDesk.title")}
-              </h3>
-              <p className="text-gray-600 text-center mb-6">
-                {t("support.helpDesk.description")}
-              </p>
-              <button className="w-full bg-blue-500 hover:bg-blue-600 text-white font-bold py-3 px-6 rounded-lg transition-colors duration-300">
-                {t("support.helpDesk.submitTicket")}
-              </button>
-            </div>
-
-            {/* Resources */}
-            <div className="support-card bg-white p-8 rounded-xl shadow-lg border border-gray-100">
-              <div className="support-icon w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mb-6 mx-auto">
-                <span className="text-green-500 text-3xl">📚</span>
-              </div>
-              <h3 className="text-xl font-bold text-center text-gray-800 mb-4">
-                {t("support.resources.title")}
-              </h3>
-              <div className="resources-list space-y-3">
-                <a
-                  href="#"
-                  className="block text-blue-600 hover:text-blue-800 transition-colors duration-300"
-                >
-                  {t("support.resources.userGuide")}
-                </a>
-                <a
-                  href="#"
-                  className="block text-blue-600 hover:text-blue-800 transition-colors duration-300"
-                >
-                  {t("support.resources.videoTutorials")}
-                </a>
-                <a
-                  href="#"
-                  className="block text-blue-600 hover:text-blue-800 transition-colors duration-300"
-                >
-                  {t("support.resources.downloads")}
-                </a>
-                <a
-                  href="#"
-                  className="block text-blue-600 hover:text-blue-800 transition-colors duration-300"
-                >
-                  {t("support.resources.systemRequirements")}
-                </a>
-              </div>
-            </div>
-
-            {/* Contact Support */}
-            <div className="support-card bg-white p-8 rounded-xl shadow-lg border border-gray-100">
-              <div className="support-icon w-16 h-16 bg-orange-100 rounded-full flex items-center justify-center mb-6 mx-auto">
-                <span className="text-orange-500 text-3xl">📞</span>
-              </div>
-              <h3 className="text-xl font-bold text-center text-gray-800 mb-4">
-                {t("support.contact.title")}
-              </h3>
-              <div className="contact-options space-y-4">
-                <div className="contact-option">
-                  <h4 className="font-semibold text-gray-800">
-                    {t("support.contact.phone")}
-                  </h4>
-                  <p className="text-gray-600">+880 1234-567890</p>
-                </div>
-                <div className="contact-option">
-                  <h4 className="font-semibold text-gray-800">
-                    {t("support.contact.email")}
-                  </h4>
-                  <p className="text-gray-600">support@shekhabo.com</p>
-                </div>
-                <div className="contact-option">
-                  <h4 className="font-semibold text-gray-800">
-                    {t("support.contact.chat")}
-                  </h4>
-                  <button className="text-blue-600 hover:text-blue-800 transition-colors duration-300">
-                    Start Live Chat
-                  </button>
-                </div>
-              </div>
-              <p className="text-sm text-gray-500 mt-4 text-center">
-                {t("support.contact.hours")}
-              </p>
-            </div>
-          </div>
-        </div>
-      </section>
 
       {/* Emergency Support */}
       <section className="emergency-support py-16">
         <div className="container mx-auto px-4">
           <div className="emergency-card bg-red-50 border border-red-200 p-8 rounded-xl max-w-4xl mx-auto text-center">
             <div className="emergency-icon w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mb-6 mx-auto">
-              <span className="text-red-500 text-3xl">🚨</span>
+              <AlertTriangle className="text-red-500" size={28} />
             </div>
             <h3 className="text-2xl font-bold text-gray-800 mb-4">
               Emergency Support
@@ -318,9 +228,12 @@ function SupportContent() {
               accessing your courses or account, please contact our emergency
               support line immediately.
             </p>
-            <button className="bg-red-500 hover:bg-red-600 text-white font-bold py-3 px-8 rounded-lg transition-colors duration-300">
+            <Link
+              href="/contact"
+              className="inline-block bg-red-500 hover:bg-red-600 text-white font-bold py-3 px-8 rounded-lg transition-colors duration-300"
+            >
               Contact Emergency Support
-            </button>
+            </Link>
           </div>
         </div>
       </section>
