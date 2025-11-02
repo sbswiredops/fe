@@ -43,31 +43,20 @@ export default function Footer() {
 
   return (
     <footer
-      className="relative text-gray-800"
-      style={{ backgroundColor: "#8e67b6" }}
+      className="relative"
+      style={{ backgroundColor: "#51356e" }} // dark gray background
     >
       {/* Decorative wave top */}
       <div
         className="absolute inset-x-0 -top-10 pointer-events-none select-none"
         aria-hidden
-      >
-        <svg
-          className="w-full h-10"
-          viewBox="0 0 1440 80"
-          preserveAspectRatio="none"
-        >
-          <path
-            d="M0,40 C120,60 360,80 540,56 C720,32 900,-8 1080,6 C1260,20 1380,52 1440,64 L1440,80 L0,80 Z"
-            fill="#8e67b6"
-          />
-        </svg>
-      </div>
+      ></div>
 
       <div className="max-w-7xl mx-auto px-14 sm:px-6 lg:px-70 py-12">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-2">
           {/* Column: Social */}
           <div className="lg:pl-6">
-            <h3 className="mb-4 text-lg font-semibold text-white">
+            <h3 className="mb-4 text-lg font-semibold text-gray-100">
               {t("footer.followUs")}
             </h3>
             <div className="flex items-center gap-3">
@@ -80,7 +69,7 @@ export default function Footer() {
                     aria-label={s.name}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="w-9 h-9 rounded-full bg-green-600 text-white flex items-center justify-center hover:bg-green-700 transition-colors"
+                    className="w-9 h-9 rounded-full bg-[#ffffff17] text-white flex  items-center justify-center hover:bg-[#9aa09e5e] transition-colors"
                   >
                     <Icon size={16} />
                   </a>
@@ -90,7 +79,7 @@ export default function Footer() {
           </div>
           {/* Column: Explore */}
           <div>
-            <h3 className="mb-4 text-lg font-semibold text-white">
+            <h3 className="mb-4 text-lg font-semibold text-gray-100">
               {t("footer.quickLinks")}
             </h3>
             <ul className="space-y-2">
@@ -98,7 +87,7 @@ export default function Footer() {
                 <li key={link.name}>
                   <Link
                     href={link.href}
-                    className="text-zinc-800 hover:text-[#ebebeb] transition-colors"
+                    className="text-gray-200 hover:text-[#F8F9FA] transition-colors"
                   >
                     {link.name}
                   </Link>
@@ -109,13 +98,13 @@ export default function Footer() {
 
           {/* Column: Learn */}
           <div>
-            <h3 className="mb-4 text-lg font-semibold  text-white">Learn</h3>
+            <h3 className="mb-4 text-lg font-semibold text-gray-100">Learn</h3>
             <ul className="space-y-2">
               {learnLinks.map((link) => (
                 <li key={link.name}>
                   <Link
                     href={link.href}
-                    className="text-zinc-800 hover:text-[#ebebeb] transition-colors"
+                    className="text-gray-200 hover:text-[#F8F9FA] transition-colors"
                   >
                     {link.name}
                   </Link>
@@ -126,28 +115,30 @@ export default function Footer() {
 
           {/* Column: Contact (replaces More from Shekhabo) */}
           <div>
-            <h3 className="mb-4 text-lg font-semibold text-white">Contact</h3>
-            <ul className="space-y-3 text-zinc-800">
+            <h3 className="mb-4 text-lg font-semibold text-gray-100">
+              Contact
+            </h3>
+            <ul className="space-y-3">
               <li className="flex items-start gap-3">
                 <Mail
-                  className="pt-1 text-white"
+                  className="pt-1 text-gray-100"
                   size={18}
                   aria-hidden="true"
                 />
                 <a
                   href="mailto:teamshekhabo@gmail.com"
-                  className="hover:text-[#ebebeb] transition-colors"
+                  className="text-gray-200 hover:text-[#F8F9FA] transition-colors"
                 >
                   teamshekhabo@gmail.com
                 </a>
               </li>
               <li className="flex items-start gap-3">
                 <MapPin
-                  className="pt-1 text-white"
+                  className="pt-1 text-gray-100"
                   size={18}
                   aria-hidden="true"
                 />
-                <span className="text-zinc-800">
+                <span className="text-gray-200">
                   House 364, Road 27, Mohakhali DOHS, Dhaka - 1206
                 </span>
               </li>
@@ -156,8 +147,8 @@ export default function Footer() {
         </div>
 
         {/* Bottom bar */}
-        <div className="mt-10 border-t border-green-200 pt-6 flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-          <p className="text-sm text-zinc-800 hover:text-[#ebebeb]">
+        <div className="mt-10 border-t border-gray-400 pt-6 flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+          <p className="text-sm text-gray-200 hover:text-[#F8F9FA]">
             © {new Date().getFullYear()} shekhabo.com
           </p>
         </div>
