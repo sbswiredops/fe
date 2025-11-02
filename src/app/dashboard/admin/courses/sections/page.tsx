@@ -93,6 +93,8 @@ function SectionsManagement() {
             lessonCount: Array.isArray(s?.lessons)
               ? s.lessons.length
               : s?.lessonCount ?? 0,
+            // normalize server's index field (some responses use orderIndex)
+            orderIndex: s?.orderIndex ?? s?.order ?? 0,
             status:
               typeof s?.status === "boolean"
                 ? s.status
@@ -125,6 +127,8 @@ function SectionsManagement() {
               ...s,
               courseId: c.id,
               courseName: c.title || c.name,
+              // normalize orderIndex
+              orderIndex: s?.orderIndex ?? s?.order ?? 0,
               status: s?.status || "active",
               lessonCount: s?.lessonCount ?? 0,
             }));
@@ -156,7 +160,13 @@ function SectionsManagement() {
   };
   const openEditModal = (item: any) => {
     setSelectedItem(item);
-    setFormData(item);
+    // only populate editable fields to avoid sending disallowed props (order/orderIndex)
+    setFormData({
+      title: item.title ?? "",
+      description: item.description ?? "",
+      courseId: item.courseId ?? item?.course?.id ?? "",
+      status: item.status ?? "",
+    });
     setIsEditModalOpen(true);
   };
   const openDeleteModal = (item: any) => {
@@ -169,8 +179,6 @@ function SectionsManagement() {
       const payload = {
         title: formData.title,
         description: formData.description,
-        // Backend does not accept 'order' on create (validation rejects unknown property).
-        // Do not send order here; server will assign default ordering. Keep local fallback to 0.
       } as any;
       const res = await sectionService.createSection(
         formData.courseId,
@@ -184,8 +192,8 @@ function SectionsManagement() {
           id: srvData.id || (res.data as any)?.id,
           title: payload.title,
           description: payload.description,
-          // server may provide order/position; fallback to 0
-          order: srvData.order ?? 0,
+          // use orderIndex (server may provide orderIndex)
+          orderIndex: srvData.orderIndex ?? srvData.order ?? 0,
           status: srvData.status ?? "active",
           lessonCount: srvData.lessonCount ?? 0,
           createdAt: srvData.createdAt || new Date().toISOString(),
@@ -207,18 +215,33 @@ function SectionsManagement() {
   const handleEdit = async () => {
     if (!selectedItem) return;
     try {
-      const payload = {
-        title: formData.title,
-        description: formData.description,
-        order: formData.order ? parseInt(formData.order, 10) : undefined,
-      } as any;
+      // ensure we don't send order/orderIndex to server
+      const { order, orderIndex, ...rest } = formData || {};
+      const payload: any = {
+        title: rest.title,
+        description: rest.description,
+      };
+
       const res = await sectionService.updateSection(selectedItem.id, payload);
       if (res.success) {
         showToast("Section updated", "success");
+
+        // Prefer server returned data to update local state, fallback to payload
+        const updatedFromServer =
+          res.data && typeof res.data === "object" ? res.data : null;
+
+        const updatedItem = updatedFromServer
+          ? { ...selectedItem, ...updatedFromServer }
+          : { ...selectedItem, ...payload };
+
+        // ensure local item keeps normalized orderIndex
+        if (!updatedItem.orderIndex) {
+          updatedItem.orderIndex =
+            selectedItem.orderIndex ?? selectedItem.order ?? 0;
+        }
+
         setSections((prev) =>
-          prev.map((s: any) =>
-            s.id === selectedItem.id ? { ...s, ...payload } : s
-          )
+          prev.map((s: any) => (s.id === selectedItem.id ? updatedItem : s))
         );
         setRefreshTick((x) => x + 1);
       } else {
