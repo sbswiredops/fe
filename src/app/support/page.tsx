@@ -129,81 +129,56 @@ function SupportContent() {
 
   return (
     <div className="bg-white min-h-screen">
-      {/* Hero Section */}
-      <section className="hero-section py-20 text-center bg-gray-50">
-        <div className="container mx-auto px-4">
-          <h1 className="hero-title text-5xl md:text-6xl font-bold text-gray-800 mb-6">
+      {/* Hero Section - Improved responsive spacing */}
+      <section className="hero-section py-12 sm:py-16 md:py-20 text-center bg-gray-50">
+        <div className="container mx-auto px-4 sm:px-6">
+          <h1 className="hero-title text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold text-gray-800 mb-4 sm:mb-6">
             {t("support.title")}
           </h1>
-          <p className="hero-subtitle text-xl text-gray-600 max-w-3xl mx-auto">
+          <p className="hero-subtitle text-base sm:text-lg md:text-xl text-gray-600 max-w-3xl mx-auto">
             {t("support.subtitle")}
           </p>
         </div>
       </section>
 
-      {/* FAQ Section */}
-      <section className="faq-section py-16  mx-auto px-4 sm:px-10 lg:px-50">
-        <div className="container mx-auto px-4">
+      {/* FAQ Section - Improved responsive layout */}
+      <section className="faq-section py-10 sm:py-12 md:py-16 mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="container mx-auto">
           <div className="max-w-6xl mx-auto">
-            <h2 className="text-4xl font-bold text-center text-gray-800 mb-12">
+            <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-center text-gray-800 mb-8 sm:mb-12">
               {t("support.faq.title")}
             </h2>
 
-            {/* FAQ Tabs */}
-            <div className="faq-tabs flex flex-wrap justify-center mb-8 space-x-2">
-              <button
-                onClick={() => setActiveTab("general")}
-                className={`px-6 py-3 rounded-lg font-medium transition-colors duration-300 ${
-                  activeTab === "general"
-                    ? "bg-purple-500 text-white"
-                    : "bg-gray-100 text-gray-700 hover:bg-gray-200"
-                }`}
-              >
-                {t("support.faq.general")}
-              </button>
-              <button
-                onClick={() => setActiveTab("courses")}
-                className={`px-6 py-3 rounded-lg font-medium transition-colors duration-300 ${
-                  activeTab === "courses"
-                    ? "bg-purple-500 text-white"
-                    : "bg-gray-100 text-gray-700 hover:bg-gray-200"
-                }`}
-              >
-                {t("support.faq.courses")}
-              </button>
-              <button
-                onClick={() => setActiveTab("technical")}
-                className={`px-6 py-3 rounded-lg font-medium transition-colors duration-300 ${
-                  activeTab === "technical"
-                    ? "bg-purple-500 text-white"
-                    : "bg-gray-100 text-gray-700 hover:bg-gray-200"
-                }`}
-              >
-                {t("support.faq.technical")}
-              </button>
-              <button
-                onClick={() => setActiveTab("billing")}
-                className={`px-6 py-3 rounded-lg font-medium transition-colors duration-300 ${
-                  activeTab === "billing"
-                    ? "bg-purple-500 text-white"
-                    : "bg-gray-100 text-gray-700 hover:bg-gray-200"
-                }`}
-              >
-                {t("support.faq.billing")}
-              </button>
+            {/* FAQ Tabs - Improved mobile layout */}
+            <div className="faq-tabs flex flex-wrap justify-center gap-2 mb-8 px-2">
+              {["general", "courses", "technical", "billing"].map((tab) => (
+                <button
+                  key={tab}
+                  onClick={() => setActiveTab(tab)}
+                  className={`px-4 sm:px-6 py-2 sm:py-3 rounded-lg font-medium text-sm sm:text-base transition-colors duration-300 ${
+                    activeTab === tab
+                      ? "bg-purple-500 text-white"
+                      : "bg-gray-100 text-gray-700 hover:bg-gray-200"
+                  }`}
+                >
+                  {t(`support.faq.${tab}`)}
+                </button>
+              ))}
             </div>
 
-            {/* FAQ Content */}
-            <div className="faq-content space-y-4 max-w-4xl mx-auto">
+            {/* FAQ Content - Improved spacing and readability */}
+            <div className="faq-content space-y-4 max-w-4xl mx-auto px-4 sm:px-6">
               {faqData[activeTab as keyof typeof faqData].map((faq, index) => (
                 <div
                   key={index}
-                  className="faq-item bg-white p-6 rounded-xl shadow-md border border-gray-100"
+                  className="faq-item bg-white p-4 sm:p-6 rounded-xl shadow-md border border-gray-100"
                 >
-                  <h3 className="faq-question text-lg font-semibold text-gray-800 mb-3">
+                  <h3 className="faq-question text-base sm:text-lg font-semibold text-gray-800 mb-2 sm:mb-3">
                     {faq.question}
                   </h3>
-                  <p className="faq-answer text-gray-600">{faq.answer}</p>
+                  <p className="faq-answer text-sm sm:text-base text-gray-600">
+                    {faq.answer}
+                  </p>
                 </div>
               ))}
             </div>
@@ -211,26 +186,24 @@ function SupportContent() {
         </div>
       </section>
 
-      {/* Support Options Section */}
-
-      {/* Emergency Support */}
-      <section className="emergency-support py-16">
-        <div className="container mx-auto px-4">
-          <div className="emergency-card bg-red-50 border border-red-200 p-8 rounded-xl max-w-4xl mx-auto text-center">
-            <div className="emergency-icon w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mb-6 mx-auto">
-              <AlertTriangle className="text-red-500" size={28} />
+      {/* Emergency Support - Improved responsive design */}
+      <section className="emergency-support py-10 sm:py-12 md:py-16">
+        <div className="container mx-auto px-4 sm:px-6">
+          <div className="emergency-card bg-red-50 border border-red-200 p-4 sm:p-6 md:p-8 rounded-xl max-w-4xl mx-auto text-center">
+            <div className="emergency-icon w-12 h-12 sm:w-16 sm:h-16 bg-red-100 rounded-full flex items-center justify-center mb-4 sm:mb-6 mx-auto">
+              <AlertTriangle className="text-red-500" size={24} />
             </div>
-            <h3 className="text-2xl font-bold text-gray-800 mb-4">
+            <h3 className="text-xl sm:text-2xl font-bold text-gray-800 mb-3 sm:mb-4">
               Emergency Support
             </h3>
-            <p className="text-gray-600 mb-6">
+            <p className="text-sm sm:text-base text-gray-600 mb-4 sm:mb-6">
               If you're experiencing critical issues that prevent you from
               accessing your courses or account, please contact our emergency
               support line immediately.
             </p>
             <Link
               href="/contact"
-              className="inline-block bg-red-500 hover:bg-red-600 text-white font-bold py-3 px-8 rounded-lg transition-colors duration-300"
+              className="inline-block bg-red-500 hover:bg-red-600 text-white font-bold py-2 sm:py-3 px-6 sm:px-8 rounded-lg transition-colors duration-300 text-sm sm:text-base"
             >
               Contact Emergency Support
             </Link>

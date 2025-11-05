@@ -124,7 +124,8 @@ export default function CardSlider({
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
     >
-      <div className="flex items-center justify-between mb-4">
+      {/* Responsive header and filters */}
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-4">
         <div>
           {title && (
             <h2
@@ -137,29 +138,32 @@ export default function CardSlider({
           <p className="text-sm text-gray-600">{filtered.length} items</p>
         </div>
 
-        <div className="flex items-center gap-3">
-          <div className="flex items-center border border-gray-200 rounded overflow-hidden bg-white">
+        {/* Responsive filters container */}
+        <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
+          {/* Search input */}
+          <div className="flex-1 sm:flex-initial flex items-center border border-gray-200 rounded overflow-hidden bg-white">
             <input
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               placeholder="Search courses..."
-              className="px-3 py-2 text-sm outline-none w-44 sm:w-64 text-gray-900 placeholder-gray-400"
+              className="flex-1 px-3 py-2 text-sm outline-none w-full sm:w-44 md:w-64 text-gray-900 placeholder-gray-400"
               aria-label="Search courses"
             />
             <button
               onClick={() => setSearch("")}
-              className="px-3 border-l border-gray-200 text-sm text-gray-700 hover:bg-gray-50"
+              className="px-3 border-l border-gray-200 text-sm text-gray-700 hover:bg-gray-50 whitespace-nowrap"
               aria-label="Clear search"
             >
               Clear
             </button>
           </div>
 
-          <div className="flex items-center bg-white border border-gray-200 rounded">
+          {/* Category select */}
+          <div className="flex-1 sm:flex-initial flex items-center bg-white border border-gray-200 rounded">
             <select
               value={category}
               onChange={(e) => setCategory(e.target.value)}
-              className="px-3 py-2 text-sm outline-none bg-transparent text-gray-900"
+              className="w-full px-3 py-2 text-sm outline-none bg-transparent text-gray-900"
               aria-label="Filter by category"
             >
               <option value="all" className="text-gray-900">
@@ -173,8 +177,8 @@ export default function CardSlider({
             </select>
           </div>
 
-          {/* Slider arrows in header */}
-          <div className="flex items-center gap-2">
+          {/* Navigation arrows */}
+          <div className="flex items-center justify-end gap-2">
             <button
               onClick={() => scrollBySlides("left")}
               aria-label="Previous"

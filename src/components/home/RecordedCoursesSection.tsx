@@ -25,7 +25,6 @@ interface RecordedCourse {
   createdAt: string; // or Date, depending on your model
 }
 
-// ...existing code...
 export default function RecordedCoursesSection() {
   const { t } = useLanguage();
   const [courses, setCourses] = useState<RecordedCourse[]>([]);
@@ -74,66 +73,72 @@ export default function RecordedCoursesSection() {
   const displayedCourses = courses.slice(0, 4);
 
   return (
-    <section className="pt-16 pb-8 bg-white">
-      <div className="max-w-7xl mx-auto px-4 sm:px-10 lg:px-50">
-        {/* Header */}
-        <div className="text-center mb-12">
-          <h2 className="text-3xl lg:text-4xl font-bold text-gray-900 mb-4">
+    <section className="py-8 md:py-16 bg-white">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        {/* Header with responsive spacing and font sizes */}
+        <div className="text-center mb-8 md:mb-12">
+          <h2 className="text-2xl md:text-3xl lg:text-4xl font-bold text-gray-900 mb-3 md:mb-4">
             Recorded Courses
           </h2>
-          <p className="text-xl text-gray-600 max-w-2xl mx-auto">
+          <p className="text-base md:text-lg lg:text-xl text-gray-600 max-w-2xl mx-auto px-4">
             Access premium recorded courses and sessions
           </p>
         </div>
 
-        {/* Courses Slider */}
+        {/* Courses Slider with responsive handling */}
         {loading ? (
-          <div className="text-center py-12 text-lg text-gray-500">
+          <div className="text-center py-8 md:py-12 text-base md:text-lg text-gray-500">
             Loading...
           </div>
         ) : courses.length === 0 ? (
-          <div className="text-center py-12 text-lg text-gray-500">
+          <div className="text-center py-8 md:py-12 text-base md:text-lg text-gray-500">
             No courses found.
           </div>
         ) : (
-          <CardSlider
-            items={courses.map((course) => ({
-              ...course,
-              duration:
-                typeof course.duration === "string"
-                  ? course.duration
-                  : String(course.duration),
-              thumbnail: course.thumbnail ?? "",
-              rating:
-                typeof course.rating === "number"
-                  ? course.rating
-                  : Number(course.rating),
-              createdAt:
-                typeof course.createdAt === "string"
-                  ? new Date(course.createdAt)
-                  : course.createdAt,
-            }))}
-            title={t("Recorded Courses") || "Recorded Courses"}
-            categories={[
-              ...new Set(courses.map((c) => c.category || "General")),
-            ]}
-            className="mb-8"
-            renderItem={(course) => <CourseCard course={course} />}
-          />
+          <div className="relative">
+            <CardSlider
+              items={courses.map((course) => ({
+                ...course,
+                duration:
+                  typeof course.duration === "string"
+                    ? course.duration
+                    : String(course.duration),
+                thumbnail: course.thumbnail ?? "",
+                rating:
+                  typeof course.rating === "number"
+                    ? course.rating
+                    : Number(course.rating),
+                createdAt:
+                  typeof course.createdAt === "string"
+                    ? new Date(course.createdAt)
+                    : course.createdAt,
+              }))}
+              title={t("Recorded Courses") || "Recorded Courses"}
+              categories={[
+                ...new Set(courses.map((c) => c.category || "General")),
+              ]}
+              className="mb-4 md:mb-8"
+              renderItem={(course) => (
+                <div className="px-2 md:px-3 w-full">
+                  <CourseCard course={course} />
+                </div>
+              )}
+            />
+          </div>
         )}
 
-        {/* View All Courses */}
-        <div className="text-center mt-12">
+        {/* View All Courses button with responsive design */}
+        <div className="text-center mt-8 md:mt-12">
           <Link href={{ pathname: "/courses", query: { type: "recorded" } }}>
             <Button
               variant="outline"
               size="lg"
-              className="btn-hover"
+              className="w-full sm:w-auto btn-hover px-6 py-3 text-sm md:text-base"
               style={{
                 borderColor: "var(--color-text-primary)",
                 color: "var(--color-text-primary)",
                 backgroundColor: "rgba(80, 53, 110, 0.05)",
-                transition: "background 0.2s, color 0.2s",
+                transition: "all 0.2s ease-in-out",
               }}
               onMouseEnter={(e) => {
                 e.currentTarget.style.backgroundColor =
@@ -146,20 +151,22 @@ export default function RecordedCoursesSection() {
                 e.currentTarget.style.color = "var(--color-text-primary)";
               }}
             >
-              View All Recorded Courses
-              <svg
-                className="ml-2 w-5 h-5"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M13 7l5 5m0 0l-5 5m5-5H6"
-                />
-              </svg>
+              <span className="flex items-center justify-center">
+                View All Recorded Courses
+                <svg
+                  className="ml-2 w-4 h-4 md:w-5 md:h-5"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M13 7l5 5m0 0l-5 5m5-5H6"
+                  />
+                </svg>
+              </span>
             </Button>
           </Link>
         </div>

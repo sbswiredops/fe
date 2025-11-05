@@ -30,7 +30,7 @@ export class ApiClient {
   private refreshPromise: Promise<string | null> | null = null;
 
   constructor() {
-    this.baseURL = API_CONFIG.BASE_URL;
+    this.baseURL = API_CONFIG.BASE_URL || '';
     this.defaultHeaders = {
       'Content-Type': 'application/json',
       'Accept': 'application/json',
