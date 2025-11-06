@@ -5,8 +5,7 @@ import {
   Lesson,
   CreateLessonRequest,
   UpdateLessonRequest,
-  PaginationQuery,
-  LessonsQuery, // added
+  LessonsQuery,
 } from '@/types/api';
 
 export class LessonService {
@@ -52,17 +51,39 @@ export class LessonService {
     data: CreateLessonRequest
   ): Promise<ApiResponse<Lesson>> {
     const hasFile =
-      (data as any)?.videoUrl instanceof File ||
-      (data as any)?.resourceUrl instanceof File;
+      (data as any)?.video instanceof File ||
+      (data as any)?.resource instanceof File;
 
     if (hasFile) {
       const form = new FormData();
-      Object.entries(data as any).forEach(([k, v]) => {
-        if (v === undefined || v === null) return;
-        if (v instanceof File) form.append(k, v);
-        else if (Array.isArray(v)) form.append(k, JSON.stringify(v));
-        else form.append(k, String(v as any));
-      });
+
+      const appendValue = (key: string, value: unknown) => {
+        if (value === undefined || value === null) return;
+        if (value instanceof File) {
+          form.append(key, value);
+          return;
+        }
+        if (Array.isArray(value)) {
+          form.append(key, JSON.stringify(value));
+          return;
+        }
+        if (typeof value === 'boolean') {
+          form.append(key, value ? 'true' : 'false');
+          return;
+        }
+        form.append(key, String(value));
+      };
+
+      appendValue('sectionId', data.sectionId);
+      appendValue('title', data.title);
+      appendValue('content', data.content);
+      appendValue('duration', typeof data.duration === 'number' ? data.duration : 0);
+      appendValue('orderIndex', typeof data.orderIndex === 'number' ? data.orderIndex : 0);
+      appendValue('isPublished', data.isPublished);
+      appendValue('isFree', data.isFree);
+      appendValue('video', (data as any).video);
+      appendValue('resource', (data as any).resource);
+
       return this.client.post<Lesson>(
         API_CONFIG.ENDPOINTS.LESSONS_BY_SECTION(sectionId),
         form
@@ -81,17 +102,38 @@ export class LessonService {
     data: UpdateLessonRequest
   ): Promise<ApiResponse<Lesson>> {
     const hasFile =
-      (data as any)?.videoUrl instanceof File ||
-      (data as any)?.resourceUrl instanceof File;
+      (data as any)?.video instanceof File ||
+      (data as any)?.resource instanceof File;
 
     if (hasFile) {
       const form = new FormData();
-      Object.entries(data as any).forEach(([k, v]) => {
-        if (v === undefined || v === null) return;
-        if (v instanceof File) form.append(k, v);
-        else if (Array.isArray(v)) form.append(k, JSON.stringify(v));
-        else form.append(k, String(v as any));
-      });
+
+      const appendValue = (key: string, value: unknown) => {
+        if (value === undefined || value === null) return;
+        if (value instanceof File) {
+          form.append(key, value);
+          return;
+        }
+        if (Array.isArray(value)) {
+          form.append(key, JSON.stringify(value));
+          return;
+        }
+        if (typeof value === 'boolean') {
+          form.append(key, value ? 'true' : 'false');
+          return;
+        }
+        form.append(key, String(value));
+      };
+
+      appendValue('title', data.title);
+      appendValue('content', data.content);
+      if (data.duration !== undefined) appendValue('duration', data.duration);
+      if (data.orderIndex !== undefined) appendValue('orderIndex', data.orderIndex);
+      appendValue('isPublished', data.isPublished);
+      appendValue('isFree', data.isFree);
+      appendValue('video', (data as any).video);
+      appendValue('resource', (data as any).resource);
+
       return this.client.patch<Lesson>(
         API_CONFIG.ENDPOINTS.LESSON_BY_ID(lessonId),
         form

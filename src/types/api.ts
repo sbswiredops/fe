@@ -255,22 +255,27 @@ export interface Lesson {
   courseId: string;
   title: string;
   content: string;
-  videoUrl?: string;
-  resourceUrl?: string;
+  video?: string;
+  resource?: string;
   duration: number; // in minutes
   orderIndex: number;
   isPublished: boolean;
   isFree: boolean;
   createdAt: string;
   updatedAt: string;
+  createdBy?: string;
+  updatedBy?: string;
+  section?: Section;
+  course?: Course;
+  progressRecords?: LessonProgress[];
 }
 
 export interface CreateLessonRequest {
   sectionId: string;
   title: string;
   content: string;
-  videoUrl?: string | File;
-  resourceUrl?: string | File;
+  video?: string | File;
+  resource?: string | File;
   duration: number; // minutes
   orderIndex: number;
   isPublished?: boolean;
@@ -280,8 +285,8 @@ export interface CreateLessonRequest {
 export interface UpdateLessonRequest {
   title?: string;
   content?: string;
-  videoUrl?: string | File;
-  resourceUrl?: string | File;
+  video?: string | File;
+  resource?: string | File;
   duration?: number; // minutes
   orderIndex?: number;
   isPublished?: boolean;

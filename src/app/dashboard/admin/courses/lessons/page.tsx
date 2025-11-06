@@ -113,12 +113,14 @@ function LessonsManagement() {
           : 0,
         isPublished: !!formData.isPublished,
         isFree: !!formData.isFree,
-        videoUrl:
-          formData.videoUrl instanceof File ? formData.videoUrl : undefined,
-        resourceUrl:
-          formData.resourceUrl instanceof File
-            ? formData.resourceUrl
-            : undefined,
+        video:
+          formData.video instanceof File
+            ? formData.video
+            : formData.video || undefined,
+        resource:
+          formData.resource instanceof File
+            ? formData.resource
+            : formData.resource || undefined,
       };
       const res = await lessonService.createLesson(formData.sectionId, payload);
       if (res.success) {
@@ -152,12 +154,9 @@ function LessonsManagement() {
             : undefined,
         isFree:
           typeof formData.isFree === "boolean" ? formData.isFree : undefined,
-        videoUrl:
-          formData.videoUrl instanceof File ? formData.videoUrl : undefined,
-        resourceUrl:
-          formData.resourceUrl instanceof File
-            ? formData.resourceUrl
-            : undefined,
+        video: formData.video instanceof File ? formData.video : undefined,
+        resource:
+          formData.resource instanceof File ? formData.resource : undefined,
       };
       const res = await lessonService.updateLesson(selectedItem.id, payload);
       if (res.success) {
