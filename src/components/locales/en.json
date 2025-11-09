@@ -3,7 +3,7 @@
     "home": "Home",
     "courses": "Courses",
     "liveClasses": "Live Classes",
-    "about": "About",
+    "about": "About Us",
     "contact": "Contact",
     "login": "Login",
     "register": "Register",
@@ -13,7 +13,7 @@
     "title": "From Learning to Earning with",
     "subtitle": "Shekhabo",
     "description": "Join thousands of professionals learning job-ready skills through expert-led courses and live interactive classes.",
-    "ctaButton": "Start Learning Free",
+    "ctaButton": "Start Learning",
     "watchDemo": "Explore Courses"
   },
   "featuredCourses": {
@@ -21,8 +21,9 @@
     "subtitle": "Popular courses chosen by our students",
     "enroll": "Enroll Now",
     "price": "Price",
-    "students": "students",
-    "rating": "Rating"
+    "students": "Students",
+    "rating": "Rating",
+    "instructors": "Instructors"
   },
   "courseTypes": {
     "freeLiveMasterclass": "Free Live Masterclass",
