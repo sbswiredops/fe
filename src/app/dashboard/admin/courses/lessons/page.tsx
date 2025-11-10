@@ -31,6 +31,9 @@ function LessonsManagement() {
   const [isDeleteModalOpen, setIsDeleteModalOpen] = React.useState(false);
   const [selectedItem, setSelectedItem] = React.useState<any>(null);
   const [formData, setFormData] = React.useState<any>({});
+  const [pdfPreviewUrl, setPdfPreviewUrl] = React.useState<string | null>(null);
+  const [isPdfLoading, setIsPdfLoading] = React.useState(false);
+  const [pdfError, setPdfError] = React.useState<string | null>(null);
 
   const [searchTerm, setSearchTerm] = React.useState("");
   const [statusFilter, setStatusFilter] = React.useState("all");
@@ -87,6 +90,8 @@ function LessonsManagement() {
 
   const openViewModal = (item: any) => {
     setSelectedItem(item);
+    setPdfPreviewUrl(null);
+    setPdfError(null);
     setIsViewModalOpen(true);
   };
   const openEditModal = (item: any) => {
@@ -189,6 +194,41 @@ function LessonsManagement() {
     setIsDeleteModalOpen(false);
     setSelectedItem(null);
   };
+
+  React.useEffect(() => {
+    if (!isViewModalOpen || !selectedItem?.id || !serverEnabled) return;
+    let cancelled = false;
+
+    const loadPdf = async () => {
+      setIsPdfLoading(true);
+      setPdfError(null);
+      try {
+        const url = await lessonService.getLessonPdfUrl(selectedItem.id);
+        if (!cancelled) {
+          setPdfPreviewUrl(url);
+        }
+      } catch (error: any) {
+        if (cancelled) return;
+        const status = error?.response?.status ?? error?.status;
+        if (status === 404) {
+          setPdfError("PDF not available for this lesson.");
+        } else {
+          setPdfError(error?.message || "Failed to load lesson PDF.");
+        }
+        setPdfPreviewUrl(null);
+      } finally {
+        if (!cancelled) {
+          setIsPdfLoading(false);
+        }
+      }
+    };
+
+    loadPdf();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [isViewModalOpen, selectedItem?.id, serverEnabled]);
 
   return (
     <DashboardLayout>
@@ -332,6 +372,9 @@ function LessonsManagement() {
           onClose={() => {
             setIsViewModalOpen(false);
             setSelectedItem(null);
+            setPdfPreviewUrl(null);
+            setPdfError(null);
+            setIsPdfLoading(false);
           }}
           title={`Lesson Details`}
           size="lg"
@@ -339,18 +382,157 @@ function LessonsManagement() {
           {selectedItem && (
             <div className="space-y-4">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                {Object.entries(selectedItem).map(([key, value]) => (
-                  <div key={key}>
-                    <label className="block text-sm font-medium text-gray-700 capitalize">
-                      {key.replace(/([A-Z])/g, " $1").trim()}
+                {(isPdfLoading || pdfPreviewUrl || pdfError) && (
+                  <div className="md:col-span-2 space-y-2">
+                    <label className="block text-sm font-medium text-gray-700">
+                      Lesson PDF
                     </label>
-                    <p className="text-sm text-gray-900">
-                      {typeof value === "string" || typeof value === "number"
-                        ? value.toString()
-                        : "N/A"}
-                    </p>
+                    {isPdfLoading && (
+                      <p className="text-sm text-gray-500">
+                        Loading PDF preview...
+                      </p>
+                    )}
+                    {!isPdfLoading && pdfError && (
+                      <p className="text-sm text-red-500">{pdfError}</p>
+                    )}
+                    {!isPdfLoading && pdfPreviewUrl && (
+                      <>
+                        <div className="w-full h-[480px] border border-gray-200 rounded-lg overflow-hidden">
+                          <iframe
+                            src={`${pdfPreviewUrl}#toolbar=0`}
+                            className="w-full h-full"
+                            title="Lesson PDF Preview"
+                          />
+                        </div>
+                        <div className="flex flex-wrap gap-4 text-sm">
+                          <a
+                            href={pdfPreviewUrl}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="text-[#51356e] underline"
+                          >
+                            Open in new tab
+                          </a>
+                          <a
+                            href={pdfPreviewUrl}
+                            download
+                            className="text-[#51356e] underline"
+                          >
+                            Download PDF
+                          </a>
+                        </div>
+                      </>
+                    )}
                   </div>
-                ))}
+                )}
+                {Object.entries(selectedItem).map(([key, value]) => {
+                  const label = key.replace(/([A-Z])/g, " $1").trim();
+                  if (
+                    key === "video" &&
+                    typeof value === "string" &&
+                    value !== "undefined"
+                  ) {
+                    return (
+                      <div key={key} className="md:col-span-2 space-y-2">
+                        <label className="block text-sm font-medium text-gray-700 capitalize">
+                          {label}
+                        </label>
+                        <video
+                          controls
+                          preload="metadata"
+                          className="w-full rounded-lg border border-gray-200 bg-black"
+                        >
+                          <source src={value} type="application/x-mpegURL" />
+                          <source src={value} type="video/mp4" />
+                          Your browser does not support the video tag.
+                        </video>
+                      </div>
+                    );
+                  }
+
+                  if (
+                    key === "resource" &&
+                    typeof value === "string" &&
+                    value &&
+                    value !== "undefined"
+                  ) {
+                    return (
+                      <div key={key}>
+                        <label className="block text-sm font-medium text-gray-700 capitalize">
+                          {label}
+                        </label>
+                        <a
+                          href={value}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="text-sm text-[#51356e] underline break-all"
+                        >
+                          View Resource
+                        </a>
+                      </div>
+                    );
+                  }
+
+                  if (Array.isArray(value)) {
+                    return (
+                      <div key={key}>
+                        <label className="block text-sm font-medium text-gray-700 capitalize">
+                          {label}
+                        </label>
+                        <p className="text-sm text-gray-900 break-words">
+                          {value.length ? value.join(", ") : "N/A"}
+                        </p>
+                      </div>
+                    );
+                  }
+
+                  if (typeof value === "boolean") {
+                    return (
+                      <div key={key}>
+                        <label className="block text-sm font-medium text-gray-700 capitalize">
+                          {label}
+                        </label>
+                        <p className="text-sm text-gray-900">
+                          {value ? "Yes" : "No"}
+                        </p>
+                      </div>
+                    );
+                  }
+
+                  if (value && typeof value === "object") {
+                    const formatted =
+                      (value as any)?.title ||
+                      (value as any)?.name ||
+                      (value as any)?.label ||
+                      (value as any)?.id ||
+                      JSON.stringify(value, null, 2);
+                    return (
+                      <div key={key}>
+                        <label className="block text-sm font-medium text-gray-700 capitalize">
+                          {label}
+                        </label>
+                        <p className="text-sm text-gray-900 whitespace-pre-wrap break-words">
+                          {formatted}
+                        </p>
+                      </div>
+                    );
+                  }
+
+                  return (
+                    <div key={key}>
+                      <label className="block text-sm font-medium text-gray-700 capitalize">
+                        {label}
+                      </label>
+                      <p className="text-sm text-gray-900 break-words">
+                        {value !== undefined &&
+                        value !== null &&
+                        value !== "undefined"
+                          ? value.toString()
+                          : "N/A"}
+                      </p>
+                    </div>
+                  );
+                })}
               </div>
               <div className="flex justify-end pt-4">
                 <Button
@@ -358,6 +540,9 @@ function LessonsManagement() {
                   onClick={() => {
                     setIsViewModalOpen(false);
                     setSelectedItem(null);
+                    setPdfPreviewUrl(null);
+                    setPdfError(null);
+                    setIsPdfLoading(false);
                   }}
                 >
                   Close

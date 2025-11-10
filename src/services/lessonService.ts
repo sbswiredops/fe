@@ -15,6 +15,24 @@ export class LessonService {
     this.client = client;
   }
 
+  async getLessonPdfUrl(lessonId: string): Promise<string> {
+    const response = await this.client.get<{ pdfUrl: string }>(
+      API_CONFIG.ENDPOINTS.LESSON_PDF_BY_ID(lessonId)
+    );
+    if (!response.data) {
+      throw new Error('Failed to fetch lesson PDF URL');
+    }
+    return response.data.pdfUrl;
+  }
+
+async getLessonPdfBlob(lessonId: string): Promise<Blob> {
+  const response = await fetch(API_CONFIG.ENDPOINTS.LESSON_PDF_BY_ID(lessonId));
+  if (!response.ok) {
+    throw new Error('Failed to fetch lesson PDF');
+  }
+  return response.blob();
+}
+
   // Update: accept wider query with search/courseId/sectionId
   async getLessons(params?: LessonsQuery): Promise<ApiResponse<Lesson[]>> {
     return this.client.get<Lesson[]>(API_CONFIG.ENDPOINTS.ALL_LESSIONS, params);

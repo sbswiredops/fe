@@ -59,6 +59,8 @@ export const API_CONFIG = {
     LESSONS_BY_SECTION: (sectionId: string) => `/courses/sections/${sectionId}/lessons`,
     LESSONS_PROGRESS: '/courses/lessons/progress',
     USER_LESSONS_PROGRESS: (userId: string) => `/courses/users/${userId}/lessons/progress`,
+    LESSON_PDF_BY_ID: (id: string) => `/courses/lessons/${id}/pdf`, // ✅ নতুন
+    LESSON_VIDEO_BY_ID: (id: string) => `/courses/lessons/${id}/video`, // ✅ নতুন
 
     // Sections
     SECTIONS: '/courses/sections',
