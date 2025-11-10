@@ -251,7 +251,15 @@ export class ApiClient {
     };
   }
 
-  async get<T>(endpoint: string, params?: Record<string, any>, options?: { signal?: AbortSignal }): Promise<ApiResponse<T>> {
+  async get<T>(
+    endpoint: string,
+    params?: Record<string, any>,
+    options?: {
+      signal?: AbortSignal;
+      responseType?: 'json' | 'blob' | 'text';
+      headers?: Record<string, string>;
+    }
+  ): Promise<ApiResponse<T>> {
     const url = new URL(this.joinUrl(endpoint));
 
     if (params) {
@@ -261,12 +269,35 @@ export class ApiClient {
       }
     }
 
+    const headers = this.getHeaders(options?.headers);
+    delete headers['Content-Type'];
+    if (options?.responseType === 'blob') {
+      headers['Accept'] = options?.headers?.Accept ?? '*/*';
+    }
+
     const response = await this.fetchWithAuth(url.toString(), {
       method: 'GET',
-      headers: this.getHeaders(),
+      headers,
       signal: options?.signal,
       credentials: 'include',
     });
+
+    if (options?.responseType === 'blob') {
+      if (!response.ok) {
+        const message = await this.parseErrorMessage(response);
+        throw new Error(message || `HTTP ${response.status}: ${response.statusText}`);
+      }
+      const blob = await response.blob();
+      return { success: true, data: blob as unknown as T };
+    }
+
+    if (options?.responseType === 'text') {
+      const text = await response.text();
+      if (!response.ok) {
+        throw new Error(text || `HTTP ${response.status}: ${response.statusText}`);
+      }
+      return { success: true, data: text as unknown as T };
+    }
 
     return this.handleResponse<T>(response);
   }
@@ -281,7 +312,7 @@ export class ApiClient {
 
     const response = await this.fetchWithAuth(this.joinUrl(endpoint), {
       method: 'POST',
-      headers: this.getHeaders(customHeaders, { omitJsonContentType: isForm } ),
+      headers: this.getHeaders(customHeaders, { omitJsonContentType: isForm }),
       body: isForm ? data : (data !== undefined ? JSON.stringify(data) : undefined),
       signal: options?.signal,
       credentials: 'include',
@@ -483,11 +514,11 @@ export const validateFileType = (file: File, allowedTypes: string[]): boolean =>
 };
 
 export const validateImageFile = (file: File): boolean => {
-  return validateFileType(file, API_CONFIG.UPLOAD.ALLOWED_IMAGE_TYPES) && 
-         validateFileSize(file);
+  return validateFileType(file, API_CONFIG.UPLOAD.ALLOWED_IMAGE_TYPES) &&
+    validateFileSize(file);
 };
 
 export const validateVideoFile = (file: File): boolean => {
-  return validateFileType(file, API_CONFIG.UPLOAD.ALLOWED_VIDEO_TYPES) && 
-         validateFileSize(file);
+  return validateFileType(file, API_CONFIG.UPLOAD.ALLOWED_VIDEO_TYPES) &&
+    validateFileSize(file);
 };

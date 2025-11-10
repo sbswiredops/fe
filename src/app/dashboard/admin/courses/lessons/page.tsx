@@ -34,6 +34,9 @@ function LessonsManagement() {
   const [pdfPreviewUrl, setPdfPreviewUrl] = React.useState<string | null>(null);
   const [isPdfLoading, setIsPdfLoading] = React.useState(false);
   const [pdfError, setPdfError] = React.useState<string | null>(null);
+  const [resourcePreviewUrl, setResourcePreviewUrl] = React.useState<
+    string | null
+  >(null);
 
   const [searchTerm, setSearchTerm] = React.useState("");
   const [statusFilter, setStatusFilter] = React.useState("all");
@@ -42,6 +45,17 @@ function LessonsManagement() {
     const base = API_CONFIG.BASE_URL || "";
     return !!base;
   })();
+
+  const resolveFileUrl = React.useCallback((url?: string | null) => {
+    if (!url) return null;
+    if (/^https?:\/\//i.test(url)) return url;
+    const base =
+      (API_CONFIG as any)?.FILE_BASE_URL || API_CONFIG.BASE_URL || "";
+    if (!base) return url;
+    const trimmedBase = base.replace(/\/+$/, "");
+    const trimmedUrl = url.replace(/^\/+/, "");
+    return `${trimmedBase}/${trimmedUrl}`;
+  }, []);
 
   // Prefetch sections for select options (global API)
   React.useEffect(() => {
@@ -90,8 +104,10 @@ function LessonsManagement() {
 
   const openViewModal = (item: any) => {
     setSelectedItem(item);
+    cleanupPdfObjectUrl();
     setPdfPreviewUrl(null);
     setPdfError(null);
+    setResourcePreviewUrl(null);
     setIsViewModalOpen(true);
   };
   const openEditModal = (item: any) => {
@@ -195,6 +211,14 @@ function LessonsManagement() {
     setSelectedItem(null);
   };
 
+  const pdfObjectUrlRef = React.useRef<string | null>(null);
+  const cleanupPdfObjectUrl = React.useCallback(() => {
+    if (pdfObjectUrlRef.current) {
+      URL.revokeObjectURL(pdfObjectUrlRef.current);
+      pdfObjectUrlRef.current = null;
+    }
+  }, []);
+
   React.useEffect(() => {
     if (!isViewModalOpen || !selectedItem?.id || !serverEnabled) return;
     let cancelled = false;
@@ -203,10 +227,12 @@ function LessonsManagement() {
       setIsPdfLoading(true);
       setPdfError(null);
       try {
-        const url = await lessonService.getLessonPdfUrl(selectedItem.id);
-        if (!cancelled) {
-          setPdfPreviewUrl(url);
-        }
+        const blob = await lessonService.getLessonPdfBlob(selectedItem.id);
+        if (cancelled) return;
+        cleanupPdfObjectUrl();
+        const objectUrl = URL.createObjectURL(blob);
+        pdfObjectUrlRef.current = objectUrl;
+        setPdfPreviewUrl(objectUrl);
       } catch (error: any) {
         if (cancelled) return;
         const status = error?.response?.status ?? error?.status;
@@ -227,8 +253,21 @@ function LessonsManagement() {
 
     return () => {
       cancelled = true;
+      cleanupPdfObjectUrl();
     };
-  }, [isViewModalOpen, selectedItem?.id, serverEnabled]);
+  }, [isViewModalOpen, selectedItem?.id, serverEnabled, cleanupPdfObjectUrl]);
+
+  const handleResourcePreview = React.useCallback(
+    (resourceUrl: string) => {
+      const resolved = resolveFileUrl(resourceUrl);
+      if (!resolved) {
+        setResourcePreviewUrl(null);
+        return;
+      }
+      setResourcePreviewUrl(resolved);
+    },
+    [resolveFileUrl]
+  );
 
   return (
     <DashboardLayout>
@@ -372,9 +411,11 @@ function LessonsManagement() {
           onClose={() => {
             setIsViewModalOpen(false);
             setSelectedItem(null);
+            cleanupPdfObjectUrl();
             setPdfPreviewUrl(null);
             setPdfError(null);
             setIsPdfLoading(false);
+            setResourcePreviewUrl(null);
           }}
           title={`Lesson Details`}
           size="lg"
@@ -415,7 +456,11 @@ function LessonsManagement() {
                           </a>
                           <a
                             href={pdfPreviewUrl}
-                            download
+                            download={
+                              selectedItem?.title
+                                ? `${selectedItem.title}.pdf`
+                                : true
+                            }
                             className="text-[#51356e] underline"
                           >
                             Download PDF
@@ -423,6 +468,44 @@ function LessonsManagement() {
                         </div>
                       </>
                     )}
+                  </div>
+                )}
+                {resourcePreviewUrl && (
+                  <div className="md:col-span-2 space-y-2">
+                    <label className="block text-sm font-medium text-gray-700">
+                      Resource Preview
+                    </label>
+                    <div className="w-full h-[480px] border border-gray-200 rounded-lg overflow-hidden">
+                      <iframe
+                        src={resourcePreviewUrl}
+                        className="w-full h-full"
+                        title="Lesson Resource Preview"
+                      />
+                    </div>
+                    <div className="flex flex-wrap gap-4 text-sm">
+                      <a
+                        href={resourcePreviewUrl}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-[#51356e] underline"
+                      >
+                        Open in new tab
+                      </a>
+                      <a
+                        href={resourcePreviewUrl}
+                        download
+                        className="text-[#51356e] underline"
+                      >
+                        Download Resource
+                      </a>
+                      <button
+                        type="button"
+                        onClick={() => setResourcePreviewUrl(null)}
+                        className="text-sm text-red-500 underline"
+                      >
+                        Close preview
+                      </button>
+                    </div>
                   </div>
                 )}
                 {Object.entries(selectedItem).map(([key, value]) => {
@@ -456,19 +539,58 @@ function LessonsManagement() {
                     value &&
                     value !== "undefined"
                   ) {
+                    const resolvedUrl = resolveFileUrl(value);
+                    const isPdfResource = /\.pdf($|\?)/i.test(
+                      value.split("?")[0] || ""
+                    );
                     return (
                       <div key={key}>
                         <label className="block text-sm font-medium text-gray-700 capitalize">
                           {label}
                         </label>
-                        <a
-                          href={value}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="text-sm text-[#51356e] underline break-all"
-                        >
-                          View Resource
-                        </a>
+                        {isPdfResource ? (
+                          <div className="flex flex-wrap gap-4 text-sm">
+                            <button
+                              type="button"
+                              onClick={() => handleResourcePreview(value)}
+                              className="text-[#51356e] underline"
+                            >
+                              Preview Resource
+                            </button>
+                            {resolvedUrl && (
+                              <>
+                                <a
+                                  href={resolvedUrl}
+                                  target="_blank"
+                                  rel="noopener noreferrer"
+                                  className="text-[#51356e] underline"
+                                >
+                                  Open in new tab
+                                </a>
+                                <a
+                                  href={resolvedUrl}
+                                  download
+                                  className="text-[#51356e] underline"
+                                >
+                                  Download
+                                </a>
+                              </>
+                            )}
+                          </div>
+                        ) : resolvedUrl ? (
+                          <a
+                            href={resolvedUrl}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="text-sm text-[#51356e] underline break-all"
+                          >
+                            View Resource
+                          </a>
+                        ) : (
+                          <p className="text-sm text-gray-500">
+                            Resource unavailable.
+                          </p>
+                        )}
                       </div>
                     );
                   }
@@ -540,9 +662,11 @@ function LessonsManagement() {
                   onClick={() => {
                     setIsViewModalOpen(false);
                     setSelectedItem(null);
+                    cleanupPdfObjectUrl();
                     setPdfPreviewUrl(null);
                     setPdfError(null);
                     setIsPdfLoading(false);
+                    setResourcePreviewUrl(null);
                   }}
                 >
                   Close
