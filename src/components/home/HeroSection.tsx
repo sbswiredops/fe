@@ -140,7 +140,9 @@ export default function HeroSection() {
                 >
                   <Counter end={100} duration={2000} suffix="+" />
                 </div>
-                <div className="text-sm text-gray-600">Instructors</div>
+                <div className="text-sm text-gray-600">
+                  {t("featuredCourses.instructors")}
+                </div>
               </div>
             </div>
           </div>
