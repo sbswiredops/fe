@@ -9,7 +9,7 @@ export class QuizService {
     this.client = client;
   }
 
-  
+
   async list(params?: PaginationQuery & { search?: string; courseId?: string; sectionId?: string; status?: 'active' | 'inactive' }): Promise<ApiResponse<Quiz[]>> {
     return this.client.get<Quiz[]>(API_CONFIG.ENDPOINTS.QUIZZES, params);
   }
@@ -32,7 +32,7 @@ export class QuizService {
 
   async getById(id: string): Promise<ApiResponse<Quiz>> {
     return this.client.get<Quiz>(API_CONFIG.ENDPOINTS.QUIZ_BY_ID(id));
-    }
+  }
 
   async create(data: (CreateQuizRequest & { courseId?: string; sectionId?: string })): Promise<ApiResponse<Quiz>> {
     if ((data as any).sectionId) {
@@ -52,6 +52,26 @@ export class QuizService {
 
   async delete(id: string): Promise<ApiResponse<null>> {
     return this.client.delete(API_CONFIG.ENDPOINTS.QUIZ_BY_ID(id));
+  }
+
+  // List questions for a quiz
+  async getQuestions(quizId: string): Promise<ApiResponse<any[]>> {
+    return this.client.get<any[]>(API_CONFIG.ENDPOINTS.QUIZ_QUESTIONS(quizId));
+  }
+
+  // Add questions to a quiz (bulk)
+  async addQuestions(quizId: string, payload: { questions: any[] }): Promise<ApiResponse<any>> {
+    return this.client.post<any>(API_CONFIG.ENDPOINTS.QUIZ_QUESTIONS(quizId), payload);
+  }
+
+  // Update a single question
+  async updateQuestion(questionId: string, payload: any): Promise<ApiResponse<any>> {
+    return this.client.patch<any>(API_CONFIG.ENDPOINTS.QUIZ_QUESTION_BY_ID(questionId), payload);
+  }
+
+  // Delete a single question
+  async deleteQuestion(questionId: string): Promise<ApiResponse<any>> {
+    return this.client.delete<any>(API_CONFIG.ENDPOINTS.QUIZ_QUESTION_BY_ID(questionId));
   }
 }
 

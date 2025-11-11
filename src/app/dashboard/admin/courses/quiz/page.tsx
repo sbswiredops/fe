@@ -874,22 +874,26 @@ function QuizzesManagement() {
                       <td className="border px-3 py-2">{q.text}</td>
                       <td className="border px-3 py-2">{q.type}</td>
                       <td className="border px-3 py-2">
-                        {q.options
-                          ? q.options.map((opt: any, i: number) => (
-                              <div key={i}>
-                                <span
-                                  className={
-                                    opt.isCorrect
-                                      ? "font-bold text-green-600"
-                                      : ""
-                                  }
-                                >
-                                  {opt.text}
-                                  {opt.isCorrect ? " (Correct)" : ""}
-                                </span>
-                              </div>
-                            ))
-                          : q.correctAnswer || "-"}
+                        {q.options ? (
+                          q.options.map((opt: any, i: number) => (
+                            <div key={i}>
+                              <span
+                                className={
+                                  opt.isCorrect
+                                    ? "font-bold text-green-600"
+                                    : "text-gray-900"
+                                }
+                              >
+                                {opt.text}
+                                {opt.isCorrect ? " (Correct)" : ""}
+                              </span>
+                            </div>
+                          ))
+                        ) : (
+                          <span className="text-gray-900">
+                            {q.correctAnswer || "-"}
+                          </span>
+                        )}
                       </td>
                     </tr>
                   ))}
@@ -922,7 +926,7 @@ function QuizzesManagement() {
             onClick={closeQuestionDrawer}
           />
           <div
-            className={`relative ml-auto flex h-full w-[95vw] sm:w-[70vw] md:w-[55vw] lg:w-[420px] xl:w-[360px] flex-col bg-white shadow-2xl transform transition-transform duration-300 ease-out ${
+            className={`relative ml-auto flex h-full w-[99vw] sm:w-[90vw] md:w-[80vw] lg:w-[700px] xl:w-[600px] flex-col bg-white shadow-2xl transform transition-transform duration-300 ease-out ${
               isQuestionDrawerOpen ? "translate-x-0" : "translate-x-full"
             }`}
           >
@@ -1202,7 +1206,7 @@ function QuizzesManagement() {
             }}
           />
           <div
-            className={`relative ml-auto flex h-full w-[95vw] sm:w-[70vw] md:w-[55vw] lg:w-[420px] xl:w-[360px] flex-col bg-white shadow-2xl transform transition-transform duration-300 ease-out ${
+            className={`relative ml-auto flex h-full w-[99vw] sm:w-[90vw] md:w-[80vw] lg:w-[700px] xl:w-[600px] flex-col bg-white shadow-2xl transform transition-transform duration-300 ease-out ${
               isQuestionDrawerOpen ? "translate-x-0" : "translate-x-full"
             }`}
           >
@@ -1513,13 +1517,17 @@ function QuizzesManagement() {
                   ) : (
                     <table className="min-w-full border text-sm">
                       <thead>
-                        <tr className="bg-gray-100">
-                          <th className="border px-3 py-2 text-left">#</th>
-                          <th className="border px-3 py-2 text-left">
+                        <tr className="bg-gray-50">
+                          <th className="border px-3 py-2 text-left text-gray-700 font-semibold">
+                            #
+                          </th>
+                          <th className="border px-3 py-2 text-left text-gray-700 font-semibold">
                             Question
                           </th>
-                          <th className="border px-3 py-2 text-left">Type</th>
-                          <th className="border px-3 py-2 text-left">
+                          <th className="border px-3 py-2 text-left text-gray-700 font-semibold">
+                            Type
+                          </th>
+                          <th className="border px-3 py-2 text-left text-gray-700 font-semibold">
                             Options / Answer
                           </th>
                         </tr>
@@ -1527,26 +1535,36 @@ function QuizzesManagement() {
                       <tbody>
                         {questionsList.map((q, idx) => (
                           <tr key={q.id || idx}>
-                            <td className="border px-3 py-2">{idx + 1}</td>
-                            <td className="border px-3 py-2">{q.text}</td>
-                            <td className="border px-3 py-2">{q.type}</td>
+                            <td className="border px-3 py-2 text-gray-900">
+                              {idx + 1}
+                            </td>
+                            <td className="border px-3 py-2 text-gray-900">
+                              {q.text}
+                            </td>
+                            <td className="border px-3 py-2 text-gray-900">
+                              {q.type}
+                            </td>
                             <td className="border px-3 py-2">
-                              {q.options
-                                ? q.options.map((opt: any, i: number) => (
-                                    <div key={i}>
-                                      <span
-                                        className={
-                                          opt.isCorrect
-                                            ? "font-bold text-green-600"
-                                            : ""
-                                        }
-                                      >
-                                        {opt.text}
-                                        {opt.isCorrect ? " (Correct)" : ""}
-                                      </span>
-                                    </div>
-                                  ))
-                                : q.correctAnswer || "-"}
+                              {q.options ? (
+                                q.options.map((opt: any, i: number) => (
+                                  <div key={i}>
+                                    <span
+                                      className={
+                                        opt.isCorrect
+                                          ? "font-bold text-green-600"
+                                          : "text-gray-900"
+                                      }
+                                    >
+                                      {opt.text}
+                                      {opt.isCorrect ? " (Correct)" : ""}
+                                    </span>
+                                  </div>
+                                ))
+                              ) : (
+                                <span className="text-gray-900">
+                                  {q.correctAnswer || "-"}
+                                </span>
+                              )}
                             </td>
                           </tr>
                         ))}

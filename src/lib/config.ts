@@ -70,6 +70,9 @@ export const API_CONFIG = {
     QUIZ_BY_ID: (quizId: string) => `/quiz/quizzes/${quizId}`,
     COURSE_QUIZZES: (id: string) => `/quiz/${id}/quizzes`,
     SECTION_QUIZZES: (id: string) => `/quiz/sections/${id}/quizzes`,
+    QUIZ_QUESTIONS: (quizId: string) => `/quiz/quizzes/${quizId}/questions`, // POST, GET
+    QUIZ_QUESTION_BY_ID: (questionId: string) => `/quiz/questions/${questionId}`, // PATCH, DELETE
+    QUIZ_SUBMIT: (quizId: string) => `/quiz/quizzes/${quizId}/submit`, // POST
     // Certificates
     CERTIFICATES: '/courses/certificates',
 
