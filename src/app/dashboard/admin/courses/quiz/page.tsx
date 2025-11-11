@@ -4,9 +4,9 @@ import React from "react";
 import DashboardLayout from "@/components/layout/DashboardLayout";
 import ProtectedRoute from "@/components/auth/ProtectedRoute";
 import Button from "@/components/ui/Button";
+import ConfirmationModal from "@/components/ui/ConfirmationModal";
 import Modal from "@/components/ui/Modal";
 import Input from "@/components/ui/Input";
-import ConfirmationModal from "@/components/ui/ConfirmationModal";
 import useToast from "@/components/hoock/toast";
 import DataTable from "@/components/ui/DataTable";
 import { API_CONFIG } from "@/lib/config";
@@ -79,6 +79,11 @@ function QuizzesManagement() {
   const [drawerType, setDrawerType] = React.useState<null | "add" | "view">(
     null
   );
+
+  const [selectedQuestion, setSelectedQuestion] = React.useState<any>(null);
+  const [questionModalType, setQuestionModalType] = React.useState<
+    null | "view" | "edit" | "delete"
+  >(null);
 
   const serverEnabled = (() => {
     const base = API_CONFIG.BASE_URL || "";
@@ -659,6 +664,56 @@ function QuizzesManagement() {
     }
   };
 
+  // Handle view
+  const handleViewQuestion = (question: any) => {
+    setSelectedQuestion(question);
+    setQuestionModalType("view");
+  };
+
+  // Handle edit
+  const handleEditQuestion = (question: any) => {
+    setSelectedQuestion(question);
+    setQuestionModalType("edit");
+  };
+
+  // Handle delete
+  const handleDeleteQuestion = (question: any) => {
+    setSelectedQuestion(question);
+    setQuestionModalType("delete");
+  };
+
+  // Confirm delete
+  const confirmDeleteQuestion = async () => {
+    if (!selectedQuestion) return;
+    try {
+      await quizService.deleteQuestion(selectedQuestion.id);
+      setQuestionsList((prev) =>
+        prev.filter((q) => q.id !== selectedQuestion.id)
+      );
+      showToast("Question deleted", "success");
+    } catch {
+      showToast("Failed to delete question", "error");
+    }
+    setSelectedQuestion(null);
+    setQuestionModalType(null);
+  };
+
+  // Save edit
+  const handleSaveEditQuestion = async () => {
+    if (!selectedQuestion) return;
+    try {
+      await quizService.updateQuestion(selectedQuestion.id, selectedQuestion);
+      setQuestionsList((prev) =>
+        prev.map((q) => (q.id === selectedQuestion.id ? selectedQuestion : q))
+      );
+      showToast("Question updated", "success");
+    } catch {
+      showToast("Failed to update question", "error");
+    }
+    setSelectedQuestion(null);
+    setQuestionModalType(null);
+  };
+
   return (
     <DashboardLayout>
       <div className="p-4 md:p-6 w-full max-w-full overflow-hidden">
@@ -914,6 +969,113 @@ function QuizzesManagement() {
             </div>
           </div>
         </Modal>
+
+        {/* View Modal */}
+        <Modal
+          isOpen={questionModalType === "view"}
+          onClose={() => {
+            setSelectedQuestion(null);
+            setQuestionModalType(null);
+          }}
+          title="View Question"
+          size="md"
+        >
+          {selectedQuestion && (
+            <div className="space-y-3">
+              <div>
+                <label className="font-medium text-gray-700">Question</label>
+                <div className="text-gray-900">{selectedQuestion.text}</div>
+              </div>
+              <div>
+                <label className="font-medium text-gray-700">Type</label>
+                <div className="text-gray-900">{selectedQuestion.type}</div>
+              </div>
+              <div>
+                <label className="font-medium text-gray-700">
+                  Options / Answer
+                </label>
+                <div>
+                  {selectedQuestion.options ? (
+                    selectedQuestion.options.map((opt: any, i: number) => (
+                      <div key={i}>
+                        <span
+                          className={
+                            opt.isCorrect
+                              ? "font-bold text-green-600"
+                              : "text-gray-900"
+                          }
+                        >
+                          {opt.text}
+                          {opt.isCorrect ? " (Correct)" : ""}
+                        </span>
+                      </div>
+                    ))
+                  ) : (
+                    <span className="text-gray-900">
+                      {selectedQuestion.correctAnswer || "-"}
+                    </span>
+                  )}
+                </div>
+              </div>
+            </div>
+          )}
+        </Modal>
+
+        {/* Edit Modal */}
+        <Modal
+          isOpen={questionModalType === "edit"}
+          onClose={() => {
+            setSelectedQuestion(null);
+            setQuestionModalType(null);
+          }}
+          title="Edit Question"
+          size="md"
+        >
+          {selectedQuestion && (
+            <div className="space-y-3">
+              <div>
+                <label className="font-medium text-gray-700">Question</label>
+                <Input
+                  value={selectedQuestion.text}
+                  onChange={(e) =>
+                    setSelectedQuestion({
+                      ...selectedQuestion,
+                      text: e.target.value,
+                    })
+                  }
+                />
+              </div>
+              {/* Add more fields as needed for editing options/answer */}
+              <div className="flex justify-end pt-4">
+                <Button
+                  variant="outline"
+                  onClick={() => {
+                    setSelectedQuestion(null);
+                    setQuestionModalType(null);
+                  }}
+                >
+                  Cancel
+                </Button>
+                <Button onClick={handleSaveEditQuestion} className="ml-2">
+                  Save
+                </Button>
+              </div>
+            </div>
+          )}
+        </Modal>
+
+        {/* Delete Modal */}
+        <ConfirmationModal
+          isOpen={questionModalType === "delete"}
+          onClose={() => {
+            setSelectedQuestion(null);
+            setQuestionModalType(null);
+          }}
+          onConfirm={confirmDeleteQuestion}
+          title="Delete Question"
+          message="Are you sure you want to delete this question?"
+          type="danger"
+        />
       </div>
       <ToastContainer position="bottom-right" />
 
@@ -1191,7 +1353,7 @@ function QuizzesManagement() {
       )}
 
       {isQuestionDrawerOpen && (
-        <div className="fixed inset-0 z-50 flex">
+        <div className="fixed inset-0 z-[200] flex items-center justify-center">
           <div
             className={`absolute inset-0 bg-black/40 transition-opacity duration-300 ${
               isQuestionDrawerOpen ? "opacity-100" : "opacity-0"
@@ -1515,26 +1677,32 @@ function QuizzesManagement() {
                       No questions found for this quiz.
                     </p>
                   ) : (
-                    <table className="min-w-full border text-sm">
+                    <table className="min-w-full border text-sm rounded-lg overflow-hidden shadow">
                       <thead>
-                        <tr className="bg-gray-50">
-                          <th className="border px-3 py-2 text-left text-gray-700 font-semibold">
+                        <tr className="bg-gray-100">
+                          <th className="border px-3 py-2 text-left text-gray-700 font-semibold w-12">
                             #
                           </th>
                           <th className="border px-3 py-2 text-left text-gray-700 font-semibold">
                             Question
                           </th>
-                          <th className="border px-3 py-2 text-left text-gray-700 font-semibold">
+                          <th className="border px-3 py-2 text-left text-gray-700 font-semibold w-32">
                             Type
                           </th>
                           <th className="border px-3 py-2 text-left text-gray-700 font-semibold">
                             Options / Answer
                           </th>
+                          <th className="border px-3 py-2 text-left text-gray-700 font-semibold w-40">
+                            Actions
+                          </th>
                         </tr>
                       </thead>
                       <tbody>
                         {questionsList.map((q, idx) => (
-                          <tr key={q.id || idx}>
+                          <tr
+                            key={q.id || idx}
+                            className="hover:bg-gray-50 transition"
+                          >
                             <td className="border px-3 py-2 text-gray-900">
                               {idx + 1}
                             </td>
@@ -1565,6 +1733,34 @@ function QuizzesManagement() {
                                   {q.correctAnswer || "-"}
                                 </span>
                               )}
+                            </td>
+                            <td className="border px-3 py-2">
+                              <div className="flex gap-2">
+                                <Button
+                                  size="sm"
+                                  variant="outline"
+                                  onClick={() => handleViewQuestion(q)}
+                                  className="text-blue-600 border-blue-200"
+                                >
+                                  View
+                                </Button>
+                                <Button
+                                  size="sm"
+                                  variant="outline"
+                                  onClick={() => handleEditQuestion(q)}
+                                  className="text-yellow-600 border-yellow-200"
+                                >
+                                  Edit
+                                </Button>
+                                <Button
+                                  size="sm"
+                                  variant="outline"
+                                  onClick={() => handleDeleteQuestion(q)}
+                                  className="text-red-600 border-red-200"
+                                >
+                                  Delete
+                                </Button>
+                              </div>
                             </td>
                           </tr>
                         ))}
