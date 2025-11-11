@@ -48,7 +48,6 @@ export const API_CONFIG = {
     COURSE_SECTIONS: (id: string) => `/courses/${id}/sections`,
     COURSE_SECTIONS_LESSONS: (id: string) => `/courses/${id}/sections-lessons`,
     COURSE_ENROLL_INFO: (id: string) => `/courses/${id}/enroll-info`,
-    COURSE_QUIZZES: (id: string) => `/courses/${id}/quizzes`,
     COURSES_BY_TYPE: (type: string) => `/courses/type/${type}`,
 
 
@@ -65,12 +64,12 @@ export const API_CONFIG = {
     // Sections
     SECTIONS: '/courses/sections',
     SECTION_BY_ID: (sectionId: string) => `/courses/sections/${sectionId}`,
-    SECTION_QUIZZES: (sectionId: string) => `/courses/sections/${sectionId}/quizzes`,
 
     // Quizzes
-    QUIZZES: '/courses/quizzes',
-    QUIZ_BY_ID: (quizId: string) => `/courses/quizzes/${quizId}`,
-
+    QUIZZES: '/quiz/quizzes',
+    QUIZ_BY_ID: (quizId: string) => `/quiz/quizzes/${quizId}`,
+    COURSE_QUIZZES: (id: string) => `/quiz/${id}/quizzes`,
+    SECTION_QUIZZES: (id: string) => `/quiz/sections/${id}/quizzes`,
     // Certificates
     CERTIFICATES: '/courses/certificates',
 

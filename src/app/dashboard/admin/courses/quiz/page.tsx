@@ -127,6 +127,10 @@ function QuizzesManagement() {
     setIsDeleteModalOpen(true);
   };
 
+  const handleAddQuestionClick = (quiz: Quiz) => {
+    console.log("Add question for quiz:", quiz);
+  };
+
   const handleAdd = async () => {
     try {
       const payload: any = {
@@ -304,6 +308,14 @@ function QuizzesManagement() {
               <Button
                 size="sm"
                 variant="ghost"
+                onClick={() => handleAddQuestionClick(q)}
+                className="text-green-600 hover:text-green-900 w-full md:w-auto justify-center md:justify-start"
+              >
+                Add Question
+              </Button>
+              <Button
+                size="sm"
+                variant="ghost"
                 onClick={() => openDeleteModal(q)}
                 className="text-red-600 hover:text-red-900 w-full md:w-auto justify-center md:justify-start"
               >
@@ -321,6 +333,26 @@ function QuizzesManagement() {
       onPageChange={setPage}
     />
   );
+
+  const renderDetailValue = (value: any) => {
+    if (value === null || value === undefined) return "N/A";
+    if (typeof value === "boolean") return value ? "Yes" : "No";
+    if (typeof value === "string" || typeof value === "number") {
+      return value.toString();
+    }
+    if (Array.isArray(value)) {
+      return `${value.length} items`;
+    }
+    if (typeof value === "object") {
+      if ("title" in value && typeof value.title === "string") {
+        return value.title;
+      }
+      if ("name" in value && typeof value.name === "string") {
+        return value.name;
+      }
+    }
+    return "N/A";
+  };
 
   return (
     <DashboardLayout>
@@ -460,20 +492,18 @@ function QuizzesManagement() {
           {selectedItem && (
             <div className="space-y-4">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                {Object.entries(selectedItem).map(([key, value]) => (
-                  <div key={key}>
-                    <label className="block text-sm font-medium text-gray-700 capitalize">
-                      {key.replace(/([A-Z])/g, " $1").trim()}
-                    </label>
-                    <p className="text-sm text-gray-900">
-                      {typeof value === "string" || typeof value === "number"
-                        ? value.toString()
-                        : Array.isArray(value)
-                        ? `${value.length} items`
-                        : "N/A"}
-                    </p>
-                  </div>
-                ))}
+                {Object.entries(selectedItem)
+                  .filter(([key]) => key !== "id")
+                  .map(([key, value]) => (
+                    <div key={key}>
+                      <label className="block text-sm font-medium text-gray-700 capitalize">
+                        {key.replace(/([A-Z])/g, " $1").trim()}
+                      </label>
+                      <p className="text-sm text-gray-900">
+                        {renderDetailValue(value)}
+                      </p>
+                    </div>
+                  ))}
               </div>
               <div className="flex justify-end pt-4">
                 <Button
