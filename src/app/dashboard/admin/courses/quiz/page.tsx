@@ -764,10 +764,10 @@ function QuizzesManagement() {
                   {questionForm.options.map((option, index) => (
                     <div
                       key={index}
-                      className="flex flex-col sm:flex-row sm:items-start gap-3 rounded-md border border-gray-200 p-3"
+                      className="flex flex-wrap items-center gap-3 rounded-md border border-gray-200 p-3"
                     >
                       <input
-                        className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm shadow-sm focus:border-indigo-500 focus:outline-none"
+                        className="flex-1 min-w-[160px] rounded-md border border-gray-300 px-3 py-2 text-sm shadow-sm focus:border-indigo-500 focus:outline-none"
                         value={option.text}
                         onChange={(e) =>
                           handleOptionChange(index, e.target.value)
@@ -793,7 +793,7 @@ function QuizzesManagement() {
                           variant="ghost"
                           size="sm"
                           onClick={() => removeOptionRow(index)}
-                          className="text-red-500 w-full sm:w-auto justify-center"
+                          className="text-red-500 justify-center px-2"
                         >
                           Remove
                         </Button>
