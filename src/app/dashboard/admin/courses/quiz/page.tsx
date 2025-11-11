@@ -20,6 +20,26 @@ import { sectionService } from "@/services/sectionService";
 import { quizService } from "@/services/quizService";
 import type { Course, Section, Quiz } from "@/types/api";
 
+type QuestionType = "mcq" | "multi" | "true_false" | "fill_blank" | "short";
+
+type QuestionOptionInput = { text: string; isCorrect: boolean };
+
+const createQuestionForm = (type: QuestionType = "mcq") => ({
+  text: "",
+  type,
+  correctAnswer: "",
+  options:
+    type === "true_false"
+      ? [
+          { text: "True", isCorrect: true },
+          { text: "False", isCorrect: false },
+        ]
+      : [
+          { text: "", isCorrect: true },
+          { text: "", isCorrect: false },
+        ],
+});
+
 function QuizzesManagement() {
   const { showToast, ToastContainer } = useToast();
 
@@ -36,6 +56,12 @@ function QuizzesManagement() {
   const [isDeleteModalOpen, setIsDeleteModalOpen] = React.useState(false);
   const [selectedItem, setSelectedItem] = React.useState<any>(null);
   const [formData, setFormData] = React.useState<any>({});
+  const [isQuestionDrawerOpen, setIsQuestionDrawerOpen] = React.useState(false);
+  const [selectedQuizForQuestion, setSelectedQuizForQuestion] =
+    React.useState<Quiz | null>(null);
+  const [questionForm, setQuestionForm] = React.useState(createQuestionForm());
+  const [questionDrawerVisible, setQuestionDrawerVisible] =
+    React.useState(false);
 
   const [searchTerm, setSearchTerm] = React.useState("");
   const [page, setPage] = React.useState(1);
@@ -128,7 +154,9 @@ function QuizzesManagement() {
   };
 
   const handleAddQuestionClick = (quiz: Quiz) => {
-    console.log("Add question for quiz:", quiz);
+    setSelectedQuizForQuestion(quiz);
+    setQuestionForm(createQuestionForm());
+    setIsQuestionDrawerOpen(true);
   };
 
   const handleAdd = async () => {
@@ -354,6 +382,122 @@ function QuizzesManagement() {
     return "N/A";
   };
 
+  React.useEffect(() => {
+    if (isQuestionDrawerOpen) {
+      setQuestionDrawerVisible(true);
+      return;
+    }
+    const timeout = setTimeout(() => setQuestionDrawerVisible(false), 300);
+    return () => clearTimeout(timeout);
+  }, [isQuestionDrawerOpen]);
+
+  const closeQuestionDrawer = () => {
+    setIsQuestionDrawerOpen(false);
+    setSelectedQuizForQuestion(null);
+    setQuestionForm(createQuestionForm());
+  };
+
+  const handleQuestionFieldChange = (
+    field: "text" | "type" | "correctAnswer",
+    value: string
+  ) => {
+    if (field === "type") {
+      const nextType = value as QuestionType;
+      setQuestionForm((prev) => ({
+        ...createQuestionForm(nextType),
+        text: prev.text,
+        correctAnswer:
+          nextType === "fill_blank" || nextType === "short"
+            ? prev.correctAnswer
+            : "",
+      }));
+      return;
+    }
+    setQuestionForm((prev) => ({ ...prev, [field]: value }));
+  };
+
+  const handleOptionChange = (index: number, value: string) => {
+    setQuestionForm((prev) => {
+      const next = [...prev.options];
+      next[index] = { ...next[index], text: value };
+      return { ...prev, options: next };
+    });
+  };
+
+  const toggleCorrectOption = (index: number, multiSelect: boolean) => {
+    setQuestionForm((prev) => {
+      const next = prev.options.map((opt, i) =>
+        multiSelect
+          ? i === index
+            ? { ...opt, isCorrect: !opt.isCorrect }
+            : opt
+          : { ...opt, isCorrect: i === index }
+      );
+      return { ...prev, options: next };
+    });
+  };
+
+  const addOptionRow = () => {
+    setQuestionForm((prev) => ({
+      ...prev,
+      options: [...prev.options, { text: "", isCorrect: false }],
+    }));
+  };
+
+  const removeOptionRow = (index: number) => {
+    setQuestionForm((prev) => {
+      if (prev.options.length <= 2) return prev;
+      const next = prev.options.filter((_, i) => i !== index);
+      return { ...prev, options: next };
+    });
+  };
+
+  const handleSubmitQuestion = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!selectedQuizForQuestion) return;
+    if (!questionForm.text.trim()) {
+      showToast("Question text is required", "error");
+      return;
+    }
+
+    const trimmedOptions = questionForm.options
+      .map((opt) => ({ ...opt, text: opt.text.trim() }))
+      .filter((opt) => opt.text);
+
+    if (
+      (questionForm.type === "mcq" || questionForm.type === "multi") &&
+      trimmedOptions.length < 2
+    ) {
+      showToast("Add at least two options", "error");
+      return;
+    }
+
+    try {
+      const payload: any = {
+        quizId: selectedQuizForQuestion.id,
+        text: questionForm.text.trim(),
+        type: questionForm.type,
+        correctAnswer:
+          questionForm.type === "fill_blank" ||
+          questionForm.type === "short" ||
+          questionForm.type === "true_false"
+            ? questionForm.correctAnswer || undefined
+            : undefined,
+        options:
+          questionForm.type === "mcq" ||
+          questionForm.type === "multi" ||
+          questionForm.type === "true_false"
+            ? trimmedOptions
+            : undefined,
+      };
+
+      showToast("Question submitted (pending API integration)", "success");
+      closeQuestionDrawer();
+    } catch (err: any) {
+      showToast(err?.message || "Failed to save question", "error");
+    }
+  };
+
   return (
     <DashboardLayout>
       <div className="p-4 md:p-6 w-full max-w-full overflow-hidden">
@@ -433,6 +577,7 @@ function QuizzesManagement() {
                   onView={openViewModal}
                   onEdit={openEditModal}
                   onDelete={openDeleteModal}
+                  onAddQuestion={handleAddQuestionClick}
                   deps={[refreshTick]}
                 />
               ) : (
@@ -533,6 +678,191 @@ function QuizzesManagement() {
         />
       </div>
       <ToastContainer position="bottom-right" />
+
+      {questionDrawerVisible && (
+        <div className="fixed inset-0 z-50 flex">
+          <div
+            className={`absolute inset-0 bg-black/40 transition-opacity duration-300 ${
+              isQuestionDrawerOpen ? "opacity-100" : "opacity-0"
+            }`}
+            onClick={closeQuestionDrawer}
+          />
+          <div
+            className={`relative ml-auto h-full w-[95vw] sm:w-[70vw] md:w-[55vw] lg:w-[420px] xl:w-[360px] bg-white shadow-2xl transform transition-transform duration-300 ease-out ${
+              isQuestionDrawerOpen ? "translate-x-0" : "translate-x-full"
+            }`}
+          >
+            <div className="sticky top-0 flex items-center justify-between border-b border-gray-200 px-4 py-4 sm:px-5">
+              <div>
+                <h2 className="text-lg font-semibold text-gray-900">
+                  Add Question
+                </h2>
+                <p className="text-sm text-gray-500">
+                  {selectedQuizForQuestion?.title || ""}
+                </p>
+              </div>
+              <Button variant="ghost" onClick={closeQuestionDrawer}>
+                Close
+              </Button>
+            </div>
+            <form
+              className="flex h-full flex-col overflow-y-auto px-4 py-6 space-y-6 sm:px-5"
+              onSubmit={handleSubmitQuestion}
+            >
+              <div className="space-y-2">
+                <label className="block text-sm font-medium text-gray-700">
+                  Question
+                </label>
+                <textarea
+                  rows={4}
+                  className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm shadow-sm focus:border-indigo-500 focus:outline-none"
+                  value={questionForm.text}
+                  onChange={(e) =>
+                    handleQuestionFieldChange("text", e.target.value)
+                  }
+                  placeholder="Enter question text"
+                />
+              </div>
+              <div className="space-y-2">
+                <label className="block text-sm font-medium text-gray-700">
+                  Type
+                </label>
+                <select
+                  className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm shadow-sm focus:border-indigo-500 focus:outline-none"
+                  value={questionForm.type}
+                  onChange={(e) =>
+                    handleQuestionFieldChange("type", e.target.value)
+                  }
+                >
+                  <option value="mcq">Multiple choice (single answer)</option>
+                  <option value="multi">
+                    Multiple choice (multiple answers)
+                  </option>
+                  <option value="true_false">True / False</option>
+                  <option value="fill_blank">Fill in the blank</option>
+                  <option value="short">Short answer</option>
+                </select>
+              </div>
+
+              {(questionForm.type === "mcq" ||
+                questionForm.type === "multi") && (
+                <div className="space-y-3">
+                  <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+                    <label className="text-sm font-medium text-gray-700">
+                      Options
+                    </label>
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      onClick={addOptionRow}
+                      className="w-full sm:w-auto"
+                    >
+                      Add Option
+                    </Button>
+                  </div>
+                  {questionForm.options.map((option, index) => (
+                    <div
+                      key={index}
+                      className="flex flex-col sm:flex-row sm:items-start gap-3 rounded-md border border-gray-200 p-3"
+                    >
+                      <input
+                        className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm shadow-sm focus:border-indigo-500 focus:outline-none"
+                        value={option.text}
+                        onChange={(e) =>
+                          handleOptionChange(index, e.target.value)
+                        }
+                        placeholder={`Option ${index + 1}`}
+                      />
+                      <label className="flex items-center gap-2 text-xs font-medium text-gray-600">
+                        <input
+                          type="checkbox"
+                          checked={option.isCorrect}
+                          onChange={() =>
+                            toggleCorrectOption(
+                              index,
+                              questionForm.type === "multi"
+                            )
+                          }
+                        />
+                        Correct
+                      </label>
+                      {questionForm.options.length > 2 && (
+                        <Button
+                          type="button"
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => removeOptionRow(index)}
+                          className="text-red-500 w-full sm:w-auto justify-center"
+                        >
+                          Remove
+                        </Button>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              )}
+
+              {questionForm.type === "true_false" && (
+                <div className="space-y-2">
+                  <label className="block text-sm font-medium text-gray-700">
+                    Correct answer
+                  </label>
+                  <div className="space-y-2 rounded-md border border-gray-200 p-3">
+                    {questionForm.options.map((option, index) => (
+                      <label
+                        key={index}
+                        className="flex items-center justify-between rounded-md border border-gray-100 px-3 py-2 text-sm"
+                      >
+                        <span>{option.text}</span>
+                        <input
+                          type="radio"
+                          name="trueFalse"
+                          checked={option.isCorrect}
+                          onChange={() => {
+                            toggleCorrectOption(index, false);
+                            handleQuestionFieldChange(
+                              "correctAnswer",
+                              option.text
+                            );
+                          }}
+                        />
+                      </label>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {(questionForm.type === "fill_blank" ||
+                questionForm.type === "short") && (
+                <div className="space-y-2">
+                  <label className="block text-sm font-medium text-gray-700">
+                    Correct answer
+                  </label>
+                  <Input
+                    value={questionForm.correctAnswer}
+                    onChange={(e) =>
+                      handleQuestionFieldChange("correctAnswer", e.target.value)
+                    }
+                    placeholder="Enter correct answer"
+                  />
+                </div>
+              )}
+
+              <div className="mt-auto flex justify-end gap-3 pt-4">
+                <Button
+                  type="button"
+                  variant="ghost"
+                  onClick={closeQuestionDrawer}
+                >
+                  Cancel
+                </Button>
+                <Button type="submit">Save Question</Button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
     </DashboardLayout>
   );
 }
