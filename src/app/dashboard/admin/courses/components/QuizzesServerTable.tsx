@@ -12,6 +12,7 @@ interface Props {
   onEdit: (row: any) => void;
   onDelete: (row: any) => void;
   onAddQuestion: (row: any) => void;
+  onViewQuestions: (row: any) => void;
   deps?: any[];
 }
 
@@ -24,6 +25,7 @@ export default function QuizzesServerTable({
   onEdit,
   onDelete,
   onAddQuestion,
+  onViewQuestions,
   deps = [],
 }: Props) {
   return (
@@ -118,6 +120,14 @@ export default function QuizzesServerTable({
                 className="text-green-600 hover:text-green-900 w-full md:w-auto justify-center md:justify-start"
               >
                 Add Question
+              </Button>
+              <Button
+                size="sm"
+                variant="ghost"
+                onClick={() => onViewQuestions(q)}
+                className="text-indigo-600 hover:text-indigo-900 w-full md:w-auto justify-center md:justify-start"
+              >
+                View Questions
               </Button>
               <Button
                 size="sm"
