@@ -715,7 +715,7 @@ function QuizzesManagement() {
                 </label>
                 <textarea
                   rows={4}
-                  className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm shadow-sm focus:border-indigo-500 focus:outline-none"
+                  className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm text-gray-900 placeholder:text-black shadow-sm focus:border-indigo-500 focus:outline-none"
                   value={questionForm.text}
                   onChange={(e) =>
                     handleQuestionFieldChange("text", e.target.value)
@@ -728,7 +728,7 @@ function QuizzesManagement() {
                   Type
                 </label>
                 <select
-                  className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm shadow-sm focus:border-indigo-500 focus:outline-none"
+                  className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm text-gray-900 shadow-sm focus:border-indigo-500 focus:outline-none"
                   value={questionForm.type}
                   onChange={(e) =>
                     handleQuestionFieldChange("type", e.target.value)
@@ -767,7 +767,7 @@ function QuizzesManagement() {
                       className="flex flex-wrap items-center gap-3 rounded-md border border-gray-200 p-3"
                     >
                       <input
-                        className="flex-1 min-w-[160px] rounded-md border border-gray-300 px-3 py-2 text-sm shadow-sm focus:border-indigo-500 focus:outline-none"
+                        className="flex-1 min-w-[160px] rounded-md border border-gray-300 px-3 py-2 text-sm text-gray-900 placeholder:text-black shadow-sm focus:border-indigo-500 focus:outline-none"
                         value={option.text}
                         onChange={(e) =>
                           handleOptionChange(index, e.target.value)
