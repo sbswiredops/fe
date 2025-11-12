@@ -971,55 +971,68 @@ function QuizzesManagement() {
         </Modal>
 
         {/* View Modal */}
-        <Modal
-          isOpen={questionModalType === "view"}
-          onClose={() => {
-            setSelectedQuestion(null);
-            setQuestionModalType(null);
-          }}
-          title="View Question"
-          size="md"
-        >
-          {selectedQuestion && (
-            <div className="space-y-3">
-              <div>
-                <label className="font-medium text-gray-700">Question</label>
-                <div className="text-gray-900">{selectedQuestion.text}</div>
-              </div>
-              <div>
-                <label className="font-medium text-gray-700">Type</label>
-                <div className="text-gray-900">{selectedQuestion.type}</div>
-              </div>
-              <div>
-                <label className="font-medium text-gray-700">
-                  Options / Answer
-                </label>
-                <div>
-                  {selectedQuestion.options ? (
-                    selectedQuestion.options.map((opt: any, i: number) => (
-                      <div key={i}>
-                        <span
-                          className={
-                            opt.isCorrect
-                              ? "font-bold text-green-600"
-                              : "text-gray-900"
-                          }
-                        >
-                          {opt.text}
-                          {opt.isCorrect ? " (Correct)" : ""}
+        {questionModalType === "view" && (
+          <div className="fixed inset-0 z-[300] flex items-center justify-center">
+            <div
+              className="absolute inset-0 bg-black/40"
+              onClick={() => {
+                setSelectedQuestion(null);
+                setQuestionModalType(null);
+              }}
+            />
+            <Modal
+              isOpen={true}
+              onClose={() => {
+                setSelectedQuestion(null);
+                setQuestionModalType(null);
+              }}
+              title="View Question"
+              size="md"
+            >
+              {selectedQuestion && (
+                <div className="space-y-3">
+                  <div>
+                    <label className="font-medium text-gray-700">
+                      Question
+                    </label>
+                    <div className="text-gray-900">{selectedQuestion.text}</div>
+                  </div>
+                  <div>
+                    <label className="font-medium text-gray-700">Type</label>
+                    <div className="text-gray-900">{selectedQuestion.type}</div>
+                  </div>
+                  <div>
+                    <label className="font-medium text-gray-700">
+                      Options / Answer
+                    </label>
+                    <div>
+                      {selectedQuestion.options ? (
+                        selectedQuestion.options.map((opt: any, i: number) => (
+                          <div key={i}>
+                            <span
+                              className={
+                                opt.isCorrect
+                                  ? "font-bold text-green-600"
+                                  : "text-gray-900"
+                              }
+                            >
+                              {opt.text}
+                              {opt.isCorrect ? " (Correct)" : ""}
+                            </span>
+                          </div>
+                        ))
+                      ) : (
+                        <span className="text-gray-900">
+                          {selectedQuestion.correctAnswer || "-"}
                         </span>
-                      </div>
-                    ))
-                  ) : (
-                    <span className="text-gray-900">
-                      {selectedQuestion.correctAnswer || "-"}
-                    </span>
-                  )}
+                      )}
+                    </div>
+                  </div>
                 </div>
-              </div>
-            </div>
-          )}
-        </Modal>
+              )}
+            </Modal>
+          </div>
+        )}
 
         {/* Edit Modal */}
         <Modal
