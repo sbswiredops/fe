@@ -702,9 +702,15 @@ function QuizzesManagement() {
   const handleSaveEditQuestion = async () => {
     if (!selectedQuestion) return;
     try {
-      await quizService.updateQuestion(selectedQuestion.id, selectedQuestion);
+      // Remove unwanted properties before sending to API
+      const { id, createdAt, createdby, updatedAt, updatedby, ...payload } =
+        selectedQuestion;
+
+      await quizService.updateQuestion(selectedQuestion.id, payload);
       setQuestionsList((prev) =>
-        prev.map((q) => (q.id === selectedQuestion.id ? selectedQuestion : q))
+        prev.map((q) =>
+          q.id === selectedQuestion.id ? { ...q, ...payload } : q
+        )
       );
       showToast("Question updated", "success");
     } catch {
