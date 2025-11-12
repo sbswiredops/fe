@@ -1035,60 +1035,287 @@ function QuizzesManagement() {
         )}
 
         {/* Edit Modal */}
-        <Modal
-          isOpen={questionModalType === "edit"}
-          onClose={() => {
-            setSelectedQuestion(null);
-            setQuestionModalType(null);
-          }}
-          title="Edit Question"
-          size="md"
-        >
-          {selectedQuestion && (
-            <div className="space-y-3">
-              <div>
-                <label className="font-medium text-gray-700">Question</label>
-                <Input
-                  value={selectedQuestion.text}
-                  onChange={(e) =>
-                    setSelectedQuestion({
-                      ...selectedQuestion,
-                      text: e.target.value,
-                    })
-                  }
-                />
-              </div>
-              {/* Add more fields as needed for editing options/answer */}
-              <div className="flex justify-end pt-4">
-                <Button
-                  variant="outline"
-                  onClick={() => {
-                    setSelectedQuestion(null);
-                    setQuestionModalType(null);
-                  }}
-                >
-                  Cancel
-                </Button>
-                <Button onClick={handleSaveEditQuestion} className="ml-2">
-                  Save
-                </Button>
-              </div>
-            </div>
-          )}
-        </Modal>
+        {questionModalType === "edit" && (
+          <div className="fixed inset-0 z-[300] flex items-center justify-center">
+            <div
+              className="absolute inset-0 bg-black/40"
+              onClick={() => {
+                setSelectedQuestion(null);
+                setQuestionModalType(null);
+              }}
+            />
+            <Modal
+              isOpen={true}
+              onClose={() => {
+                setSelectedQuestion(null);
+                setQuestionModalType(null);
+              }}
+              title="Edit Question"
+              size="md"
+            >
+              {selectedQuestion && (
+                <div className="space-y-4">
+                  {/* Question Text */}
+                  <div>
+                    <label className="font-medium text-gray-700">
+                      Question
+                    </label>
+                    <Input
+                      value={selectedQuestion.text}
+                      onChange={(e) =>
+                        setSelectedQuestion({
+                          ...selectedQuestion,
+                          text: e.target.value,
+                        })
+                      }
+                    />
+                  </div>
+                  {/* Question Type */}
+                  <div>
+                    <label className="font-medium text-gray-700">Type</label>
+                    <select
+                      className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm text-gray-900 shadow-sm focus:border-indigo-500 focus:outline-none"
+                      value={selectedQuestion.type}
+                      onChange={(e) => {
+                        const type = e.target.value as QuestionType;
+                        let options = selectedQuestion.options || [];
+                        let correctAnswer =
+                          selectedQuestion.correctAnswer || "";
+                        // Reset options for type change
+                        if (type === "true_false") {
+                          options = [
+                            { text: "True", isCorrect: true },
+                            { text: "False", isCorrect: false },
+                          ];
+                          correctAnswer = "True";
+                        } else if (type === "mcq" || type === "multi") {
+                          options = [
+                            { text: "", isCorrect: true },
+                            { text: "", isCorrect: false },
+                          ];
+                          correctAnswer = "";
+                        }
+                        setSelectedQuestion({
+                          ...selectedQuestion,
+                          type,
+                          options,
+                          correctAnswer,
+                        });
+                      }}
+                    >
+                      <option value="mcq">
+                        Multiple choice (single answer)
+                      </option>
+                      <option value="multi">
+                        Multiple choice (multiple answers)
+                      </option>
+                      <option value="true_false">True / False</option>
+                      <option value="fill_blank">Fill in the blank</option>
+                      <option value="short">Short answer</option>
+                    </select>
+                  </div>
+                  {/* Options for MCQ/Multi/TrueFalse */}
+                  {(selectedQuestion.type === "mcq" ||
+                    selectedQuestion.type === "multi") && (
+                    <div>
+                      <label className="font-medium text-gray-700">
+                        Options
+                      </label>
+                      <div className="space-y-2">
+                        {selectedQuestion.options?.map(
+                          (opt: any, idx: number) => (
+                            <div
+                              key={idx}
+                              className="flex items-center gap-2 border rounded px-2 py-1"
+                            >
+                              <Input
+                                value={opt.text}
+                                onChange={(e) => {
+                                  const newOptions = [
+                                    ...selectedQuestion.options,
+                                  ];
+                                  newOptions[idx].text = e.target.value;
+                                  setSelectedQuestion({
+                                    ...selectedQuestion,
+                                    options: newOptions,
+                                  });
+                                }}
+                                placeholder={`Option ${idx + 1}`}
+                                className="flex-1"
+                              />
+                              <label className="flex items-center gap-1 text-xs">
+                                <input
+                                  type="checkbox"
+                                  checked={opt.isCorrect}
+                                  onChange={() => {
+                                    const newOptions =
+                                      selectedQuestion.options.map(
+                                        (o: any, i: number) =>
+                                          selectedQuestion.type === "multi"
+                                            ? i === idx
+                                              ? {
+                                                  ...o,
+                                                  isCorrect: !o.isCorrect,
+                                                }
+                                              : o
+                                            : { ...o, isCorrect: i === idx }
+                                      );
+                                    setSelectedQuestion({
+                                      ...selectedQuestion,
+                                      options: newOptions,
+                                    });
+                                  }}
+                                />
+                                Correct
+                              </label>
+                              {selectedQuestion.options.length > 2 && (
+                                <Button
+                                  type="button"
+                                  variant="ghost"
+                                  size="sm"
+                                  onClick={() => {
+                                    const newOptions =
+                                      selectedQuestion.options.filter(
+                                        (_: any, i: number) => i !== idx
+                                      );
+                                    setSelectedQuestion({
+                                      ...selectedQuestion,
+                                      options: newOptions,
+                                    });
+                                  }}
+                                  className="text-red-500 px-2"
+                                >
+                                  Remove
+                                </Button>
+                              )}
+                            </div>
+                          )
+                        )}
+                        <Button
+                          type="button"
+                          variant="outline"
+                          size="sm"
+                          onClick={() => {
+                            setSelectedQuestion({
+                              ...selectedQuestion,
+                              options: [
+                                ...selectedQuestion.options,
+                                { text: "", isCorrect: false },
+                              ],
+                            });
+                          }}
+                          className="mt-2"
+                        >
+                          Add Option
+                        </Button>
+                      </div>
+                    </div>
+                  )}
+                  {/* True/False correct answer */}
+                  {selectedQuestion.type === "true_false" && (
+                    <div>
+                      <label className="font-medium text-gray-700">
+                        Correct answer
+                      </label>
+                      <div className="flex gap-2 mt-2">
+                        {selectedQuestion.options?.map(
+                          (opt: any, idx: number) => (
+                            <label
+                              key={idx}
+                              className={`flex items-center gap-1 px-2 py-1 rounded border ${
+                                opt.isCorrect
+                                  ? "border-emerald-400 bg-emerald-50"
+                                  : "border-gray-200"
+                              }`}
+                            >
+                              <input
+                                type="radio"
+                                name="trueFalseEdit"
+                                checked={opt.isCorrect}
+                                onChange={() => {
+                                  const newOptions =
+                                    selectedQuestion.options.map(
+                                      (o: any, i: number) => ({
+                                        ...o,
+                                        isCorrect: i === idx,
+                                      })
+                                    );
+                                  setSelectedQuestion({
+                                    ...selectedQuestion,
+                                    options: newOptions,
+                                    correctAnswer: opt.text,
+                                  });
+                                }}
+                              />
+                              {opt.text}
+                            </label>
+                          )
+                        )}
+                      </div>
+                    </div>
+                  )}
+                  {/* Fill blank / Short answer */}
+                  {(selectedQuestion.type === "fill_blank" ||
+                    selectedQuestion.type === "short") && (
+                    <div>
+                      <label className="font-medium text-gray-700">
+                        Correct answer
+                      </label>
+                      <Input
+                        value={selectedQuestion.correctAnswer || ""}
+                        onChange={(e) =>
+                          setSelectedQuestion({
+                            ...selectedQuestion,
+                            correctAnswer: e.target.value,
+                          })
+                        }
+                        placeholder="Enter correct answer"
+                      />
+                    </div>
+                  )}
+                  <div className="flex justify-end pt-4">
+                    <Button
+                      variant="outline"
+                      onClick={() => {
+                        setSelectedQuestion(null);
+                        setQuestionModalType(null);
+                      }}
+                    >
+                      Cancel
+                    </Button>
+                    <Button onClick={handleSaveEditQuestion} className="ml-2">
+                      Save
+                    </Button>
+                  </div>
+                </div>
+              )}
+            </Modal>
+          </div>
+        )}
 
         {/* Delete Modal */}
-        <ConfirmationModal
-          isOpen={questionModalType === "delete"}
-          onClose={() => {
-            setSelectedQuestion(null);
-            setQuestionModalType(null);
-          }}
-          onConfirm={confirmDeleteQuestion}
-          title="Delete Question"
-          message="Are you sure you want to delete this question?"
-          type="danger"
-        />
+        {questionModalType === "delete" && (
+          <div className="fixed inset-0 z-[300] flex items-center justify-center">
+            <div
+              className="absolute inset-0 bg-black/40"
+              onClick={() => {
+                setSelectedQuestion(null);
+                setQuestionModalType(null);
+              }}
+            />
+            <ConfirmationModal
+              isOpen={true}
+              onClose={() => {
+                setSelectedQuestion(null);
+                setQuestionModalType(null);
+              }}
+              onConfirm={confirmDeleteQuestion}
+              title="Delete Question"
+              message="Are you sure you want to delete this question?"
+              type="danger"
+            />
+          </div>
+        )}
       </div>
       <ToastContainer position="bottom-right" />
 
