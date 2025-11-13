@@ -13,7 +13,7 @@ export default function Home() {
   return (
     <MainLayout>
       <HeroSection />
-      <FeaturedCourses />
+      {/* <FeaturedCourses /> */}
       {/* <LiveClasses /> */}
       {/* <FreeLiveMasterclass /> */}
       <RecordedCoursesSection />
