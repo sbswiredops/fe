@@ -31,7 +31,7 @@ export default function CourseCard({ course }: { course: Course }) {
       href={`/courses/${course.id}`}
       className="block group focus:outline-none"
     >
-      <div className="flex-shrink-0 w-full sm:w-[330px] bg-white rounded-xl border border-gray-200 transition-transform duration-300 hover:scale-105 hover:shadow-xl hover:z-30 relative will-change-transform cursor-pointer">
+  <div className="flex-shrink-0 w-full sm:w-[330px] bg-white rounded-xl border border-gray-200 transition-transform duration-300 hover:scale-105 hover:shadow-xl hover:z-10 relative will-change-transform cursor-pointer">
         {/* Course Thumbnail */}
         <div className="relative h-50 bg-gradient-to-br from-blue-100 to-indigo-200 flex items-center justify-center rounded-t-xl overflow-hidden">
           <svg
