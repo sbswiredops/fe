@@ -329,7 +329,7 @@ export default function CourseDetailsPage() {
                 {/* Course Stats */}
                 <div className="flex flex-wrap items-center gap-6 mb-6">
                   <div className="flex items-center">
-                    <StarRating rating={course ? course.rating : 0} />
+                    <StarRating rating={course ? course.rating ?? 0 : 0} />
                     <span className="ml-2 text-gray-600">
                       ({enrolledCount.toLocaleString()} students)
                     </span>

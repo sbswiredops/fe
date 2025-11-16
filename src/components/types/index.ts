@@ -15,11 +15,12 @@ export interface Course {
   instructorId: string;
   price: number;
   duration: string;
-  thumbnail: string;
+  thumbnail?: string;
+  courseIntroVideo?: string;
   category: string;
-  enrolledStudents: number;
-  rating: number;
-  createdAt: Date;
+  enrolledStudents?: number;
+  rating?: number;
+  createdAt?: Date;
 }
 
 export interface LiveClass {

@@ -114,26 +114,35 @@ export default function CoursesForm({
 
       <div>
         <label className="block text-sm font-medium text-gray-700 mb-1">
-          Course Intro Video
+          Course Intro Video (YouTube / external URL)
         </label>
         <input
-          type="file"
+          type="url"
           name="courseIntroVideo"
-          accept="video/*"
-          onChange={onChange}
-          className="block w-full text-sm text-gray-700 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-[#51356e] hover:file:bg-blue-100"
+          value={
+            typeof formData.courseIntroVideo === "string"
+              ? formData.courseIntroVideo
+              : ""
+          }
+          onChange={(e) =>
+            setFormData((prev: any) => ({
+              ...prev,
+              courseIntroVideo: e.target.value,
+            }))
+          }
+          placeholder="https://www.youtube.com/watch?v=..."
+          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#51356e] text-gray-900"
         />
-        {formData.courseIntroVideo instanceof File && (
-          <p className="mt-1 text-xs text-gray-500">
-            Selected: {formData.courseIntroVideo.name}
-          </p>
-        )}
         {typeof formData.courseIntroVideo === "string" &&
           formData.courseIntroVideo && (
             <p className="mt-1 text-xs text-gray-500 break-all">
               Current video URL: {formData.courseIntroVideo}
             </p>
           )}
+        <p className="mt-1 text-xs text-gray-500">
+          Paste a YouTube or external video URL. File uploads for intro video
+          are removed.
+        </p>
       </div>
 
       <div>

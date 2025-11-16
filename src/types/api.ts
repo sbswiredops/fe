@@ -144,6 +144,8 @@ export interface Course {
   total?: number;
   duration: number | string; // minutes or formatted string
   level: 'beginner' | 'intermediate' | 'advanced' | 'BEGINNER' | 'INTERMEDIATE' | 'ADVANCED';
+  courseIntroVideo?: string;
+
   language?: string;
   status?: 'draft' | 'published' | 'archived';
   isPublished?: boolean;
