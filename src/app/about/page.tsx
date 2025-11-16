@@ -30,7 +30,7 @@ function AboutContent() {
   return (
     <div className="bg-white min-h-screen ">
       {/* Hero Section */}
-      <section className="hero-section py-20 text-center">
+      <section className="hero-section py-20 px-4 sm:px-10 lg:px-50 text-center">
         <div className="container mx-auto px-4">
           <h1 className="hero-title text-5xl md:text-6xl font-bold text-gray-800 mb-6">
             {t("about.title")}
@@ -51,7 +51,7 @@ function AboutContent() {
             <p className="text-lg text-gray-700 max-w-4xl mx-auto leading-relaxed">
               {t("about.ourStory.intro")}
             </p>
-            <p className="text-base text-gray-600 mt-4">
+            <p className="text-lg text-gray-600 mt-4">
               {t("about.ourStory.rippleEffect")}
             </p>
           </div>
