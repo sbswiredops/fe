@@ -233,7 +233,7 @@ export interface Section {
   description?: string;
   order: number;
   duration?: string;
-  lessons?: Lesson[];
+  lessons?: Lesson[]; // Updated to include lessons dynamically
   quizzes?: Quiz[];
   createdAt: string;
   updatedAt: string;
@@ -258,19 +258,19 @@ export interface Lesson {
   courseId: string;
   title: string;
   content: string;
-  video?: string;
-  resource?: string;
-  duration: number; // in minutes
+  video?: string; // Video URL for the lesson
+  resource?: string; // Resource URL for the lesson
+  duration: number; // Duration in minutes
   orderIndex: number;
-  isPublished: boolean;
-  isFree: boolean;
+  isPublished: boolean; // Indicates if the lesson is published
+  isFree: boolean; // Indicates if the lesson is free or locked
   createdAt: string;
   updatedAt: string;
   createdBy?: string;
   updatedBy?: string;
-  section?: Section;
-  course?: Course;
-  progressRecords?: LessonProgress[];
+  section?: Section; // Optional reference to the parent section
+  course?: Course; // Optional reference to the parent course
+  progressRecords?: LessonProgress[]; // Tracks progress for the lesson
 }
 
 export interface CreateLessonRequest {

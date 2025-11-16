@@ -7,20 +7,35 @@ export interface User {
   joinedAt: Date;
 }
 
+export interface Lesson {
+  id: string;
+  title: string;
+  content: string;
+  video?: string;
+  resource?: string;
+  isFree?: boolean;
+}
+
+export interface Section {
+  id: string;
+  title: string;
+  lessons: Lesson[];
+}
 export interface Course {
   id: string;
   title: string;
   description: string;
-  instructor: string;
-  instructorId: string;
-  price: number;
-  duration: string;
   thumbnail?: string;
   courseIntroVideo?: string;
-  category: string;
-  enrolledStudents?: number;
+  price: number;
+  duration: string;
+  enrollmentCount?: number;
   rating?: number;
+  instructor?: string;
+  instructorId?: string;
+  category?: string | { name: string };
   createdAt?: Date;
+  sections: Section[]; // <-- Add this line
 }
 
 export interface LiveClass {

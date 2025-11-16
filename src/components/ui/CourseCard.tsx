@@ -89,9 +89,9 @@ export default function CourseCard({ course }: { course: Course }) {
               </div>
             </div>
             <div className="flex items-center justify-between mb-3">
-              <StarRating rating={course.rating} />
+              <StarRating rating={course.rating ?? 0} />
               <span className="text-sm text-gray-500">
-                {course.enrolledStudents.toLocaleString()}{" "}
+                {(course.enrolledStudents ?? 0).toLocaleString()}{" "}
                 {t("featuredCourses.students")}
               </span>
             </div>
