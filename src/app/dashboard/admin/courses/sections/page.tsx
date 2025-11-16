@@ -160,12 +160,18 @@ function SectionsManagement() {
   };
   const openEditModal = (item: any) => {
     setSelectedItem(item);
-    // only populate editable fields to avoid sending disallowed props (order/orderIndex)
+    // populate editable fields including orderIndex so user can change it
     setFormData({
       title: item.title ?? "",
       description: item.description ?? "",
       courseId: item.courseId ?? item?.course?.id ?? "",
       status: item.status ?? "",
+      orderIndex:
+        item.orderIndex !== undefined
+          ? String(item.orderIndex)
+          : item.order !== undefined
+          ? String(item.order)
+          : "",
     });
     setIsEditModalOpen(true);
   };
@@ -179,6 +185,12 @@ function SectionsManagement() {
       const payload = {
         title: formData.title,
         description: formData.description,
+        // include orderIndex when provided (convert to number)
+        ...(formData.orderIndex !== undefined &&
+        formData.orderIndex !== "" &&
+        formData.orderIndex !== null
+          ? { orderIndex: Number(formData.orderIndex) }
+          : {}),
       } as any;
       const res = await sectionService.createSection(
         formData.courseId,
@@ -193,7 +205,8 @@ function SectionsManagement() {
           title: payload.title,
           description: payload.description,
           // use orderIndex (server may provide orderIndex)
-          orderIndex: srvData.orderIndex ?? srvData.order ?? 0,
+          orderIndex:
+            srvData.orderIndex ?? srvData.order ?? payload.orderIndex ?? 0,
           status: srvData.status ?? "active",
           lessonCount: srvData.lessonCount ?? 0,
           createdAt: srvData.createdAt || new Date().toISOString(),
@@ -215,12 +228,18 @@ function SectionsManagement() {
   const handleEdit = async () => {
     if (!selectedItem) return;
     try {
-      // ensure we don't send order/orderIndex to server
-      const { order, orderIndex, ...rest } = formData || {};
+      // build payload and include orderIndex when user provided it
       const payload: any = {
-        title: rest.title,
-        description: rest.description,
+        title: formData.title,
+        description: formData.description,
       };
+      if (
+        formData.orderIndex !== undefined &&
+        formData.orderIndex !== "" &&
+        formData.orderIndex !== null
+      ) {
+        payload.orderIndex = Number(formData.orderIndex);
+      }
 
       const res = await sectionService.updateSection(selectedItem.id, payload);
       if (res.success) {
@@ -235,7 +254,10 @@ function SectionsManagement() {
           : { ...selectedItem, ...payload };
 
         // ensure local item keeps normalized orderIndex
-        if (!updatedItem.orderIndex) {
+        if (
+          updatedItem.orderIndex === undefined ||
+          updatedItem.orderIndex === null
+        ) {
           updatedItem.orderIndex =
             selectedItem.orderIndex ?? selectedItem.order ?? 0;
         }

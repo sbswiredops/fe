@@ -221,9 +221,15 @@ export class CourseService {
 
   // Get published courses only
   async getPublishedCourses(params?: CourseFilters): Promise<ApiResponse<{ courses: Course[]; total: number; page: number; limit: number }>> {
+    if (!isApiConfigured()) {
+      const page = (params as any)?.page ?? 1;
+      const limit = (params as any)?.limit ?? API_CONFIG.PAGINATION.DEFAULT_PAGE_SIZE;
+      return { success: true, data: { courses: [], total: 0, page, limit } };
+    }
+
     return this.client.get<{ courses: Course[]; total: number; page: number; limit: number }>(
       API_CONFIG.ENDPOINTS.COURSES,
-      params
+      { ...params, status: 'published' }
     );
   }
 

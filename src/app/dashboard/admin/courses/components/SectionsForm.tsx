@@ -1,10 +1,14 @@
 "use client";
-import React from 'react';
-import Input from '@/components/ui/Input';
+import React from "react";
+import Input from "@/components/ui/Input";
 
 interface Props {
   formData: any;
-  onChange: (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => void;
+  onChange: (
+    e: React.ChangeEvent<
+      HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement
+    >
+  ) => void;
   courses: any[] | { items?: any[] } | { data?: { courses?: any[] } };
 }
 
@@ -21,9 +25,9 @@ export default function SectionsForm({ formData, onChange, courses }: Props) {
   const publishedCourses = React.useMemo(
     () =>
       courseList.filter((c: any) =>
-        typeof c?.isPublished === 'boolean'
+        typeof c?.isPublished === "boolean"
           ? c.isPublished
-          : String(c?.status || '').toLowerCase() === 'published'
+          : String(c?.status || "").toLowerCase() === "published"
       ),
     [courseList]
   );
@@ -33,16 +37,18 @@ export default function SectionsForm({ formData, onChange, courses }: Props) {
       <Input
         label="Section Title"
         name="title"
-        value={formData.title || ''}
+        value={formData.title || ""}
         onChange={onChange}
         placeholder="Enter section title"
         required
       />
       <div>
-        <label className="block text-sm font-medium text-gray-700 mb-1">Description</label>
+        <label className="block text-sm font-medium text-gray-700 mb-1">
+          Description
+        </label>
         <textarea
           name="description"
-          value={formData.description || ''}
+          value={formData.description || ""}
           onChange={onChange}
           placeholder="Enter section description"
           className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#51356e] text-gray-900"
@@ -51,17 +57,21 @@ export default function SectionsForm({ formData, onChange, courses }: Props) {
         />
       </div>
       <div>
-        <label className="block text-sm font-medium text-gray-700 mb-1">Course</label>
+        <label className="block text-sm font-medium text-gray-700 mb-1">
+          Course
+        </label>
         <select
           name="courseId"
-          value={formData.courseId || ''}
+          value={formData.courseId || ""}
           onChange={onChange}
           className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#51356e] text-gray-900"
           required
         >
           <option value="">Select a course</option>
           {publishedCourses.length === 0 ? (
-            <option value="" disabled>No published courses available</option>
+            <option value="" disabled>
+              No published courses available
+            </option>
           ) : (
             publishedCourses.map((course: any) => (
               <option key={course.id} value={course.id}>
@@ -74,18 +84,21 @@ export default function SectionsForm({ formData, onChange, courses }: Props) {
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <Input
           label="Order"
-          name="order"
+          name="orderIndex"
           type="number"
-          value={formData.order || ''}
+          // prefer orderIndex but fall back to order if present (compatibility)
+          value={formData.orderIndex ?? formData.order ?? ""}
           onChange={onChange}
           placeholder="Section order"
           required
         />
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">Status</label>
+          <label className="block text-sm font-medium text-gray-700 mb-1">
+            Status
+          </label>
           <select
             name="status"
-            value={formData.status || 'active'}
+            value={formData.status || "active"}
             onChange={onChange}
             className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#51356e] text-gray-900 h-10"
             required

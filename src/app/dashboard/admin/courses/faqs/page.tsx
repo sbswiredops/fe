@@ -9,6 +9,7 @@ import Modal from "@/components/ui/Modal";
 import Input from "@/components/ui/Input";
 import ConfirmationModal from "@/components/ui/ConfirmationModal";
 import useToast from "@/components/hoock/toast";
+import { CourseService } from "@/services/courseService"; // added
 
 interface Faq {
   id: string;
@@ -21,14 +22,38 @@ interface Faq {
 function FaqsManagement() {
   const { showToast, ToastContainer } = useToast();
 
-  // Demo options (replace with real data fetch if available)
-  const courseOptions = [
-    { id: "c-101", title: "Intro to Programming" },
-    { id: "c-102", title: "Advanced JavaScript" },
-  ];
+  const [courseOptions, setCourseOptions] = React.useState<
+    { id: string; title: string }[]
+  >([]);
 
   const getCourseTitle = (id?: string | null) =>
     courseOptions.find((c) => c.id === id)?.title || (id ? `ID: ${id}` : "—");
+
+  React.useEffect(() => {
+    const ac = new AbortController();
+    const courseService = new CourseService();
+    const load = async () => {
+      try {
+        const res = await courseService.getCourses();
+        if (!res.success) throw new Error("Failed to fetch courses");
+        const list = Array.isArray(res.data)
+          ? res.data
+          : (res.data as any)?.courses ?? [];
+
+        const normalized = list.map((c: any) => ({
+          id: String(c.id ?? c._id ?? ""),
+          title: String(c.title ?? c.name ?? "Untitled"),
+        }));
+        setCourseOptions(normalized);
+      } catch (err: any) {
+        if (err.name !== "AbortError") {
+          showToast?.("Failed to load courses", "error");
+        }
+      }
+    };
+    load();
+    return () => ac.abort();
+  }, []);
 
   const [faqs, setFaqs] = React.useState<Faq[]>([
     {
