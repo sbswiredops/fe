@@ -93,7 +93,7 @@ export default function HeroSection() {
                   </svg>
                 </Button>
               </Link>
-              <Link href="/demo">
+              <Link href="/courses">
                 <button
                   className="w-full sm:w-auto btn-hover justify-center btn-animate border-[2px] rounded-lg flex items-center px-6 py-3"
                   style={{
