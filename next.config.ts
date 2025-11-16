@@ -9,6 +9,11 @@ const nextConfig: NextConfig = {
         port: "8001",
         pathname: "/uploads/**",
       },
+      {
+        protocol: "https",
+        hostname: "imagedelivery.net",
+        pathname: "/**",
+      },
     ],
   },
 };

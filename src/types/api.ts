@@ -172,6 +172,7 @@ export interface CreateCourseRequest {
   categoryId?: string;
   instructorId?: string;
   thumbnail?: string | File;
+  courseIntroVideo?: string | File;
   price: number;
   originalPrice?: number;
   duration: number | string;

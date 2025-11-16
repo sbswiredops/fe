@@ -114,6 +114,30 @@ export default function CoursesForm({
 
       <div>
         <label className="block text-sm font-medium text-gray-700 mb-1">
+          Course Intro Video
+        </label>
+        <input
+          type="file"
+          name="courseIntroVideo"
+          accept="video/*"
+          onChange={onChange}
+          className="block w-full text-sm text-gray-700 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-[#51356e] hover:file:bg-blue-100"
+        />
+        {formData.courseIntroVideo instanceof File && (
+          <p className="mt-1 text-xs text-gray-500">
+            Selected: {formData.courseIntroVideo.name}
+          </p>
+        )}
+        {typeof formData.courseIntroVideo === "string" &&
+          formData.courseIntroVideo && (
+            <p className="mt-1 text-xs text-gray-500 break-all">
+              Current video URL: {formData.courseIntroVideo}
+            </p>
+          )}
+      </div>
+
+      <div>
+        <label className="block text-sm font-medium text-gray-700 mb-1">
           Category
         </label>
         <select
@@ -138,7 +162,7 @@ export default function CoursesForm({
         </select>
       </div>
 
-  <div>
+      <div>
         <label className="block text-sm font-medium text-gray-700 mb-1">
           Instructor
         </label>
@@ -152,7 +176,10 @@ export default function CoursesForm({
           {instructorList.length > 0
             ? instructorList.map((instr: any) => {
                 const label =
-                  instr.name || instr.fullName || instr.email || `${instr.firstName || ''} ${instr.lastName || ''}`;
+                  instr.name ||
+                  instr.fullName ||
+                  instr.email ||
+                  `${instr.firstName || ""} ${instr.lastName || ""}`;
                 return (
                   <option key={instr.id} value={instr.id}>
                     {label}

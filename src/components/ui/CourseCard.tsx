@@ -1,3 +1,4 @@
+/* eslint-disable @next/next/no-img-element */
 import Link from "next/link";
 import Button from "@/components/ui/Button";
 import { useLanguage } from "../contexts/LanguageContext";
@@ -31,22 +32,36 @@ export default function CourseCard({ course }: { course: Course }) {
       href={`/courses/${course.id}`}
       className="block group focus:outline-none"
     >
-  <div className="flex-shrink-0 w-full sm:w-[330px] bg-white rounded-xl border border-gray-200 transition-transform duration-300 hover:scale-105 hover:shadow-xl hover:z-10 relative will-change-transform cursor-pointer">
+      <div className="flex-shrink-0 w-full sm:w-[330px] bg-white rounded-xl border border-gray-200 transition-transform duration-300 hover:scale-105 hover:shadow-xl hover:z-10 relative will-change-transform cursor-pointer">
         {/* Course Thumbnail */}
-        <div className="relative h-50 bg-gradient-to-br from-blue-100 to-indigo-200 flex items-center justify-center rounded-t-xl overflow-hidden">
-          <svg
-            className="w-16 h-16 text-blue-500 opacity-50"
-            fill="none"
-            stroke="currentColor"
-            viewBox="0 0 24 24"
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth={1}
-              d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"
+        <div className="relative h-50 rounded-t-xl overflow-hidden bg-gray-50">
+          {(course as any)?.thumbnail ? (
+            <img
+              src={(course as any).thumbnail}
+              alt={course.title || "Course thumbnail"}
+              className="w-full h-full object-cover"
+              loading="lazy"
+              onError={(e) => {
+                (e.target as HTMLImageElement).style.display = "none";
+              }}
             />
-          </svg>
+          ) : (
+            <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-blue-100 to-indigo-200">
+              <svg
+                className="w-16 h-16 text-blue-500 opacity-50"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={1}
+                  d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"
+                />
+              </svg>
+            </div>
+          )}
         </div>
 
         {/* Course Content */}

@@ -1,8 +1,7 @@
+/* eslint-disable @next/next/no-img-element */
 "use client";
 
 import React, { useEffect, useState } from "react";
-import { notFound } from "next/navigation";
-import Image from "next/image";
 import Link from "next/link";
 import Button from "@/components/ui/Button";
 import MainLayout from "@/components/layout/MainLayout";
@@ -12,8 +11,7 @@ import { useEnrolledCourses } from "@/components/contexts/EnrolledCoursesContext
 import { useAuth } from "@/components/contexts/AuthContext";
 import { UserService } from "@/services/userService";
 import { useParams } from "next/navigation";
-import { courseService } from "@/services/courseService";
-export const runtime = "edge";
+import { CourseService } from "@/services/courseService";
 import { useRouter } from "next/navigation";
 
 const StarRating = ({ rating }: { rating: number }) => {
@@ -37,6 +35,7 @@ const StarRating = ({ rating }: { rating: number }) => {
 };
 
 const userService = new UserService();
+const courseService = new CourseService();
 
 export default function CourseDetailsPage() {
   const { t } = useLanguage();
@@ -144,9 +143,13 @@ export default function CourseDetailsPage() {
         (course as any)?.instructorId ||
         "Instructor";
 
-  if (!loadingCourse && !course) {
-    notFound();
-  }
+  // client-side redirect to 404 if course not found after load
+  useEffect(() => {
+    if (!loadingCourse && !course) {
+      // replace current route with 404 page
+      router.replace("/404");
+    }
+  }, [loadingCourse, course, router]);
 
   const categoryStr = course
     ? typeof (course as any).category === "string"
@@ -287,9 +290,9 @@ export default function CourseDetailsPage() {
 
   return (
     <MainLayout>
-      <div className="min-h-screen bg-gray-50">
+      <div className="min-h-screen   bg-gray-50">
         {/* Hero Section */}
-        <div className="bg-white border-b">
+        <div className="bg-white border-b ">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
             {/* Breadcrumb */}
             <nav className="mb-8">
@@ -308,7 +311,7 @@ export default function CourseDetailsPage() {
               </div>
             </nav>
 
-            <div className="grid lg:grid-cols-3 gap-8">
+            <div className="grid lg:grid-cols-3 gap-8 ">
               {/* Left Column - Course Info */}
               <div className="lg:col-span-2">
                 <div className="mb-6">
@@ -367,25 +370,40 @@ export default function CourseDetailsPage() {
               </div>
 
               {/* Right Column - Course Card */}
-              <div className="lg:col-span-1">
+              <div className="lg:col-span-1 sm:px-0 md:px-0 lg:px-20 ">
                 <div className="bg-white rounded-xl shadow-lg border border-gray-200 overflow-hidden sticky top-8">
                   {/* Course Image */}
-                  <div className="relative h-48 bg-gradient-to-br from-blue-100 to-indigo-200">
-                    <div className="absolute inset-0 flex items-center justify-center">
-                      <svg
-                        className="w-20 h-20 text-blue-500 opacity-50"
-                        fill="none"
-                        stroke="currentColor"
-                        viewBox="0 0 24 24"
-                      >
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          strokeWidth={1}
-                          d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"
-                        />
-                      </svg>
-                    </div>
+                  <div className="relative  rounded-t-xl overflow-hidden bg-gray-50 flex items-center justify-center">
+                    {(course as any)?.thumbnail ? (
+                      <img
+                        src={(course as any).thumbnail}
+                        alt={course?.title || "Course thumbnail"}
+                        className="max-w-full max-h-full object-contain"
+                        loading="lazy"
+                        onError={(e) => {
+                          // hide broken image so fallback is visible
+                          (e.target as HTMLImageElement).style.display = "none";
+                        }}
+                      />
+                    ) : loadingCourse ? (
+                      <div className="w-full h-full animate-pulse bg-gray-200" />
+                    ) : (
+                      <div className="absolute inset-0 flex items-center justify-center">
+                        <svg
+                          className="w-20 h-20 text-blue-500 opacity-50"
+                          fill="none"
+                          stroke="currentColor"
+                          viewBox="0 0 24 24"
+                        >
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth={1}
+                            d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"
+                          />
+                        </svg>
+                      </div>
+                    )}
                   </div>
 
                   <div className="p-6">

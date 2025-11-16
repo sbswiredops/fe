@@ -79,6 +79,41 @@ function CoursesManagement() {
     }
   };
 
+  // resolve remote/local media (image or video) paths
+  const resolveMediaUrl = (val: any) => {
+    if (!val) return undefined;
+    try {
+      const s = String(val || "");
+      if (/^https?:\/\//i.test(s)) return s;
+      const base = (API_CONFIG.BASE_URL || "").replace(/\/$/, "");
+      return base ? `${base}/${s.replace(/^\/+/, "")}` : s;
+    } catch {
+      return undefined;
+    }
+  };
+
+  // preview URL for course intro video in Add/Edit modal
+  const [previewVideoUrl, setPreviewVideoUrl] = React.useState<
+    string | undefined
+  >();
+  React.useEffect(() => {
+    let objUrl: string | undefined;
+    const v = formData?.courseIntroVideo;
+    if (!v) {
+      setPreviewVideoUrl(undefined);
+      return;
+    }
+    if (v instanceof File) {
+      objUrl = URL.createObjectURL(v);
+      setPreviewVideoUrl(objUrl);
+      return () => {
+        if (objUrl) URL.revokeObjectURL(objUrl);
+      };
+    }
+    setPreviewVideoUrl(resolveMediaUrl(v));
+    return () => {};
+  }, [formData?.courseIntroVideo]);
+
   const [searchTerm, setSearchTerm] = React.useState("");
   const [statusFilter, setStatusFilter] = React.useState("all");
   const [page, setPage] = React.useState(1);
@@ -279,6 +314,12 @@ function CoursesManagement() {
         total: toNumber(formData.total),
         thumbnail:
           formData.thumbnail instanceof File ? formData.thumbnail : undefined,
+        courseIntroVideo:
+          formData.courseIntroVideo instanceof File
+            ? formData.courseIntroVideo
+            : formData.courseIntroVideo
+            ? String(formData.courseIntroVideo)
+            : undefined,
       };
 
       // Remove undefined keys so service gets a clean object.
@@ -371,16 +412,34 @@ function CoursesManagement() {
             : undefined,
         thumbnail:
           formData.thumbnail instanceof File ? formData.thumbnail : undefined,
+        courseIntroVideo:
+          formData.courseIntroVideo instanceof File
+            ? formData.courseIntroVideo
+            : formData.courseIntroVideo
+            ? String(formData.courseIntroVideo)
+            : undefined,
       };
 
       // Prepare body: send JSON when no file, otherwise FormData with individual fields
       let bodyToSend: any = payload;
-      if (payload.thumbnail instanceof File) {
+      if (
+        payload.thumbnail instanceof File ||
+        payload.courseIntroVideo instanceof File
+      ) {
         const fd = new FormData();
-        fd.append("thumbnail", payload.thumbnail);
+        if (payload.thumbnail instanceof File)
+          fd.append("thumbnail", payload.thumbnail);
+        if (payload.courseIntroVideo instanceof File)
+          fd.append("courseIntroVideo", payload.courseIntroVideo);
         // append other fields individually (no "data" wrapper) — backend expects top-level fields
-        const dataCopy: any = { ...payload, thumbnail: undefined };
-        Object.keys(dataCopy).forEach((k) => dataCopy[k] === undefined && delete dataCopy[k]);
+        const dataCopy: any = {
+          ...payload,
+          thumbnail: undefined,
+          courseIntroVideo: undefined,
+        };
+        Object.keys(dataCopy).forEach(
+          (k) => dataCopy[k] === undefined && delete dataCopy[k]
+        );
         // Append each field separately. Arrays/objects are JSON-stringified so server can parse.
         Object.entries(dataCopy).forEach(([k, v]) => {
           if (v === undefined || v === null) return;
@@ -797,6 +856,19 @@ function CoursesManagement() {
               </div>
             ) : null}
 
+            {/* Course intro video preview (Add/Edit modal) */}
+            {previewVideoUrl ? (
+              <div className="w-full flex items-center justify-center">
+                <div className="w-full max-w-[560px] rounded-lg border border-gray-200 overflow-hidden mt-3">
+                  <video
+                    src={previewVideoUrl}
+                    controls
+                    className="w-full h-auto bg-black"
+                  />
+                </div>
+              </div>
+            ) : null}
+
             <CoursesForm
               formData={formData}
               onChange={handleInputChange}
@@ -871,6 +943,19 @@ function CoursesManagement() {
                   </div>
                 );
               })()}
+
+              {/* Course intro video (View modal) */}
+              {selectedItem?.courseIntroVideo ? (
+                <div className="w-full flex items-center justify-center">
+                  <div className="w-full max-w-[560px] rounded-lg border border-gray-200 overflow-hidden">
+                    <video
+                      src={resolveMediaUrl(selectedItem.courseIntroVideo)}
+                      controls
+                      className="w-full h-auto bg-black"
+                    />
+                  </div>
+                </div>
+              ) : null}
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 {Object.entries(selectedItem)

@@ -6,7 +6,7 @@ import Button from "@/components/ui/Button";
 import CourseCard from "@/components/ui/CourseCard";
 import CardSlider from "@/components/ui/CardSlider";
 import { useLanguage } from "../contexts/LanguageContext";
-import courseService from "@/services/courseService";
+import { CourseService } from "@/services/courseService"; // changed
 
 interface RecordedCourse {
   id: string;
@@ -34,16 +34,18 @@ export default function RecordedCoursesSection() {
     const fetchCourses = async () => {
       setLoading(true);
       const type = "Recorded";
-      const res = await courseService.getCoursesByType(type, {
+      const svc = new CourseService(); // use class instance
+      const res = await svc.getCoursesByType(type, {
         page: 1,
         limit: 8,
         sortBy: "createdAt",
-        sortOrder: "DESC",
+        sortOrder: "DESC", // changed to uppercase as API requires ASC|DESC
       });
-      if (res.success && res.data) {
+
+      if (res.success && res.data && Array.isArray(res.data.courses)) {
         setCourses(
           res.data.courses.map((course: any) => ({
-            id: course.id,
+            id: course.id ?? course._id ?? "",
             title: course.title,
             description: course.description,
             instructor: course.instructor?.name || course.instructorId || "",
@@ -51,8 +53,8 @@ export default function RecordedCoursesSection() {
             duration: course.duration,
             price: Number(course.price),
             rating: Number(course.rating),
-            enrolledStudents: course.enrollmentCount,
-            thumbnail: course.thumbnail,
+            enrolledStudents: course.enrollmentCount ?? 0,
+            thumbnail: course.thumbnail ?? null,
             type: "Recorded",
             isRecorded: true,
             category: course.category?.name || course.category || "General",
