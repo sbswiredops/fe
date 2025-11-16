@@ -4,7 +4,6 @@
 import React, { useEffect, useState } from "react";
 import Link from "next/link";
 import Button from "@/components/ui/Button";
-import MainLayout from "@/components/layout/MainLayout";
 import { Course } from "@/components/types";
 import { useLanguage } from "@/components/contexts/LanguageContext";
 import { useEnrolledCourses } from "@/components/contexts/EnrolledCoursesContext";
@@ -13,13 +12,14 @@ import { UserService } from "@/services/userService";
 import { useParams } from "next/navigation";
 import { CourseService } from "@/services/courseService";
 import { useRouter } from "next/navigation";
+import MainLayout from "@/components/layout/MainLayout";
 
 const StarRating = ({ rating }: { rating: number }) => {
   return (
     <div className="flex items-center space-x-1">
       {[1, 2, 3, 4, 5].map((star) => (
         <svg
-          key={star}
+          key={star} // Fixed the closing curly brace
           className={`w-5 h-5 ${
             star <= rating ? "text-yellow-400" : "text-gray-300"
           }`}
@@ -34,12 +34,43 @@ const StarRating = ({ rating }: { rating: number }) => {
   );
 };
 
+// YouTube Video Player Component
+const YouTubePlayer = ({ videoUrl }: { videoUrl: string }) => {
+  const getYouTubeId = (url: string) => {
+    const match = url.match(
+      /(?:youtube\.com\/(?:[^\/]+\/.+\/|(?:v|e(?:mbed)?)\/|.*[?&]v=)|youtu\.be\/)([^"&?\/\s]{11})/
+    );
+    return match ? match[1] : null;
+  };
+
+  const videoId = getYouTubeId(videoUrl);
+
+  if (!videoId) {
+    return (
+      <div className="w-full aspect-video bg-gray-200 rounded-lg flex items-center justify-center">
+        <p className="text-gray-500">Invalid YouTube URL</p>
+      </div>
+    );
+  }
+
+  return (
+    <div className="w-full aspect-video lg:max-w-md lg:mx-auto bg-black rounded-lg overflow-hidden">
+      <iframe
+        src={`https://www.youtube.com/embed/${videoId}`}
+        title="Course Introduction Video"
+        className="w-full h-full"
+        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+        allowFullScreen
+      />
+    </div>
+  );
+};
 const userService = new UserService();
 const courseService = new CourseService();
 
 export default function CourseDetailsPage() {
   const { t } = useLanguage();
-  const { id } = useParams<{ id: string }>();
+  const { id } = useParams(); // Removed the generic type argument
   const { user } = useAuth();
   const router = useRouter();
   const { getById, setCourses } = useEnrolledCourses();
@@ -47,8 +78,8 @@ export default function CourseDetailsPage() {
   const [checkingEnroll, setCheckingEnroll] = useState<boolean>(false);
   const [fetchedCourse, setFetchedCourse] = useState<Course | null>(null);
   const [loadingCourse, setLoadingCourse] = useState<boolean>(true);
-  // Added: FAQ accordion state
   const [openFaqIndex, setOpenFaqIndex] = useState<number | null>(0);
+  const [courseIntroVideo, setCourseIntroVideo] = useState<string>("");
 
   const courseFromContext = getById(String(id)) as any;
   const course = (courseFromContext as Course) || fetchedCourse;
@@ -64,6 +95,7 @@ export default function CourseDetailsPage() {
       try {
         setLoadingCourse(true);
         const res = await courseService.getCourseById(String(id));
+        console.log("Course details response:", res);
         const c = res?.data as any;
         if (!ignore && res?.success && c) {
           const instructorName =
@@ -73,6 +105,7 @@ export default function CourseDetailsPage() {
               .join(" ") ||
             c?.instructorId ||
             "Instructor";
+
           const categoryName =
             c?.category?.name || (c as any)?.category || "General";
           const created = c?.createdAt ? new Date(c.createdAt) : new Date();
@@ -82,6 +115,11 @@ export default function CourseDetailsPage() {
               : typeof c?.duration === "number"
               ? `${c.duration} min`
               : String(c?.duration || "");
+
+          // Extract course intro video URL
+          const introVideo =
+            c?.courseIntroVideo || c?.introVideo || c?.videoUrl || "";
+
           const mapped: Course = {
             id: String(c.id),
             title: String(c.title || ""),
@@ -95,8 +133,10 @@ export default function CourseDetailsPage() {
             enrolledStudents: Number(c.enrollmentCount ?? 0),
             rating: Number(c.rating ?? 0),
             createdAt: created,
+            courseIntroVideo: introVideo,
           };
           setFetchedCourse(mapped);
+          setCourseIntroVideo(introVideo);
         }
       } finally {
         if (!ignore) setLoadingCourse(false);
@@ -143,10 +183,8 @@ export default function CourseDetailsPage() {
         (course as any)?.instructorId ||
         "Instructor";
 
-  // client-side redirect to 404 if course not found after load
   useEffect(() => {
     if (!loadingCourse && !course) {
-      // replace current route with 404 page
       router.replace("/404");
     }
   }, [loadingCourse, course, router]);
@@ -222,8 +260,6 @@ export default function CourseDetailsPage() {
     "Certificate of completion",
   ];
 
-  // Added: extra content data
-
   const targetAudience = [
     "Beginners looking to start in this field",
     "Students who prefer learning by doing",
@@ -262,11 +298,9 @@ export default function CourseDetailsPage() {
     },
   ];
 
-  // Helper: fake rating distribution for the review bars
   const rating = Number(course?.rating ?? 0);
-  const ratingDistribution = [55, 25, 12, 5, 3]; // 5★..1★ example percentages
+  const ratingDistribution = [55, 25, 12, 5, 3];
 
-  // Added: right-side helpers
   const lastUpdated = course?.createdAt
     ? new Date(course.createdAt as any).toLocaleDateString(undefined, {
         year: "numeric",
@@ -290,9 +324,9 @@ export default function CourseDetailsPage() {
 
   return (
     <MainLayout>
-      <div className="min-h-screen   bg-gray-50">
+      <div className="min-h-screen bg-gray-50">
         {/* Hero Section */}
-        <div className="bg-white border-b ">
+        <div className="bg-white border-b">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
             {/* Breadcrumb */}
             <nav className="mb-8">
@@ -311,7 +345,7 @@ export default function CourseDetailsPage() {
               </div>
             </nav>
 
-            <div className="grid lg:grid-cols-3 gap-8 ">
+            <div className="grid lg:grid-cols-3 gap-8">
               {/* Left Column - Course Info */}
               <div className="lg:col-span-2">
                 <div className="mb-6">
@@ -325,6 +359,20 @@ export default function CourseDetailsPage() {
                     {course ? course.description : ""}
                   </p>
                 </div>
+
+                {/* Course Intro Video Section */}
+                {courseIntroVideo && (
+                  <section className="mb-8">
+                    <h2 className="text-2xl font-bold text-gray-900 mb-4">
+                      Course Introduction
+                    </h2>
+                    <YouTubePlayer videoUrl={courseIntroVideo} />
+                    <p className="text-gray-600 mt-2 text-sm">
+                      Watch this introduction to get an overview of what you'll
+                      learn in this course.
+                    </p>
+                  </section>
+                )}
 
                 {/* Course Stats */}
                 <div className="flex flex-wrap items-center gap-6 mb-6">
@@ -370,10 +418,10 @@ export default function CourseDetailsPage() {
               </div>
 
               {/* Right Column - Course Card */}
-              <div className="lg:col-span-1 sm:px-0 md:px-0 lg:px-20 ">
+              <div className="lg:col-span-1 sm:px-0 md:px-0 lg:px-20">
                 <div className="bg-white rounded-xl shadow-lg border border-gray-200 overflow-hidden sticky top-8">
                   {/* Course Image */}
-                  <div className="relative  rounded-t-xl overflow-hidden bg-gray-50 flex items-center justify-center">
+                  <div className="relative rounded-t-xl overflow-hidden bg-gray-50 flex items-center justify-center">
                     {(course as any)?.thumbnail ? (
                       <img
                         src={(course as any).thumbnail}
@@ -381,7 +429,6 @@ export default function CourseDetailsPage() {
                         className="max-w-full max-h-full object-contain"
                         loading="lazy"
                         onError={(e) => {
-                          // hide broken image so fallback is visible
                           (e.target as HTMLImageElement).style.display = "none";
                         }}
                       />
@@ -526,6 +573,22 @@ export default function CourseDetailsPage() {
                           </svg>
                           Mobile and desktop access
                         </li>
+                        {courseIntroVideo && (
+                          <li className="flex items-center">
+                            <svg
+                              className="w-4 h-4 mr-2 text-green-500"
+                              fill="currentColor"
+                              viewBox="0 0 20 20"
+                            >
+                              <path
+                                fillRule="evenodd"
+                                d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+                                clipRule="evenodd"
+                              />
+                            </svg>
+                            Free introduction video
+                          </li>
+                        )}
                       </ul>
                     </div>
                   </div>
@@ -597,7 +660,7 @@ export default function CourseDetailsPage() {
                 </div>
               </section>
 
-              {/* Added: Highlights */}
+              {/* Prerequisites */}
               <section className="bg-white rounded-xl p-6 shadow-sm border border-gray-200">
                 <h2 className="text-2xl font-bold text-gray-900 mb-6">
                   Prerequisites
@@ -624,7 +687,7 @@ export default function CourseDetailsPage() {
                 </ul>
               </section>
 
-              {/* Added: Who is this course for? */}
+              {/* Who is this course for? */}
               <section className="bg-white rounded-xl p-6 shadow-sm border border-gray-200">
                 <h2 className="text-2xl font-bold text-gray-900 mb-6">
                   Who is this course for?
@@ -651,6 +714,7 @@ export default function CourseDetailsPage() {
                 </ul>
               </section>
 
+              {/* About the instructor */}
               <section className="bg-white rounded-xl p-6 shadow-sm border border-gray-200">
                 <h2 className="text-2xl font-bold text-gray-900 mb-6">
                   About the instructor
@@ -689,7 +753,7 @@ export default function CourseDetailsPage() {
                 </div>
               </section>
 
-              {/* Added: Student Reviews */}
+              {/* Student Reviews */}
               <section className="bg-white rounded-xl p-6 shadow-sm border border-gray-200">
                 <h2 className="text-2xl font-bold text-gray-900 mb-6">
                   Student reviews
@@ -760,7 +824,7 @@ export default function CourseDetailsPage() {
                 </div>
               </section>
 
-              {/* Added: FAQs */}
+              {/* FAQs */}
               <section className="bg-white rounded-xl p-6 shadow-sm border border-gray-200">
                 <h2 className="text-2xl font-bold text-gray-900 mb-4">FAQs</h2>
                 <div className="divide-y divide-gray-200">
@@ -768,6 +832,8 @@ export default function CourseDetailsPage() {
                     const open = openFaqIndex === idx;
                     return (
                       <div key={idx}>
+                        {" "}
+                        {/* Ensure unique key */}
                         <button
                           type="button"
                           className="w-full flex items-center justify-between py-4 text-left"
@@ -888,7 +954,7 @@ export default function CourseDetailsPage() {
                   </h2>
                   <ul className="space-y-3">
                     {[
-                      "Complete Beginner’s Guide",
+                      "Complete Beginner's Guide",
                       "Advanced Techniques & Patterns",
                       "Build a Full Project from Scratch",
                     ].map((rc, i) => (
@@ -905,10 +971,10 @@ export default function CourseDetailsPage() {
                   </ul>
                 </section>
 
-                {/* Added: Skills you’ll gain */}
+                {/* Skills you'll gain */}
                 <section className="bg-white rounded-xl p-6 shadow-sm border border-gray-200">
                   <h3 className="text-lg font-semibold text-gray-900 mb-4">
-                    Skills you’ll gain
+                    Skills you'll gain
                   </h3>
                   <div className="flex flex-wrap gap-2">
                     {skillTags.map((tag, i) => (
@@ -922,7 +988,7 @@ export default function CourseDetailsPage() {
                   </div>
                 </section>
 
-                {/* Added: Guarantee & support */}
+                {/* Guarantee & support */}
                 <section className="bg-white rounded-xl p-6 shadow-sm border border-gray-200">
                   <h3 className="text-lg font-semibold text-gray-900 mb-4">
                     Guarantee & support
