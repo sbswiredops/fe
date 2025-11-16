@@ -3,7 +3,7 @@
 import React from "react";
 import Link from "next/link";
 import { useLanguage } from "../contexts/LanguageContext";
-import { Mail, MapPin, Facebook, Instagram, Linkedin } from "lucide-react";
+import { Mail, MapPin, Facebook, Instagram, Linkedin, Youtube } from "lucide-react";
 
 export default function Footer() {
   const { t } = useLanguage();
@@ -33,6 +33,11 @@ export default function Footer() {
       name: "Instagram",
       href: "https://www.instagram.com/shekhabo.insta?",
       icon: Instagram,
+    },
+    {
+      name: "YouTube",
+      href: "https://www.youtube.com/@Shekhabo",
+      icon: Youtube,
     },
     {
       name: "Facebook",
