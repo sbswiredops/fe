@@ -72,58 +72,68 @@ function CourseHeader({
   );
 }
 
-function DetailBox({
-  icon,
-  label,
-  value,
-}: {
-  icon: string;
-  label: string;
-  value: string;
-}): JSX.Element {
-  return (
-    <div className="bg-white rounded-lg p-4 border border-gray-200 text-center hover:shadow-md transition-shadow">
-      <div className="text-3xl mb-2">{icon}</div>
-      <p className="text-xs font-medium text-gray-600 mb-1 uppercase tracking-wide">
-        {label}
-      </p>
-      <p className="text-lg font-bold text-gray-900">{value}</p>
-    </div>
-  );
-}
-
-function CourseDetailsGrid({
+function CourseInfoSection({
   course,
 }: {
   course: CourseDetail;
 }): JSX.Element {
-  const instructorName = String(
-    (course as any)?.instructor?.name ||
-      (course as any)?.instructor?.firstName ||
-      "Expert"
-  );
-
-  const totalLessons = String(
-    (course as any)?.totalLessons ||
-      (Array.isArray(course.sections)
-        ? course.sections.reduce(
-            (sum: number, section: any) =>
-              sum + (Array.isArray(section.lessons) ? section.lessons.length : 0),
-            0
-          )
-        : 0)
-  );
-
   return (
-    <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
-      <DetailBox icon="👨‍🏫" label="Instructor" value={instructorName} />
-      <DetailBox
-        icon="📊"
-        label="Level"
-        value={String(course.level || "All").toUpperCase()}
-      />
-      <DetailBox icon="📚" label="Lessons" value={totalLessons} />
-      <DetailBox icon="🏆" label="Certificate" value="Available" />
+    <div className="mb-8">
+      <div className="flex items-start gap-4 mb-6 bg-green-50 rounded-lg p-4 border border-green-200">
+        <div className="flex-shrink-0">
+          <svg
+            className="w-5 h-5 text-green-600"
+            fill="currentColor"
+            viewBox="0 0 20 20"
+          >
+            <path
+              fillRule="evenodd"
+              d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
+              clipRule="evenodd"
+            />
+          </svg>
+        </div>
+        <div className="flex-1">
+          <p className="text-sm text-gray-700">
+            {String(course.category || "General")} কোর্স - {String(
+              (course as any)?.totalLessons ||
+                (Array.isArray(course.sections)
+                  ? course.sections.reduce(
+                      (sum: number, section: any) =>
+                        sum +
+                        (Array.isArray(section.lessons)
+                          ? section.lessons.length
+                          : 0),
+                      0
+                    )
+                  : 0)
+            )}{" "}
+            পাঠ এবং সম্পূর্ণ প্রশিক্ষণ উপাদান
+          </p>
+        </div>
+      </div>
+
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div className="bg-gray-50 rounded-lg p-4 border border-gray-200">
+          <h3 className="font-semibold text-gray-900 text-sm mb-1">
+            Facebook সাপোর্ট গ্রুপ বিস্তারিত
+          </h3>
+          <p className="text-gray-600 text-xs leading-relaxed">
+            স্পীকার ইংরেজি{String(course.category || "কোর্স")}এ সম্পূর্ণ গাইডলাইন সহ{" "}
+            <a href="#" className="text-blue-500 hover:underline">
+              Facebook সাপোর্ট গ্রুপ
+            </a>
+          </p>
+        </div>
+        <div className="bg-gray-50 rounded-lg p-4 border border-gray-200">
+          <h3 className="font-semibold text-gray-900 text-sm mb-1">
+            স্পীকার ইংরেজি অনুশীলন ক্লাস
+          </h3>
+          <p className="text-gray-600 text-xs leading-relaxed">
+            প্রতি সপ্তাহে ২০০ টি লাইভ ক্লাস করা হয় এবং প্রত্যেকেরই প্রশিক্ষণ দেওয়া হয়
+          </p>
+        </div>
+      </div>
     </div>
   );
 }
@@ -244,7 +254,7 @@ function CourseContents({
 
   return (
     <div className="bg-white rounded-lg p-6 border border-gray-200">
-      <h2 className="text-xl font-bold text-gray-900 mb-6">কোর্স বিষয়বস্ত��</h2>
+      <h2 className="text-xl font-bold text-gray-900 mb-6">কোর্স বিষয়বস্তু</h2>
       <div>
         {sections.map((section: Section) => (
           <AccordionItem
