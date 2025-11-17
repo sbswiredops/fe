@@ -13,6 +13,8 @@ import { useParams } from "next/navigation";
 import { CourseService } from "@/services/courseService";
 import { useRouter } from "next/navigation";
 import MainLayout from "@/components/layout/MainLayout";
+import { Play, BookOpen, Lock, Unlock } from "lucide-react";
+import Accordion from "@/components/ui/Accordion";
 
 const StarRating = ({ rating }: { rating: number }) => {
   return (
@@ -249,89 +251,55 @@ export default function CourseDetailsPage() {
                 {/* Course Content */}
                 <section className="bg-white rounded-xl p-6 shadow-sm border border-gray-200">
                   <h2 className="text-2xl font-bold text-gray-900 mb-6">
-                    Course content
+                    Content preview
                   </h2>
-                  <div className="space-y-4">
-                    {sections.map((section) => (
-                      <div
-                        key={section.id}
-                        className="border border-gray-200 rounded-lg"
-                      >
-                        {/* Section Header */}
-                        <div className="p-4 bg-gray-50 border-b">
-                          <div className="flex items-center justify-between">
-                            <h3 className="font-semibold text-gray-900">
-                              {section.title}
-                            </h3>
-                          </div>
-                        </div>
-
-                        {/* Section Lessons */}
-                        <div className="p-4">
+                  <Accordion
+                    items={sections.map((section) => ({
+                      id: section.id,
+                      title: section.title,
+                      content: (
+                        <div className="space-y-3">
                           {section.lessons && section.lessons.length > 0 ? (
-                            <ul className="space-y-4">
-                              {section.lessons.map((lesson) => (
-                                <li
-                                  key={lesson.id}
-                                  className="border border-gray-200 rounded-lg p-4 flex items-center justify-between"
-                                >
-                                  <div>
-                                    {/* Lesson Title */}
-                                    <h4 className="font-medium text-gray-900">
-                                      {lesson.title}
-                                    </h4>
-                                    <p className="text-sm text-gray-600">
+                            section.lessons.map((lesson) => (
+                              <div
+                                key={lesson.id}
+                                className="flex items-start space-x-3 py-3"
+                              >
+                                <div className="flex-shrink-0 pt-1">
+                                  {lesson.video ? (
+                                    <Play className="w-5 h-5 text-gray-500 fill-gray-500" />
+                                  ) : (
+                                    <BookOpen className="w-5 h-5 text-gray-500" />
+                                  )}
+                                </div>
+                                <div className="flex-grow">
+                                  <h4 className="font-medium text-gray-900">
+                                    {lesson.title}
+                                  </h4>
+                                  {lesson.content && (
+                                    <p className="text-sm text-gray-600 mt-1">
                                       {lesson.content}
                                     </p>
-                                  </div>
-                                  <div className="flex items-center space-x-4">
-                                    {/* Video Link */}
-                                    {lesson.video && (
-                                      <a
-                                        href={lesson.video}
-                                        target="_blank"
-                                        rel="noopener noreferrer"
-                                        className="text-blue-600 hover:underline"
-                                      >
-                                        Video: {lesson.title}
-                                      </a>
-                                    )}
-
-                                    {/* Resource Link */}
-                                    {lesson.resource && (
-                                      <a
-                                        href={lesson.resource}
-                                        target="_blank"
-                                        rel="noopener noreferrer"
-                                        className="text-green-600 hover:underline"
-                                      >
-                                        Flashcard: {lesson.title}
-                                      </a>
-                                    )}
-
-                                    {/* Lock/Unlock */}
-                                    {lesson.isFree ? (
-                                      <span className="text-green-500 font-medium">
-                                        Unlocked
-                                      </span>
-                                    ) : (
-                                      <span className="text-red-500 font-medium">
-                                        Locked
-                                      </span>
-                                    )}
-                                  </div>
-                                </li>
-                              ))}
-                            </ul>
+                                  )}
+                                </div>
+                                <div className="flex-shrink-0 pt-1">
+                                  {lesson.isFree ? (
+                                    <Unlock className="w-5 h-5 text-green-500" />
+                                  ) : (
+                                    <Lock className="w-5 h-5 text-gray-400" />
+                                  )}
+                                </div>
+                              </div>
+                            ))
                           ) : (
-                            <p className="text-gray-600">
+                            <p className="text-gray-600 py-3">
                               No lessons available in this section.
                             </p>
                           )}
                         </div>
-                      </div>
-                    ))}
-                  </div>
+                      ),
+                    }))}
+                  />
                 </section>
               </div>
 
