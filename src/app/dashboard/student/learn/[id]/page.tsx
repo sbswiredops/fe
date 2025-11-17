@@ -440,7 +440,7 @@ export default function Page(): JSX.Element {
         {!isAuthChecking && !error && course && (
           <>
             <CourseHeader course={course} />
-            <CourseDetailsGrid course={course} />
+            <CourseInfoSection course={course} />
             {Array.isArray(course.sections) && course.sections.length > 0 && (
               <CourseContents sections={course.sections} />
             )}
