@@ -544,7 +544,7 @@ export default function Page(): JSX.Element {
             <CourseHeader course={course} />
             <CourseInfoSection course={course} />
             {Array.isArray(course.sections) && course.sections.length > 0 && (
-              <CourseContents sections={course.sections} />
+              <CourseContents sections={course.sections} courseId={id} />
             )}
           </>
         )}
