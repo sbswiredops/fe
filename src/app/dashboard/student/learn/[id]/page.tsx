@@ -149,7 +149,7 @@ function LessonItem({
   section: Section;
   courseId: string;
 }): JSX.Element {
-  const router = require("next/navigation").useRouter();
+  const router = useRouter();
   const [creatorName, setCreatorName] = useState<string>("");
   const [isLoadingCreator, setIsLoadingCreator] = useState(true);
 
@@ -516,7 +516,7 @@ export default function Page(): JSX.Element {
     <DashboardLayout>
       <div className="max-w-6xl mx-auto">
         {isAuthChecking && (
-          <div className="p-8 text-center text-gray-600">লো��� ���চ্ছে...</div>
+          <div className="p-8 text-center text-gray-600">লো��� হচ্ছে...</div>
         )}
 
         {error && !isAuthChecking && (
