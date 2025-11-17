@@ -255,28 +255,7 @@ function AccordionItem({
           {Array.isArray(section.lessons) && section.lessons.length > 0 ? (
             <div className="divide-y divide-gray-200">
               {[...section.lessons].sort((a: Lesson, b: Lesson) => (a.orderIndex || 0) - (b.orderIndex || 0)).map((lesson: Lesson, lessonIdx: number) => (
-                <div key={lesson.id || lessonIdx} className="px-6 py-3">
-                  <div className="flex items-center gap-3">
-                    <svg className="w-4 h-4 text-gray-400 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
-                      <path d="M5 3a2 2 0 00-2 2v2a2 2 0 002 2h2a2 2 0 002-2V5a2 2 0 00-2-2H5zM15 3a2 2 0 00-2 2v2a2 2 0 002 2h2a2 2 0 002-2V5a2 2 0 00-2-2h-2z" />
-                    </svg>
-                    <div className="flex-1 min-w-0">
-                      <h4 className="font-medium text-gray-900 text-sm truncate">
-                        {String(lesson.title || "Untitled")}
-                      </h4>
-                      {lesson.duration && (
-                        <p className="text-xs text-gray-500 mt-0.5">
-                          {String(lesson.duration)} min
-                        </p>
-                      )}
-                    </div>
-                    {lesson.isFree && (
-                      <span className="text-xs bg-green-100 text-green-700 px-2 py-1 rounded whitespace-nowrap">
-                        Free
-                      </span>
-                    )}
-                  </div>
-                </div>
+                <LessonItem key={lesson.id || lessonIdx} lesson={lesson} />
               ))}
             </div>
           ) : (
