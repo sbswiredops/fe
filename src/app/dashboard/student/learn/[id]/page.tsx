@@ -263,11 +263,13 @@ function AccordionItem({
   isOpen,
   onToggle,
   index,
+  courseId,
 }: {
   section: Section;
   isOpen: boolean;
   onToggle: () => void;
   index: number;
+  courseId: string;
 }): JSX.Element {
   const lessonCount = Array.isArray(section.lessons) ? section.lessons.length : 0;
   const colorScheme = iconColors[index % iconColors.length];
