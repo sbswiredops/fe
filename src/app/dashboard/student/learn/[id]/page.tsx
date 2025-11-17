@@ -429,6 +429,7 @@ function CourseContents({
             isOpen={openSections.has(section.id)}
             onToggle={() => toggleSection(section.id)}
             index={index}
+            courseId={courseId}
           />
         ))}
       </div>
