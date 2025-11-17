@@ -12,7 +12,6 @@ const userService = new UserService();
 
 interface CourseDetail extends Course {
   sections?: Section[];
-  totalDuration?: string;
   instructorBio?: string;
 }
 
