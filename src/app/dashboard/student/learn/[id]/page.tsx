@@ -295,8 +295,9 @@ function CourseContents({
 }: {
   sections: Section[];
 }): JSX.Element {
+  const sortedSections = [...sections].sort((a: Section, b: Section) => (a.orderIndex || 0) - (b.orderIndex || 0));
   const [openSections, setOpenSections] = useState<Set<string>>(
-    new Set([sections[0]?.id])
+    new Set([sortedSections[0]?.id])
   );
 
   const toggleSection = (sectionId: string) => {
