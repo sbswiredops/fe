@@ -119,7 +119,7 @@ function CourseInfoSection({
             Facebook সাপোর্ট গ্রুপ বিস্তারিত
           </h3>
           <p className="text-gray-600 text-xs leading-relaxed">
-            স্পীকার ইংরেজি{String(course.category || "��োর্স")}এ সম্পূর্ণ গাইডলাইন সহ{" "}
+            স্পীকার ইংরেজি{String(course.category || "কোর্স")}এ সম্পূর্ণ গাইডলাইন সহ{" "}
             <a href="#" className="text-blue-500 hover:underline">
               Facebook সাপোর্ট গ্রুপ
             </a>
@@ -319,14 +319,15 @@ function CourseContents({
 
   return (
     <div className="bg-white rounded-lg p-6 border border-gray-200">
-      <h2 className="text-xl font-bold text-gray-900 mb-6">কোর্স বিষয়বস্তু</h2>
+      <h2 className="text-xl font-bold text-gray-900 mb-6">কোর্স তথ্যসম</h2>
       <div>
-        {sections.map((section: Section) => (
+        {sections.map((section: Section, index: number) => (
           <AccordionItem
             key={section.id}
             section={section}
             isOpen={openSections.has(section.id)}
             onToggle={() => toggleSection(section.id)}
+            index={index}
           />
         ))}
       </div>
