@@ -254,7 +254,7 @@ function AccordionItem({
         <div className="bg-gray-50 border-t border-gray-200">
           {Array.isArray(section.lessons) && section.lessons.length > 0 ? (
             <div className="divide-y divide-gray-200">
-              {section.lessons.map((lesson: Lesson, lessonIdx: number) => (
+              {[...section.lessons].sort((a: Lesson, b: Lesson) => (a.orderIndex || 0) - (b.orderIndex || 0)).map((lesson: Lesson, lessonIdx: number) => (
                 <div key={lesson.id || lessonIdx} className="px-6 py-3">
                   <div className="flex items-center gap-3">
                     <svg className="w-4 h-4 text-gray-400 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
