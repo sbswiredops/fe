@@ -318,8 +318,6 @@ function CourseContents({
     );
   }
 
-  const sortedSections = [...sections].sort((a: Section, b: Section) => (a.orderIndex || 0) - (b.orderIndex || 0));
-
   return (
     <div className="bg-white rounded-lg p-6 border border-gray-200">
       <h2 className="text-xl font-bold text-gray-900 mb-6">কোর্স তথ্যসম</h2>
