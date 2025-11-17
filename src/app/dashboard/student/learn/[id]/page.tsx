@@ -390,8 +390,10 @@ function AccordionItem({
 
 function CourseContents({
   sections,
+  courseId,
 }: {
   sections: Section[];
+  courseId: string;
 }): JSX.Element {
   const sortedSections = [...sections].sort((a: Section, b: Section) => (a.orderIndex || 0) - (b.orderIndex || 0));
   const [openSections, setOpenSections] = useState<Set<string>>(
