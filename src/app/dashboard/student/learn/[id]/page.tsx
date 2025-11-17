@@ -235,7 +235,7 @@ function LessonViewer({
             <div className="p-4 border-b border-gray-200 bg-white">
               <h3 className="font-semibold text-gray-900 text-sm">{String(section.title)}</h3>
               <p className="text-xs text-gray-500 mt-1">
-                {allLessons.length} পাঠ
+                {allLessons.length} ���াঠ
               </p>
             </div>
 
@@ -514,7 +514,12 @@ function AccordionItem({
           {Array.isArray(section.lessons) && section.lessons.length > 0 ? (
             <div className="divide-y divide-gray-200">
               {[...section.lessons].sort((a: Lesson, b: Lesson) => (a.orderIndex || 0) - (b.orderIndex || 0)).map((lesson: Lesson, lessonIdx: number) => (
-                <LessonItem key={lesson.id || lessonIdx} lesson={lesson} />
+                <LessonItem
+                  key={lesson.id || lessonIdx}
+                  lesson={lesson}
+                  allLessons={section.lessons || []}
+                  section={section}
+                />
               ))}
             </div>
           ) : (
