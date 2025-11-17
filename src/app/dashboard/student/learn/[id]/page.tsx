@@ -254,7 +254,7 @@ function AccordionItem({
         <div className="bg-gray-50 border-t border-gray-200">
           {Array.isArray(section.lessons) && section.lessons.length > 0 ? (
             <div className="divide-y divide-gray-200">
-              {section.lessons.map((lesson: Lesson, lessonIdx: number) => (
+              {[...section.lessons].sort((a: Lesson, b: Lesson) => (a.orderIndex || 0) - (b.orderIndex || 0)).map((lesson: Lesson, lessonIdx: number) => (
                 <div key={lesson.id || lessonIdx} className="px-6 py-3">
                   <div className="flex items-center gap-3">
                     <svg className="w-4 h-4 text-gray-400 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
@@ -295,8 +295,9 @@ function CourseContents({
 }: {
   sections: Section[];
 }): JSX.Element {
+  const sortedSections = [...sections].sort((a: Section, b: Section) => (a.orderIndex || 0) - (b.orderIndex || 0));
   const [openSections, setOpenSections] = useState<Set<string>>(
-    new Set([sections[0]?.id])
+    new Set([sortedSections[0]?.id])
   );
 
   const toggleSection = (sectionId: string) => {
@@ -321,7 +322,7 @@ function CourseContents({
     <div className="bg-white rounded-lg p-6 border border-gray-200">
       <h2 className="text-xl font-bold text-gray-900 mb-6">কোর্স তথ্যসম</h2>
       <div>
-        {sections.map((section: Section, index: number) => (
+        {sortedSections.map((section: Section, index: number) => (
           <AccordionItem
             key={section.id}
             section={section}

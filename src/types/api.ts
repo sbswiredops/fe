@@ -237,6 +237,8 @@ export interface Section {
   quizzes?: Quiz[];
   createdAt: string;
   updatedAt: string;
+  orderIndex?: number;
+
 }
 
 export interface CreateSectionRequest {
