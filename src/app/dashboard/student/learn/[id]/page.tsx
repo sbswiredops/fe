@@ -130,7 +130,7 @@ function CourseInfoSection({
             স্পীকার ইংরেজি অনুশীলন ক্লাস
           </h3>
           <p className="text-gray-600 text-xs leading-relaxed">
-            প্রতি সপ্তাহে ২০০ টি লাইভ ক্লাস করা হয় এবং প্রত্যেকেরই প্রশিক্ষণ দেওয়া হয়
+            প্রতি সপ্তাহে ২০০ টি লাইভ ক্লাস কর�� হয় এবং প্রত্যেকেরই প্রশিক্ষণ দেওয়া হয়
           </p>
         </div>
       </div>
@@ -138,9 +138,161 @@ function CourseInfoSection({
   );
 }
 
-function LessonItem({ lesson }: { lesson: Lesson }): JSX.Element {
+function LessonViewer({
+  lesson,
+  allLessons,
+  section,
+  onClose,
+  onLessonSelect,
+}: {
+  lesson: Lesson;
+  allLessons: Lesson[];
+  section: Section;
+  onClose: () => void;
+  onLessonSelect: (lesson: Lesson) => void;
+}): JSX.Element {
   const [creatorName, setCreatorName] = useState<string>("");
   const [isLoadingCreator, setIsLoadingCreator] = useState(true);
+
+  useEffect(() => {
+    const fetchCreatorName = async () => {
+      if (lesson.createdBy) {
+        try {
+          const response = await userService.getById(lesson.createdBy);
+          if (response.data) {
+            setCreatorName(response.data.name || response.data.email || "Unknown");
+          }
+        } catch (error) {
+          console.error("Failed to fetch creator info:", error);
+          setCreatorName("Unknown");
+        }
+      }
+      setIsLoadingCreator(false);
+    };
+
+    fetchCreatorName();
+  }, [lesson.createdBy]);
+
+  const isVideo = lesson.video && lesson.video.includes("video");
+  const isPDF = lesson.resource && lesson.resource.endsWith(".pdf");
+
+  return (
+    <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
+      <div className="bg-white rounded-lg w-full max-w-6xl h-[90vh] max-h-[90vh] overflow-hidden flex flex-col">
+        <div className="flex items-center justify-between p-4 border-b border-gray-200">
+          <h2 className="text-lg font-bold text-gray-900">{String(lesson.title)}</h2>
+          <button
+            onClick={onClose}
+            className="text-gray-500 hover:text-gray-700 transition-colors"
+          >
+            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+            </svg>
+          </button>
+        </div>
+
+        <div className="flex-1 overflow-hidden flex">
+          <div className="flex-1 flex flex-col overflow-hidden">
+            {lesson.video && (
+              <div className="flex-1 bg-black flex items-center justify-center overflow-hidden">
+                <video
+                  src={lesson.video}
+                  controls
+                  className="w-full h-full object-contain"
+                />
+              </div>
+            )}
+
+            {lesson.resource && !lesson.video && (
+              <div className="flex-1 bg-gray-100 flex items-center justify-center">
+                <iframe
+                  src={lesson.resource}
+                  className="w-full h-full border-none"
+                />
+              </div>
+            )}
+
+            {!lesson.video && !lesson.resource && (
+              <div className="flex-1 bg-gray-50 flex items-center justify-center">
+                <div className="text-center text-gray-500">
+                  <svg className="w-12 h-12 mx-auto mb-2 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4v.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                  </svg>
+                  <p>No content available</p>
+                </div>
+              </div>
+            )}
+
+            <div className="bg-white border-t border-gray-200 p-4 max-h-32 overflow-y-auto">
+              <h3 className="font-semibold text-gray-900 mb-2">বর্ণনা</h3>
+              <p className="text-sm text-gray-600 whitespace-pre-wrap">
+                {String(lesson.content || "No description available")}
+              </p>
+            </div>
+          </div>
+
+          <div className="w-72 border-l border-gray-200 bg-gray-50 flex flex-col overflow-hidden">
+            <div className="p-4 border-b border-gray-200 bg-white">
+              <h3 className="font-semibold text-gray-900 text-sm">{String(section.title)}</h3>
+              <p className="text-xs text-gray-500 mt-1">
+                {allLessons.length} পাঠ
+              </p>
+            </div>
+
+            <div className="flex-1 overflow-y-auto">
+              {[...allLessons]
+                .sort((a: Lesson, b: Lesson) => (a.orderIndex || 0) - (b.orderIndex || 0))
+                .map((l: Lesson) => (
+                  <button
+                    key={l.id}
+                    onClick={() => onLessonSelect(l)}
+                    className={`w-full text-left px-4 py-3 border-b border-gray-200 hover:bg-white transition-colors ${
+                      l.id === lesson.id ? "bg-blue-50 border-l-4 border-l-blue-500" : ""
+                    }`}
+                  >
+                    <div className="flex items-start gap-2">
+                      {l.video ? (
+                        <svg className="w-4 h-4 text-blue-500 flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
+                          <path d="M2 6a2 2 0 012-2h12a2 2 0 012 2v8a2 2 0 01-2 2H4a2 2 0 01-2-2V6zm12 .5a.5.5 0 01.5.5v5a.5.5 0 01-.5.5H6a.5.5 0 01-.5-.5V7a.5.5 0 01.5-.5h8z" />
+                        </svg>
+                      ) : (
+                        <svg className="w-4 h-4 text-orange-500 flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
+                          <path fillRule="evenodd" d="M8 4a2 2 0 012-2h4a1 1 0 01.894.553l1.5 3a1 1 0 01-.894 1.447h-.5a1 1 0 00-.894.553l-.5 1a1 1 0 01-.894.553H9a1 1 0 00-.894.553l-1 2A1 1 0 007 12h-.5a1 1 0 01-.894-.553l-1-2A1 1 0 004 9V4z" clipRule="evenodd" />
+                        </svg>
+                      )}
+                      <div className="flex-1 min-w-0">
+                        <p className="font-medium text-gray-900 text-sm truncate">
+                          {String(l.title)}
+                        </p>
+                        {l.duration && (
+                          <p className="text-xs text-gray-500">
+                            {String(l.duration)} মিনিট
+                          </p>
+                        )}
+                      </div>
+                    </div>
+                  </button>
+                ))}
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function LessonItem({
+  lesson,
+  allLessons,
+  section,
+}: {
+  lesson: Lesson;
+  allLessons: Lesson[];
+  section: Section;
+}): JSX.Element {
+  const [creatorName, setCreatorName] = useState<string>("");
+  const [isLoadingCreator, setIsLoadingCreator] = useState(true);
+  const [selectedLesson, setSelectedLesson] = useState<Lesson | null>(null);
 
   useEffect(() => {
     const fetchCreatorName = async () => {
@@ -166,77 +318,82 @@ function LessonItem({ lesson }: { lesson: Lesson }): JSX.Element {
   };
 
   return (
-    <div className="px-6 py-4 hover:bg-gray-50 transition-colors">
-      <div className="flex items-start gap-3 mb-3">
-        <svg className="w-4 h-4 text-gray-400 flex-shrink-0 mt-1" fill="currentColor" viewBox="0 0 20 20">
-          <path d="M5 3a2 2 0 00-2 2v2a2 2 0 002 2h2a2 2 0 002-2V5a2 2 0 00-2-2H5zM15 3a2 2 0 00-2 2v2a2 2 0 002 2h2a2 2 0 002-2V5a2 2 0 00-2-2h-2z" />
-        </svg>
-        <div className="flex-1 min-w-0">
-          <h4 className="font-medium text-gray-900 text-sm">
-            {String(lesson.title || "Untitled")}
-          </h4>
-          {lesson.duration && (
-            <p className="text-xs text-gray-500 mt-0.5">
-              {String(lesson.duration)} min
-            </p>
+    <>
+      <div className="px-6 py-4 hover:bg-gray-50 transition-colors">
+        <div className="flex items-start gap-3 mb-3">
+          <svg className="w-4 h-4 text-gray-400 flex-shrink-0 mt-1" fill="currentColor" viewBox="0 0 20 20">
+            <path d="M5 3a2 2 0 00-2 2v2a2 2 0 002 2h2a2 2 0 002-2V5a2 2 0 00-2-2H5zM15 3a2 2 0 00-2 2v2a2 2 0 002 2h2a2 2 0 002-2V5a2 2 0 00-2-2h-2z" />
+          </svg>
+          <div className="flex-1 min-w-0">
+            <h4 className="font-medium text-gray-900 text-sm">
+              {String(lesson.title || "Untitled")}
+            </h4>
+            {lesson.duration && (
+              <p className="text-xs text-gray-500 mt-0.5">
+                {String(lesson.duration)} min
+              </p>
+            )}
+          </div>
+          {lesson.isFree && (
+            <span className="text-xs bg-green-100 text-green-700 px-2 py-1 rounded whitespace-nowrap flex-shrink-0">
+              Free
+            </span>
           )}
         </div>
-        {lesson.isFree && (
-          <span className="text-xs bg-green-100 text-green-700 px-2 py-1 rounded whitespace-nowrap flex-shrink-0">
-            Free
-          </span>
-        )}
-      </div>
 
-      <div className="ml-7 space-y-2">
-        {lesson.video && (
-          <div className="flex items-center gap-2 text-xs">
-            <svg className="w-4 h-4 text-blue-500 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
-              <path d="M2 6a2 2 0 012-2h12a2 2 0 012 2v8a2 2 0 01-2 2H4a2 2 0 01-2-2V6zm12 .5a.5.5 0 01.5.5v5a.5.5 0 01-.5.5H6a.5.5 0 01-.5-.5V7a.5.5 0 01.5-.5h8z" />
-            </svg>
-            <a
-              href={lesson.video}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="text-blue-600 hover:underline"
+        <div className="ml-7 space-y-2">
+          {lesson.video && (
+            <button
+              onClick={() => setSelectedLesson(lesson)}
+              className="flex items-center gap-2 text-xs text-blue-600 hover:underline cursor-pointer"
             >
+              <svg className="w-4 h-4 text-blue-500 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                <path d="M2 6a2 2 0 012-2h12a2 2 0 012 2v8a2 2 0 01-2 2H4a2 2 0 01-2-2V6zm12 .5a.5.5 0 01.5.5v5a.5.5 0 01-.5.5H6a.5.5 0 01-.5-.5V7a.5.5 0 01.5-.5h8z" />
+              </svg>
               Watch Video
-            </a>
-          </div>
-        )}
+            </button>
+          )}
 
-        {lesson.resource && (
-          <div className="flex items-center gap-2 text-xs">
-            <svg className="w-4 h-4 text-red-500 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
-              <path fillRule="evenodd" d="M8 4a2 2 0 012-2h4a1 1 0 01.894.553l1.5 3a1 1 0 01-.894 1.447h-.5a1 1 0 00-.894.553l-.5 1a1 1 0 01-.894.553H9a1 1 0 00-.894.553l-1 2A1 1 0 007 12h-.5a1 1 0 01-.894-.553l-1-2A1 1 0 004 9V4z" clipRule="evenodd" />
-            </svg>
-            <a
-              href={lesson.resource}
-              download
-              className="text-blue-600 hover:underline"
+          {lesson.resource && (
+            <button
+              onClick={() => setSelectedLesson(lesson)}
+              className="flex items-center gap-2 text-xs text-blue-600 hover:underline cursor-pointer"
             >
+              <svg className="w-4 h-4 text-red-500 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                <path fillRule="evenodd" d="M8 4a2 2 0 012-2h4a1 1 0 01.894.553l1.5 3a1 1 0 01-.894 1.447h-.5a1 1 0 00-.894.553l-.5 1a1 1 0 01-.894.553H9a1 1 0 00-.894.553l-1 2A1 1 0 007 12h-.5a1 1 0 01-.894-.553l-1-2A1 1 0 004 9V4z" clipRule="evenodd" />
+              </svg>
               {getFileName(lesson.resource)}
-            </a>
-          </div>
-        )}
+            </button>
+          )}
 
-        {lesson.createdBy && (
-          <div className="flex items-center gap-2 text-xs text-gray-600 pt-1 border-t border-gray-200">
-            <svg className="w-4 h-4 text-gray-400 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
-              <path fillRule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clipRule="evenodd" />
-            </svg>
-            <span>
-              By{" "}
-              {isLoadingCreator ? (
-                <span className="text-gray-400">Loading...</span>
-              ) : (
-                <span className="font-medium text-gray-700">{creatorName}</span>
-              )}
-            </span>
-          </div>
-        )}
+          {lesson.createdBy && (
+            <div className="flex items-center gap-2 text-xs text-gray-600 pt-1 border-t border-gray-200">
+              <svg className="w-4 h-4 text-gray-400 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                <path fillRule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clipRule="evenodd" />
+              </svg>
+              <span>
+                By{" "}
+                {isLoadingCreator ? (
+                  <span className="text-gray-400">Loading...</span>
+                ) : (
+                  <span className="font-medium text-gray-700">{creatorName}</span>
+                )}
+              </span>
+            </div>
+          )}
+        </div>
       </div>
-    </div>
+
+      {selectedLesson && (
+        <LessonViewer
+          lesson={selectedLesson}
+          allLessons={allLessons}
+          section={section}
+          onClose={() => setSelectedLesson(null)}
+          onLessonSelect={setSelectedLesson}
+        />
+      )}
+    </>
   );
 }
 
