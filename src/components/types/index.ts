@@ -25,17 +25,17 @@ export interface Course {
   id: string;
   title: string;
   description: string;
-  thumbnail?: string;
-  courseIntroVideo?: string;
+  instructor: string;
+  instructorId: string;
   price: number;
   duration: string;
-  enrollmentCount?: number;
-  rating?: number;
-  instructor?: string;
-  instructorId?: string;
-  category?: string | { name: string };
-  createdAt?: Date;
-  sections: Section[]; // <-- Add this line
+  thumbnail: string;
+  category: string;
+  rating: number;
+  sections: any[];
+  courseIntroVideo: string;
+  enrollmentCount: number;
+  createdAt: Date; // Add this line
 }
 
 export interface LiveClass {

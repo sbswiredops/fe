@@ -8,6 +8,9 @@ import MainLayout from "@/components/layout/MainLayout";
 import Button from "@/components/ui/Button";
 import { useLanguage } from "@/components/contexts/LanguageContext";
 import { Course } from "@/components/types";
+
+// Extend Course type to include enrolledStudents if not present
+type ExtendedCourse = Course & { enrolledStudents: number };
 import { useSearchParams } from "next/navigation";
 import { courseService } from "@/services/courseService";
 import { categoryService } from "@/services/categoryService";
@@ -17,10 +20,9 @@ export enum CourseType {
   RECORDED = "Recorded",
   FREE_LIVE = "Free Live",
   UPCOMING_LIVE = "Upcoming Live",
-  FEATURED = "Featured",
 }
 
-type CourseWithType = Course & { type: CourseType };
+type CourseWithType = ExtendedCourse & { type: CourseType };
 
 function normalizeType(input?: string | null): CourseType | "all" {
   if (!input) return "all";
@@ -91,7 +93,10 @@ function AllCoursesClient() {
         enrolledStudents: Number(c.enrollmentCount ?? 0),
         rating: Number(c.rating ?? 0),
         createdAt: created,
+        sections: c.sections ?? [],
         type,
+        courseIntroVideo: c.courseIntroVideo ?? "", // Ensure this is always a string
+        enrollmentCount: c.enrollmentCount ?? 0, // Ensure this is always a number
       } as CourseWithType;
     };
 
@@ -146,7 +151,7 @@ function AllCoursesClient() {
         c.description.toLowerCase().includes(query.toLowerCase());
       const matchesCategory =
         selectedCategories.length === 0 ||
-        selectedCategories.includes(c.category);
+        selectedCategories.includes(String(c.category ?? ""));
       const matchesFree = !showFreeOnly || c.price === 0;
       return matchesType && matchesQuery && matchesCategory && matchesFree;
     });
@@ -159,12 +164,13 @@ function AllCoursesClient() {
         result.sort((a, b) => b.price - a.price);
         break;
       case "rating":
-        result.sort((a, b) => b.rating - a.rating);
+        result.sort((a, b) => (b.rating ?? 0) - (a.rating ?? 0));
         break;
       case "newest":
         result.sort(
           (a, b) =>
-            new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+            new Date(b.createdAt ?? 0).getTime() -
+            new Date(a.createdAt ?? 0).getTime()
         );
         break;
       default:

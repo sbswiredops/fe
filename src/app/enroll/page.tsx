@@ -53,7 +53,12 @@ export default function EnrollPage() {
               .join(" ") ||
             c?.instructorId ||
             "Instructor";
-          const categoryName = c?.category?.name || c?.category || "General";
+          const categoryName =
+            typeof c?.category === "object" && c?.category?.name
+              ? c.category.name
+              : typeof c?.category === "string"
+              ? c.category
+              : "General";
           const created = c?.createdAt ? new Date(c.createdAt) : new Date();
           const durationStr =
             typeof c?.totalDuration === "string" && c?.totalDuration
@@ -75,6 +80,7 @@ export default function EnrollPage() {
             enrolledStudents: Number(c.enrollmentCount ?? 0),
             rating: Number(c.rating ?? 0),
             createdAt: created,
+            sections: Array.isArray(c.sections) ? c.sections : [], // Add sections property
           };
           setCourse(mapped);
         }
@@ -197,7 +203,7 @@ export default function EnrollPage() {
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-6 items-start">
                   <div className="relative">
                     <Image
-                      src={course.thumbnail}
+                      src={course.thumbnail ?? "/placeholder-course.jpg"}
                       alt={course.title}
                       className="course-thumbnail w-full"
                       width={800}
@@ -205,7 +211,11 @@ export default function EnrollPage() {
                       priority
                     />
                     <div className="absolute top-3 left-3 price-badge">
-                      {course.category}
+                      {typeof course.category === "string"
+                        ? course.category
+                        : typeof course.category === "object" && course.category?.name
+                        ? course.category.name
+                        : ""}
                     </div>
                   </div>
 
@@ -329,3 +339,4 @@ export default function EnrollPage() {
     </MainLayout>
   );
 }
+

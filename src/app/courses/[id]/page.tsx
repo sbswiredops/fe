@@ -13,8 +13,10 @@ import { useParams } from "next/navigation";
 import { CourseService } from "@/services/courseService";
 import { useRouter } from "next/navigation";
 import MainLayout from "@/components/layout/MainLayout";
-import { Play, BookOpen, Lock, Unlock } from "lucide-react";
 import Accordion from "@/components/ui/Accordion";
+import LoginPrompt from "@/components/ui/LoginPrompt";
+import { Play, BookOpen, Lock, Unlock } from "lucide-react";
+import VideoModal from "@/components/ui/VideoModal";
 
 const StarRating = ({ rating }: { rating: number }) => {
   return (
@@ -72,10 +74,17 @@ const courseService = new CourseService();
 
 export default function CourseDetailsPage() {
   const { id } = useParams();
-  const { user } = useAuth();
+  const { user, isLoading: authLoading } = useAuth();
   const router = useRouter();
+  const { getById: getEnrolledCourse } = useEnrolledCourses();
   const [fetchedCourse, setFetchedCourse] = useState<Course | null>(null);
   const [loadingCourse, setLoadingCourse] = useState<boolean>(true);
+  const [isEnrolled, setIsEnrolled] = useState<boolean>(false);
+  const [videoModalOpen, setVideoModalOpen] = useState<boolean>(false);
+  const [selectedVideoUrl, setSelectedVideoUrl] = useState<string>("");
+  const [selectedVideoTitle, setSelectedVideoTitle] = useState<string>("");
+  const [loginPromptOpen, setLoginPromptOpen] = useState<boolean>(false);
+  const [loginRedirectUrl, setLoginRedirectUrl] = useState<string>("");
 
   useEffect(() => {
     let ignore = false;
@@ -86,37 +95,8 @@ export default function CourseDetailsPage() {
 
         const res = await courseService.getCourseById(String(id));
 
-        console.log("📥 API Raw Response:", JSON.stringify(res, null, 2));
-
         if (!ignore && res?.success && res?.data) {
           const course = res.data;
-
-          // DEBUG: show course with sections + lessons clearly
-          console.log(
-            "📚 Course Full Data:",
-            JSON.stringify(
-              {
-                id: course.id,
-                title: course.title,
-                sections: course.sections,
-              },
-              null,
-              2
-            )
-          );
-
-          // DEBUG: show only sections
-          console.log("📌 Sections:", JSON.stringify(course.sections, null, 2));
-
-          // DEBUG: show lessons of each section
-          if (Array.isArray(course.sections)) {
-            course.sections.forEach((sec, index) => {
-              console.log(
-                `🎯 Section ${index + 1} → ${sec.title} Lessons:`,
-                JSON.stringify(sec.lessons ?? [], null, 2)
-              );
-            });
-          }
 
           const courseData = {
             ...course,
@@ -152,12 +132,11 @@ export default function CourseDetailsPage() {
                   lessons: Array.isArray(sec.lessons) ? sec.lessons : [],
                 }))
               : [],
-          };
 
-          console.log(
-            "✅ Final Course Set to State:",
-            JSON.stringify(courseData, null, 2)
-          );
+            thumbnail: course.thumbnail ?? "", // Ensure thumbnail is always a string
+
+            courseIntroVideo: course.courseIntroVideo ?? "", // Ensure courseIntroVideo is always a string
+          };
 
           setFetchedCourse(courseData);
         }
@@ -171,7 +150,19 @@ export default function CourseDetailsPage() {
     };
   }, [id]);
 
-  if (loadingCourse) {
+  // Check enrollment and redirect if enrolled
+  useEffect(() => {
+    if (authLoading || !fetchedCourse || !user) return;
+
+    const enrolledCourse = getEnrolledCourse(String(id));
+
+    if (enrolledCourse) {
+      setIsEnrolled(true);
+      router.push(`/dashboard/student/learn/${id}`);
+    }
+  }, [id, user, fetchedCourse, authLoading, getEnrolledCourse, router]);
+
+  if (loadingCourse || authLoading) {
     return <div>Loading...</div>;
   }
 
@@ -179,6 +170,24 @@ export default function CourseDetailsPage() {
     router.replace("/404");
     return null;
   }
+
+  // Handle lesson click (video or resource)
+  const handleLessonClick = (lesson: any, type: "video" | "resource") => {
+    if (!user) {
+      // Not logged in - show login prompt
+      setLoginRedirectUrl(`/courses/${id}`);
+      setLoginPromptOpen(true);
+      return;
+    }
+
+    if (type === "video" && lesson.video) {
+      setSelectedVideoUrl(lesson.video);
+      setSelectedVideoTitle(lesson.title);
+      setVideoModalOpen(true);
+    } else if (type === "resource" && lesson.resource) {
+      window.open(lesson.resource, "_blank");
+    }
+  };
 
   const {
     title,
@@ -260,37 +269,75 @@ export default function CourseDetailsPage() {
                       content: (
                         <div className="space-y-3">
                           {section.lessons && section.lessons.length > 0 ? (
-                            section.lessons.map((lesson) => (
-                              <div
-                                key={lesson.id}
-                                className="flex items-start space-x-3 py-3"
-                              >
-                                <div className="flex-shrink-0 pt-1">
-                                  {lesson.video ? (
-                                    <Play className="w-5 h-5 text-gray-500 fill-gray-500" />
-                                  ) : (
-                                    <BookOpen className="w-5 h-5 text-gray-500" />
-                                  )}
+                            section.lessons.map((lesson: any) => {
+                              const canAccess = user && lesson.isFree;
+                              const isLocked = !lesson.isFree && !isEnrolled;
+
+                              return (
+                                <div
+                                  key={lesson.id}
+                                  className="flex items-start space-x-3 py-3 hover:bg-white transition-colors rounded px-2"
+                                >
+                                  <div className="flex-shrink-0 pt-1">
+                                    {lesson.video ? (
+                                      <Play className="w-5 h-5 text-gray-500 fill-gray-500" />
+                                    ) : (
+                                      <BookOpen className="w-5 h-5 text-gray-500" />
+                                    )}
+                                  </div>
+                                  <div className="flex-grow">
+                                    <h4 className="font-medium text-gray-900">
+                                      {lesson.title}
+                                    </h4>
+                                    {lesson.content && (
+                                      <p className="text-sm text-gray-600 mt-1">
+                                        {lesson.content}
+                                      </p>
+                                    )}
+                                  </div>
+                                  <div className="flex-shrink-0 flex items-center space-x-2">
+                                    {/* Action Button */}
+                                    {lesson.video && (
+                                      <button
+                                        onClick={() =>
+                                          handleLessonClick(lesson, "video")
+                                        }
+                                        disabled={isLocked}
+                                        className={`px-3 py-1 rounded text-xs font-medium transition-colors ${
+                                          isLocked
+                                            ? "bg-gray-100 text-gray-400 cursor-not-allowed"
+                                            : "bg-blue-50 text-blue-600 hover:bg-blue-100"
+                                        }`}
+                                      >
+                                        Play
+                                      </button>
+                                    )}
+                                    {lesson.resource && (
+                                      <button
+                                        onClick={() =>
+                                          handleLessonClick(lesson, "resource")
+                                        }
+                                        disabled={isLocked}
+                                        className={`px-3 py-1 rounded text-xs font-medium transition-colors ${
+                                          isLocked
+                                            ? "bg-gray-100 text-gray-400 cursor-not-allowed"
+                                            : "bg-green-50 text-green-600 hover:bg-green-100"
+                                        }`}
+                                      >
+                                        Open
+                                      </button>
+                                    )}
+
+                                    {/* Lock/Unlock Icon */}
+                                    {isLocked ? (
+                                      <Lock className="w-5 h-5 text-gray-400" />
+                                    ) : lesson.isFree ? (
+                                      <Unlock className="w-5 h-5 text-green-500" />
+                                    ) : null}
+                                  </div>
                                 </div>
-                                <div className="flex-grow">
-                                  <h4 className="font-medium text-gray-900">
-                                    {lesson.title}
-                                  </h4>
-                                  {lesson.content && (
-                                    <p className="text-sm text-gray-600 mt-1">
-                                      {lesson.content}
-                                    </p>
-                                  )}
-                                </div>
-                                <div className="flex-shrink-0 pt-1">
-                                  {lesson.isFree ? (
-                                    <Unlock className="w-5 h-5 text-green-500" />
-                                  ) : (
-                                    <Lock className="w-5 h-5 text-gray-400" />
-                                  )}
-                                </div>
-                              </div>
-                            ))
+                              );
+                            })
                           ) : (
                             <p className="text-gray-600 py-3">
                               No lessons available in this section.
@@ -404,6 +451,21 @@ export default function CourseDetailsPage() {
           </div>
         </div>
       </div>
+
+      {/* Video Modal */}
+      <VideoModal
+        isOpen={videoModalOpen}
+        onClose={() => setVideoModalOpen(false)}
+        videoUrl={selectedVideoUrl}
+        title={selectedVideoTitle}
+      />
+
+      {/* Login Prompt Modal */}
+      <LoginPrompt
+        isOpen={loginPromptOpen}
+        onClose={() => setLoginPromptOpen(false)}
+        redirectUrl={loginRedirectUrl}
+      />
     </MainLayout>
   );
 }
