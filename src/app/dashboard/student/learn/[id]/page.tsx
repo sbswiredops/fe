@@ -1,7 +1,7 @@
 "use client";
 
 import React, { JSX, useEffect, useState } from "react";
-import { useParams } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 import DashboardLayout from "@/components/layout/DashboardLayout";
 import { UserService } from "@/services/userService";
 import { useAuth } from "@/components/contexts/AuthContext";
@@ -130,9 +130,121 @@ function CourseInfoSection({
             স্পীকার ইংরেজি অনুশীলন ক্লাস
           </h3>
           <p className="text-gray-600 text-xs leading-relaxed">
-            প্রতি সপ্তাহে ২০০ টি লাইভ ক্লাস করা হয় এবং প্রত্যেকেরই প্রশিক্ষণ দেওয়া হয়
+            প্রতি সপ্তাহে ২০০ টি লাইভ ক্লাস কর�� হয় এবং প্রত্যেকেরই প্রশিক্ষণ দেওয়া হয়
           </p>
         </div>
+      </div>
+    </div>
+  );
+}
+
+function LessonItem({
+  lesson,
+  allLessons,
+  section,
+  courseId,
+}: {
+  lesson: Lesson;
+  allLessons: Lesson[];
+  section: Section;
+  courseId: string;
+}): JSX.Element {
+  const router = useRouter();
+  const [creatorName, setCreatorName] = useState<string>("");
+  const [isLoadingCreator, setIsLoadingCreator] = useState(true);
+
+  useEffect(() => {
+    const fetchCreatorName = async () => {
+      if (lesson.createdBy) {
+        try {
+          const response = await userService.getById(lesson.createdBy);
+          if (response.data) {
+            setCreatorName(response.data.name || response.data.email || "Unknown");
+          }
+        } catch (error) {
+          console.error("Failed to fetch creator info:", error);
+          setCreatorName("Unknown");
+        }
+      }
+      setIsLoadingCreator(false);
+    };
+
+    fetchCreatorName();
+  }, [lesson.createdBy]);
+
+  const getFileName = (path: string) => {
+    return path.split("/").pop() || "Download";
+  };
+
+  const handleOpenLesson = () => {
+    router.push(
+      `/dashboard/student/learn/lesson/${lesson.id}?courseId=${courseId}&sectionId=${section.id}`
+    );
+  };
+
+  return (
+    <div className="px-6 py-4 hover:bg-gray-50 transition-colors">
+      <div className="flex items-start gap-3 mb-3">
+        <svg className="w-4 h-4 text-gray-400 flex-shrink-0 mt-1" fill="currentColor" viewBox="0 0 20 20">
+          <path d="M5 3a2 2 0 00-2 2v2a2 2 0 002 2h2a2 2 0 002-2V5a2 2 0 00-2-2H5zM15 3a2 2 0 00-2 2v2a2 2 0 002 2h2a2 2 0 002-2V5a2 2 0 00-2-2h-2z" />
+        </svg>
+        <div className="flex-1 min-w-0">
+          <h4 className="font-medium text-gray-900 text-sm">
+            {String(lesson.title || "Untitled")}
+          </h4>
+          {lesson.duration && (
+            <p className="text-xs text-gray-500 mt-0.5">
+              {String(lesson.duration)} min
+            </p>
+          )}
+        </div>
+        {lesson.isFree && (
+          <span className="text-xs bg-green-100 text-green-700 px-2 py-1 rounded whitespace-nowrap flex-shrink-0">
+            Free
+          </span>
+        )}
+      </div>
+
+      <div className="ml-7 space-y-2">
+        {lesson.video && (
+          <button
+            onClick={handleOpenLesson}
+            className="flex items-center gap-2 text-xs text-blue-600 hover:underline cursor-pointer"
+          >
+            <svg className="w-4 h-4 text-blue-500 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+              <path d="M2 6a2 2 0 012-2h12a2 2 0 012 2v8a2 2 0 01-2 2H4a2 2 0 01-2-2V6zm12 .5a.5.5 0 01.5.5v5a.5.5 0 01-.5.5H6a.5.5 0 01-.5-.5V7a.5.5 0 01.5-.5h8z" />
+            </svg>
+            Watch Video
+          </button>
+        )}
+
+        {lesson.resource && (
+          <button
+            onClick={handleOpenLesson}
+            className="flex items-center gap-2 text-xs text-blue-600 hover:underline cursor-pointer"
+          >
+            <svg className="w-4 h-4 text-red-500 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+              <path fillRule="evenodd" d="M8 4a2 2 0 012-2h4a1 1 0 01.894.553l1.5 3a1 1 0 01-.894 1.447h-.5a1 1 0 00-.894.553l-.5 1a1 1 0 01-.894.553H9a1 1 0 00-.894.553l-1 2A1 1 0 007 12h-.5a1 1 0 01-.894-.553l-1-2A1 1 0 004 9V4z" clipRule="evenodd" />
+            </svg>
+            {getFileName(lesson.resource)}
+          </button>
+        )}
+
+        {lesson.createdBy && (
+          <div className="flex items-center gap-2 text-xs text-gray-600 pt-1 border-t border-gray-200">
+            <svg className="w-4 h-4 text-gray-400 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+              <path fillRule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clipRule="evenodd" />
+            </svg>
+            <span>
+              By{" "}
+              {isLoadingCreator ? (
+                <span className="text-gray-400">Loading...</span>
+              ) : (
+                <span className="font-medium text-gray-700">{creatorName}</span>
+              )}
+            </span>
+          </div>
+        )}
       </div>
     </div>
   );
@@ -255,28 +367,13 @@ function AccordionItem({
           {Array.isArray(section.lessons) && section.lessons.length > 0 ? (
             <div className="divide-y divide-gray-200">
               {[...section.lessons].sort((a: Lesson, b: Lesson) => (a.orderIndex || 0) - (b.orderIndex || 0)).map((lesson: Lesson, lessonIdx: number) => (
-                <div key={lesson.id || lessonIdx} className="px-6 py-3">
-                  <div className="flex items-center gap-3">
-                    <svg className="w-4 h-4 text-gray-400 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
-                      <path d="M5 3a2 2 0 00-2 2v2a2 2 0 002 2h2a2 2 0 002-2V5a2 2 0 00-2-2H5zM15 3a2 2 0 00-2 2v2a2 2 0 002 2h2a2 2 0 002-2V5a2 2 0 00-2-2h-2z" />
-                    </svg>
-                    <div className="flex-1 min-w-0">
-                      <h4 className="font-medium text-gray-900 text-sm truncate">
-                        {String(lesson.title || "Untitled")}
-                      </h4>
-                      {lesson.duration && (
-                        <p className="text-xs text-gray-500 mt-0.5">
-                          {String(lesson.duration)} min
-                        </p>
-                      )}
-                    </div>
-                    {lesson.isFree && (
-                      <span className="text-xs bg-green-100 text-green-700 px-2 py-1 rounded whitespace-nowrap">
-                        Free
-                      </span>
-                    )}
-                  </div>
-                </div>
+                <LessonItem
+                  key={lesson.id || lessonIdx}
+                  lesson={lesson}
+                  allLessons={section.lessons || []}
+                  section={section}
+                  courseId={String(courseId || "")}
+                />
               ))}
             </div>
           ) : (
@@ -419,7 +516,7 @@ export default function Page(): JSX.Element {
     <DashboardLayout>
       <div className="max-w-6xl mx-auto">
         {isAuthChecking && (
-          <div className="p-8 text-center text-gray-600">লোড হচ্ছে...</div>
+          <div className="p-8 text-center text-gray-600">লো��� হচ্ছে...</div>
         )}
 
         {error && !isAuthChecking && (
