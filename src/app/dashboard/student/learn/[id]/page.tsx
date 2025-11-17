@@ -1,7 +1,7 @@
 "use client";
 
 import React, { JSX, useEffect, useState } from "react";
-import { useParams } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 import DashboardLayout from "@/components/layout/DashboardLayout";
 import { UserService } from "@/services/userService";
 import { useAuth } from "@/components/contexts/AuthContext";
@@ -516,7 +516,7 @@ export default function Page(): JSX.Element {
     <DashboardLayout>
       <div className="max-w-6xl mx-auto">
         {isAuthChecking && (
-          <div className="p-8 text-center text-gray-600">লো��� হচ্ছে...</div>
+          <div className="p-8 text-center text-gray-600">লো��� ���চ্ছে...</div>
         )}
 
         {error && !isAuthChecking && (
