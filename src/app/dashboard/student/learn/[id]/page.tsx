@@ -138,6 +138,108 @@ function CourseInfoSection({
   );
 }
 
+function LessonItem({ lesson }: { lesson: Lesson }): JSX.Element {
+  const [creatorName, setCreatorName] = useState<string>("");
+  const [isLoadingCreator, setIsLoadingCreator] = useState(true);
+
+  useEffect(() => {
+    const fetchCreatorName = async () => {
+      if (lesson.createdBy) {
+        try {
+          const response = await userService.getById(lesson.createdBy);
+          if (response.data) {
+            setCreatorName(response.data.name || response.data.email || "Unknown");
+          }
+        } catch (error) {
+          console.error("Failed to fetch creator info:", error);
+          setCreatorName("Unknown");
+        }
+      }
+      setIsLoadingCreator(false);
+    };
+
+    fetchCreatorName();
+  }, [lesson.createdBy]);
+
+  const getFileName = (path: string) => {
+    return path.split("/").pop() || "Download";
+  };
+
+  return (
+    <div className="px-6 py-4 hover:bg-gray-50 transition-colors">
+      <div className="flex items-start gap-3 mb-3">
+        <svg className="w-4 h-4 text-gray-400 flex-shrink-0 mt-1" fill="currentColor" viewBox="0 0 20 20">
+          <path d="M5 3a2 2 0 00-2 2v2a2 2 0 002 2h2a2 2 0 002-2V5a2 2 0 00-2-2H5zM15 3a2 2 0 00-2 2v2a2 2 0 002 2h2a2 2 0 002-2V5a2 2 0 00-2-2h-2z" />
+        </svg>
+        <div className="flex-1 min-w-0">
+          <h4 className="font-medium text-gray-900 text-sm">
+            {String(lesson.title || "Untitled")}
+          </h4>
+          {lesson.duration && (
+            <p className="text-xs text-gray-500 mt-0.5">
+              {String(lesson.duration)} min
+            </p>
+          )}
+        </div>
+        {lesson.isFree && (
+          <span className="text-xs bg-green-100 text-green-700 px-2 py-1 rounded whitespace-nowrap flex-shrink-0">
+            Free
+          </span>
+        )}
+      </div>
+
+      <div className="ml-7 space-y-2">
+        {lesson.video && (
+          <div className="flex items-center gap-2 text-xs">
+            <svg className="w-4 h-4 text-blue-500 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+              <path d="M2 6a2 2 0 012-2h12a2 2 0 012 2v8a2 2 0 01-2 2H4a2 2 0 01-2-2V6zm12 .5a.5.5 0 01.5.5v5a.5.5 0 01-.5.5H6a.5.5 0 01-.5-.5V7a.5.5 0 01.5-.5h8z" />
+            </svg>
+            <a
+              href={lesson.video}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-blue-600 hover:underline"
+            >
+              Watch Video
+            </a>
+          </div>
+        )}
+
+        {lesson.resource && (
+          <div className="flex items-center gap-2 text-xs">
+            <svg className="w-4 h-4 text-red-500 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+              <path fillRule="evenodd" d="M8 4a2 2 0 012-2h4a1 1 0 01.894.553l1.5 3a1 1 0 01-.894 1.447h-.5a1 1 0 00-.894.553l-.5 1a1 1 0 01-.894.553H9a1 1 0 00-.894.553l-1 2A1 1 0 007 12h-.5a1 1 0 01-.894-.553l-1-2A1 1 0 004 9V4z" clipRule="evenodd" />
+            </svg>
+            <a
+              href={lesson.resource}
+              download
+              className="text-blue-600 hover:underline"
+            >
+              {getFileName(lesson.resource)}
+            </a>
+          </div>
+        )}
+
+        {lesson.createdBy && (
+          <div className="flex items-center gap-2 text-xs text-gray-600 pt-1 border-t border-gray-200">
+            <svg className="w-4 h-4 text-gray-400 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+              <path fillRule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clipRule="evenodd" />
+            </svg>
+            <span>
+              By{" "}
+              {isLoadingCreator ? (
+                <span className="text-gray-400">Loading...</span>
+              ) : (
+                <span className="font-medium text-gray-700">{creatorName}</span>
+              )}
+            </span>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+
 const iconColors = [
   { bg: "bg-green-100", text: "text-green-600" },
   { bg: "bg-yellow-100", text: "text-yellow-600" },
