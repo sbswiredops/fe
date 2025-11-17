@@ -22,11 +22,26 @@ function CourseHeader({
   course: CourseDetail;
 }): JSX.Element {
   return (
-    <div className="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-xl p-8 mb-8 border border-blue-100">
-      <div className="grid grid-cols-1 lg:grid-cols-4 gap-8 items-start">
+    <div className="bg-white rounded-xl p-6 md:p-8 mb-6 border border-gray-200 shadow-sm">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 items-start">
+        {/* Course Info */}
+        <div className="lg:col-span-2">
+          <h1 className="text-2xl md:text-3xl font-bold text-gray-900 mb-2">
+            {String(course.title || "Untitled Course")}
+          </h1>
+
+          <p className="text-gray-600 text-sm leading-relaxed mb-6">
+            {String(course.description || "No description available")}
+          </p>
+
+          <button className="bg-green-500 hover:bg-green-600 text-white font-bold py-2 px-6 rounded-lg transition-colors inline-flex items-center gap-2">
+            ▶ লাইভ ক্লাস
+          </button>
+        </div>
+
         {/* Thumbnail */}
         <div className="lg:col-span-1">
-          <div className="bg-white rounded-lg overflow-hidden w-full aspect-video shadow-md border border-gray-200">
+          <div className="bg-gray-100 rounded-xl overflow-hidden w-full aspect-square shadow-md border border-gray-200">
             {course.thumbnail ? (
               <img
                 src={course.thumbnail}
@@ -34,9 +49,9 @@ function CourseHeader({
                 className="w-full h-full object-cover"
               />
             ) : (
-              <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-blue-100 to-indigo-200">
+              <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-gray-200 to-gray-300">
                 <svg
-                  className="w-12 h-12 text-blue-500"
+                  className="w-12 h-12 text-gray-500"
                   fill="none"
                   stroke="currentColor"
                   viewBox="0 0 24 24"
@@ -51,59 +66,6 @@ function CourseHeader({
               </div>
             )}
           </div>
-        </div>
-
-        {/* Course Info */}
-        <div className="lg:col-span-3">
-          <div className="mb-2">
-            <span className="inline-block bg-blue-100 text-blue-700 px-3 py-1 rounded-full text-xs font-semibold">
-              {String(course.category || "General")}
-            </span>
-          </div>
-
-          <h1 className="text-2xl lg:text-3xl font-bold text-gray-900 mb-2">
-            {String(course.title || "Untitled Course")}
-          </h1>
-
-          <p className="text-gray-700 text-sm leading-relaxed mb-4">
-            {String(course.description || "No description available")}
-          </p>
-
-          <div className="flex flex-wrap items-center gap-6 mb-6">
-            <div className="flex items-center gap-2">
-              <div className="flex gap-1">
-                {[1, 2, 3, 4, 5].map((star) => (
-                  <svg
-                    key={star}
-                    className={`w-4 h-4 ${
-                      star <= Math.round(course.rating || 0)
-                        ? "text-yellow-400"
-                        : "text-gray-300"
-                    }`}
-                    fill="currentColor"
-                    viewBox="0 0 20 20"
-                  >
-                    <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
-                  </svg>
-                ))}
-              </div>
-              <span className="text-xs font-medium text-gray-700">
-                {Number(course.rating || 0).toFixed(1)}
-              </span>
-            </div>
-
-            <div className="text-xs text-gray-600">
-              📊 {Number(course.enrollmentCount || 0).toLocaleString()} students
-            </div>
-
-            <div className="text-xs text-gray-600">
-              ⏱️ {String(course.totalDuration || course.duration || "Self-paced")}
-            </div>
-          </div>
-
-          <button className="bg-green-500 hover:bg-green-600 text-white font-bold py-2 px-6 rounded-lg transition-colors inline-flex items-center gap-2">
-            ▶ শুরু করুন
-          </button>
         </div>
       </div>
     </div>
@@ -282,7 +244,7 @@ function CourseContents({
 
   return (
     <div className="bg-white rounded-lg p-6 border border-gray-200">
-      <h2 className="text-xl font-bold text-gray-900 mb-6">কোর্স বিষয়বস্তু</h2>
+      <h2 className="text-xl font-bold text-gray-900 mb-6">কোর্স বিষয়বস্ত��</h2>
       <div>
         {sections.map((section: Section) => (
           <AccordionItem
