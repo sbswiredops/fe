@@ -14,9 +14,9 @@ import { CourseService } from "@/services/courseService";
 import { useRouter } from "next/navigation";
 import MainLayout from "@/components/layout/MainLayout";
 import Accordion from "@/components/ui/Accordion";
+import VideoModal from "@/components/ui/VideoModal";
 import LoginPrompt from "@/components/ui/LoginPrompt";
 import { Play, BookOpen, Lock, Unlock } from "lucide-react";
-import VideoModal from "@/components/ui/VideoModal";
 
 const StarRating = ({ rating }: { rating: number }) => {
   return (
@@ -137,7 +137,6 @@ export default function CourseDetailsPage() {
 
             courseIntroVideo: course.courseIntroVideo ?? "", // Ensure courseIntroVideo is always a string
           };
-
           setFetchedCourse(courseData);
         }
       } finally {

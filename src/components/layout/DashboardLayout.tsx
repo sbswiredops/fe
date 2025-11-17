@@ -146,13 +146,13 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
   }, [user]);
 
   const displayName = useMemo(() => {
-    const primary = user?.name && String(user.name).trim();
-    const secondary = user?.email && String(user.email).trim();
-    return primary || secondary || roleLabel || "User";
+    const primary = user?.name ? String(user.name).trim() : "";
+    const secondary = user?.email ? String(user.email).trim() : "";
+    return String(primary || secondary || roleLabel || "User");
   }, [user, roleLabel]);
 
   const displayInitial = useMemo(
-    () => String(displayName).trim()?.[0]?.toUpperCase() || "U",
+    () => String(displayName || "U").trim()?.[0]?.toUpperCase() || "U",
     [displayName]
   );
 

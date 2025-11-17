@@ -1,7 +1,7 @@
 "use client";
 import React, { createContext, useContext, useMemo, useState } from "react";
 
-export type EnrolledCourse = any; // Backend defines shape; keep flexible here
+export type EnrolledCourse = Record<string, any> & { id?: string; title?: string };
 
 interface EnrolledCoursesState {
   courses: EnrolledCourse[];

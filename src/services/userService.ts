@@ -151,22 +151,22 @@ export class UserService {
   }
 
   // User's enrolled courses
-  async getEnrolledCourses(id: string, options?: { signal?: AbortSignal }) {
+  async getEnrolledCourses(id: string, options?: { signal?: AbortSignal }): Promise<ApiResponse<{ courses: any[] }>> {
     return apiClient.get<{ courses: any[] }>(this.endpoints.USER_ENROLLED_COURSES(id), undefined, options);
   }
 
   // User's course stats
-  async getCourseStats(id: string, options?: { signal?: AbortSignal }) {
+  async getCourseStats(id: string, options?: { signal?: AbortSignal }): Promise<ApiResponse<any>> {
     return apiClient.get<any>(this.endpoints.USER_COURSE_STATS(id), undefined, options);
   }
 
   // User's completed certificates
-  async getCompletedCertificates(id: string, options?: { signal?: AbortSignal }) {
+  async getCompletedCertificates(id: string, options?: { signal?: AbortSignal }): Promise<ApiResponse<any[]>> {
     return apiClient.get<any[]>(this.endpoints.USER_COMPLETED_CERTIFICATES(id), undefined, options);
   }
 
   ///GET: User's continue learning courses
-  async getContinueLearning(id: string, options?: { signal?: AbortSignal }) {
+  async getContinueLearning(id: string, options?: { signal?: AbortSignal }): Promise<ApiResponse<{ courses: any[] }>> {
     return apiClient.get<{ courses: any[] }>(this.endpoints.USER_CONTINUE_LEARNING(id), undefined, options);
   }
 

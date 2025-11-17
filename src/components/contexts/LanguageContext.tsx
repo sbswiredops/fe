@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-require-imports */
 'use client';
 
 import React, { createContext, useContext, useState, useEffect } from 'react';
@@ -17,13 +18,10 @@ export const languages: Language[] = [
   { code: 'bn', name: 'বাংলা', flag: '🇧🇩' },
 ];
 
-// Import translations
-import enTranslations from '../locales/en.json';
-import bnTranslations from '../locales/bn.json';
-
+// Lazy load translations to avoid Turbopack HMR issues
 const translations: Record<string, Translation> = {
-  en: enTranslations,
-  bn: bnTranslations,
+  en: require('../locales/en.json'),
+  bn: require('../locales/bn.json'),
 };
 
 export function LanguageProvider({ children }: { children: React.ReactNode }) {
