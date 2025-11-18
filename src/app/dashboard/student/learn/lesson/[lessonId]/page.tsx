@@ -45,6 +45,14 @@ export default function LessonViewerPage(): JSX.Element {
         return;
       }
 
+      cancelledRef.current = false;
+      setViewMode("video");
+      if (pdfUrl) {
+        URL.revokeObjectURL(pdfUrl);
+      }
+      setPdfUrl(null);
+      setPdfError(null);
+
       try {
         const courseResponse = await courseService.getCourseById(courseId);
         if (!courseResponse.data) {
@@ -99,7 +107,7 @@ export default function LessonViewerPage(): JSX.Element {
     };
 
     fetchData();
-  }, [authLoading, courseId, sectionId, lessonId]);
+  }, [authLoading, courseId, sectionId, lessonId, pdfUrl]);
 
   const handleLessonSelect = (selectedLesson: Lesson) => {
     cancelledRef.current = false;
