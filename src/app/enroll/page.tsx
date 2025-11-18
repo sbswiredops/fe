@@ -150,13 +150,10 @@ export default function EnrollPage() {
         throw new Error(msg);
       }
 
-      setCourses(
-        ((prev) => {
-          const has = prev.some((c: any) => String(c.id) === String(course.id));
-          if (has) return prev;
-          return [...prev, course];
-        })(getById ? [getById(String(course.id))].filter(Boolean) : [])
-      );
+      const existing = getById(String(course.id));
+      if (!existing) {
+        setCourses([...(getById ? [] : []), course] as any);
+      }
 
       router.replace(`/enroll/success?courseId=${course.id}`);
     } catch (e: any) {
