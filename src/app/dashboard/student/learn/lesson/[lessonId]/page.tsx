@@ -228,27 +228,91 @@ export default function LessonViewerPage(): JSX.Element {
 
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 p-6">
             <div className="lg:col-span-2">
-              {lesson.video && (
-                <div className="bg-black rounded-lg overflow-hidden mb-6 aspect-video">
-                  <VideoPlayer
-                    src={lesson.video}
-                    className="w-full h-full object-contain"
-                    autoPlay={true}
-                    controls={true}
-                  />
-                </div>
-              )}
+              {lesson.video || lesson.resource ? (
+                <>
+                  {(lesson.video || lesson.resource) && (
+                    <div className="flex gap-2 mb-4">
+                      {lesson.video && (
+                        <button
+                          onClick={() => setViewMode("video")}
+                          className={`flex items-center gap-2 px-4 py-2 rounded-lg font-medium transition-colors text-sm ${
+                            viewMode === "video"
+                              ? "bg-blue-600 text-white"
+                              : "bg-gray-100 text-gray-700 hover:bg-gray-200"
+                          }`}
+                        >
+                          <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                            <path d="M2 6a2 2 0 012-2h12a2 2 0 012 2v8a2 2 0 01-2 2H4a2 2 0 01-2-2V6zm12 .5a.5.5 0 01.5.5v5a.5.5 0 01-.5.5H6a.5.5 0 01-.5-.5V7a.5.5 0 01.5-.5h8z" />
+                          </svg>
+                          Video
+                        </button>
+                      )}
+                      {lesson.resource && (
+                        <button
+                          onClick={loadPdf}
+                          disabled={isPdfLoading}
+                          className={`flex items-center gap-2 px-4 py-2 rounded-lg font-medium transition-colors text-sm ${
+                            viewMode === "pdf"
+                              ? "bg-blue-600 text-white"
+                              : "bg-gray-100 text-gray-700 hover:bg-gray-200 disabled:opacity-50"
+                          }`}
+                        >
+                          {isPdfLoading && (
+                            <svg className="w-4 h-4 animate-spin" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" opacity="0.25" />
+                              <path fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
+                            </svg>
+                          )}
+                          <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                            <path fillRule="evenodd" d="M8 4a2 2 0 012-2h4a1 1 0 01.894.553l1.5 3a1 1 0 01-.894 1.447h-.5a1 1 0 00-.894.553l-.5 1a1 1 0 01-.894.553H9a1 1 0 00-.894.553l-1 2A1 1 0 007 12h-.5a1 1 0 01-.894-.553l-1-2A1 1 0 004 9V4z" clipRule="evenodd" />
+                          </svg>
+                          Resource
+                        </button>
+                      )}
+                    </div>
+                  )}
 
-              {lesson.resource && !lesson.video && (
-                <div className="bg-gray-100 rounded-lg overflow-hidden mb-6 aspect-video flex items-center justify-center border border-gray-200">
-                  <iframe
-                    src={lesson.resource}
-                    className="w-full h-full border-none"
-                  />
-                </div>
-              )}
+                  {viewMode === "video" && lesson.video && (
+                    <div className="bg-black rounded-lg overflow-hidden mb-6 aspect-video">
+                      <VideoPlayer
+                        src={lesson.video}
+                        className="w-full h-full object-contain"
+                        autoPlay={true}
+                        controls={true}
+                      />
+                    </div>
+                  )}
 
-              {!lesson.video && !lesson.resource && (
+                  {viewMode === "pdf" && lesson.resource && (
+                    <div className="bg-gray-100 rounded-lg overflow-hidden mb-6 aspect-video border border-gray-200">
+                      {pdfUrl ? (
+                        <PDFViewer
+                          pdfUrl={pdfUrl}
+                          className="w-full h-full"
+                          onError={(err) => setPdfError(err.message)}
+                        />
+                      ) : pdfError ? (
+                        <div className="w-full h-full flex items-center justify-center bg-red-50">
+                          <div className="text-center">
+                            <svg className="w-12 h-12 text-red-500 mx-auto mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4v.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                            </svg>
+                            <p className="text-red-700 font-medium text-sm">{pdfError}</p>
+                            <a
+                              href={lesson.resource}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="text-red-600 hover:text-red-700 underline text-xs mt-2 inline-block"
+                            >
+                              Download directly
+                            </a>
+                          </div>
+                        </div>
+                      ) : null}
+                    </div>
+                  )}
+                </>
+              ) : (
                 <div className="bg-gray-50 rounded-lg p-12 text-center border border-gray-200 mb-6">
                   <svg
                     className="w-16 h-16 mx-auto mb-4 text-gray-300"
