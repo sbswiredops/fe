@@ -82,7 +82,7 @@ export default function LessonViewerPage(): JSX.Element {
 
   const handleLessonSelect = (selectedLesson: Lesson) => {
     router.push(
-      `/dashboard/student/lesson/${selectedLesson.id}?courseId=${courseId}&sectionId=${sectionId}`
+      `/dashboard/student/learn/lesson/${selectedLesson.id}?courseId=${courseId}&sectionId=${sectionId}`
     );
   };
 
@@ -203,13 +203,29 @@ export default function LessonViewerPage(): JSX.Element {
                       d="M12 8v4m0 4v.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
                     />
                   </svg>
-                  <p className="text-gray-400">No content available</p>
-                </div>
-              </div>
-            )}
+          <p className="text-gray-400">No content available</p>
+        </div>
+      </div>
+    )}
 
-            <div className="bg-gray-800 border-t border-gray-700 p-6 max-h-48 overflow-y-auto">
-              <h3 className="font-semibold text-white mb-3">বিবরণ</h3>
+    {lesson.resource && lesson.video && (
+      <div className="bg-gray-800 border-t border-gray-700 p-6 flex items-center justify-center">
+        <a
+          href={lesson.resource}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="text-blue-400 hover:text-blue-300 font-medium flex items-center gap-2"
+        >
+          <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+            <path fillRule="evenodd" d="M8 4a2 2 0 012-2h4a1 1 0 01.894.553l1.5 3a1 1 0 01-.894 1.447h-.5a1 1 0 00-.894.553l-.5 1a1 1 0 01-.894.553H9a1 1 0 00-.894.553l-1 2A1 1 0 007 12h-.5a1 1 0 01-.894-.553l-1-2A1 1 0 004 9V4z" clipRule="evenodd" />
+          </svg>
+          Download Resource
+        </a>
+      </div>
+    )}
+
+    <div className="bg-gray-800 border-t border-gray-700 p-6 max-h-48 overflow-y-auto">
+      <h3 className="font-semibold text-white mb-3">বিবরণ</h3>
               <p className="text-sm text-gray-300 whitespace-pre-wrap leading-relaxed">
                 {String(lesson.content || "No description available")}
               </p>
