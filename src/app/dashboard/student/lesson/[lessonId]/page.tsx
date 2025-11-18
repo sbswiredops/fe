@@ -36,7 +36,7 @@ export default function LessonViewerPage(): JSX.Element {
       }
 
       try {
-        const courseResponse = await courseService.getById(courseId);
+        const courseResponse = await courseService.getCourseById(courseId);
         if (!courseResponse.data) {
           setError("Course not found");
           setIsLoading(false);
