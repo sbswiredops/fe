@@ -312,49 +312,66 @@ export default function LessonViewerPage(): JSX.Element {
 
                             {isExpanded && secLessons.length > 0 && (
                               <div className="border-t border-gray-200 bg-white divide-y divide-gray-100">
-                                {secLessons.map((l: Lesson) => (
-                                  <button
-                                    key={l.id}
-                                    onClick={() => handleLessonSelect(l)}
-                                    className={`w-full text-left px-3 py-2 transition-colors text-xs flex items-start gap-2 ${
-                                      l.id === lesson.id
-                                        ? "bg-blue-50 border-l-2 border-l-blue-600"
-                                        : "hover:bg-gray-50"
-                                    }`}
-                                  >
-                                    {l.video ? (
-                                      <svg
-                                        className="w-3.5 h-3.5 flex-shrink-0 mt-0.5 text-blue-500"
-                                        fill="currentColor"
-                                        viewBox="0 0 20 20"
-                                      >
-                                        <path d="M2 6a2 2 0 012-2h12a2 2 0 012 2v8a2 2 0 01-2 2H4a2 2 0 01-2-2V6zm12 .5a.5.5 0 01.5.5v5a.5.5 0 01-.5.5H6a.5.5 0 01-.5-.5V7a.5.5 0 01.5-.5h8z" />
-                                      </svg>
-                                    ) : (
-                                      <svg
-                                        className="w-3.5 h-3.5 flex-shrink-0 mt-0.5 text-orange-500"
-                                        fill="currentColor"
-                                        viewBox="0 0 20 20"
-                                      >
-                                        <path
-                                          fillRule="evenodd"
-                                          d="M8 4a2 2 0 012-2h4a1 1 0 01.894.553l1.5 3a1 1 0 01-.894 1.447h-.5a1 1 0 00-.894.553l-.5 1a1 1 0 01-.894.553H9a1 1 0 00-.894.553l-1 2A1 1 0 007 12h-.5a1 1 0 01-.894-.553l-1-2A1 1 0 004 9V4z"
-                                          clipRule="evenodd"
-                                        />
-                                      </svg>
-                                    )}
-                                    <div className="flex-1 min-w-0">
-                                      <p className={`font-medium truncate ${l.id === lesson.id ? 'text-gray-900' : 'text-gray-700'}`}>
-                                        {String(l.title)}
-                                      </p>
-                                      {l.duration && (
-                                        <p className={`text-xs mt-0.5 ${l.id === lesson.id ? 'text-blue-600' : 'text-gray-500'}`}>
-                                          {String(l.duration)} min
-                                        </p>
+                                {secLessons.map((l: Lesson) => {
+                                  const videoFileName = l.video ? l.video.split('/').pop() : null;
+                                  const resourceFileName = l.resource ? l.resource.split('/').pop() : null;
+
+                                  return (
+                                    <button
+                                      key={l.id}
+                                      onClick={() => handleLessonSelect(l)}
+                                      className={`w-full text-left px-3 py-2 transition-colors text-xs flex items-start gap-2 ${
+                                        l.id === lesson.id
+                                          ? "bg-blue-50 border-l-2 border-l-blue-600"
+                                          : "hover:bg-gray-50"
+                                      }`}
+                                    >
+                                      {l.video ? (
+                                        <svg
+                                          className="w-3.5 h-3.5 flex-shrink-0 mt-0.5 text-blue-500"
+                                          fill="currentColor"
+                                          viewBox="0 0 20 20"
+                                        >
+                                          <path d="M2 6a2 2 0 012-2h12a2 2 0 012 2v8a2 2 0 01-2 2H4a2 2 0 01-2-2V6zm12 .5a.5.5 0 01.5.5v5a.5.5 0 01-.5.5H6a.5.5 0 01-.5-.5V7a.5.5 0 01.5-.5h8z" />
+                                        </svg>
+                                      ) : (
+                                        <svg
+                                          className="w-3.5 h-3.5 flex-shrink-0 mt-0.5 text-orange-500"
+                                          fill="currentColor"
+                                          viewBox="0 0 20 20"
+                                        >
+                                          <path
+                                            fillRule="evenodd"
+                                            d="M8 4a2 2 0 012-2h4a1 1 0 01.894.553l1.5 3a1 1 0 01-.894 1.447h-.5a1 1 0 00-.894.553l-.5 1a1 1 0 01-.894.553H9a1 1 0 00-.894.553l-1 2A1 1 0 007 12h-.5a1 1 0 01-.894-.553l-1-2A1 1 0 004 9V4z"
+                                            clipRule="evenodd"
+                                          />
+                                        </svg>
                                       )}
-                                    </div>
-                                  </button>
-                                ))}
+                                      <div className="flex-1 min-w-0">
+                                        <p className={`font-medium truncate ${l.id === lesson.id ? 'text-gray-900' : 'text-gray-700'}`}>
+                                          {String(l.title)}
+                                        </p>
+                                        <div className="space-y-0.5 mt-1">
+                                          {videoFileName && (
+                                            <p className="text-xs text-blue-600 truncate" title={videoFileName}>
+                                              📹 {videoFileName}
+                                            </p>
+                                          )}
+                                          {resourceFileName && (
+                                            <p className="text-xs text-orange-600 truncate" title={resourceFileName}>
+                                              📄 {resourceFileName}
+                                            </p>
+                                          )}
+                                          {l.duration && (
+                                            <p className={`text-xs ${l.id === lesson.id ? 'text-blue-600' : 'text-gray-500'}`}>
+                                              ⏱️ {String(l.duration)} min
+                                            </p>
+                                          )}
+                                        </div>
+                                      </div>
+                                    </button>
+                                  );
+                                })}
                               </div>
                             )}
                           </div>
