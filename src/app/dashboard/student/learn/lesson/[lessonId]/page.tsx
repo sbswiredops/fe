@@ -521,6 +521,22 @@ export default function LessonViewerPage(): JSX.Element {
                                               📄 {resourceFileName}
                                             </p>
                                           )}
+                                          {Array.isArray(l.quizzes) && l.quizzes.length > 0 && (
+                                            <div className="flex flex-wrap gap-1 mt-1">
+                                              {l.quizzes.map((quiz: any) => (
+                                                <span key={quiz.id} className="inline-flex items-center gap-1 text-xs text-purple-600 px-1.5 py-0.5 bg-purple-50 rounded" title={quiz.title}>
+                                                  <svg
+                                                    className="w-3 h-3 flex-shrink-0"
+                                                    fill="currentColor"
+                                                    viewBox="0 0 20 20"
+                                                  >
+                                                    <path d="M2 5a2 2 0 012-2h12a2 2 0 012 2v8a2 2 0 01-2 2H4a2 2 0 01-2-2V5zm4 2a1 1 0 100 2h6a1 1 0 100-2H6zm0 4a1 1 0 100 2h6a1 1 0 100-2H6z" />
+                                                  </svg>
+                                                  {quiz.title}
+                                                </span>
+                                              ))}
+                                            </div>
+                                          )}
                                           {l.duration && (
                                             <p className={`text-xs ${l.id === lesson.id ? 'text-blue-600' : 'text-gray-500'}`}>
                                               ⏱️ {String(l.duration)} min
