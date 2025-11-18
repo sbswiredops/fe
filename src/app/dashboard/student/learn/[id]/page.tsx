@@ -1,4 +1,3 @@
-/* eslint-disable @next/next/no-img-element */
 "use client";
 
 import React, { JSX, useEffect, useState } from "react";
@@ -24,21 +23,19 @@ function CourseHeader({
   return (
     <>
       <div className="bg-gradient-to-r from-gray-900 to-gray-800 text-white py-12 mb-8">
-        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-6">
-            <div className="flex-1">
-              <h1 className="text-4xl md:text-5xl font-bold mb-4 leading-tight">
-                {String(course.title || "Untitled Course")}
-              </h1>
-              <p className="text-gray-300 text-lg leading-relaxed max-w-3xl">
-                {String(course.description || "No description available")}
-              </p>
-            </div>
+        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center">
+            <h1 className="text-4xl md:text-5xl font-bold mb-6 leading-tight">
+              {String(course.title || "Untitled Course")}
+            </h1>
+            <p className="text-gray-300 text-lg leading-relaxed max-w-3xl mx-auto mb-8">
+              {String(course.description || "No description available")}
+            </p>
             <button className="bg-green-500 hover:bg-green-600 text-white font-bold py-3.5 px-8 rounded-lg transition-all duration-300 transform hover:scale-105 inline-flex items-center gap-3 text-lg shadow-lg">
               <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
                 <path d="M6.3 2.841A1.5 1.5 0 004 4.11V15.89a1.5 1.5 0 002.3 1.269l9.344-5.89a1.5 1.5 0 000-2.538L6.3 2.84z" />
               </svg>
-              শুরু করুন
+              Start Learning
             </button>
           </div>
         </div>
@@ -65,30 +62,26 @@ function CourseInfoSection({
 
   return (
     <div className="mb-8">
-      <div className="bg-gradient-to-r from-green-500 to-emerald-600 rounded-2xl p-6 shadow-lg">
-        <div className="flex items-center gap-4">
-          <div className="flex-shrink-0">
-            <div className="w-12 h-12 bg-white/20 rounded-xl flex items-center justify-center backdrop-blur-sm">
-              <svg
-                className="w-6 h-6 text-white"
-                fill="currentColor"
-                viewBox="0 0 20 20"
-              >
-                <path
-                  fillRule="evenodd"
-                  d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
-                  clipRule="evenodd"
-                />
+      <div className="bg-white rounded-lg border border-gray-200 p-6 shadow-sm">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-4">
+            <div className="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
+              <svg className="w-6 h-6 text-blue-600" fill="currentColor" viewBox="0 0 20 20">
+                <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-11a1 1 0 10-2 0v2H7a1 1 0 100 2h2v2a1 1 0 102 0v-2h2a1 1 0 100-2h-2V7z" clipRule="evenodd" />
               </svg>
             </div>
+            <div>
+              <h3 className="font-semibold text-gray-900 text-lg">
+                {String(course.category || "General")} Course
+              </h3>
+              <p className="text-gray-600 text-sm">
+                {totalLessons} lessons • Complete learning materials
+              </p>
+            </div>
           </div>
-          <div className="flex-1">
-            <h3 className="text-white font-semibold text-lg mb-1">
-              {String(course.category || "General")} Course
-            </h3>
-            <p className="text-white/90 text-sm">
-              {totalLessons} lessons with complete learning materials • Master your skills step by step
-            </p>
+          <div className="text-right">
+            <div className="text-2xl font-bold text-gray-900">{totalLessons}</div>
+            <div className="text-sm text-gray-500">Total Lessons</div>
           </div>
         </div>
       </div>
@@ -106,38 +99,6 @@ function LessonItem({
   courseId: string;
 }): JSX.Element {
   const router = useRouter();
-  const [creatorName, setCreatorName] = useState<string>("");
-  const [isLoadingCreator, setIsLoadingCreator] = useState(true);
-
-  useEffect(() => {
-    const fetchCreatorName = async () => {
-      if (lesson.createdBy) {
-        try {
-          const response = await userService.getById(lesson.createdBy);
-          if (response.data) {
-            setCreatorName(response.data.name || response.data.email || "Unknown");
-          } else {
-            setCreatorName("Unknown");
-          }
-        } catch (error: any) {
-          const status = error?.message?.includes('403') ? 403 : null;
-          if (status === 403) {
-            setCreatorName("Course Creator");
-          } else {
-            console.error("Failed to fetch creator info:", error);
-            setCreatorName("Unknown");
-          }
-        }
-      }
-      setIsLoadingCreator(false);
-    };
-
-    fetchCreatorName();
-  }, [lesson.createdBy]);
-
-  const getFileName = (path: string) => {
-    return path.split("/").pop() || "Download";
-  };
 
   const handleOpenLesson = () => {
     router.push(
@@ -145,14 +106,16 @@ function LessonItem({
     );
   };
 
+  const getFileName = (path: string) => {
+    return path.split("/").pop() || "Download";
+  };
+
   return (
-    <div className="flex items-start gap-4 py-3 px-2 hover:bg-gray-50 rounded-lg transition-colors">
+    <div className="flex items-start gap-4 py-4 px-2 border-b border-gray-100 last:border-b-0">
       {/* Checkbox */}
       <div className="flex-shrink-0 mt-1">
-        <div className="w-5 h-5 border-2 border-gray-300 rounded flex items-center justify-center">
-          <svg className="w-3 h-3 text-green-500 hidden" fill="currentColor" viewBox="0 0 20 20">
-            <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
-          </svg>
+        <div className="w-5 h-5 border-2 border-gray-300 rounded flex items-center justify-center bg-white">
+          {/* Empty checkbox - will be filled when completed */}
         </div>
       </div>
 
@@ -160,27 +123,33 @@ function LessonItem({
       <div className="flex-1 min-w-0">
         <div className="flex items-start justify-between mb-2">
           <div className="flex-1">
-            <h4 className="font-medium text-gray-900 text-sm mb-1">
+            <h4 className="font-medium text-gray-900 text-sm mb-2">
               {String(lesson.title || "Untitled Lesson")}
             </h4>
             
-            {/* Resource Files */}
-            <div className="space-y-1 mb-2">
+            {/* Resource Files - Clickable */}
+            <div className="space-y-1 mb-3">
               {lesson.video && (
-                <div className="flex items-center gap-2 text-xs text-gray-600">
+                <div 
+                  onClick={handleOpenLesson}
+                  className="flex items-center gap-2 text-xs text-gray-600 cursor-pointer hover:text-blue-600 transition-colors"
+                >
                   <svg className="w-3 h-3 text-blue-500 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
                     <path d="M2 6a2 2 0 012-2h12a2 2 0 012 2v8a2 2 0 01-2 2H4a2 2 0 01-2-2V6zm12 .5a.5.5 0 01.5.5v5a.5.5 0 01-.5.5H6a.5.5 0 01-.5-.5V7a.5.5 0 01.5-.5h8z" />
                   </svg>
-                  <span className="font-mono text-gray-500">video.m3u8</span>
+                  <span className="font-mono text-gray-500 text-xs hover:text-blue-600">video.m3u8</span>
                 </div>
               )}
 
               {lesson.resource && (
-                <div className="flex items-center gap-2 text-xs text-gray-600">
+                <div 
+                  onClick={handleOpenLesson}
+                  className="flex items-center gap-2 text-xs text-gray-600 cursor-pointer hover:text-green-600 transition-colors"
+                >
                   <svg className="w-3 h-3 text-red-500 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
                     <path fillRule="evenodd" d="M3 17a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm3.293-7.707a1 1 0 011.414 0L9 10.586V3a1 1 0 112 0v7.586l1.293-1.293a1 1 0 111.414 1.414l-3 3a1 1 0 01-1.414 0l-3-3a1 1 0 010-1.414z" clipRule="evenodd" />
                   </svg>
-                  <span className="font-mono text-gray-500">{getFileName(lesson.resource)}</span>
+                  <span className="font-mono text-gray-500 text-xs hover:text-green-600">{getFileName(lesson.resource)}</span>
                 </div>
               )}
             </div>
@@ -191,27 +160,6 @@ function LessonItem({
             <span className="text-xs text-gray-500 bg-gray-100 px-2 py-1 rounded flex-shrink-0 ml-4">
               {String(lesson.duration)} min
             </span>
-          )}
-        </div>
-
-        {/* Action Buttons */}
-        <div className="flex items-center gap-3">
-          {lesson.video && (
-            <button
-              onClick={handleOpenLesson}
-              className="text-xs text-blue-600 hover:text-blue-700 font-medium cursor-pointer underline"
-            >
-              Watch Video
-            </button>
-          )}
-
-          {lesson.resource && (
-            <button
-              onClick={handleOpenLesson}
-              className="text-xs text-green-600 hover:text-green-700 font-medium cursor-pointer underline"
-            >
-              Download Resource
-            </button>
           )}
         </div>
       </div>
@@ -228,14 +176,20 @@ function QuizItem({
   section: Section;
   courseId: string;
 }): JSX.Element {
+  const router = useRouter();
+
+  const handleOpenQuiz = () => {
+    router.push(
+      `/dashboard/student/learn/quiz/${quiz.id}?courseId=${courseId}&sectionId=${section.id}`
+    );
+  };
+
   return (
-    <div className="flex items-start gap-4 py-3 px-2 hover:bg-gray-50 rounded-lg transition-colors">
+    <div className="flex items-start gap-4 py-4 px-2 border-b border-gray-100 last:border-b-0">
       {/* Checkbox */}
       <div className="flex-shrink-0 mt-1">
-        <div className="w-5 h-5 border-2 border-gray-300 rounded flex items-center justify-center">
-          <svg className="w-3 h-3 text-green-500 hidden" fill="currentColor" viewBox="0 0 20 20">
-            <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
-          </svg>
+        <div className="w-5 h-5 border-2 border-gray-300 rounded flex items-center justify-center bg-white">
+          {/* Empty checkbox */}
         </div>
       </div>
 
@@ -243,22 +197,23 @@ function QuizItem({
       <div className="flex-1 min-w-0">
         <div className="flex items-start justify-between mb-2">
           <div className="flex-1">
-            <h4 className="font-medium text-gray-900 text-sm mb-1">
-              {quiz.title || "Untitled Quiz"}
+            <h4 
+              onClick={handleOpenQuiz}
+              className="font-medium text-gray-900 text-sm mb-2 cursor-pointer hover:text-purple-600 transition-colors"
+            >
+              {quiz.title || "Section Quiz"}
             </h4>
-            <div className="flex items-center gap-2 text-xs text-gray-600">
+            <div 
+              onClick={handleOpenQuiz}
+              className="flex items-center gap-2 text-xs text-gray-600 cursor-pointer hover:text-purple-600 transition-colors"
+            >
               <svg className="w-3 h-3 text-purple-500 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
                 <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-11a1 1 0 10-2 0v2H7a1 1 0 100 2h2v2a1 1 0 102 0v-2h2a1 1 0 100-2h-2V7z" clipRule="evenodd" />
               </svg>
-              <span>Quiz</span>
+              <span className="text-gray-500">Quiz assessment</span>
             </div>
           </div>
         </div>
-
-        {/* Action Button */}
-        <button className="text-xs text-purple-600 hover:text-purple-700 font-medium cursor-pointer underline">
-          Take Quiz
-        </button>
       </div>
     </div>
   );
@@ -281,21 +236,19 @@ function AccordionItem({
   const quizCount = section.quizzes ? section.quizzes.length : 0;
   const totalItems = lessonCount + quizCount;
 
-  // Mock quizzes data - you can replace this with actual quiz data from your API
-  const mockQuizzes = [
-    { id: 'quiz-1', title: 'Section Quiz' }
-  ];
+  // Mock quiz data
+  const mockQuiz = { id: 'quiz-1', title: 'Section Quiz' };
 
   return (
-    <div className="border border-gray-200 rounded-lg mb-4 overflow-hidden bg-white hover:shadow-md transition-all duration-200">
+    <div className="border border-gray-200 rounded-lg mb-4 overflow-hidden bg-white hover:border-gray-300 transition-colors">
       <button
         onClick={onToggle}
         className="w-full px-6 py-4 flex items-center justify-between hover:bg-gray-50 transition-colors text-left"
       >
         <div className="flex items-center gap-4 flex-1">
           <div className="flex-shrink-0">
-            <div className="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center">
-              <span className="text-blue-600 font-semibold text-sm">
+            <div className="w-10 h-10 bg-gray-100 rounded-lg flex items-center justify-center">
+              <span className="text-gray-600 font-semibold text-sm">
                 {index + 1}
               </span>
             </div>
@@ -313,9 +266,6 @@ function AccordionItem({
         </div>
         
         <div className="flex items-center gap-2">
-          <span className="text-sm text-gray-500">
-            {isOpen ? 'Hide' : 'Show'}
-          </span>
           <svg 
             className={`w-5 h-5 text-gray-400 transition-transform duration-200 ${isOpen ? 'rotate-180' : ''}`}
             fill="none" 
@@ -328,8 +278,8 @@ function AccordionItem({
       </button>
 
       {isOpen && (
-        <div className="bg-gray-50 border-t border-gray-200">
-          <div className="p-4 space-y-3">
+        <div className="border-t border-gray-200">
+          <div className="p-4">
             {/* Lessons */}
             {Array.isArray(section.lessons) && section.lessons.length > 0 ? (
               section.lessons
@@ -348,15 +298,14 @@ function AccordionItem({
               </div>
             )}
 
-            {/* Quizzes */}
-            {mockQuizzes.map((quiz, quizIdx) => (
+            {/* Quiz */}
+            {index === 0 && ( // Show quiz only for first section as in the example
               <QuizItem
-                key={quiz.id}
-                quiz={quiz}
+                quiz={mockQuiz}
                 section={section}
                 courseId={String(courseId || "")}
               />
-            ))}
+            )}
           </div>
         </div>
       )}
@@ -392,12 +341,12 @@ function CourseContents({
 
   if (!Array.isArray(sections) || sections.length === 0) {
     return (
-      <div className="bg-white rounded-lg p-12 text-center border border-gray-200">
-        <svg className="w-16 h-16 text-gray-300 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <div className="bg-white rounded-lg p-8 text-center border border-gray-200">
+        <svg className="w-12 h-12 text-gray-300 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.746 0 3.332.477 4.5 1.253v13C19.832 18.477 18.246 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
         </svg>
-        <p className="text-gray-500 text-lg font-medium">No course content available yet</p>
-        <p className="text-gray-400 mt-2">Check back later for updated curriculum</p>
+        <p className="text-gray-500 font-medium">No course content available yet</p>
+        <p className="text-gray-400 mt-2 text-sm">Check back later for updated curriculum</p>
       </div>
     );
   }
@@ -504,7 +453,7 @@ export default function Page(): JSX.Element {
 
   return (
     <DashboardLayout>
-      <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {isAuthChecking && (
           <div className="flex justify-center items-center py-20">
             <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500"></div>
