@@ -16,7 +16,7 @@ export default function LessonViewerPage(): JSX.Element {
   const params = useParams();
   const router = useRouter();
   const searchParams = useSearchParams();
-  const { user, isAuthChecking } = useAuth();
+  const { user, isLoading: authLoading } = useAuth();
 
   const lessonId = String(params.lessonId || "");
   const courseId = searchParams.get("courseId");
@@ -31,7 +31,7 @@ export default function LessonViewerPage(): JSX.Element {
 
   useEffect(() => {
     const fetchData = async () => {
-      if (isAuthChecking || !courseId || !sectionId) {
+      if (authLoading || !courseId || !sectionId) {
         return;
       }
 
