@@ -23,62 +23,23 @@ function CourseHeader({
 }): JSX.Element {
   return (
     <>
-      <div className="bg-gradient-to-r from-gray-900 to-gray-800 text-white py-8 mb-8">
+      <div className="bg-gradient-to-r from-gray-900 to-gray-800 text-white py-12 mb-8">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
-          <h1 className="text-3xl md:text-4xl font-bold">
-            {String(course.title || "Untitled Course")}
-          </h1>
-        </div>
-      </div>
-
-      <div className="bg-white rounded-lg overflow-hidden shadow-md border border-gray-200 mb-8">
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-0">
-          <div className="lg:col-span-2 p-6 md:p-8 flex flex-col justify-center">
-            <div className="mb-4 flex items-center gap-2">
-              <span className="text-2xl">🎓</span>
-              <h2 className="text-xl font-bold text-gray-900">
-                {String(course.title || "Untitled")}
-              </h2>
+          <div className="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-6">
+            <div className="flex-1">
+              <h1 className="text-4xl md:text-5xl font-bold mb-4 leading-tight">
+                {String(course.title || "Untitled Course")}
+              </h1>
+              <p className="text-gray-300 text-lg leading-relaxed max-w-3xl">
+                {String(course.description || "No description available")}
+              </p>
             </div>
-
-            <p className="text-gray-600 text-sm leading-relaxed mb-8 line-clamp-3">
-              {String(course.description || "No description available")}
-            </p>
-
-            <div className="flex flex-wrap gap-3">
-              <button className="bg-green-500 hover:bg-green-600 text-white font-bold py-2.5 px-6 rounded-lg transition-colors inline-flex items-center gap-2">
-                <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
-                  <path d="M6.3 2.841A1.5 1.5 0 004 4.11V15.89a1.5 1.5 0 002.3 1.269l9.344-5.89a1.5 1.5 0 000-2.538L6.3 2.84z" />
-                </svg>
-                শুরু করুন
-              </button>
-            </div>
-          </div>
-
-          <div className="lg:col-span-1 bg-gradient-to-br from-red-700 to-red-900 relative min-h-64 lg:min-h-auto flex items-center justify-center overflow-hidden">
-            {course.thumbnail ? (
-              <img
-                src={course.thumbnail}
-                alt={course.title}
-                className="w-full h-full object-cover"
-              />
-            ) : (
-              <div className="w-full h-full flex items-center justify-center">
-                <svg
-                  className="w-16 h-16 text-red-300 opacity-30"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"
-                  />
-                </svg>
-              </div>
-            )}
+            <button className="bg-green-500 hover:bg-green-600 text-white font-bold py-3.5 px-8 rounded-lg transition-all duration-300 transform hover:scale-105 inline-flex items-center gap-3 text-lg shadow-lg">
+              <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                <path d="M6.3 2.841A1.5 1.5 0 004 4.11V15.89a1.5 1.5 0 002.3 1.269l9.344-5.89a1.5 1.5 0 000-2.538L6.3 2.84z" />
+              </svg>
+              শুরু করুন
+            </button>
           </div>
         </div>
       </div>
@@ -91,39 +52,44 @@ function CourseInfoSection({
 }: {
   course: CourseDetail;
 }): JSX.Element {
+  const totalLessons = Array.isArray(course.sections)
+    ? course.sections.reduce(
+        (sum: number, section: any) =>
+          sum +
+          (Array.isArray(section.lessons)
+            ? section.lessons.length
+            : 0),
+        0
+      )
+    : 0;
+
   return (
     <div className="mb-8">
-      <div className="flex items-start gap-4 bg-green-50 rounded-lg p-4 border border-green-200">
-        <div className="flex-shrink-0 mt-1">
-          <svg
-            className="w-5 h-5 text-green-600"
-            fill="currentColor"
-            viewBox="0 0 20 20"
-          >
-            <path
-              fillRule="evenodd"
-              d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
-              clipRule="evenodd"
-            />
-          </svg>
-        </div>
-        <div className="flex-1">
-          <p className="text-xs text-gray-700">
-            {String(course.category || "General")} Course - {String(
-              (course as any)?.totalLessons ||
-                (Array.isArray(course.sections)
-                  ? course.sections.reduce(
-                      (sum: number, section: any) =>
-                        sum +
-                        (Array.isArray(section.lessons)
-                          ? section.lessons.length
-                          : 0),
-                      0
-                    )
-                  : 0)
-            )}{" "}
-            lessons with complete learning materials
-          </p>
+      <div className="bg-gradient-to-r from-green-500 to-emerald-600 rounded-2xl p-6 shadow-lg">
+        <div className="flex items-center gap-4">
+          <div className="flex-shrink-0">
+            <div className="w-12 h-12 bg-white/20 rounded-xl flex items-center justify-center backdrop-blur-sm">
+              <svg
+                className="w-6 h-6 text-white"
+                fill="currentColor"
+                viewBox="0 0 20 20"
+              >
+                <path
+                  fillRule="evenodd"
+                  d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
+                  clipRule="evenodd"
+                />
+              </svg>
+            </div>
+          </div>
+          <div className="flex-1">
+            <h3 className="text-white font-semibold text-lg mb-1">
+              {String(course.category || "General")} Course
+            </h3>
+            <p className="text-white/90 text-sm">
+              {totalLessons} lessons with complete learning materials • Master your skills step by step
+            </p>
+          </div>
         </div>
       </div>
     </div>
@@ -132,12 +98,10 @@ function CourseInfoSection({
 
 function LessonItem({
   lesson,
-  allLessons,
   section,
   courseId,
 }: {
   lesson: Lesson;
-  allLessons: Lesson[];
   section: Section;
   courseId: string;
 }): JSX.Element {
@@ -182,81 +146,123 @@ function LessonItem({
   };
 
   return (
-    <div className="px-6 py-4 hover:bg-gray-50 transition-colors">
-      <div className="flex items-start gap-3 mb-3">
-        <svg className="w-4 h-4 text-gray-400 flex-shrink-0 mt-1" fill="currentColor" viewBox="0 0 20 20">
-          <path d="M5 3a2 2 0 00-2 2v2a2 2 0 002 2h2a2 2 0 002-2V5a2 2 0 00-2-2H5zM15 3a2 2 0 00-2 2v2a2 2 0 002 2h2a2 2 0 002-2V5a2 2 0 00-2-2h-2z" />
-        </svg>
-        <div className="flex-1 min-w-0">
-          <h4 className="font-medium text-gray-900 text-sm">
-            {String(lesson.title || "Untitled")}
-          </h4>
-          {lesson.duration && (
-            <p className="text-xs text-gray-500 mt-0.5">
-              {String(lesson.duration)} min
-            </p>
-          )}
+    <div className="flex items-start gap-4 py-3 px-2 hover:bg-gray-50 rounded-lg transition-colors">
+      {/* Checkbox */}
+      <div className="flex-shrink-0 mt-1">
+        <div className="w-5 h-5 border-2 border-gray-300 rounded flex items-center justify-center">
+          <svg className="w-3 h-3 text-green-500 hidden" fill="currentColor" viewBox="0 0 20 20">
+            <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+          </svg>
         </div>
-        {lesson.isFree && (
-          <span className="text-xs bg-green-100 text-green-700 px-2 py-1 rounded whitespace-nowrap flex-shrink-0">
-            Free
-          </span>
-        )}
       </div>
 
-      <div className="ml-7 space-y-2">
-        {lesson.video && (
-          <button
-            onClick={handleOpenLesson}
-            className="flex items-center gap-2 text-xs text-blue-600 hover:underline cursor-pointer"
-          >
-            <svg className="w-4 h-4 text-blue-500 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
-              <path d="M2 6a2 2 0 012-2h12a2 2 0 012 2v8a2 2 0 01-2 2H4a2 2 0 01-2-2V6zm12 .5a.5.5 0 01.5.5v5a.5.5 0 01-.5.5H6a.5.5 0 01-.5-.5V7a.5.5 0 01.5-.5h8z" />
-            </svg>
-            Watch Video
-          </button>
-        )}
-
-        {lesson.resource && (
-          <button
-            onClick={handleOpenLesson}
-            className="flex items-center gap-2 text-xs text-blue-600 hover:underline cursor-pointer"
-          >
-            <svg className="w-4 h-4 text-red-500 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
-              <path fillRule="evenodd" d="M8 4a2 2 0 012-2h4a1 1 0 01.894.553l1.5 3a1 1 0 01-.894 1.447h-.5a1 1 0 00-.894.553l-.5 1a1 1 0 01-.894.553H9a1 1 0 00-.894.553l-1 2A1 1 0 007 12h-.5a1 1 0 01-.894-.553l-1-2A1 1 0 004 9V4z" clipRule="evenodd" />
-            </svg>
-            {getFileName(lesson.resource)}
-          </button>
-        )}
-
-        {lesson.createdBy && (
-          <div className="flex items-center gap-2 text-xs text-gray-600 pt-1 border-t border-gray-200">
-            <svg className="w-4 h-4 text-gray-400 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
-              <path fillRule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clipRule="evenodd" />
-            </svg>
-            <span>
-              By{" "}
-              {isLoadingCreator ? (
-                <span className="text-gray-400">Loading...</span>
-              ) : (
-                <span className="font-medium text-gray-700">{creatorName}</span>
+      {/* Lesson Content */}
+      <div className="flex-1 min-w-0">
+        <div className="flex items-start justify-between mb-2">
+          <div className="flex-1">
+            <h4 className="font-medium text-gray-900 text-sm mb-1">
+              {String(lesson.title || "Untitled Lesson")}
+            </h4>
+            
+            {/* Resource Files */}
+            <div className="space-y-1 mb-2">
+              {lesson.video && (
+                <div className="flex items-center gap-2 text-xs text-gray-600">
+                  <svg className="w-3 h-3 text-blue-500 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                    <path d="M2 6a2 2 0 012-2h12a2 2 0 012 2v8a2 2 0 01-2 2H4a2 2 0 01-2-2V6zm12 .5a.5.5 0 01.5.5v5a.5.5 0 01-.5.5H6a.5.5 0 01-.5-.5V7a.5.5 0 01.5-.5h8z" />
+                  </svg>
+                  <span className="font-mono text-gray-500">video.m3u8</span>
+                </div>
               )}
-            </span>
+
+              {lesson.resource && (
+                <div className="flex items-center gap-2 text-xs text-gray-600">
+                  <svg className="w-3 h-3 text-red-500 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                    <path fillRule="evenodd" d="M3 17a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm3.293-7.707a1 1 0 011.414 0L9 10.586V3a1 1 0 112 0v7.586l1.293-1.293a1 1 0 111.414 1.414l-3 3a1 1 0 01-1.414 0l-3-3a1 1 0 010-1.414z" clipRule="evenodd" />
+                  </svg>
+                  <span className="font-mono text-gray-500">{getFileName(lesson.resource)}</span>
+                </div>
+              )}
+            </div>
           </div>
-        )}
+
+          {/* Duration */}
+          {lesson.duration && (
+            <span className="text-xs text-gray-500 bg-gray-100 px-2 py-1 rounded flex-shrink-0 ml-4">
+              {String(lesson.duration)} min
+            </span>
+          )}
+        </div>
+
+        {/* Action Buttons */}
+        <div className="flex items-center gap-3">
+          {lesson.video && (
+            <button
+              onClick={handleOpenLesson}
+              className="text-xs text-blue-600 hover:text-blue-700 font-medium cursor-pointer underline"
+            >
+              Watch Video
+            </button>
+          )}
+
+          {lesson.resource && (
+            <button
+              onClick={handleOpenLesson}
+              className="text-xs text-green-600 hover:text-green-700 font-medium cursor-pointer underline"
+            >
+              Download Resource
+            </button>
+          )}
+        </div>
       </div>
     </div>
   );
 }
 
-const iconColors = [
-  { bg: "bg-green-100", text: "text-green-600" },
-  { bg: "bg-yellow-100", text: "text-yellow-600" },
-  { bg: "bg-orange-100", text: "text-orange-600" },
-  { bg: "bg-red-100", text: "text-red-600" },
-  { bg: "bg-blue-100", text: "text-blue-600" },
-  { bg: "bg-purple-100", text: "text-purple-600" },
-];
+function QuizItem({
+  quiz,
+  section,
+  courseId,
+}: {
+  quiz: any;
+  section: Section;
+  courseId: string;
+}): JSX.Element {
+  return (
+    <div className="flex items-start gap-4 py-3 px-2 hover:bg-gray-50 rounded-lg transition-colors">
+      {/* Checkbox */}
+      <div className="flex-shrink-0 mt-1">
+        <div className="w-5 h-5 border-2 border-gray-300 rounded flex items-center justify-center">
+          <svg className="w-3 h-3 text-green-500 hidden" fill="currentColor" viewBox="0 0 20 20">
+            <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+          </svg>
+        </div>
+      </div>
+
+      {/* Quiz Content */}
+      <div className="flex-1 min-w-0">
+        <div className="flex items-start justify-between mb-2">
+          <div className="flex-1">
+            <h4 className="font-medium text-gray-900 text-sm mb-1">
+              {quiz.title || "Untitled Quiz"}
+            </h4>
+            <div className="flex items-center gap-2 text-xs text-gray-600">
+              <svg className="w-3 h-3 text-purple-500 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-11a1 1 0 10-2 0v2H7a1 1 0 100 2h2v2a1 1 0 102 0v-2h2a1 1 0 100-2h-2V7z" clipRule="evenodd" />
+              </svg>
+              <span>Quiz</span>
+            </div>
+          </div>
+        </div>
+
+        {/* Action Button */}
+        <button className="text-xs text-purple-600 hover:text-purple-700 font-medium cursor-pointer underline">
+          Take Quiz
+        </button>
+      </div>
+    </div>
+  );
+}
 
 function AccordionItem({
   section,
@@ -272,116 +278,86 @@ function AccordionItem({
   courseId: string;
 }): JSX.Element {
   const lessonCount = Array.isArray(section.lessons) ? section.lessons.length : 0;
-  const colorScheme = iconColors[index % iconColors.length];
+  const quizCount = section.quizzes ? section.quizzes.length : 0;
+  const totalItems = lessonCount + quizCount;
 
-  const getIconByIndex = (idx: number) => {
-    switch (idx % 5) {
-      case 0:
-        return (
-          <svg
-            className="w-5 h-5"
-            fill="currentColor"
-            viewBox="0 0 20 20"
-          >
-            <path
-              fillRule="evenodd"
-              d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
-              clipRule="evenodd"
-            />
-          </svg>
-        );
-      case 1:
-        return (
-          <svg
-            className="w-5 h-5"
-            fill="currentColor"
-            viewBox="0 0 20 20"
-          >
-            <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
-          </svg>
-        );
-      case 2:
-        return (
-          <svg
-            className="w-5 h-5"
-            fill="none"
-            stroke="currentColor"
-            viewBox="0 0 24 24"
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth={2}
-              d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"
-            />
-          </svg>
-        );
-      case 3:
-        return (
-          <svg
-            className="w-5 h-5"
-            fill="currentColor"
-            viewBox="0 0 20 20"
-          >
-            <path d="M13 7H7v6h6V7z" />
-          </svg>
-        );
-      default:
-        return (
-          <svg
-            className="w-5 h-5"
-            fill="currentColor"
-            viewBox="0 0 20 20"
-          >
-            <path d="M5 3a2 2 0 00-2 2v2a2 2 0 002 2h2a2 2 0 002-2V5a2 2 0 00-2-2H5z" />
-          </svg>
-        );
-    }
-  };
+  // Mock quizzes data - you can replace this with actual quiz data from your API
+  const mockQuizzes = [
+    { id: 'quiz-1', title: 'Section Quiz' }
+  ];
 
   return (
-    <div className="border border-gray-200 rounded-lg mb-3 overflow-hidden bg-white hover:shadow-sm transition-shadow">
+    <div className="border border-gray-200 rounded-lg mb-4 overflow-hidden bg-white hover:shadow-md transition-all duration-200">
       <button
         onClick={onToggle}
-        className="w-full px-6 py-4 flex items-center justify-between hover:bg-gray-50 transition-colors"
+        className="w-full px-6 py-4 flex items-center justify-between hover:bg-gray-50 transition-colors text-left"
       >
-        <div className="flex items-center gap-4 text-left flex-1">
-          <div className={`w-10 h-10 rounded-full ${colorScheme.bg} flex items-center justify-center flex-shrink-0 ${colorScheme.text}`}>
-            {getIconByIndex(index)}
+        <div className="flex items-center gap-4 flex-1">
+          <div className="flex-shrink-0">
+            <div className="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center">
+              <span className="text-blue-600 font-semibold text-sm">
+                {index + 1}
+              </span>
+            </div>
           </div>
-          <div>
-            <h3 className="font-semibold text-gray-900 text-sm">
-              {String(section.title || "Section")}
+          <div className="flex-1">
+            <h3 className="font-semibold text-gray-900 text-base mb-1">
+              {String(section.title || "Untitled Section")}
             </h3>
-            <p className="text-xs text-gray-500">
-              {lessonCount} {lessonCount === 1 ? "lesson" : "lessons"}
+            <p className="text-sm text-gray-600">
+              {totalItems} {totalItems === 1 ? 'item' : 'items'}
+              {lessonCount > 0 && ` • ${lessonCount} lesson${lessonCount === 1 ? '' : 's'}`}
+              {quizCount > 0 && ` • ${quizCount} quiz${quizCount === 1 ? '' : 'zes'}`}
             </p>
           </div>
         </div>
-        <span className="text-gray-400 text-lg flex-shrink-0">
-          {isOpen ? "−" : "+"}
-        </span>
+        
+        <div className="flex items-center gap-2">
+          <span className="text-sm text-gray-500">
+            {isOpen ? 'Hide' : 'Show'}
+          </span>
+          <svg 
+            className={`w-5 h-5 text-gray-400 transition-transform duration-200 ${isOpen ? 'rotate-180' : ''}`}
+            fill="none" 
+            stroke="currentColor" 
+            viewBox="0 0 24 24"
+          >
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+          </svg>
+        </div>
       </button>
 
       {isOpen && (
         <div className="bg-gray-50 border-t border-gray-200">
-          {Array.isArray(section.lessons) && section.lessons.length > 0 ? (
-            <div className="divide-y divide-gray-200">
-              {[...section.lessons].sort((a: Lesson, b: Lesson) => (a.orderIndex || 0) - (b.orderIndex || 0)).map((lesson: Lesson, lessonIdx: number) => (
-                <LessonItem
-                  key={lesson.id || lessonIdx}
-                  lesson={lesson}
-                  allLessons={section.lessons || []}
-                  section={section}
-                  courseId={String(courseId || "")}
-                />
-              ))}
-            </div>
-          ) : (
-            <div className="px-6 py-4 text-gray-500 text-sm text-center">
-              No lessons available
-            </div>
-          )}
+          <div className="p-4 space-y-3">
+            {/* Lessons */}
+            {Array.isArray(section.lessons) && section.lessons.length > 0 ? (
+              section.lessons
+                .sort((a: Lesson, b: Lesson) => (a.orderIndex || 0) - (b.orderIndex || 0))
+                .map((lesson: Lesson, lessonIdx: number) => (
+                  <LessonItem
+                    key={lesson.id || lessonIdx}
+                    lesson={lesson}
+                    section={section}
+                    courseId={String(courseId || "")}
+                  />
+                ))
+            ) : (
+              <div className="text-center py-4 text-gray-500 text-sm">
+                No lessons available in this section
+              </div>
+            )}
+
+            {/* Quizzes */}
+            {mockQuizzes.map((quiz, quizIdx) => (
+              <QuizItem
+                key={quiz.id}
+                quiz={quiz}
+                section={section}
+                courseId={String(courseId || "")}
+              />
+            ))}
+          </div>
         </div>
       )}
     </div>
@@ -410,10 +386,18 @@ function CourseContents({
     setOpenSections(newOpen);
   };
 
+  const totalLessons = sections.reduce((sum, section) => 
+    sum + (Array.isArray(section.lessons) ? section.lessons.length : 0), 0
+  );
+
   if (!Array.isArray(sections) || sections.length === 0) {
     return (
       <div className="bg-white rounded-lg p-12 text-center border border-gray-200">
-        <p className="text-gray-500">No course content available</p>
+        <svg className="w-16 h-16 text-gray-300 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.746 0 3.332.477 4.5 1.253v13C19.832 18.477 18.246 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
+        </svg>
+        <p className="text-gray-500 text-lg font-medium">No course content available yet</p>
+        <p className="text-gray-400 mt-2">Check back later for updated curriculum</p>
       </div>
     );
   }
@@ -421,7 +405,7 @@ function CourseContents({
   return (
     <div className="bg-white rounded-lg border border-gray-200 overflow-hidden">
       <div className="px-6 py-4 border-b border-gray-200 bg-gray-50">
-        <h2 className="text-lg font-bold text-gray-900">কোর্স বিবরণ</h2>
+        <h2 className="text-xl font-bold text-gray-900">Course Curriculum</h2>
       </div>
       <div className="p-6">
         {sortedSections.map((section: Section, index: number) => (
@@ -520,9 +504,11 @@ export default function Page(): JSX.Element {
 
   return (
     <DashboardLayout>
-      <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-80">
+      <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {isAuthChecking && (
-          <div className="p-8 text-center text-gray-600">Loading...</div>
+          <div className="flex justify-center items-center py-20">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500"></div>
+          </div>
         )}
 
         {error && !isAuthChecking && (
