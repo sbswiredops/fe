@@ -51,6 +51,7 @@ export default function QuizzesForm({ formData, onChange, setFormData, courses, 
       </div>
 
       <Input label="Quiz Title" name="title" value={formData.title || ''} onChange={onChange} placeholder="Enter quiz title" required />
+
       <div>
         <label className="block text-sm font-medium text-gray-700 mb-1">Description</label>
         <textarea
@@ -75,6 +76,59 @@ export default function QuizzesForm({ formData, onChange, setFormData, courses, 
             <span className="text-sm text-gray-700">Paid</span>
           </label>
         </div>
+      </div>
+
+      {/* --- New Fields --- */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-4">
+        <Input
+          label="Total Time (minutes)"
+          name="totalTime"
+          type="number"
+          value={formData.totalTime ?? ''}
+          onChange={onChange}
+          placeholder="e.g., 60"
+        />
+        <Input
+          label="Pass Mark (%)"
+          name="passMark"
+          type="number"
+          value={formData.passMark ?? ''}
+          onChange={onChange}
+          placeholder="e.g., 50"
+        />
+        <Input
+          label="Total Questions"
+          name="totalQuestions"
+          type="number"
+          value={formData.totalQuestions ?? 0}
+          onChange={onChange}
+          placeholder="Auto-calculated"
+          disabled
+        />
+      </div>
+
+      <div className="mt-4 flex items-center gap-4">
+        <label className="inline-flex items-center gap-2">
+          <input
+            type="checkbox"
+            name="hasNegativeMark"
+            checked={!!formData.hasNegativeMark}
+            onChange={(e) => setFormData((p: any) => ({ ...p, hasNegativeMark: e.target.checked, negativeMarkPercentage: e.target.checked ? p.negativeMarkPercentage ?? 0 : 0 }))}
+            className="h-4 w-4"
+          />
+          <span className="text-sm text-gray-700">Enable Negative Marking</span>
+        </label>
+
+        {formData.hasNegativeMark && (
+          <Input
+            label="Negative Mark (%)"
+            name="negativeMarkPercentage"
+            type="number"
+            value={formData.negativeMarkPercentage ?? ''}
+            onChange={onChange}
+            placeholder="e.g., 25"
+          />
+        )}
       </div>
     </>
   );

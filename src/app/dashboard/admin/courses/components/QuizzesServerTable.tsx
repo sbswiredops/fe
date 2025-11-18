@@ -57,21 +57,53 @@ export default function QuizzesServerTable({
           ),
         },
         {
+          key: "totalTime",
+          header: "Time (min)",
+          render: (q: any) => (
+            <span className="text-sm text-gray-900">
+              {q.totalTime ?? "-"}
+            </span>
+          ),
+        },
+        {
+          key: "passMark",
+          header: "Pass (%)",
+          render: (q: any) => (
+            <span className="text-sm text-gray-900">
+              {q.passMark ?? "-"}
+            </span>
+          ),
+        },
+        {
+          key: "hasNegativeMark",
+          header: "Negative Mark",
+          render: (q: any) => (
+            <span className="text-sm text-gray-900">
+              {q.hasNegativeMark ? "Yes" : "No"}
+            </span>
+          ),
+        },
+        {
+          key: "negativeMarkPercentage",
+          header: "Neg. Mark (%)",
+          render: (q: any) => (
+            <span className="text-sm text-gray-900">
+              {q.hasNegativeMark ? q.negativeMarkPercentage ?? "-" : "-"}
+            </span>
+          ),
+        },
+        {
           key: "isLocked",
           header: "Locked",
           render: (q: any) => (
-            <span className="text-sm text-gray-900">
-              {q.isLocked ? "Yes" : "No"}
-            </span>
+            <span className="text-sm text-gray-900">{q.isLocked ? "Yes" : "No"}</span>
           ),
         },
         {
           key: "isPaid",
           header: "Paid",
           render: (q: any) => (
-            <span className="text-sm text-gray-900">
-              {q.isPaid ? "Yes" : "No"}
-            </span>
+            <span className="text-sm text-gray-900">{q.isPaid ? "Yes" : "No"}</span>
           ),
         },
         {
