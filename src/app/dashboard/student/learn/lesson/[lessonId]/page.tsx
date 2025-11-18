@@ -1,3 +1,4 @@
+/* eslint-disable @next/next/no-img-element */
 "use client";
 
 import React, { useEffect, useState, JSX, useRef } from "react";
@@ -381,22 +382,41 @@ export default function LessonViewerPage(): JSX.Element {
                   {String(lesson.content || "No description available")}
                 </p>
 
-                {lesson.createdBy && (
-                  <div className="pt-4 border-t border-gray-200 flex items-center gap-3">
-                    <svg
-                      className="w-5 h-5 text-gray-400"
-                      fill="currentColor"
-                      viewBox="0 0 20 20"
-                    >
-                      <path
-                        fillRule="evenodd"
-                        d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z"
-                        clipRule="evenodd"
-                      />
-                    </svg>
-                    <div>
-                      <p className="text-sm text-gray-600">Created by</p>
-                      <p className="font-medium text-gray-900">{creatorName}</p>
+                {course?.instructor && (
+                  <div className="pt-4 border-t border-gray-200">
+                    <p className="text-sm text-gray-600 mb-3">Instructor</p>
+                    <div className="flex items-start gap-3">
+                      {course.instructor.avatar ? (
+                        <img
+                          src={course.instructor.avatar}
+                          alt={course.instructor.name || "Instructor"}
+                          className="w-12 h-12 rounded-full object-cover flex-shrink-0"
+                        />
+                      ) : (
+                        <div className="w-12 h-12 rounded-full bg-gradient-to-br from-blue-400 to-blue-600 flex items-center justify-center flex-shrink-0">
+                          <svg
+                            className="w-6 h-6 text-white"
+                            fill="currentColor"
+                            viewBox="0 0 20 20"
+                          >
+                            <path
+                              fillRule="evenodd"
+                              d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z"
+                              clipRule="evenodd"
+                            />
+                          </svg>
+                        </div>
+                      )}
+                      <div className="flex-1">
+                        <p className="font-semibold text-gray-900">
+                          {course.instructor.name || course.instructor.firstName}
+                        </p>
+                        {course.instructor.bio && (
+                          <p className="text-sm text-gray-600 mt-1 leading-relaxed">
+                            {course.instructor.bio}
+                          </p>
+                        )}
+                      </div>
                     </div>
                   </div>
                 )}
