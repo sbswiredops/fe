@@ -238,10 +238,10 @@ export default function LessonViewerPage(): JSX.Element {
 
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 p-6 sm:p-8">
             <div className="lg:col-span-2">
-              {lesson.video || lesson.resource ? (
+              {lesson.video || lesson.resource || (Array.isArray(lesson.quizzes) && lesson.quizzes.length > 0) ? (
                 <>
-                  {(lesson.video || lesson.resource) && (
-                    <div className="flex gap-2 mb-4">
+                  {(lesson.video || lesson.resource || (Array.isArray(lesson.quizzes) && lesson.quizzes.length > 0)) && (
+                    <div className="flex gap-2 mb-4 flex-wrap">
                       {lesson.video && (
                         <button
                           onClick={() => setViewMode("video")}
@@ -278,6 +278,29 @@ export default function LessonViewerPage(): JSX.Element {
                           </svg>
                           Resource
                         </button>
+                      )}
+                      {Array.isArray(lesson.quizzes) && lesson.quizzes.length > 0 && (
+                        <div className="flex gap-2 flex-wrap">
+                          {lesson.quizzes.map((quiz: any) => (
+                            <button
+                              key={quiz.id}
+                              onClick={() => {
+                                setSelectedQuiz(quiz);
+                                setViewMode("quiz");
+                              }}
+                              className={`flex items-center gap-2 px-4 py-2 rounded-lg font-medium transition-colors text-sm ${
+                                viewMode === "quiz" && selectedQuiz?.id === quiz.id
+                                  ? "bg-purple-600 text-white"
+                                  : "bg-gray-100 text-gray-700 hover:bg-gray-200"
+                              }`}
+                            >
+                              <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                                <path d="M5.5 13a3.5 3.5 0 01-.369-6.98 4 4 0 117.753-1.3A4.5 4.5 0 1113.5 13H11V9.413l1.293 1.293a1 1 0 001.414-1.414l-3-3a1 1 0 00-1.414 0l-3 3a1 1 0 001.414 1.414L9 9.414V13H5.5z" />
+                              </svg>
+                              {quiz.title}
+                            </button>
+                          ))}
+                        </div>
                       )}
                     </div>
                   )}
