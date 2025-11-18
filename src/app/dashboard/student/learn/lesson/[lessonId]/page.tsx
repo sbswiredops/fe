@@ -434,6 +434,7 @@ export default function LessonViewerPage(): JSX.Element {
                         const secLessons = Array.isArray(sec.lessons)
                           ? [...sec.lessons].sort((a: Lesson, b: Lesson) => (a.orderIndex || 0) - (b.orderIndex || 0))
                           : [];
+                        const secQuizzes = Array.isArray(sec.quizzes) ? sec.quizzes : [];
 
                         return (
                           <div key={sec.id} className="border border-gray-200 rounded-lg overflow-hidden bg-white">
@@ -455,6 +456,7 @@ export default function LessonViewerPage(): JSX.Element {
                                 </p>
                                 <p className="text-xs text-gray-500 mt-0.5">
                                   {secLessons.length} {secLessons.length === 1 ? "lesson" : "lessons"}
+                                  {secQuizzes.length > 0 && ` • ${secQuizzes.length} ${secQuizzes.length === 1 ? "quiz" : "quizzes"}`}
                                 </p>
                               </div>
                               <svg
@@ -469,7 +471,7 @@ export default function LessonViewerPage(): JSX.Element {
                               </svg>
                             </button>
 
-                            {isExpanded && secLessons.length > 0 && (
+                            {isExpanded && (secLessons.length > 0 || secQuizzes.length > 0) && (
                               <div className="border-t border-gray-200 bg-white divide-y divide-gray-100">
                                 {secLessons.map((l: Lesson) => {
                                   const videoFileName = l.video ? l.video.split('/').pop() : null;
