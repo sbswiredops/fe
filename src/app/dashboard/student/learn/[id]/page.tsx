@@ -23,7 +23,6 @@ function CourseHeader({
 }): JSX.Element {
   return (
     <>
-      {/* Dark Header Background */}
       <div className="bg-gradient-to-r from-gray-900 to-gray-800 text-white py-8 mb-8">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
           <h1 className="text-3xl md:text-4xl font-bold">
@@ -32,10 +31,8 @@ function CourseHeader({
         </div>
       </div>
 
-      {/* Course Card */}
       <div className="bg-white rounded-lg overflow-hidden shadow-md border border-gray-200 mb-8">
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-0">
-          {/* Course Info - Left Side */}
           <div className="lg:col-span-2 p-6 md:p-8 flex flex-col justify-center">
             <div className="mb-4 flex items-center gap-2">
               <span className="text-2xl">🎓</span>
@@ -58,7 +55,6 @@ function CourseHeader({
             </div>
           </div>
 
-          {/* Thumbnail - Right Side */}
           <div className="lg:col-span-1 bg-gradient-to-br from-red-700 to-red-900 relative min-h-64 lg:min-h-auto flex items-center justify-center overflow-hidden">
             {course.thumbnail ? (
               <img
@@ -97,8 +93,8 @@ function CourseInfoSection({
 }): JSX.Element {
   return (
     <div className="mb-8">
-      <div className="flex items-start gap-4 mb-6 bg-green-50 rounded-lg p-4 border border-green-200">
-        <div className="flex-shrink-0">
+      <div className="flex items-start gap-4 bg-green-50 rounded-lg p-4 border border-green-200">
+        <div className="flex-shrink-0 mt-1">
           <svg
             className="w-5 h-5 text-green-600"
             fill="currentColor"
@@ -112,8 +108,8 @@ function CourseInfoSection({
           </svg>
         </div>
         <div className="flex-1">
-          <p className="text-sm text-gray-700">
-            {String(course.category || "General")} কোর্স - {String(
+          <p className="text-xs text-gray-700">
+            {String(course.category || "General")} Course - {String(
               (course as any)?.totalLessons ||
                 (Array.isArray(course.sections)
                   ? course.sections.reduce(
@@ -126,29 +122,7 @@ function CourseInfoSection({
                     )
                   : 0)
             )}{" "}
-            পাঠ এবং সম্পূর্ণ প্রশিক্ষণ উপাদান
-          </p>
-        </div>
-      </div>
-
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <div className="bg-gray-50 rounded-lg p-4 border border-gray-200">
-          <h3 className="font-semibold text-gray-900 text-sm mb-1">
-            Facebook সাপোর্ট গ্রুপ বিস্তা��িত
-          </h3>
-          <p className="text-gray-600 text-xs leading-relaxed">
-            স্পীকার ইংরেজি{String(course.category || "কোর্স")}এ সম্পূর্ণ গাইডলাইন সহ{" "}
-            <a href="#" className="text-blue-500 hover:underline">
-              Facebook সাপোর্ট গ্রুপ
-            </a>
-          </p>
-        </div>
-        <div className="bg-gray-50 rounded-lg p-4 border border-gray-200">
-          <h3 className="font-semibold text-gray-900 text-sm mb-1">
-            স্পীকার ইংরেজি অনুশীলন ক্লাস
-          </h3>
-          <p className="text-gray-600 text-xs leading-relaxed">
-            প্রতি সপ্তাহে ২০০ টি লাইভ ক্লাস কর�� হয় এবং প্রত্যেকেরই প্রশিক্ষণ দেওয়া হয়
+            lessons with complete learning materials
           </p>
         </div>
       </div>
@@ -548,7 +522,7 @@ export default function Page(): JSX.Element {
     <DashboardLayout>
       <div className="max-w-6xl mx-auto">
         {isAuthChecking && (
-          <div className="p-8 text-center text-gray-600">লো��� হচ্���ে...</div>
+          <div className="p-8 text-center text-gray-600">Loading...</div>
         )}
 
         {error && !isAuthChecking && (
@@ -562,7 +536,7 @@ export default function Page(): JSX.Element {
         {!isAuthChecking && !error && !course && (
           <div className="p-12 text-center">
             <p className="text-red-600 text-lg font-semibold">
-              কোর্স খুঁজ�� পাওয়া যায়নি
+              Course not found
             </p>
           </div>
         )}
