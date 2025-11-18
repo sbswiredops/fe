@@ -78,7 +78,7 @@ export default function LessonViewerPage(): JSX.Element {
     };
 
     fetchData();
-  }, [isAuthChecking, courseId, sectionId, lessonId]);
+  }, [authLoading, courseId, sectionId, lessonId]);
 
   const handleLessonSelect = (selectedLesson: Lesson) => {
     router.push(
