@@ -3,6 +3,7 @@
 import React, { useEffect, useState, JSX } from "react";
 import { useParams, useRouter, useSearchParams } from "next/navigation";
 import DashboardLayout from "@/components/layout/DashboardLayout";
+import { VideoPlayer } from "@/components/VideoPlayer";
 import { userService } from "@/services/userService";
 import { courseService } from "@/services/courseService";
 import { Lesson, Section, Course } from "@/types/api";
@@ -177,13 +178,12 @@ export default function LessonViewerPage(): JSX.Element {
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 p-6">
             <div className="lg:col-span-2">
               {lesson.video && (
-                <div className="bg-black rounded-lg overflow-hidden mb-6 aspect-video flex items-center justify-center">
-                  <video
+                <div className="bg-black rounded-lg overflow-hidden mb-6 aspect-video">
+                  <VideoPlayer
                     src={lesson.video}
-                    controls
-                    controlsList="nodownload"
                     className="w-full h-full object-contain"
-                    autoPlay
+                    autoPlay={true}
+                    controls={true}
                   />
                 </div>
               )}
