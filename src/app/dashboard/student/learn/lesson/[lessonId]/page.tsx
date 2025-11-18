@@ -62,10 +62,17 @@ export default function LessonViewerPage(): JSX.Element {
               setCreatorName(
                 userResponse.data.name || userResponse.data.email || "Unknown"
               );
+            } else {
+              setCreatorName("Unknown");
             }
-          } catch (err) {
-            console.error("Failed to fetch creator:", err);
-            setCreatorName("Unknown");
+          } catch (err: any) {
+            const status = err?.message?.includes('403') ? 403 : null;
+            if (status === 403) {
+              setCreatorName("Course Creator");
+            } else {
+              console.error("Failed to fetch creator:", err);
+              setCreatorName("Unknown");
+            }
           }
         }
 
