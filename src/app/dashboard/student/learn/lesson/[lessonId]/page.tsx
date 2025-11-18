@@ -213,7 +213,7 @@ export default function LessonViewerPage(): JSX.Element {
 
   return (
     <DashboardLayout>
-      <div className="max-w-7xl mx-auto">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="mb-6">
           <button
             onClick={() => router.back()}
@@ -227,14 +227,14 @@ export default function LessonViewerPage(): JSX.Element {
         </div>
 
         <div className="bg-white rounded-xl overflow-hidden border border-gray-200 shadow-sm mb-6">
-          <div className="bg-gradient-to-r from-blue-600 to-blue-700 px-6 py-4">
+          <div className="bg-gradient-to-r from-blue-600 to-blue-700 px-6 sm:px-8 py-4">
             <h1 className="text-2xl font-bold text-white">{String(lesson.title)}</h1>
             <p className="text-blue-100 text-sm mt-2">
               {String(section.title)} • {String(course.title)}
             </p>
           </div>
 
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 p-6">
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 p-6 sm:p-8">
             <div className="lg:col-span-2">
               {lesson.video || lesson.resource ? (
                 <>
