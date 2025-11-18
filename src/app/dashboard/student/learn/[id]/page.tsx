@@ -160,10 +160,17 @@ function LessonItem({
           const response = await userService.getById(lesson.createdBy);
           if (response.data) {
             setCreatorName(response.data.name || response.data.email || "Unknown");
+          } else {
+            setCreatorName("Unknown");
           }
-        } catch (error) {
-          console.error("Failed to fetch creator info:", error);
-          setCreatorName("Unknown");
+        } catch (error: any) {
+          const status = error?.message?.includes('403') ? 403 : null;
+          if (status === 403) {
+            setCreatorName("Course Creator");
+          } else {
+            console.error("Failed to fetch creator info:", error);
+            setCreatorName("Unknown");
+          }
         }
       }
       setIsLoadingCreator(false);
@@ -178,7 +185,7 @@ function LessonItem({
 
   const handleOpenLesson = () => {
     router.push(
-      `/dashboard/student/lesson/${lesson.id}?courseId=${courseId}&sectionId=${section.id}`
+      `/dashboard/student/learn/lesson/${lesson.id}?courseId=${courseId}&sectionId=${section.id}`
     );
   };
 
@@ -521,7 +528,7 @@ export default function Page(): JSX.Element {
     <DashboardLayout>
       <div className="max-w-6xl mx-auto">
         {isAuthChecking && (
-          <div className="p-8 text-center text-gray-600">লো��� হচ্ছে...</div>
+          <div className="p-8 text-center text-gray-600">লো��� হচ্���ে...</div>
         )}
 
         {error && !isAuthChecking && (
