@@ -150,9 +150,9 @@ export default function EnrollPage() {
         throw new Error(msg);
       }
 
-      const existing = getById(String(course.id));
-      if (!existing) {
-        setCourses([...(getById ? [] : []), course] as any);
+      const has = enrolledCourses.some((c: any) => String(c.id) === String(course.id));
+      if (!has) {
+        setCourses([...enrolledCourses, course] as any);
       }
 
       router.replace(`/enroll/success?courseId=${course.id}`);
