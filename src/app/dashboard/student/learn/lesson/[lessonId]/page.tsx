@@ -102,10 +102,54 @@ export default function LessonViewerPage(): JSX.Element {
   }, [authLoading, courseId, sectionId, lessonId]);
 
   const handleLessonSelect = (selectedLesson: Lesson) => {
+    cancelledRef.current = false;
+    setViewMode("video");
+    setPdfUrl(null);
+    setPdfError(null);
     router.push(
       `/dashboard/student/learn/lesson/${selectedLesson.id}?courseId=${courseId}&sectionId=${sectionId}`
     );
   };
+
+  const loadPdf = async () => {
+    if (!lesson?.id) return;
+
+    cancelledRef.current = false;
+    setIsPdfLoading(true);
+    setPdfError(null);
+
+    try {
+      const blob = await lessonService.getLessonPdfBlob(lesson.id);
+      if (cancelledRef.current) return;
+
+      const objectUrl = URL.createObjectURL(blob);
+      setPdfUrl(objectUrl);
+      setViewMode("pdf");
+    } catch (err: any) {
+      if (cancelledRef.current) return;
+
+      const status = err?.response?.status ?? err?.status;
+      if (status === 404) {
+        setPdfError("PDF not available for this lesson.");
+      } else {
+        setPdfError(err?.message || "Failed to load lesson PDF.");
+      }
+      setPdfUrl(null);
+    } finally {
+      if (!cancelledRef.current) {
+        setIsPdfLoading(false);
+      }
+    }
+  };
+
+  useEffect(() => {
+    return () => {
+      cancelledRef.current = true;
+      if (pdfUrl) {
+        URL.revokeObjectURL(pdfUrl);
+      }
+    };
+  }, [pdfUrl]);
 
   const sortedLessons = section?.lessons
     ? [...section.lessons].sort(
