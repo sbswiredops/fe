@@ -357,7 +357,7 @@ export default function LessonViewerPage(): JSX.Element {
                   </div>
                 )}
 
-                {lesson.resource && lesson.video && (
+                {lesson.resource && !lesson.video && (
                   <div className="mt-4 pt-4 border-t border-gray-200">
                     <a
                       href={lesson.resource}
@@ -366,7 +366,7 @@ export default function LessonViewerPage(): JSX.Element {
                       className="inline-flex items-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-lg transition-colors text-sm"
                     >
                       <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
-                        <path fillRule="evenodd" d="M8 4a2 2 0 012-2h4a1 1 0 01.894.553l1.5 3a1 1 0 01-.894 1.447h-.5a1 1 0 00-.894.553l-.5 1a1 1 0 01-.894.553H9a1 1 0 00-.894.553l-1 2A1 1 0 007 12h-.5a1 1 0 01-.894-.553l-1-2A1 1 0 004 9V4z" clipRule="evenodd" />
+                        <path fillRule="evenodd" d="M4 4a2 2 0 012-2h4.586A2 2 0 0113 3.414L15.414 6A2 2 0 0116 7.414V16a2 2 0 01-2 2H6a2 2 0 01-2-2V4z" clipRule="evenodd" />
                       </svg>
                       Download Resource
                     </a>
