@@ -1,4 +1,4 @@
-"use client";
+  "use client";
 
 import React, { useEffect, useMemo, useState } from "react";
 import Image from "next/image";
@@ -26,7 +26,7 @@ export default function EnrollPage() {
   }, []);
 
   const { user } = useAuth();
-  const { setCourses, getById } = useEnrolledCourses();
+  const { courses: enrolledCourses, setCourses, getById } = useEnrolledCourses();
 
   const [course, setCourse] = useState<Course | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
@@ -77,10 +77,11 @@ export default function EnrollPage() {
             duration: durationStr,
             thumbnail: c.thumbnail || "/placeholder-course.jpg",
             category: String(categoryName),
-            enrolledStudents: Number(c.enrollmentCount ?? 0),
+            enrollmentCount: Number(c.enrollmentCount ?? 0),
             rating: Number(c.rating ?? 0),
             createdAt: created,
-            sections: Array.isArray(c.sections) ? c.sections : [], // Add sections property
+            sections: Array.isArray(c.sections) ? c.sections : [],
+            courseIntroVideo: c?.courseIntroVideo || "",
           };
           setCourse(mapped);
         }
@@ -149,13 +150,10 @@ export default function EnrollPage() {
         throw new Error(msg);
       }
 
-      setCourses(
-        ((prev) => {
-          const has = prev.some((c: any) => String(c.id) === String(course.id));
-          if (has) return prev;
-          return [...prev, course];
-        })(getById ? [getById(String(course.id))].filter(Boolean) : [])
-      );
+      const has = enrolledCourses.some((c: any) => String(c.id) === String(course.id));
+      if (!has) {
+        setCourses([...enrolledCourses, course] as any);
+      }
 
       router.replace(`/enroll/success?courseId=${course.id}`);
     } catch (e: any) {
@@ -339,4 +337,3 @@ export default function EnrollPage() {
     </MainLayout>
   );
 }
-

@@ -1,17 +1,22 @@
 "use client";
 
-import { JSX, useEffect, useState } from "react";
+import React, { useEffect, useState, JSX } from "react";
 import { useParams, useRouter, useSearchParams } from "next/navigation";
 import { userService } from "@/services/userService";
 import { courseService } from "@/services/courseService";
-import { Lesson, Section, CourseDetail } from "@/types/api";
+import { Lesson, Section, Course } from "@/types/api";
 import { useAuth } from "@/components/contexts/AuthContext";
+
+type CourseDetail = Course & {
+  sections?: Section[];
+  instructorBio?: string;
+};
 
 export default function LessonViewerPage(): JSX.Element {
   const params = useParams();
   const router = useRouter();
   const searchParams = useSearchParams();
-  const { user, isAuthChecking } = useAuth();
+  const { user, isLoading: authLoading } = useAuth();
 
   const lessonId = String(params.lessonId || "");
   const courseId = searchParams.get("courseId");
@@ -26,12 +31,12 @@ export default function LessonViewerPage(): JSX.Element {
 
   useEffect(() => {
     const fetchData = async () => {
-      if (isAuthChecking || !courseId || !sectionId) {
+      if (authLoading || !courseId || !sectionId) {
         return;
       }
 
       try {
-        const courseResponse = await courseService.getById(courseId);
+        const courseResponse = await courseService.getCourseById(courseId);
         if (!courseResponse.data) {
           setError("Course not found");
           setIsLoading(false);
@@ -73,11 +78,11 @@ export default function LessonViewerPage(): JSX.Element {
     };
 
     fetchData();
-  }, [isAuthChecking, courseId, sectionId, lessonId]);
+  }, [authLoading, courseId, sectionId, lessonId]);
 
   const handleLessonSelect = (selectedLesson: Lesson) => {
     router.push(
-      `/dashboard/student/learn/lesson/${selectedLesson.id}?courseId=${courseId}&sectionId=${sectionId}`
+      `/dashboard/student/lesson/${selectedLesson.id}?courseId=${courseId}&sectionId=${sectionId}`
     );
   };
 
@@ -87,7 +92,7 @@ export default function LessonViewerPage(): JSX.Element {
       )
     : [];
 
-  if (isAuthChecking || isLoading) {
+  if (authLoading || isLoading) {
     return (
       <div className="flex items-center justify-center min-h-screen bg-gray-100">
         <div className="text-center">

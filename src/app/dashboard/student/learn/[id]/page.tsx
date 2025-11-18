@@ -1,3 +1,4 @@
+/* eslint-disable @next/next/no-img-element */
 "use client";
 
 import React, { JSX, useEffect, useState } from "react";
@@ -12,7 +13,6 @@ const userService = new UserService();
 
 interface CourseDetail extends Course {
   sections?: Section[];
-  totalDuration?: string;
   instructorBio?: string;
 }
 
@@ -178,7 +178,7 @@ function LessonItem({
 
   const handleOpenLesson = () => {
     router.push(
-      `/dashboard/student/learn/lesson/${lesson.id}?courseId=${courseId}&sectionId=${section.id}`
+      `/dashboard/student/lesson/${lesson.id}?courseId=${courseId}&sectionId=${section.id}`
     );
   };
 
@@ -264,11 +264,13 @@ function AccordionItem({
   isOpen,
   onToggle,
   index,
+  courseId,
 }: {
   section: Section;
   isOpen: boolean;
   onToggle: () => void;
   index: number;
+  courseId: string;
 }): JSX.Element {
   const lessonCount = Array.isArray(section.lessons) ? section.lessons.length : 0;
   const colorScheme = iconColors[index % iconColors.length];
@@ -389,8 +391,10 @@ function AccordionItem({
 
 function CourseContents({
   sections,
+  courseId,
 }: {
   sections: Section[];
+  courseId: string;
 }): JSX.Element {
   const sortedSections = [...sections].sort((a: Section, b: Section) => (a.orderIndex || 0) - (b.orderIndex || 0));
   const [openSections, setOpenSections] = useState<Set<string>>(
@@ -426,6 +430,7 @@ function CourseContents({
             isOpen={openSections.has(section.id)}
             onToggle={() => toggleSection(section.id)}
             index={index}
+            courseId={courseId}
           />
         ))}
       </div>
@@ -540,7 +545,7 @@ export default function Page(): JSX.Element {
             <CourseHeader course={course} />
             <CourseInfoSection course={course} />
             {Array.isArray(course.sections) && course.sections.length > 0 && (
-              <CourseContents sections={course.sections} />
+              <CourseContents sections={course.sections} courseId={id} />
             )}
           </>
         )}
