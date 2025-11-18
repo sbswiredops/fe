@@ -29,6 +29,7 @@ export default function LessonViewerPage(): JSX.Element {
   const [creatorName, setCreatorName] = useState<string>("");
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [expandedSections, setExpandedSections] = useState<Set<string>>(new Set());
 
   useEffect(() => {
     const fetchData = async () => {
