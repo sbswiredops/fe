@@ -77,10 +77,11 @@ export default function EnrollPage() {
             duration: durationStr,
             thumbnail: c.thumbnail || "/placeholder-course.jpg",
             category: String(categoryName),
-            enrolledStudents: Number(c.enrollmentCount ?? 0),
+            enrollmentCount: Number(c.enrollmentCount ?? 0),
             rating: Number(c.rating ?? 0),
             createdAt: created,
-            sections: Array.isArray(c.sections) ? c.sections : [], // Add sections property
+            sections: Array.isArray(c.sections) ? c.sections : [],
+            courseIntroVideo: c?.courseIntroVideo || "",
           };
           setCourse(mapped);
         }
@@ -339,4 +340,3 @@ export default function EnrollPage() {
     </MainLayout>
   );
 }
-
