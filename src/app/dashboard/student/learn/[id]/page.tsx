@@ -22,26 +22,40 @@ function CourseHeader({
   course: CourseDetail;
 }): JSX.Element {
   return (
-    <div className="bg-white rounded-xl p-6 md:p-8 mb-6 border border-gray-200 shadow-sm">
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 items-start">
-        {/* Course Info */}
-        <div className="lg:col-span-2">
-          <h1 className="text-2xl md:text-3xl font-bold text-gray-900 mb-2">
+    <>
+      <div className="bg-gradient-to-r from-gray-900 to-gray-800 text-white py-8 mb-8">
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+          <h1 className="text-3xl md:text-4xl font-bold">
             {String(course.title || "Untitled Course")}
           </h1>
-
-          <p className="text-gray-600 text-sm leading-relaxed mb-6">
-            {String(course.description || "No description available")}
-          </p>
-
-          <button className="bg-green-500 hover:bg-green-600 text-white font-bold py-2 px-6 rounded-lg transition-colors inline-flex items-center gap-2">
-            ▶ লাইভ ক্লাস
-          </button>
         </div>
+      </div>
 
-        {/* Thumbnail */}
-        <div className="lg:col-span-1">
-          <div className="bg-gray-100 rounded-xl overflow-hidden w-full aspect-square shadow-md border border-gray-200">
+      <div className="bg-white rounded-lg overflow-hidden shadow-md border border-gray-200 mb-8">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-0">
+          <div className="lg:col-span-2 p-6 md:p-8 flex flex-col justify-center">
+            <div className="mb-4 flex items-center gap-2">
+              <span className="text-2xl">🎓</span>
+              <h2 className="text-xl font-bold text-gray-900">
+                {String(course.title || "Untitled")}
+              </h2>
+            </div>
+
+            <p className="text-gray-600 text-sm leading-relaxed mb-8 line-clamp-3">
+              {String(course.description || "No description available")}
+            </p>
+
+            <div className="flex flex-wrap gap-3">
+              <button className="bg-green-500 hover:bg-green-600 text-white font-bold py-2.5 px-6 rounded-lg transition-colors inline-flex items-center gap-2">
+                <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                  <path d="M6.3 2.841A1.5 1.5 0 004 4.11V15.89a1.5 1.5 0 002.3 1.269l9.344-5.89a1.5 1.5 0 000-2.538L6.3 2.84z" />
+                </svg>
+                শুরু করুন
+              </button>
+            </div>
+          </div>
+
+          <div className="lg:col-span-1 bg-gradient-to-br from-red-700 to-red-900 relative min-h-64 lg:min-h-auto flex items-center justify-center overflow-hidden">
             {course.thumbnail ? (
               <img
                 src={course.thumbnail}
@@ -49,9 +63,9 @@ function CourseHeader({
                 className="w-full h-full object-cover"
               />
             ) : (
-              <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-gray-200 to-gray-300">
+              <div className="w-full h-full flex items-center justify-center">
                 <svg
-                  className="w-12 h-12 text-gray-500"
+                  className="w-16 h-16 text-red-300 opacity-30"
                   fill="none"
                   stroke="currentColor"
                   viewBox="0 0 24 24"
@@ -68,7 +82,7 @@ function CourseHeader({
           </div>
         </div>
       </div>
-    </div>
+    </>
   );
 }
 
@@ -79,8 +93,8 @@ function CourseInfoSection({
 }): JSX.Element {
   return (
     <div className="mb-8">
-      <div className="flex items-start gap-4 mb-6 bg-green-50 rounded-lg p-4 border border-green-200">
-        <div className="flex-shrink-0">
+      <div className="flex items-start gap-4 bg-green-50 rounded-lg p-4 border border-green-200">
+        <div className="flex-shrink-0 mt-1">
           <svg
             className="w-5 h-5 text-green-600"
             fill="currentColor"
@@ -94,8 +108,8 @@ function CourseInfoSection({
           </svg>
         </div>
         <div className="flex-1">
-          <p className="text-sm text-gray-700">
-            {String(course.category || "General")} কোর্স - {String(
+          <p className="text-xs text-gray-700">
+            {String(course.category || "General")} Course - {String(
               (course as any)?.totalLessons ||
                 (Array.isArray(course.sections)
                   ? course.sections.reduce(
@@ -108,29 +122,7 @@ function CourseInfoSection({
                     )
                   : 0)
             )}{" "}
-            পাঠ এবং সম্পূর্ণ প্রশিক্ষণ উপাদান
-          </p>
-        </div>
-      </div>
-
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <div className="bg-gray-50 rounded-lg p-4 border border-gray-200">
-          <h3 className="font-semibold text-gray-900 text-sm mb-1">
-            Facebook সাপোর্ট গ্রুপ বিস্তারিত
-          </h3>
-          <p className="text-gray-600 text-xs leading-relaxed">
-            স্পীকার ইংরেজি{String(course.category || "কোর্স")}এ সম্পূর্ণ গাইডলাইন সহ{" "}
-            <a href="#" className="text-blue-500 hover:underline">
-              Facebook সাপোর্ট গ্রুপ
-            </a>
-          </p>
-        </div>
-        <div className="bg-gray-50 rounded-lg p-4 border border-gray-200">
-          <h3 className="font-semibold text-gray-900 text-sm mb-1">
-            স্পীকার ইংরেজি অনুশীলন ক্লাস
-          </h3>
-          <p className="text-gray-600 text-xs leading-relaxed">
-            প্রতি সপ্তাহে ২০০ টি লাইভ ক্লাস কর�� হয় এবং প্রত্যেকেরই প্রশিক্ষণ দেওয়া হয়
+            lessons with complete learning materials
           </p>
         </div>
       </div>
@@ -427,9 +419,11 @@ function CourseContents({
   }
 
   return (
-    <div className="bg-white rounded-lg p-6 border border-gray-200">
-      <h2 className="text-xl font-bold text-gray-900 mb-6">কোর্স তথ্যসম</h2>
-      <div>
+    <div className="bg-white rounded-lg border border-gray-200 overflow-hidden">
+      <div className="px-6 py-4 border-b border-gray-200 bg-gray-50">
+        <h2 className="text-lg font-bold text-gray-900">কোর্স বিবরণ</h2>
+      </div>
+      <div className="p-6">
         {sortedSections.map((section: Section, index: number) => (
           <AccordionItem
             key={section.id}
@@ -526,9 +520,9 @@ export default function Page(): JSX.Element {
 
   return (
     <DashboardLayout>
-      <div className="max-w-6xl mx-auto">
+      <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-80">
         {isAuthChecking && (
-          <div className="p-8 text-center text-gray-600">লো��� হচ্���ে...</div>
+          <div className="p-8 text-center text-gray-600">Loading...</div>
         )}
 
         {error && !isAuthChecking && (
@@ -542,7 +536,7 @@ export default function Page(): JSX.Element {
         {!isAuthChecking && !error && !course && (
           <div className="p-12 text-center">
             <p className="text-red-600 text-lg font-semibold">
-              কোর্স খুঁজ�� পাওয়া যায়নি
+              Course not found
             </p>
           </div>
         )}
