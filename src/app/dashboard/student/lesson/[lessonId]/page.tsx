@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import React, { useEffect, useState, JSX } from "react";
 import { useParams, useRouter, useSearchParams } from "next/navigation";
 import { userService } from "@/services/userService";
 import { courseService } from "@/services/courseService";
