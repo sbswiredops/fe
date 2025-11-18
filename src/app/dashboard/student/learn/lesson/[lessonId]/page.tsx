@@ -57,6 +57,10 @@ export default function LessonViewerPage(): JSX.Element {
         );
         setLesson(foundLesson || null);
 
+        if (foundSection?.id) {
+          setExpandedSections(new Set([foundSection.id]));
+        }
+
         if (foundLesson?.createdBy) {
           try {
             const userResponse = await userService.getById(foundLesson.createdBy);
