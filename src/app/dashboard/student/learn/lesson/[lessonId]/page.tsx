@@ -1,11 +1,13 @@
 "use client";
 
-import React, { useEffect, useState, JSX } from "react";
+import React, { useEffect, useState, JSX, useRef } from "react";
 import { useParams, useRouter, useSearchParams } from "next/navigation";
 import DashboardLayout from "@/components/layout/DashboardLayout";
 import { VideoPlayer } from "@/components/VideoPlayer";
+import { PDFViewer } from "@/components/PDFViewer";
 import { userService } from "@/services/userService";
 import { courseService } from "@/services/courseService";
+import { lessonService } from "@/services/lessonService";
 import { Lesson, Section, Course } from "@/types/api";
 import { useAuth } from "@/components/contexts/AuthContext";
 
@@ -31,6 +33,11 @@ export default function LessonViewerPage(): JSX.Element {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [expandedSections, setExpandedSections] = useState<Set<string>>(new Set());
+  const [viewMode, setViewMode] = useState<"video" | "pdf">("video");
+  const [pdfUrl, setPdfUrl] = useState<string | null>(null);
+  const [isPdfLoading, setIsPdfLoading] = useState(false);
+  const [pdfError, setPdfError] = useState<string | null>(null);
+  const cancelledRef = useRef(false);
 
   useEffect(() => {
     const fetchData = async () => {
