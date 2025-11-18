@@ -344,6 +344,17 @@ export default function LessonViewerPage(): JSX.Element {
                       ) : null}
                     </div>
                   )}
+
+                  {viewMode === "quiz" && selectedQuiz && (
+                    <div className="bg-gray-100 rounded-lg overflow-hidden mb-6 border border-gray-200 min-h-96">
+                      <QuizViewer
+                        quizId={selectedQuiz.id}
+                        quizTitle={selectedQuiz.title}
+                        onClose={() => setViewMode("video")}
+                        className="w-full h-full"
+                      />
+                    </div>
+                  )}
                 </>
               ) : (
                 <div className="bg-gray-50 rounded-lg p-12 text-center border border-gray-200 mb-6">
