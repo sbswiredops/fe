@@ -549,6 +549,32 @@ export default function LessonViewerPage(): JSX.Element {
                                     </button>
                                   );
                                 })}
+                                {secQuizzes.length > 0 && (
+                                  <div className="bg-purple-50 border-t border-gray-200 px-3 py-2">
+                                    <p className="text-xs font-semibold text-gray-700 mb-2">Section Quizzes</p>
+                                    <div className="space-y-1">
+                                      {secQuizzes.map((quiz: any) => (
+                                        <button
+                                          key={quiz.id}
+                                          onClick={() => {
+                                            setSelectedQuiz(quiz);
+                                            setViewMode("quiz");
+                                          }}
+                                          className="w-full text-left px-2 py-1.5 rounded bg-white hover:bg-purple-100 transition-colors text-xs flex items-center gap-2 group"
+                                        >
+                                          <svg
+                                            className="w-3 h-3 flex-shrink-0 text-purple-600 group-hover:text-purple-700"
+                                            fill="currentColor"
+                                            viewBox="0 0 20 20"
+                                          >
+                                            <path d="M2 5a2 2 0 012-2h12a2 2 0 012 2v8a2 2 0 01-2 2H4a2 2 0 01-2-2V5zm4 2a1 1 0 100 2h6a1 1 0 100-2H6zm0 4a1 1 0 100 2h6a1 1 0 100-2H6z" />
+                                          </svg>
+                                          <span className="text-gray-800 font-medium truncate">{quiz.title}</span>
+                                        </button>
+                                      ))}
+                                    </div>
+                                  </div>
+                                )}
                               </div>
                             )}
                           </div>
