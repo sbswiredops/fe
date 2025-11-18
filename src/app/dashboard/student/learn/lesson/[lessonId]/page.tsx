@@ -262,59 +262,109 @@ export default function LessonViewerPage(): JSX.Element {
 
             <div className="lg:col-span-1">
               <div className="bg-gray-50 rounded-lg p-4 border border-gray-200 sticky top-6">
-                <h3 className="font-semibold text-gray-900 text-sm mb-1">
-                  {String(section.title)}
+                <h3 className="font-semibold text-gray-900 text-sm mb-4">
+                  Course Curriculum
                 </h3>
-                <p className="text-xs text-gray-500 mb-4">
-                  {sortedLessons.length} {sortedLessons.length === 1 ? "lesson" : "lessons"}
-                </p>
 
-                <div className="space-y-1 max-h-96 overflow-y-auto">
-                  {sortedLessons.map((l: Lesson) => (
-                    <button
-                      key={l.id}
-                      onClick={() => handleLessonSelect(l)}
-                      className={`w-full text-left px-3 py-2 rounded-lg transition-colors text-xs ${
-                        l.id === lesson.id
-                          ? "bg-blue-600 text-white"
-                          : "text-gray-700 hover:bg-gray-200"
-                      }`}
-                    >
-                      <div className="flex items-start gap-2">
-                        {l.video ? (
-                          <svg
-                            className="w-3.5 h-3.5 flex-shrink-0 mt-0.5"
-                            fill="currentColor"
-                            viewBox="0 0 20 20"
-                          >
-                            <path d="M2 6a2 2 0 012-2h12a2 2 0 012 2v8a2 2 0 01-2 2H4a2 2 0 01-2-2V6zm12 .5a.5.5 0 01.5.5v5a.5.5 0 01-.5.5H6a.5.5 0 01-.5-.5V7a.5.5 0 01.5-.5h8z" />
-                          </svg>
-                        ) : (
-                          <svg
-                            className="w-3.5 h-3.5 flex-shrink-0 mt-0.5"
-                            fill="currentColor"
-                            viewBox="0 0 20 20"
-                          >
-                            <path
-                              fillRule="evenodd"
-                              d="M8 4a2 2 0 012-2h4a1 1 0 01.894.553l1.5 3a1 1 0 01-.894 1.447h-.5a1 1 0 00-.894.553l-.5 1a1 1 0 01-.894.553H9a1 1 0 00-.894.553l-1 2A1 1 0 007 12h-.5a1 1 0 01-.894-.553l-1-2A1 1 0 004 9V4z"
-                              clipRule="evenodd"
-                            />
-                          </svg>
-                        )}
-                        <div className="flex-1 min-w-0">
-                          <p className="font-medium truncate">
-                            {String(l.title)}
-                          </p>
-                          {l.duration && (
-                            <p className={`text-xs mt-0.5 ${l.id === lesson.id ? 'text-blue-100' : 'text-gray-500'}`}>
-                              {String(l.duration)} min
-                            </p>
-                          )}
-                        </div>
-                      </div>
-                    </button>
-                  ))}
+                <div className="space-y-2 max-h-screen overflow-y-auto">
+                  {Array.isArray(course?.sections) && course.sections.length > 0 ? (
+                    course.sections
+                      .sort((a: Section, b: Section) => (a.orderIndex || 0) - (b.orderIndex || 0))
+                      .map((sec: Section) => {
+                        const isExpanded = expandedSections.has(sec.id);
+                        const secLessons = Array.isArray(sec.lessons)
+                          ? [...sec.lessons].sort((a: Lesson, b: Lesson) => (a.orderIndex || 0) - (b.orderIndex || 0))
+                          : [];
+
+                        return (
+                          <div key={sec.id} className="border border-gray-200 rounded-lg overflow-hidden bg-white">
+                            <button
+                              onClick={() => {
+                                const newExpanded = new Set(expandedSections);
+                                if (newExpanded.has(sec.id)) {
+                                  newExpanded.delete(sec.id);
+                                } else {
+                                  newExpanded.add(sec.id);
+                                }
+                                setExpandedSections(newExpanded);
+                              }}
+                              className="w-full text-left px-3 py-2 hover:bg-gray-100 transition-colors flex items-center justify-between"
+                            >
+                              <div className="flex-1 min-w-0">
+                                <p className="text-xs font-semibold text-gray-900 truncate">
+                                  {String(sec.title)}
+                                </p>
+                                <p className="text-xs text-gray-500 mt-0.5">
+                                  {secLessons.length} {secLessons.length === 1 ? "lesson" : "lessons"}
+                                </p>
+                              </div>
+                              <svg
+                                className={`w-4 h-4 text-gray-600 flex-shrink-0 ml-2 transition-transform ${
+                                  isExpanded ? "transform rotate-180" : ""
+                                }`}
+                                fill="none"
+                                stroke="currentColor"
+                                viewBox="0 0 24 24"
+                              >
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 14l-7 7m0 0l-7-7m7 7V3" />
+                              </svg>
+                            </button>
+
+                            {isExpanded && secLessons.length > 0 && (
+                              <div className="border-t border-gray-200 bg-white divide-y divide-gray-100">
+                                {secLessons.map((l: Lesson) => (
+                                  <button
+                                    key={l.id}
+                                    onClick={() => handleLessonSelect(l)}
+                                    className={`w-full text-left px-3 py-2 transition-colors text-xs flex items-start gap-2 ${
+                                      l.id === lesson.id
+                                        ? "bg-blue-50 border-l-2 border-l-blue-600"
+                                        : "hover:bg-gray-50"
+                                    }`}
+                                  >
+                                    {l.video ? (
+                                      <svg
+                                        className="w-3.5 h-3.5 flex-shrink-0 mt-0.5 text-blue-500"
+                                        fill="currentColor"
+                                        viewBox="0 0 20 20"
+                                      >
+                                        <path d="M2 6a2 2 0 012-2h12a2 2 0 012 2v8a2 2 0 01-2 2H4a2 2 0 01-2-2V6zm12 .5a.5.5 0 01.5.5v5a.5.5 0 01-.5.5H6a.5.5 0 01-.5-.5V7a.5.5 0 01.5-.5h8z" />
+                                      </svg>
+                                    ) : (
+                                      <svg
+                                        className="w-3.5 h-3.5 flex-shrink-0 mt-0.5 text-orange-500"
+                                        fill="currentColor"
+                                        viewBox="0 0 20 20"
+                                      >
+                                        <path
+                                          fillRule="evenodd"
+                                          d="M8 4a2 2 0 012-2h4a1 1 0 01.894.553l1.5 3a1 1 0 01-.894 1.447h-.5a1 1 0 00-.894.553l-.5 1a1 1 0 01-.894.553H9a1 1 0 00-.894.553l-1 2A1 1 0 007 12h-.5a1 1 0 01-.894-.553l-1-2A1 1 0 004 9V4z"
+                                          clipRule="evenodd"
+                                        />
+                                      </svg>
+                                    )}
+                                    <div className="flex-1 min-w-0">
+                                      <p className={`font-medium truncate ${l.id === lesson.id ? 'text-gray-900' : 'text-gray-700'}`}>
+                                        {String(l.title)}
+                                      </p>
+                                      {l.duration && (
+                                        <p className={`text-xs mt-0.5 ${l.id === lesson.id ? 'text-blue-600' : 'text-gray-500'}`}>
+                                          {String(l.duration)} min
+                                        </p>
+                                      )}
+                                    </div>
+                                  </button>
+                                ))}
+                              </div>
+                            )}
+                          </div>
+                        );
+                      })
+                  ) : (
+                    <div className="text-center py-4">
+                      <p className="text-xs text-gray-500">No sections available</p>
+                    </div>
+                  )}
                 </div>
               </div>
             </div>
