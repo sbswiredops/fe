@@ -273,6 +273,7 @@ export interface Lesson {
   section?: Section; // Optional reference to the parent section
   course?: Course; // Optional reference to the parent course
   progressRecords?: LessonProgress[]; // Tracks progress for the lesson
+  quizzes?: Array<{ id: string; title: string }>; // Optional quizzes associated with this lesson
 }
 
 export interface CreateLessonRequest {
