@@ -172,7 +172,7 @@ export default function LessonViewerPage(): JSX.Element {
       <DashboardLayout>
         <div className="flex items-center justify-center min-h-screen">
           <div className="text-center">
-            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-purple-600 mx-auto mb-4"></div>
             <p className="text-gray-600">Loading lesson...</p>
           </div>
         </div>
@@ -203,7 +203,7 @@ export default function LessonViewerPage(): JSX.Element {
             </p>
             <button
               onClick={() => router.back()}
-              className="bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-lg transition-colors"
+              className="bg-purple-600 hover:bg-purple-700 text-white font-medium py-2 px-4 rounded-lg transition-colors"
             >
               Go Back
             </button>
@@ -219,7 +219,7 @@ export default function LessonViewerPage(): JSX.Element {
         <div className="mb-6">
           <button
             onClick={() => router.back()}
-            className="flex items-center gap-2 text-blue-600 hover:text-blue-700 font-medium text-sm"
+            className="flex items-center gap-2 text-purple-600 hover:text-purple-700 font-medium text-sm"
           >
             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
@@ -229,7 +229,7 @@ export default function LessonViewerPage(): JSX.Element {
         </div>
 
         <div className="bg-white rounded-xl overflow-hidden border border-gray-200 shadow-sm mb-6">
-          <div className="bg-gradient-to-r from-blue-600 to-blue-700 px-6 sm:px-8 py-4">
+          <div className="bg-gradient-to-r from-purple-600 to-purple-700 px-6 sm:px-8 py-4">
             <h1 className="text-2xl font-bold text-white">{String(lesson.title)}</h1>
             <p className="text-blue-100 text-sm mt-2">
               {String(section.title)} • {String(course.title)}
@@ -247,7 +247,7 @@ export default function LessonViewerPage(): JSX.Element {
                           onClick={() => setViewMode("video")}
                           className={`flex items-center gap-2 px-4 py-2 rounded-lg font-medium transition-colors text-sm ${
                             viewMode === "video"
-                              ? "bg-blue-600 text-white"
+                              ? "bg-purple-600 text-white"
                               : "bg-gray-100 text-gray-700 hover:bg-gray-200"
                           }`}
                         >
@@ -263,7 +263,7 @@ export default function LessonViewerPage(): JSX.Element {
                           disabled={isPdfLoading}
                           className={`flex items-center gap-2 px-4 py-2 rounded-lg font-medium transition-colors text-sm ${
                             viewMode === "pdf"
-                              ? "bg-blue-600 text-white"
+                              ? "bg-purple-600 text-white"
                               : "bg-gray-100 text-gray-700 hover:bg-gray-200 disabled:opacity-50"
                           }`}
                         >
@@ -407,7 +407,7 @@ export default function LessonViewerPage(): JSX.Element {
                       href={lesson.resource}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="inline-flex items-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-lg transition-colors text-sm"
+                      className="inline-flex items-center gap-2 px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white font-medium rounded-lg transition-colors text-sm"
                     >
                       <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
                         <path fillRule="evenodd" d="M4 4a2 2 0 012-2h4.586A2 2 0 0113 3.414L15.414 6A2 2 0 0116 7.414V16a2 2 0 01-2 2H6a2 2 0 01-2-2V4z" clipRule="evenodd" />
@@ -434,6 +434,7 @@ export default function LessonViewerPage(): JSX.Element {
                         const secLessons = Array.isArray(sec.lessons)
                           ? [...sec.lessons].sort((a: Lesson, b: Lesson) => (a.orderIndex || 0) - (b.orderIndex || 0))
                           : [];
+                        const secQuizzes = Array.isArray(sec.quizzes) ? sec.quizzes : [];
 
                         return (
                           <div key={sec.id} className="border border-gray-200 rounded-lg overflow-hidden bg-white">
@@ -455,6 +456,7 @@ export default function LessonViewerPage(): JSX.Element {
                                 </p>
                                 <p className="text-xs text-gray-500 mt-0.5">
                                   {secLessons.length} {secLessons.length === 1 ? "lesson" : "lessons"}
+                                  {secQuizzes.length > 0 && ` • ${secQuizzes.length} ${secQuizzes.length === 1 ? "quiz" : "quizzes"}`}
                                 </p>
                               </div>
                               <svg
@@ -469,7 +471,7 @@ export default function LessonViewerPage(): JSX.Element {
                               </svg>
                             </button>
 
-                            {isExpanded && secLessons.length > 0 && (
+                            {isExpanded && (secLessons.length > 0 || secQuizzes.length > 0) && (
                               <div className="border-t border-gray-200 bg-white divide-y divide-gray-100">
                                 {secLessons.map((l: Lesson) => {
                                   const videoFileName = l.video ? l.video.split('/').pop() : null;
@@ -487,7 +489,7 @@ export default function LessonViewerPage(): JSX.Element {
                                     >
                                       {l.video ? (
                                         <svg
-                                          className="w-3.5 h-3.5 flex-shrink-0 mt-0.5 text-blue-500"
+                                          className="w-3.5 h-3.5 flex-shrink-0 mt-0.5 text-purple-500"
                                           fill="currentColor"
                                           viewBox="0 0 20 20"
                                         >
@@ -512,7 +514,7 @@ export default function LessonViewerPage(): JSX.Element {
                                         </p>
                                         <div className="space-y-0.5 mt-1">
                                           {videoFileName && (
-                                            <p className="text-xs text-blue-600 truncate" title={videoFileName}>
+                                            <p className="text-xs text-purple-600 truncate" title={videoFileName}>
                                               📹 {videoFileName}
                                             </p>
                                           )}
@@ -520,6 +522,22 @@ export default function LessonViewerPage(): JSX.Element {
                                             <p className="text-xs text-orange-600 truncate" title={resourceFileName}>
                                               📄 {resourceFileName}
                                             </p>
+                                          )}
+                                          {Array.isArray(l.quizzes) && l.quizzes.length > 0 && (
+                                            <div className="flex flex-wrap gap-1 mt-1">
+                                              {l.quizzes.map((quiz: any) => (
+                                                <span key={quiz.id} className="inline-flex items-center gap-1 text-xs text-purple-600 px-1.5 py-0.5 bg-purple-50 rounded" title={quiz.title}>
+                                                  <svg
+                                                    className="w-3 h-3 flex-shrink-0"
+                                                    fill="currentColor"
+                                                    viewBox="0 0 20 20"
+                                                  >
+                                                    <path d="M2 5a2 2 0 012-2h12a2 2 0 012 2v8a2 2 0 01-2 2H4a2 2 0 01-2-2V5zm4 2a1 1 0 100 2h6a1 1 0 100-2H6zm0 4a1 1 0 100 2h6a1 1 0 100-2H6z" />
+                                                  </svg>
+                                                  {quiz.title}
+                                                </span>
+                                              ))}
+                                            </div>
                                           )}
                                           {l.duration && (
                                             <p className={`text-xs ${l.id === lesson.id ? 'text-blue-600' : 'text-gray-500'}`}>
@@ -531,6 +549,32 @@ export default function LessonViewerPage(): JSX.Element {
                                     </button>
                                   );
                                 })}
+                                {secQuizzes.length > 0 && (
+                                  <div className="bg-purple-50 border-t border-gray-200 px-3 py-2">
+                                    <p className="text-xs font-semibold text-gray-700 mb-2">Section Quizzes</p>
+                                    <div className="space-y-1">
+                                      {secQuizzes.map((quiz: any) => (
+                                        <button
+                                          key={quiz.id}
+                                          onClick={() => {
+                                            setSelectedQuiz(quiz);
+                                            setViewMode("quiz");
+                                          }}
+                                          className="w-full text-left px-2 py-1.5 rounded bg-white hover:bg-purple-100 transition-colors text-xs flex items-center gap-2 group"
+                                        >
+                                          <svg
+                                            className="w-3 h-3 flex-shrink-0 text-purple-600 group-hover:text-purple-700"
+                                            fill="currentColor"
+                                            viewBox="0 0 20 20"
+                                          >
+                                            <path d="M2 5a2 2 0 012-2h12a2 2 0 012 2v8a2 2 0 01-2 2H4a2 2 0 01-2-2V5zm4 2a1 1 0 100 2h6a1 1 0 100-2H6zm0 4a1 1 0 100 2h6a1 1 0 100-2H6z" />
+                                          </svg>
+                                          <span className="text-gray-800 font-medium truncate">{quiz.title}</span>
+                                        </button>
+                                      ))}
+                                    </div>
+                                  </div>
+                                )}
                               </div>
                             )}
                           </div>

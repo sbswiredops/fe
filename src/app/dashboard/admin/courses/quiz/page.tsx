@@ -192,71 +192,105 @@ function QuizzesManagement() {
     }
   };
 
-  const handleAdd = async () => {
-    try {
-      const payload: any = {
-        courseId: formData.courseId || undefined,
-        sectionId: formData.sectionId || undefined,
-        title: formData.title,
-        description: formData.description,
-        isLocked: !!formData.isLocked,
-        isPaid: !!formData.isPaid,
-        price:
-          formData.price !== "" && formData.price !== undefined
-            ? parseFloat(formData.price as any)
-            : undefined,
-      };
-      const res = await quizService.create(payload);
-      if (res.success) {
-        showToast("Quiz created", "success");
-        if (res.data) setQuizzes((p) => [res.data as any, ...p]);
-        setRefreshTick((x) => x + 1);
-      } else {
-        showToast(res.error || "Failed to create quiz", "error");
-      }
-    } catch (e: any) {
-      showToast(e?.message || "Failed to create quiz", "error");
-    }
-    setIsAddModalOpen(false);
-    resetForm();
-  };
+ const handleAdd = async () => {
+  try {
+    const payload: any = {
+      courseId: formData.courseId || undefined,
+      sectionId: formData.sectionId || undefined,
+      title: formData.title,
+      description: formData.description,
+      isLocked: !!formData.isLocked,
+      isPaid: !!formData.isPaid,
+      price:
+        formData.price !== "" && formData.price !== undefined
+          ? parseFloat(formData.price as any)
+          : undefined,
+      totalTime:
+        formData.totalTime !== "" && formData.totalTime !== undefined
+          ? parseInt(formData.totalTime as any, 10)
+          : undefined,
+      passMark:
+        formData.passMark !== "" && formData.passMark !== undefined
+          ? parseFloat(formData.passMark as any)
+          : undefined,
+      hasNegativeMark: !!formData.hasNegativeMark,
+      negativeMarkPercentage:
+        formData.hasNegativeMark && formData.negativeMarkPercentage !== ""
+          ? parseFloat(formData.negativeMarkPercentage as any)
+          : undefined,
+    };
 
-  const handleEdit = async () => {
-    if (!selectedItem) return;
-    try {
-      const payload: any = {
-        title: formData.title,
-        description: formData.description,
-        isLocked:
-          typeof formData.isLocked === "boolean"
-            ? formData.isLocked
-            : undefined,
-        isPaid:
-          typeof formData.isPaid === "boolean" ? formData.isPaid : undefined,
-        price:
-          formData.price !== "" && formData.price !== undefined
-            ? parseFloat(formData.price as any)
-            : undefined,
-      };
-      const res = await quizService.update(selectedItem.id, payload);
-      if (res.success) {
-        showToast("Quiz updated", "success");
-        setQuizzes((prev) =>
-          prev.map((q: any) =>
-            q.id === selectedItem.id ? { ...q, ...payload } : q
-          )
-        );
-        setRefreshTick((x) => x + 1);
-      } else {
-        showToast(res.error || "Failed to update quiz", "error");
-      }
-    } catch (e: any) {
-      showToast(e?.message || "Failed to update quiz", "error");
+    const res = await quizService.create(payload);
+    if (res.success) {
+      showToast("Quiz created", "success");
+      if (res.data) setQuizzes((p) => [res.data as any, ...p]);
+      setRefreshTick((x) => x + 1);
+    } else {
+      showToast(res.error || "Failed to create quiz", "error");
     }
-    setIsEditModalOpen(false);
-    setSelectedItem(null);
-    resetForm();
-  };
+  } catch (e: any) {
+    showToast(e?.message || "Failed to create quiz", "error");
+  }
+  setIsAddModalOpen(false);
+  resetForm();
+};
+
+const handleEdit = async () => {
+  if (!selectedItem) return;
+  try {
+    const payload: any = {
+      title: formData.title,
+      description: formData.description,
+      isLocked:
+        typeof formData.isLocked === "boolean"
+          ? formData.isLocked
+          : undefined,
+      isPaid:
+        typeof formData.isPaid === "boolean"
+          ? formData.isPaid
+          : undefined,
+      price:
+        formData.price !== "" && formData.price !== undefined
+          ? parseFloat(formData.price as any)
+          : undefined,
+      totalTime:
+        formData.totalTime !== "" && formData.totalTime !== undefined
+          ? parseInt(formData.totalTime as any, 10)
+          : undefined,
+      passMark:
+        formData.passMark !== "" && formData.passMark !== undefined
+          ? parseFloat(formData.passMark as any)
+          : undefined,
+      hasNegativeMark:
+        typeof formData.hasNegativeMark === "boolean"
+          ? formData.hasNegativeMark
+          : undefined,
+      negativeMarkPercentage:
+        formData.hasNegativeMark && formData.negativeMarkPercentage !== ""
+          ? parseFloat(formData.negativeMarkPercentage as any)
+          : undefined,
+    };
+
+    const res = await quizService.update(selectedItem.id, payload);
+    if (res.success) {
+      showToast("Quiz updated", "success");
+      setQuizzes((prev) =>
+        prev.map((q: any) =>
+          q.id === selectedItem.id ? { ...q, ...payload } : q
+        )
+      );
+      setRefreshTick((x) => x + 1);
+    } else {
+      showToast(res.error || "Failed to update quiz", "error");
+    }
+  } catch (e: any) {
+    showToast(e?.message || "Failed to update quiz", "error");
+  }
+  setIsEditModalOpen(false);
+  setSelectedItem(null);
+  resetForm();
+};
+
 
   const handleDelete = async () => {
     if (!selectedItem) return;
