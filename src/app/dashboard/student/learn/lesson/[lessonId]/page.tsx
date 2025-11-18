@@ -5,6 +5,7 @@ import { useParams, useRouter, useSearchParams } from "next/navigation";
 import DashboardLayout from "@/components/layout/DashboardLayout";
 import { VideoPlayer } from "@/components/VideoPlayer";
 import { PDFViewer } from "@/components/PDFViewer";
+import { QuizViewer } from "@/components/QuizViewer";
 import { userService } from "@/services/userService";
 import { courseService } from "@/services/courseService";
 import { lessonService } from "@/services/lessonService";
@@ -33,10 +34,11 @@ export default function LessonViewerPage(): JSX.Element {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [expandedSections, setExpandedSections] = useState<Set<string>>(new Set());
-  const [viewMode, setViewMode] = useState<"video" | "pdf">("video");
+  const [viewMode, setViewMode] = useState<"video" | "pdf" | "quiz">("video");
   const [pdfUrl, setPdfUrl] = useState<string | null>(null);
   const [isPdfLoading, setIsPdfLoading] = useState(false);
   const [pdfError, setPdfError] = useState<string | null>(null);
+  const [selectedQuiz, setSelectedQuiz] = useState<{ id: string; title: string } | null>(null);
   const cancelledRef = useRef(false);
 
   useEffect(() => {
