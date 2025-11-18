@@ -26,7 +26,7 @@ export default function EnrollPage() {
   }, []);
 
   const { user } = useAuth();
-  const { setCourses, getById } = useEnrolledCourses();
+  const { courses: enrolledCourses, setCourses } = useEnrolledCourses();
 
   const [course, setCourse] = useState<Course | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
