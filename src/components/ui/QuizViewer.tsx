@@ -17,6 +17,16 @@ interface Question {
   explanation?: string;
 }
 
+interface QuizDetails {
+  id: string;
+  title: string;
+  totalQuestions: number;
+  totalTime: number;
+  passMark: number;
+  hasNegativeMark: boolean;
+  negativeMarkPercentage?: number;
+}
+
 interface QuizViewerProps {
   quizId: string;
   quizTitle: string;
@@ -31,28 +41,35 @@ export const QuizViewer: React.FC<QuizViewerProps> = ({
   className = "w-full h-full",
 }) => {
   const [questions, setQuestions] = useState<Question[]>([]);
+  const [quizDetails, setQuizDetails] = useState<QuizDetails | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [hasStarted, setHasStarted] = useState(false);
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
   const [answers, setAnswers] = useState<Record<string, any>>({});
 
   useEffect(() => {
-    const loadQuestions = async () => {
+    const loadQuizData = async () => {
       setIsLoading(true);
       setError(null);
       try {
-        const response = await quizService.getQuestions(quizId);
-        if (response.data) {
-          setQuestions(Array.isArray(response.data) ? response.data : []);
+        const detailsResponse = await quizService.getById(quizId);
+        if (detailsResponse.data) {
+          setQuizDetails(detailsResponse.data);
+        }
+
+        const questionsResponse = await quizService.getQuestions(quizId);
+        if (questionsResponse.data) {
+          setQuestions(Array.isArray(questionsResponse.data) ? questionsResponse.data : []);
         }
       } catch (err: any) {
-        setError(err?.message || "Failed to load quiz questions");
+        setError(err?.message || "Failed to load quiz");
       } finally {
         setIsLoading(false);
       }
     };
 
-    loadQuestions();
+    loadQuizData();
   }, [quizId]);
 
   if (isLoading) {
