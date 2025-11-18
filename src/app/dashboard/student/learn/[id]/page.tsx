@@ -134,7 +134,7 @@ function CourseInfoSection({
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div className="bg-gray-50 rounded-lg p-4 border border-gray-200">
           <h3 className="font-semibold text-gray-900 text-sm mb-1">
-            Facebook সাপোর্ট গ্রুপ বিস্তারিত
+            Facebook সাপোর্ট গ্রুপ বিস্তা��িত
           </h3>
           <p className="text-gray-600 text-xs leading-relaxed">
             স্পীকার ইংরেজি{String(course.category || "কোর্স")}এ সম্পূর্ণ গাইডলাইন সহ{" "}
@@ -445,9 +445,11 @@ function CourseContents({
   }
 
   return (
-    <div className="bg-white rounded-lg p-6 border border-gray-200">
-      <h2 className="text-xl font-bold text-gray-900 mb-6">কোর্স তথ্যসম</h2>
-      <div>
+    <div className="bg-white rounded-lg border border-gray-200 overflow-hidden">
+      <div className="px-6 py-4 border-b border-gray-200 bg-gray-50">
+        <h2 className="text-lg font-bold text-gray-900">কোর্স বিবরণ</h2>
+      </div>
+      <div className="p-6">
         {sortedSections.map((section: Section, index: number) => (
           <AccordionItem
             key={section.id}
