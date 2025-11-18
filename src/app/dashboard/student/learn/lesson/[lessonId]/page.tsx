@@ -107,7 +107,7 @@ export default function LessonViewerPage(): JSX.Element {
     };
 
     fetchData();
-  }, [authLoading, courseId, sectionId, lessonId, pdfUrl]);
+  }, [authLoading, courseId, sectionId, lessonId]);
 
   const handleLessonSelect = (selectedLesson: Lesson) => {
     cancelledRef.current = false;
