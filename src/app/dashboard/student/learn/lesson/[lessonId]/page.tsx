@@ -2,6 +2,7 @@
 
 import React, { useEffect, useState, JSX } from "react";
 import { useParams, useRouter, useSearchParams } from "next/navigation";
+import DashboardLayout from "@/components/layout/DashboardLayout";
 import { userService } from "@/services/userService";
 import { courseService } from "@/services/courseService";
 import { Lesson, Section, Course } from "@/types/api";
@@ -101,62 +102,24 @@ export default function LessonViewerPage(): JSX.Element {
 
   if (authLoading || isLoading) {
     return (
-      <div className="flex items-center justify-center min-h-screen bg-gray-100">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
-          <p className="text-gray-600">Loading lesson...</p>
+      <DashboardLayout>
+        <div className="flex items-center justify-center min-h-screen">
+          <div className="text-center">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
+            <p className="text-gray-600">Loading lesson...</p>
+          </div>
         </div>
-      </div>
+      </DashboardLayout>
     );
   }
 
   if (error || !lesson || !section || !course) {
     return (
-      <div className="flex items-center justify-center min-h-screen bg-gray-100">
-        <div className="bg-white rounded-lg p-8 text-center max-w-md">
-          <svg
-            className="w-12 h-12 text-red-500 mx-auto mb-4"
-            fill="none"
-            stroke="currentColor"
-            viewBox="0 0 24 24"
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth={2}
-              d="M12 8v4m0 4v.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
-            />
-          </svg>
-          <p className="text-gray-900 font-semibold mb-2">
-            {error || "Lesson not found"}
-          </p>
-          <button
-            onClick={() => router.back()}
-            className="bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-lg transition-colors"
-          >
-            Go Back
-          </button>
-        </div>
-      </div>
-    );
-  }
-
-  return (
-    <div className="bg-gray-900 min-h-screen text-white">
-      <div className="flex h-screen flex-col">
-        <div className="flex items-center justify-between px-6 py-4 bg-gray-800 border-b border-gray-700">
-          <div className="flex-1">
-            <h1 className="text-xl font-bold text-white">{String(lesson.title)}</h1>
-            <p className="text-sm text-gray-400 mt-1">
-              {String(section.title)} • {String(course.title)}
-            </p>
-          </div>
-          <button
-            onClick={() => router.back()}
-            className="text-gray-400 hover:text-white transition-colors p-2"
-          >
+      <DashboardLayout>
+        <div className="flex items-center justify-center min-h-screen">
+          <div className="bg-white rounded-lg p-8 text-center max-w-md border border-gray-200">
             <svg
-              className="w-6 h-6"
+              className="w-12 h-12 text-red-500 mx-auto mb-4"
               fill="none"
               stroke="currentColor"
               viewBox="0 0 24 24"
@@ -165,40 +128,74 @@ export default function LessonViewerPage(): JSX.Element {
                 strokeLinecap="round"
                 strokeLinejoin="round"
                 strokeWidth={2}
-                d="M6 18L18 6M6 6l12 12"
+                d="M12 8v4m0 4v.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
               />
             </svg>
+            <p className="text-gray-900 font-semibold mb-4">
+              {error || "Lesson not found"}
+            </p>
+            <button
+              onClick={() => router.back()}
+              className="bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-lg transition-colors"
+            >
+              Go Back
+            </button>
+          </div>
+        </div>
+      </DashboardLayout>
+    );
+  }
+
+  return (
+    <DashboardLayout>
+      <div className="max-w-7xl mx-auto">
+        <div className="mb-6">
+          <button
+            onClick={() => router.back()}
+            className="flex items-center gap-2 text-blue-600 hover:text-blue-700 font-medium text-sm"
+          >
+            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+            </svg>
+            Back to Course
           </button>
         </div>
 
-        <div className="flex-1 overflow-hidden flex">
-          <div className="flex-1 flex flex-col overflow-hidden">
-            {lesson.video && (
-              <div className="flex-1 bg-black flex items-center justify-center overflow-hidden">
-                <video
-                  src={lesson.video}
-                  controls
-                  controlsList="nodownload"
-                  className="w-full h-full object-contain"
-                  autoPlay
-                />
-              </div>
-            )}
+        <div className="bg-white rounded-xl overflow-hidden border border-gray-200 shadow-sm mb-6">
+          <div className="bg-gradient-to-r from-blue-600 to-blue-700 px-6 py-4">
+            <h1 className="text-2xl font-bold text-white">{String(lesson.title)}</h1>
+            <p className="text-blue-100 text-sm mt-2">
+              {String(section.title)} • {String(course.title)}
+            </p>
+          </div>
 
-            {lesson.resource && !lesson.video && (
-              <div className="flex-1 bg-gray-800 flex items-center justify-center">
-                <iframe
-                  src={lesson.resource}
-                  className="w-full h-full border-none"
-                />
-              </div>
-            )}
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 p-6">
+            <div className="lg:col-span-2">
+              {lesson.video && (
+                <div className="bg-black rounded-lg overflow-hidden mb-6 aspect-video flex items-center justify-center">
+                  <video
+                    src={lesson.video}
+                    controls
+                    controlsList="nodownload"
+                    className="w-full h-full object-contain"
+                    autoPlay
+                  />
+                </div>
+              )}
 
-            {!lesson.video && !lesson.resource && (
-              <div className="flex-1 bg-gray-800 flex items-center justify-center">
-                <div className="text-center">
+              {lesson.resource && !lesson.video && (
+                <div className="bg-gray-100 rounded-lg overflow-hidden mb-6 aspect-video flex items-center justify-center border border-gray-200">
+                  <iframe
+                    src={lesson.resource}
+                    className="w-full h-full border-none"
+                  />
+                </div>
+              )}
+
+              {!lesson.video && !lesson.resource && (
+                <div className="bg-gray-50 rounded-lg p-12 text-center border border-gray-200 mb-6">
                   <svg
-                    className="w-12 h-12 mx-auto mb-2 text-gray-500"
+                    className="w-16 h-16 mx-auto mb-4 text-gray-300"
                     fill="none"
                     stroke="currentColor"
                     viewBox="0 0 24 24"
@@ -206,115 +203,119 @@ export default function LessonViewerPage(): JSX.Element {
                     <path
                       strokeLinecap="round"
                       strokeLinejoin="round"
-                      strokeWidth={2}
+                      strokeWidth={1.5}
                       d="M12 8v4m0 4v.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
                     />
                   </svg>
-          <p className="text-gray-400">No content available</p>
-        </div>
-      </div>
-    )}
-
-    {lesson.resource && lesson.video && (
-      <div className="bg-gray-800 border-t border-gray-700 p-6 flex items-center justify-center">
-        <a
-          href={lesson.resource}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="text-blue-400 hover:text-blue-300 font-medium flex items-center gap-2"
-        >
-          <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
-            <path fillRule="evenodd" d="M8 4a2 2 0 012-2h4a1 1 0 01.894.553l1.5 3a1 1 0 01-.894 1.447h-.5a1 1 0 00-.894.553l-.5 1a1 1 0 01-.894.553H9a1 1 0 00-.894.553l-1 2A1 1 0 007 12h-.5a1 1 0 01-.894-.553l-1-2A1 1 0 004 9V4z" clipRule="evenodd" />
-          </svg>
-          Download Resource
-        </a>
-      </div>
-    )}
-
-    <div className="bg-gray-800 border-t border-gray-700 p-6 max-h-48 overflow-y-auto">
-      <h3 className="font-semibold text-white mb-3">বিবরণ</h3>
-              <p className="text-sm text-gray-300 whitespace-pre-wrap leading-relaxed">
-                {String(lesson.content || "No description available")}
-              </p>
-              {lesson.createdBy && (
-                <div className="mt-4 pt-4 border-t border-gray-700 flex items-center gap-2 text-xs text-gray-400">
-                  <svg
-                    className="w-4 h-4"
-                    fill="currentColor"
-                    viewBox="0 0 20 20"
-                  >
-                    <path
-                      fillRule="evenodd"
-                      d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z"
-                      clipRule="evenodd"
-                    />
-                  </svg>
-                  <span>দ্বারা {creatorName}</span>
+                  <p className="text-gray-500">No content available for this lesson</p>
                 </div>
               )}
-            </div>
-          </div>
 
-          <div className="w-80 border-l border-gray-700 bg-gray-800 flex flex-col overflow-hidden">
-            <div className="p-4 border-b border-gray-700">
-              <h3 className="font-semibold text-white text-sm">
-                {String(section.title)}
-              </h3>
-              <p className="text-xs text-gray-400 mt-1">
-                {sortedLessons.length} পাঠ
-              </p>
-            </div>
+              <div className="bg-gray-50 rounded-lg p-6 border border-gray-200">
+                <h3 className="font-semibold text-gray-900 mb-4">About This Lesson</h3>
+                <p className="text-gray-700 whitespace-pre-wrap leading-relaxed mb-4">
+                  {String(lesson.content || "No description available")}
+                </p>
 
-            <div className="flex-1 overflow-y-auto">
-              {sortedLessons.map((l: Lesson) => (
-                <button
-                  key={l.id}
-                  onClick={() => handleLessonSelect(l)}
-                  className={`w-full text-left px-4 py-3 border-b border-gray-700 hover:bg-gray-700 transition-colors text-sm ${
-                    l.id === lesson.id
-                      ? "bg-blue-600 border-l-4 border-l-blue-400"
-                      : ""
-                  }`}
-                >
-                  <div className="flex items-start gap-2">
-                    {l.video ? (
-                      <svg
-                        className="w-4 h-4 text-blue-400 flex-shrink-0 mt-0.5"
-                        fill="currentColor"
-                        viewBox="0 0 20 20"
-                      >
-                        <path d="M2 6a2 2 0 012-2h12a2 2 0 012 2v8a2 2 0 01-2 2H4a2 2 0 01-2-2V6zm12 .5a.5.5 0 01.5.5v5a.5.5 0 01-.5.5H6a.5.5 0 01-.5-.5V7a.5.5 0 01.5-.5h8z" />
-                      </svg>
-                    ) : (
-                      <svg
-                        className="w-4 h-4 text-orange-400 flex-shrink-0 mt-0.5"
-                        fill="currentColor"
-                        viewBox="0 0 20 20"
-                      >
-                        <path
-                          fillRule="evenodd"
-                          d="M8 4a2 2 0 012-2h4a1 1 0 01.894.553l1.5 3a1 1 0 01-.894 1.447h-.5a1 1 0 00-.894.553l-.5 1a1 1 0 01-.894.553H9a1 1 0 00-.894.553l-1 2A1 1 0 007 12h-.5a1 1 0 01-.894-.553l-1-2A1 1 0 004 9V4z"
-                          clipRule="evenodd"
-                        />
-                      </svg>
-                    )}
-                    <div className="flex-1 min-w-0">
-                      <p className="font-medium text-white text-xs truncate">
-                        {String(l.title)}
-                      </p>
-                      {l.duration && (
-                        <p className="text-xs text-gray-400 mt-0.5">
-                          {String(l.duration)} মিনিট
-                        </p>
-                      )}
+                {lesson.createdBy && (
+                  <div className="pt-4 border-t border-gray-200 flex items-center gap-3">
+                    <svg
+                      className="w-5 h-5 text-gray-400"
+                      fill="currentColor"
+                      viewBox="0 0 20 20"
+                    >
+                      <path
+                        fillRule="evenodd"
+                        d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z"
+                        clipRule="evenodd"
+                      />
+                    </svg>
+                    <div>
+                      <p className="text-sm text-gray-600">Created by</p>
+                      <p className="font-medium text-gray-900">{creatorName}</p>
                     </div>
                   </div>
-                </button>
-              ))}
+                )}
+
+                {lesson.resource && lesson.video && (
+                  <div className="mt-4 pt-4 border-t border-gray-200">
+                    <a
+                      href={lesson.resource}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="inline-flex items-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-lg transition-colors text-sm"
+                    >
+                      <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                        <path fillRule="evenodd" d="M8 4a2 2 0 012-2h4a1 1 0 01.894.553l1.5 3a1 1 0 01-.894 1.447h-.5a1 1 0 00-.894.553l-.5 1a1 1 0 01-.894.553H9a1 1 0 00-.894.553l-1 2A1 1 0 007 12h-.5a1 1 0 01-.894-.553l-1-2A1 1 0 004 9V4z" clipRule="evenodd" />
+                      </svg>
+                      Download Resource
+                    </a>
+                  </div>
+                )}
+              </div>
+            </div>
+
+            <div className="lg:col-span-1">
+              <div className="bg-gray-50 rounded-lg p-4 border border-gray-200 sticky top-6">
+                <h3 className="font-semibold text-gray-900 text-sm mb-1">
+                  {String(section.title)}
+                </h3>
+                <p className="text-xs text-gray-500 mb-4">
+                  {sortedLessons.length} {sortedLessons.length === 1 ? "lesson" : "lessons"}
+                </p>
+
+                <div className="space-y-1 max-h-96 overflow-y-auto">
+                  {sortedLessons.map((l: Lesson) => (
+                    <button
+                      key={l.id}
+                      onClick={() => handleLessonSelect(l)}
+                      className={`w-full text-left px-3 py-2 rounded-lg transition-colors text-xs ${
+                        l.id === lesson.id
+                          ? "bg-blue-600 text-white"
+                          : "text-gray-700 hover:bg-gray-200"
+                      }`}
+                    >
+                      <div className="flex items-start gap-2">
+                        {l.video ? (
+                          <svg
+                            className="w-3.5 h-3.5 flex-shrink-0 mt-0.5"
+                            fill="currentColor"
+                            viewBox="0 0 20 20"
+                          >
+                            <path d="M2 6a2 2 0 012-2h12a2 2 0 012 2v8a2 2 0 01-2 2H4a2 2 0 01-2-2V6zm12 .5a.5.5 0 01.5.5v5a.5.5 0 01-.5.5H6a.5.5 0 01-.5-.5V7a.5.5 0 01.5-.5h8z" />
+                          </svg>
+                        ) : (
+                          <svg
+                            className="w-3.5 h-3.5 flex-shrink-0 mt-0.5"
+                            fill="currentColor"
+                            viewBox="0 0 20 20"
+                          >
+                            <path
+                              fillRule="evenodd"
+                              d="M8 4a2 2 0 012-2h4a1 1 0 01.894.553l1.5 3a1 1 0 01-.894 1.447h-.5a1 1 0 00-.894.553l-.5 1a1 1 0 01-.894.553H9a1 1 0 00-.894.553l-1 2A1 1 0 007 12h-.5a1 1 0 01-.894-.553l-1-2A1 1 0 004 9V4z"
+                              clipRule="evenodd"
+                            />
+                          </svg>
+                        )}
+                        <div className="flex-1 min-w-0">
+                          <p className="font-medium truncate">
+                            {String(l.title)}
+                          </p>
+                          {l.duration && (
+                            <p className={`text-xs mt-0.5 ${l.id === lesson.id ? 'text-blue-100' : 'text-gray-500'}`}>
+                              {String(l.duration)} min
+                            </p>
+                          )}
+                        </div>
+                      </div>
+                    </button>
+                  ))}
+                </div>
+              </div>
             </div>
           </div>
         </div>
       </div>
-    </div>
+    </DashboardLayout>
   );
 }
