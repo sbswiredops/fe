@@ -167,7 +167,12 @@ function QuestionReview({
 }
 
 function ResultCard({ result }: { result: QuizResultData }): JSX.Element {
-  const scorePercentage = (result.totalScore / result.maxScore) * 100;
+  // Safety check for undefined data
+  if (!result) {
+    return <div className="bg-white rounded-lg border border-gray-200 p-6 text-center text-gray-600">Result data unavailable</div>;
+  }
+
+  const scorePercentage = result.maxScore ? (result.totalScore / result.maxScore) * 100 : 0;
   const submittedDate = new Date(result.submittedAt);
   const formattedDate = submittedDate.toLocaleDateString("en-US", {
     year: "numeric",
