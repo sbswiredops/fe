@@ -149,7 +149,7 @@ export default function LessonViewerPage() {
   // Sort lessons
   // --------------------------
   const sortedLessons = section?.lessons
-    ? [...section.lessons].sort((a, b) => (a.orderIndex || 0) - (b.orderIndex || 0))
+    ? [...section?.lessons || []].sort((a, b) => (a.orderIndex || 0) - (b.orderIndex || 0))
     : [];
 
   // --------------------------
