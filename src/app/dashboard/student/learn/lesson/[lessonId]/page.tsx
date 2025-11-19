@@ -396,8 +396,8 @@ export default function LessonViewerPage() {
                     ))}
 
                     {/* Section Quizzes */}
-                    {sec.quizzes?.length > 0 &&
-                      sec.quizzes.map((q) => (
+                    {sec?.quizzes?.length > 0 &&
+                      sec?.quizzes?.map((q) => (
                         <button
                           key={q.id}
                           onClick={() => {
