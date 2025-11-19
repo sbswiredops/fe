@@ -9,10 +9,7 @@ interface Question {
   id: string;
   text: string;
   type: QuestionType;
-  options?: Array<{
-    id: string;
-    text: string;
-  }>;
+  options?: Array<{ id: string; text: string }>;
   correctAnswer?: string;
   explanation?: string;
 }
@@ -25,6 +22,12 @@ interface QuizDetails {
   passMark: number;
   hasNegativeMark: boolean;
   negativeMarkPercentage?: number;
+}
+
+interface QuizResultResponse {
+  initialScore: number;
+  autoGradableQuestions: number;
+  pendingManualCheck: number;
 }
 
 interface QuizViewerProps {
@@ -47,20 +50,46 @@ export const QuizViewer: React.FC<QuizViewerProps> = ({
   const [hasStarted, setHasStarted] = useState(false);
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
   const [answers, setAnswers] = useState<Record<string, any>>({});
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [result, setResult] = useState<QuizResultResponse | null>(null);
 
   useEffect(() => {
     const loadQuizData = async () => {
       setIsLoading(true);
       setError(null);
       try {
+        // Fetch quiz details
         const detailsResponse = await quizService.getById(quizId);
         if (detailsResponse.data) {
-          setQuizDetails(detailsResponse.data);
+          const quiz = detailsResponse.data;
+          setQuizDetails({
+            id: quiz.id, // remove quiz._id
+            title: quiz.title,
+            totalQuestions: quiz.questions?.length || 0,
+            totalTime: quiz.timeLimit || 0,
+            passMark: quiz.passingScore || 0,
+            hasNegativeMark: false,
+            negativeMarkPercentage: 0,
+          });
         }
 
+        // Fetch questions
         const questionsResponse = await quizService.getQuestions(quizId);
         if (questionsResponse.data) {
-          setQuestions(Array.isArray(questionsResponse.data) ? questionsResponse.data : []);
+          const mappedQuestions: Question[] = questionsResponse.data.map(
+            (q: any, idx: number) => ({
+              id: q.id || q._id || q.questionId || idx.toString(),
+              text: q.text,
+              type: q.type,
+              options: q.options?.map((opt: any, oidx: number) => ({
+                id: opt.value || opt.text || oidx.toString(),
+                text: opt.text,
+              })),
+              correctAnswer: q.correctAnswer,
+              explanation: q.explanation,
+            })
+          );
+          setQuestions(mappedQuestions);
         }
       } catch (err: any) {
         setError(err?.message || "Failed to load quiz");
@@ -72,7 +101,46 @@ export const QuizViewer: React.FC<QuizViewerProps> = ({
     loadQuizData();
   }, [quizId]);
 
-  if (isLoading) {
+  const handleAnswer = (value: any) => {
+    setAnswers({
+      ...answers,
+      [questions[currentQuestionIndex].id]: value,
+    });
+  };
+
+  const toggleMultiSelect = (optionId: string) => {
+    const prev = answers[questions[currentQuestionIndex].id] || [];
+    if (prev.includes(optionId)) {
+      handleAnswer(prev.filter((id: string) => id !== optionId));
+    } else {
+      handleAnswer([...prev, optionId]);
+    }
+  };
+
+  const handleNext = () => {
+    if (currentQuestionIndex < questions.length - 1)
+      setCurrentQuestionIndex(currentQuestionIndex + 1);
+  };
+
+  const handlePrevious = () => {
+    if (currentQuestionIndex > 0)
+      setCurrentQuestionIndex(currentQuestionIndex - 1);
+  };
+
+  const handleSubmit = async () => {
+    setIsSubmitting(true);
+    try {
+      const response = await quizService.submitQuiz(quizId, answers);
+      if (response.data) setResult(response.data);
+    } catch (err: any) {
+      alert(err?.message || "Failed to submit quiz");
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  // ================= Loading & Error =================
+  if (isLoading)
     return (
       <div
         className={`${className} flex items-center justify-center bg-gray-50`}
@@ -83,188 +151,87 @@ export const QuizViewer: React.FC<QuizViewerProps> = ({
         </div>
       </div>
     );
-  }
 
-  if (error) {
+  if (error)
     return (
       <div
         className={`${className} flex items-center justify-center bg-gray-50`}
       >
-        <div className="text-center">
-          <svg
-            className="w-12 h-12 text-red-500 mx-auto mb-2"
-            fill="none"
-            stroke="currentColor"
-            viewBox="0 0 24 24"
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth={2}
-              d="M12 8v4m0 4v.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
-            />
-          </svg>
-          <p className="text-red-700 font-medium text-sm mb-2">
-            {error}
-          </p>
-        </div>
+        <div className="text-center text-red-700 font-medium">{error}</div>
       </div>
     );
-  }
 
-  if (!hasStarted && quizDetails) {
+  if (!hasStarted && quizDetails)
     return (
-      <div className={`${className} flex items-center justify-center bg-gradient-to-br from-gray-50 to-gray-100`}>
+      <div
+        className={`${className} flex items-center justify-center bg-gradient-to-br from-gray-50 to-gray-100`}
+      >
         <div className="bg-white rounded-2xl shadow-lg p-8 max-w-md w-full mx-4">
-          <div className="mb-8">
-            <h2 className="text-2xl font-bold text-gray-900 mb-2">{quizTitle}</h2>
-            <p className="text-gray-600 text-sm">Get ready to test your knowledge</p>
-          </div>
-
-          <div className="grid grid-cols-2 gap-6 mb-8">
-            <div className="flex items-center gap-3">
-              <div className="w-12 h-12 bg-orange-100 rounded-full flex items-center justify-center flex-shrink-0">
-                <svg className="w-6 h-6 text-orange-600" fill="currentColor" viewBox="0 0 20 20">
-                  <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
-                </svg>
-              </div>
-              <div>
-                <p className="text-xs text-gray-600">প্রশ্ন সংখ্যা</p>
-                <p className="font-bold text-gray-900">{quizDetails.totalQuestions}টি</p>
-              </div>
-            </div>
-
-            <div className="flex items-center gap-3">
-              <div className="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center flex-shrink-0">
-                <svg className="w-6 h-6 text-blue-600" fill="currentColor" viewBox="0 0 20 20">
-                  <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-11a1 1 0 10-2 0v3.586L7.707 9.293a1 1 0 00-1.414 1.414l3 3a1 1 0 001.414 0l3-3a1 1 0 00-1.414-1.414L11 10.586V7z" clipRule="evenodd" />
-                </svg>
-              </div>
-              <div>
-                <p className="text-xs text-gray-600">মোট সময়</p>
-                <p className="font-bold text-gray-900">{quizDetails.totalTime} মিনিট</p>
-              </div>
-            </div>
-
-            <div className="flex items-center gap-3">
-              <div className="w-12 h-12 bg-yellow-100 rounded-full flex items-center justify-center flex-shrink-0">
-                <svg className="w-6 h-6 text-yellow-600" fill="currentColor" viewBox="0 0 20 20">
-                  <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
-                </svg>
-              </div>
-              <div>
-                <p className="text-xs text-gray-600">পাস মার্ক</p>
-                <p className="font-bold text-gray-900">{quizDetails.passMark}%</p>
-              </div>
-            </div>
-
-            <div className="flex items-center gap-3">
-              <div className={`w-12 h-12 rounded-full flex items-center justify-center flex-shrink-0 ${quizDetails.hasNegativeMark ? 'bg-red-100' : 'bg-green-100'}`}>
-                <svg className={`w-6 h-6 ${quizDetails.hasNegativeMark ? 'text-red-600' : 'text-green-600'}`} fill="currentColor" viewBox="0 0 20 20">
-                  {quizDetails.hasNegativeMark ? (
-                    <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
-                  ) : (
-                    <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
-                  )}
-                </svg>
-              </div>
-              <div>
-                <p className="text-xs text-gray-600">নেগেটিভ মার্কিং</p>
-                <p className="font-bold text-gray-900">{quizDetails.hasNegativeMark ? 'আছে' : 'নেই'}</p>
-              </div>
-            </div>
-          </div>
-
+          <h2 className="text-2xl font-bold text-gray-900 mb-2">{quizTitle}</h2>
+          <p className="text-gray-600 text-sm">
+            Get ready to test your knowledge
+          </p>
           <button
             onClick={() => setHasStarted(true)}
-            className="w-full bg-green-500 hover:bg-green-600 text-white font-bold py-3 px-4 rounded-lg transition-colors flex items-center justify-center gap-2"
+            className="mt-6 w-full bg-green-500 hover:bg-green-600 text-white font-bold py-3 px-4 rounded-lg"
           >
-            <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
-              <path d="M6.3 2.841A1.5 1.5 0 004 4.11V15.89a1.5 1.5 0 002.3 1.269l9.344-5.89a1.5 1.5 0 000-2.538L6.3 2.84z" />
-            </svg>
-            কুইজ শুরু করুন
+            Start Quiz
           </button>
-
           {onClose && (
             <button
               onClick={onClose}
-              className="w-full mt-3 bg-gray-200 hover:bg-gray-300 text-gray-800 font-medium py-2 px-4 rounded-lg transition-colors"
+              className="mt-3 w-full bg-gray-200 hover:bg-gray-300 text-gray-800 font-medium py-2 px-4 rounded-lg"
             >
-              বাতিল করুন
+              Cancel
             </button>
           )}
         </div>
       </div>
     );
-  }
 
-  if (questions.length === 0) {
+  if (questions.length === 0)
     return (
       <div
         className={`${className} flex items-center justify-center bg-gray-50`}
       >
-        <div className="text-center">
-          <svg
-            className="w-12 h-12 text-red-500 mx-auto mb-2"
-            fill="none"
-            stroke="currentColor"
-            viewBox="0 0 24 24"
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth={2}
-              d="M12 8v4m0 4v.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
-            />
-          </svg>
-          <p className="text-red-700 font-medium text-sm mb-2">
-            No questions found
+        <p className="text-red-700 font-medium text-sm">No questions found</p>
+      </div>
+    );
+
+  if (result)
+    return (
+      <div
+        className={`${className} flex flex-col items-center justify-center p-6`}
+      >
+        <div className="bg-white rounded-lg shadow p-6 w-full max-w-md">
+          <h3 className="text-xl font-bold mb-4">Quiz Result</h3>
+          <p>
+            Score: <span className="font-bold">{result.initialScore}</span>
           </p>
+          <p>
+            Auto-graded:{" "}
+            <span className="font-bold">{result.autoGradableQuestions}</span>
+          </p>
+          <p>
+            Pending manual check:{" "}
+            <span className="font-bold">{result.pendingManualCheck}</span>
+          </p>
+          {onClose && (
+            <button
+              onClick={onClose}
+              className="mt-4 px-4 py-2 bg-gray-200 rounded hover:bg-gray-300"
+            >
+              Close
+            </button>
+          )}
         </div>
       </div>
     );
-  }
 
   const currentQuestion = questions[currentQuestionIndex];
   const progress = ((currentQuestionIndex + 1) / questions.length) * 100;
 
-  const handleAnswer = (value: any) => {
-    setAnswers({
-      ...answers,
-      [currentQuestion.id]: value,
-    });
-  };
-
-  const toggleMultiSelect = (optionId: string) => {
-    const prev = answers[currentQuestion.id] || [];
-    if (prev.includes(optionId)) {
-      handleAnswer(prev.filter((id: string) => id !== optionId));
-    } else {
-      handleAnswer([...prev, optionId]);
-    }
-  };
-
-  const handleNext = () => {
-    if (currentQuestionIndex < questions.length - 1) {
-      setCurrentQuestionIndex(currentQuestionIndex + 1);
-    }
-  };
-
-  const handlePrevious = () => {
-    if (currentQuestionIndex > 0) {
-      setCurrentQuestionIndex(currentQuestionIndex - 1);
-    }
-  };
-
-  const handleSubmit = () => {
-    const answeredCount = Object.keys(answers).length;
-    const totalCount = questions.length;
-    alert(
-      `Quiz submitted! You answered ${answeredCount} out of ${totalCount} questions.`
-    );
-    if (onClose) onClose();
-  };
-
+  // ================= Quiz UI =================
   return (
     <div className={`${className} bg-white flex flex-col overflow-hidden`}>
       {/* HEADER */}
@@ -276,18 +243,10 @@ export const QuizViewer: React.FC<QuizViewerProps> = ({
               onClick={onClose}
               className="text-white hover:bg-purple-800 p-1 rounded transition-colors"
             >
-              <svg className="w-6 h-6" fill="none" stroke="currentColor">
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M6 18L18 6M6 6l12 12"
-                />
-              </svg>
+              ×
             </button>
           )}
         </div>
-
         <div className="mt-4 bg-purple-500 h-2 rounded-full">
           <div
             className="h-full bg-white transition-all"
@@ -304,118 +263,106 @@ export const QuizViewer: React.FC<QuizViewerProps> = ({
         <h4 className="text-xl font-semibold text-gray-900 mb-6">
           {currentQuestion.text}
         </h4>
-        {/* ================== MCQ ================== */}
-        {currentQuestion.type === "mcq" && currentQuestion.options && (
-          <div className="space-y-3">
-            {currentQuestion.options.map((option) => (
+
+        {/* MCQ */}
+        {currentQuestion.type === "mcq" &&
+          currentQuestion.options?.map((option) => (
+            <label
+              key={option.id}
+              className="flex items-center p-4 border-2 rounded-lg cursor-pointer mb-2"
+              style={{
+                borderColor:
+                  answers[currentQuestion.id] === option.id
+                    ? "#2563eb"
+                    : "#e5e7eb",
+                backgroundColor:
+                  answers[currentQuestion.id] === option.id
+                    ? "#eff6ff"
+                    : "transparent",
+              }}
+            >
+              <input
+                type="radio"
+                checked={answers[currentQuestion.id] === option.id}
+                onChange={() => handleAnswer(option.id)}
+                className="w-4 h-4 accent-purple-600"
+              />
+              <span className="ml-3">{option.text}</span>
+            </label>
+          ))}
+
+        {/* MULTI */}
+        {currentQuestion.type === "multi" &&
+          currentQuestion.options?.map((option) => {
+            const selected = answers[currentQuestion.id] || [];
+            return (
               <label
                 key={option.id}
-                className="flex items-center p-4 border-2 rounded-lg cursor-pointer"
+                className="flex items-center p-4 border-2 rounded-lg cursor-pointer mb-2"
                 style={{
-                  borderColor:
-                    answers[currentQuestion.id] === option.id
-                      ? "#2563eb"
-                      : "#e5e7eb",
-                  backgroundColor:
-                    answers[currentQuestion.id] === option.id
-                      ? "#eff6ff"
-                      : "transparent",
+                  borderColor: selected.includes(option.id)
+                    ? "#2563eb"
+                    : "#e5e7eb",
+                  backgroundColor: selected.includes(option.id)
+                    ? "#eff6ff"
+                    : "transparent",
                 }}
               >
                 <input
-                  type="radio"
-                  name={`question-${currentQuestion.id}`}
-                  value={option.id}
-                  checked={answers[currentQuestion.id] === option.id}
-                  onChange={() => handleAnswer(option.id)}
-                  className="w-4 h-4 accent-purple-600"
+                  type="checkbox"
+                  checked={selected.includes(option.id)}
+                  onChange={() => toggleMultiSelect(option.id)}
+                  className="w-4 h-4 accent-blue-600"
                 />
-                <span className="ml-3 text-gray-700">{option.text}</span>
+                <span className="ml-3">{option.text}</span>
               </label>
-            ))}
-          </div>
-        )}
+            );
+          })}
 
-        {/* ================== MULTI SELECT ================== */}
-        {currentQuestion.type === "multi" && currentQuestion.options && (
-          <div className="space-y-3">
-            {currentQuestion.options.map((option) => {
-              const selected = answers[currentQuestion.id] || [];
-              return (
-                <label
-                  key={option.id}
-                  className="flex items-center p-4 border-2 rounded-lg cursor-pointer"
-                  style={{
-                    borderColor: selected.includes(option.id)
-                      ? "#2563eb"
-                      : "#e5e7eb",
-                    backgroundColor: selected.includes(option.id)
-                      ? "#eff6ff"
-                      : "transparent",
-                  }}
-                >
-                  <input
-                    type="checkbox"
-                    checked={selected.includes(option.id)}
-                    onChange={() => toggleMultiSelect(option.id)}
-                    className="w-4 h-4 accent-blue-600"
-                  />
-                  <span className="ml-3 text-gray-700">{option.text}</span>
-                </label>
-              );
-            })}
-          </div>
-        )}
+        {/* TRUE / FALSE */}
+        {currentQuestion.type === "true_false" &&
+          ["true", "false"].map((val) => (
+            <label
+              key={val}
+              className="flex items-center p-4 border-2 rounded-lg cursor-pointer mb-2"
+              style={{
+                borderColor:
+                  answers[currentQuestion.id] === val ? "#2563eb" : "#e5e7eb",
+                backgroundColor:
+                  answers[currentQuestion.id] === val
+                    ? "#eff6ff"
+                    : "transparent",
+              }}
+            >
+              <input
+                type="radio"
+                checked={answers[currentQuestion.id] === val}
+                onChange={() => handleAnswer(val)}
+                className="w-4 h-4 accent-purple-600"
+              />
+              <span className="ml-3">{val.toUpperCase()}</span>
+            </label>
+          ))}
 
-        {/* ================== TRUE / FALSE ================== */}
-        {currentQuestion.type === "true_false" && (
-          <div className="space-y-3">
-            {["true", "false"].map((val) => (
-              <label
-                key={val}
-                className="flex items-center p-4 border-2 rounded-lg cursor-pointer"
-                style={{
-                  borderColor:
-                    answers[currentQuestion.id] === val ? "#2563eb" : "#e5e7eb",
-                  backgroundColor:
-                    answers[currentQuestion.id] === val
-                      ? "#eff6ff"
-                      : "transparent",
-                }}
-              >
-                <input
-                  type="radio"
-                  name={`question-${currentQuestion.id}`}
-                  value={val}
-                  checked={answers[currentQuestion.id] === val}
-                  onChange={() => handleAnswer(val)}
-                  className="w-4 h-4 accent-purple-600"
-                />
-                <span className="ml-3 text-gray-700">{val.toUpperCase()}</span>
-              </label>
-            ))}
-          </div>
-        )}
-
-        {/* ================== FILL IN THE BLANK ================== */}
+        {/* FILL BLANK */}
         {currentQuestion.type === "fill_blank" && (
           <input
             type="text"
             className="w-full px-4 py-2 border rounded-lg"
-            placeholder="Type your answer..."
             value={answers[currentQuestion.id] || ""}
             onChange={(e) => handleAnswer(e.target.value)}
+            placeholder="Type your answer..."
           />
         )}
 
-        {/* ================== SHORT ANSWER ================== */}
+        {/* SHORT ANSWER */}
         {currentQuestion.type === "short" && (
           <textarea
             className="w-full px-4 py-2 border rounded-lg"
-            placeholder="Write your answer..."
             value={answers[currentQuestion.id] || ""}
             onChange={(e) => handleAnswer(e.target.value)}
             rows={4}
+            placeholder="Write your answer..."
           />
         )}
       </div>
@@ -425,22 +372,12 @@ export const QuizViewer: React.FC<QuizViewerProps> = ({
         <button
           onClick={handlePrevious}
           disabled={currentQuestionIndex === 0}
-          className={`flex items-center gap-2 px-4 py-2 font-medium rounded-lg transition-colors
-    ${
-      currentQuestionIndex === 0
-        ? "bg-gray-200 text-gray-400 cursor-not-allowed"
-        : "bg-gray-200 text-gray-900 hover:bg-gray-300"
-    }
-  `}
+          className={`px-4 py-2 rounded-lg ${
+            currentQuestionIndex === 0
+              ? "bg-gray-200 text-gray-400 cursor-not-allowed"
+              : "bg-gray-200 hover:bg-gray-300"
+          }`}
         >
-          <svg className="w-4 h-4" fill="none" stroke="currentColor">
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth={2}
-              d="M15 19l-7-7 7-7"
-            />
-          </svg>
           Previous
         </button>
 
@@ -468,9 +405,10 @@ export const QuizViewer: React.FC<QuizViewerProps> = ({
         {currentQuestionIndex === questions.length - 1 ? (
           <button
             onClick={handleSubmit}
+            disabled={isSubmitting}
             className="px-4 py-2 bg-green-600 text-white rounded-lg"
           >
-            Submit Quiz
+            {isSubmitting ? "Submitting..." : "Submit Quiz"}
           </button>
         ) : (
           <button

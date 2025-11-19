@@ -189,7 +189,7 @@ function ResultCard({ result }: { result: QuizResultData }): JSX.Element {
       {/* Header */}
       <div
         className={`px-6 py-4 ${
-          result.isPassed
+          result?.isPassed
             ? "bg-gradient-to-r from-green-50 to-green-100 border-b border-green-200"
             : "bg-gradient-to-r from-red-50 to-red-100 border-b border-red-200"
         }`}
