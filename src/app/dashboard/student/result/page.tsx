@@ -206,12 +206,12 @@ function ResultCard({ result }: { result: QuizResultData }): JSX.Element {
           </div>
           <div
             className={`text-right py-2 px-4 rounded-lg font-bold ${
-              result.isPassed
+              result?.isPassed
                 ? "bg-green-500 text-white"
                 : "bg-red-500 text-white"
             }`}
           >
-            {result.isPassed ? "✓ PASSED" : "✗ FAILED"}
+            {result?.isPassed ? "✓ PASSED" : "✗ FAILED"}
           </div>
         </div>
 
