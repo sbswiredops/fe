@@ -235,7 +235,7 @@ function ResultCard({ result }: { result: QuizResultData }): JSX.Element {
           </div>
           <div className="flex items-center justify-between text-xs text-gray-600">
             <span>Passing Score: {result.passingScore}%</span>
-            <span>Correct: {correctCount}/{result.questions.length}</span>
+            <span>Correct: {correctCount}/{(result.questions || []).length}</span>
           </div>
         </div>
       </div>
