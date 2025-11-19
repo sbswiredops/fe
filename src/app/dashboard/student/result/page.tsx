@@ -238,8 +238,8 @@ function ResultCard({ result }: { result: QuizResultData }): JSX.Element {
       {/* Questions Review */}
       <div className="p-6">
         <h4 className="text-lg font-bold text-gray-900 mb-4">Question Review</h4>
-        {result.questions.map((question, index) => {
-          const answer = result.answers.find(
+        {(result.questions || []).map((question, index) => {
+          const answer = (result.answers || []).find(
             (a) => a.questionId === question.id
           );
           return (
