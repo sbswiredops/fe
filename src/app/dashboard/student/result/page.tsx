@@ -243,21 +243,25 @@ function ResultCard({ result }: { result: QuizResultData }): JSX.Element {
       {/* Questions Review */}
       <div className="p-6">
         <h4 className="text-lg font-bold text-gray-900 mb-4">Question Review</h4>
-        {(result.questions || []).map((question, index) => {
-          const answer = (result.answers || []).find(
-            (a) => a.questionId === question.id
-          );
-          return (
-            <div key={question.id} className="mb-4">
-              <p className="text-xs text-gray-500 font-semibold mb-2">
-                Question {index + 1}
-              </p>
-              {answer && (
-                <QuestionReview question={question} answer={answer} />
-              )}
-            </div>
-          );
-        })}
+        {(result.questions && result.questions.length > 0) ? (
+          (result.questions || []).map((question, index) => {
+            const answer = (result.answers || []).find(
+              (a) => a.questionId === question.id
+            );
+            return (
+              <div key={question.id} className="mb-4">
+                <p className="text-xs text-gray-500 font-semibold mb-2">
+                  Question {index + 1}
+                </p>
+                {answer && (
+                  <QuestionReview question={question} answer={answer} />
+                )}
+              </div>
+            );
+          })
+        ) : (
+          <p className="text-gray-600 text-sm">No questions available for review</p>
+        )}
       </div>
     </div>
   );
