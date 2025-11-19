@@ -207,6 +207,11 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
             href: `${basePath}/certificates`,
             icon: Trophy,
           },
+          {
+            name: "Result",
+            href: `${basePath}/result`,
+            icon: Trophy
+          }
         ];
       default:
         return commonItems;

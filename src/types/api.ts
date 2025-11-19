@@ -342,19 +342,25 @@ export interface Quiz {
   sectionId?: string;
   title: string;
   description?: string;
-  // Legacy quiz fields (optional depending on backend)
   questions?: QuizQuestion[];
-  timeLimit?: number; // in minutes
-  passingScore?: number; // percentage
+  timeLimit?: number;       // map to totalTime
+  passingScore?: number;    // map to passMark
   maxAttempts?: number;
   status?: 'active' | 'inactive';
-  // Entity fields
   isLocked?: boolean;
   isPaid?: boolean;
   price?: number;
   createdAt: string;
   updatedAt: string;
+
+  // Add these for frontend convenience
+  totalQuestions?: number;
+  totalTime?: number;
+  passMark?: number;
+  hasNegativeMark?: boolean;
+  negativeMarkPercentage?: number;
 }
+
 
 export interface QuizQuestion {
   id: string;
