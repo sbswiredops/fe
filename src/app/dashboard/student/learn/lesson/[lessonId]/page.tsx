@@ -275,7 +275,7 @@ export default function LessonViewerPage() {
                       />
                     )}
                     {/* Section Quizzes */}
-                    {section?.quizzes?.length > 0 && section.quizzes.map((quiz) => (
+                    {section?.quizzes?.length > 0 && section?.quizzes?.map((quiz) => (
                       <ContentToggleButton
                         key={quiz.id}
                         label={quiz.title}
