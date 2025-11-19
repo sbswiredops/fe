@@ -197,9 +197,9 @@ function ResultCard({ result }: { result: QuizResultData }): JSX.Element {
         <div className="flex items-start justify-between mb-3">
           <div>
             <h3 className="text-lg font-bold text-gray-900">
-              {String(result.quizTitle)}
+              {String(result?.quizTitle || "Quiz")}
             </h3>
-            {result.courseName && (
+            {result?.courseName && (
               <p className="text-sm text-gray-600">{result.courseName}</p>
             )}
             <p className="text-xs text-gray-500 mt-2">{formattedDate}</p>
