@@ -219,7 +219,7 @@ function ResultCard({ result }: { result: QuizResultData }): JSX.Element {
         <div className="space-y-2">
           <div className="flex items-center justify-between">
             <span className="text-sm font-semibold text-gray-900">
-              Score: {result.totalScore}/{result.maxScore}
+              Score: {result?.totalScore || 0}/{result?.maxScore || 0}
             </span>
             <span className="text-sm font-bold text-gray-900">
               {scorePercentage.toFixed(1)}%
@@ -228,14 +228,14 @@ function ResultCard({ result }: { result: QuizResultData }): JSX.Element {
           <div className="w-full bg-gray-300 rounded-full h-2 overflow-hidden">
             <div
               className={`h-full transition-all ${
-                result.isPassed ? "bg-green-500" : "bg-red-500"
+                result?.isPassed ? "bg-green-500" : "bg-red-500"
               }`}
               style={{ width: `${Math.min(scorePercentage, 100)}%` }}
             />
           </div>
           <div className="flex items-center justify-between text-xs text-gray-600">
-            <span>Passing Score: {result.passingScore}%</span>
-            <span>Correct: {correctCount}/{(result.questions || []).length}</span>
+            <span>Passing Score: {result?.passingScore || 0}%</span>
+            <span>Correct: {correctCount}/{(result?.questions || []).length}</span>
           </div>
         </div>
       </div>
