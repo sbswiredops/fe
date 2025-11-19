@@ -355,13 +355,13 @@ export default function ResultsPage(): JSX.Element {
   // Calculate statistics
   const stats = {
     totalAttempts: results.length,
-    passed: results.filter((r) => r.isPassed).length,
-    failed: results.filter((r) => !r.isPassed).length,
+    passed: (results || []).filter((r) => r.isPassed).length,
+    failed: (results || []).filter((r) => !r.isPassed).length,
     averageScore:
-      results.length > 0
+      (results || []).length > 0
         ? (
-            results.reduce((sum, r) => sum + (r.totalScore / r.maxScore) * 100, 0) /
-            results.length
+            (results || []).reduce((sum, r) => sum + (r.totalScore && r.maxScore ? (r.totalScore / r.maxScore) * 100 : 0), 0) /
+            (results || []).length
           ).toFixed(1)
         : 0,
   };
