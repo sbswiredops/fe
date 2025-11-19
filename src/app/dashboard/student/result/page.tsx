@@ -177,7 +177,7 @@ function ResultCard({ result }: { result: QuizResultData }): JSX.Element {
     minute: "2-digit",
   });
 
-  const correctCount = result.answers.filter((a) => a.isCorrect).length;
+  const correctCount = (result.answers || []).filter((a) => a.isCorrect).length;
 
   return (
     <div className="bg-white rounded-lg border border-gray-200 overflow-hidden shadow-sm mb-6">
