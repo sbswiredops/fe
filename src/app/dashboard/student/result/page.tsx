@@ -334,13 +334,13 @@ export default function ResultsPage(): JSX.Element {
 
   // Filter results
   useEffect(() => {
-    let filtered = results;
+    let filtered = results || [];
 
     // Filter by status
     if (filterBy === "passed") {
-      filtered = filtered.filter((r) => r.isPassed);
+      filtered = filtered.filter((r) => r?.isPassed);
     } else if (filterBy === "failed") {
-      filtered = filtered.filter((r) => !r.isPassed);
+      filtered = filtered.filter((r) => !r?.isPassed);
     }
 
     // Search
@@ -348,8 +348,8 @@ export default function ResultsPage(): JSX.Element {
       const search = searchTerm.toLowerCase();
       filtered = filtered.filter(
         (r) =>
-          r.quizTitle.toLowerCase().includes(search) ||
-          (r.courseName && r.courseName.toLowerCase().includes(search))
+          (r?.quizTitle || "").toLowerCase().includes(search) ||
+          (r?.courseName && r.courseName.toLowerCase().includes(search))
       );
     }
 
