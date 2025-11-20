@@ -9,6 +9,7 @@ import { useEnrolledCourses } from "@/components/contexts/EnrolledCoursesContext
 import { Course, Section, Lesson } from "@/types/api";
 
 const userService = new UserService();
+export const runtime = 'edge';
 
 interface CourseDetail extends Course {
   sections?: Section[];
