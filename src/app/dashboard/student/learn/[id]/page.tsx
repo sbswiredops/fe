@@ -1,7 +1,7 @@
 "use client";
 
 import React, { JSX, useEffect, useState } from "react";
-import { useParams, useRouter } from "next/navigation";
+import { useParams, useRouter, useSearchParams } from "next/navigation";
 import DashboardLayout from "@/components/layout/DashboardLayout";
 import { UserService } from "@/services/userService";
 import { useAuth } from "@/components/contexts/AuthContext";
@@ -435,6 +435,12 @@ export default function Page(): JSX.Element {
   }, [userId, authLoading]);
 
   const isAuthChecking = authLoading || (loading && !course && !error);
+
+  const searchParams = useSearchParams();
+  const initialTab = searchParams?.get("tab") ?? null;
+  const [viewMode, setViewMode] = useState<"video" | "pdf" | "quiz">(
+    initialTab === "resource" ? "pdf" : "video"
+  );
 
   return (
     <DashboardLayout>
