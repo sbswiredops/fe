@@ -15,15 +15,7 @@ export class LessonService {
     this.client = client;
   }
 
-  async getLessonPdfUrl(lessonId: string): Promise<string> {
-    const response = await this.client.get<{ pdfUrl: string }>(
-      API_CONFIG.ENDPOINTS.LESSON_PDF_BY_ID(lessonId)
-    );
-    if (!response.data) {
-      throw new Error('Failed to fetch lesson PDF URL');
-    }
-    return response.data.pdfUrl;
-  }
+
 
   async getLessonPdfBlob(lessonId: string): Promise<Blob> {
     const response = await this.client.get<Blob>(
