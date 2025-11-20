@@ -65,8 +65,7 @@ export const API_CONFIG = {
     LESSONS_PROGRESS: '/courses/lessons/progress',
 
     // Admin get user lesson progress (GET)
-    USER_LESSONS_PROGRESS: (userId: string) =>
-      `/courses/users/${userId}/lessons/progress`,
+    USER_LESSONS_PROGRESS: (userId: string) => `/courses/users/${userId}/lessons/progress`,
 
     // Additional
     LESSON_PDF_BY_ID: (id: string) => `/courses/lessons/${id}/pdf`,

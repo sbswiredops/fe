@@ -110,13 +110,22 @@ export class LessonService {
     );
   }
 
-    /* ---------------- LESSON PROGRESS ---------------- */
+  /* ---------------- LESSON PROGRESS ---------------- */
 
   // Get all progress of logged-in user
-  async getAllLessonsProgress(): Promise<ApiResponse<any[]>> {
-    return this.client.get<any[]>(API_CONFIG.ENDPOINTS.LESSONS_PROGRESS);
+  async getAllLessonsProgress(options?: { page?: number; limit?: number; sectionId?: string }): Promise<ApiResponse<any[]>> {
+    // No userId in path, options are sent as query params
+    const response = await this.client.get<any>(API_CONFIG.ENDPOINTS.LESSONS_PROGRESS, options);
+
+    if (response.success && response.data?.items) {
+      return {
+        ...response,
+        data: response.data.items,
+      };
+    }
+    return response as ApiResponse<any[]>;
   }
- // Update specific lesson progress
+  // Update specific lesson progress
   async updateProgress(
     lessonId: string,
     payload: { status: string }
@@ -126,13 +135,9 @@ export class LessonService {
       payload
     );
   }
-   // Admin: get specific user's lesson progress
-  async getUserLessonProgress(
-    userId: string
-  ): Promise<ApiResponse<any[]>> {
-    return this.client.get<any[]>(
-      API_CONFIG.ENDPOINTS.USER_LESSONS_PROGRESS(userId)
-    );
+  // Admin: get specific user's lesson progress
+  async getUserLessonProgress(userId: string): Promise<ApiResponse<any[]>> {
+    return this.client.get<any[]>(API_CONFIG.ENDPOINTS.USER_LESSONS_PROGRESS(userId));
   }
 
   /** Update a lesson (supports file uploads) */

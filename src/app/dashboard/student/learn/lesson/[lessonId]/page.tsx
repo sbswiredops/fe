@@ -34,8 +34,8 @@ export default function LessonViewerPage() {
   const { user, isLoading: authLoading } = useAuth();
 
   const lessonId = String(params.lessonId || "");
-  const courseId = searchParams.get("courseId");
-  const sectionId = searchParams.get("sectionId");
+  const courseId = searchParams.get("courseId") ?? undefined;
+  const sectionId = searchParams.get("sectionId") ?? undefined;
 
   const initialTab = searchParams.get("tab");
 
@@ -101,7 +101,15 @@ export default function LessonViewerPage() {
   // Fetch course and user's lesson progress (optimized: do both once)
   useEffect(() => {
     const fetchData = async () => {
-      if (authLoading || !courseId || !sectionId) return;
+      if (authLoading) return;
+
+      if (!courseId || !sectionId) {
+        setError(
+          "Missing course or section information. Please go back to the course and try again."
+        );
+        setIsLoading(false);
+        return;
+      }
 
       // Add this log to debug
       console.log(
@@ -126,7 +134,12 @@ export default function LessonViewerPage() {
         // 1) fetch course with sections/lessons
         const [courseResp, progressResp] = await Promise.all([
           courseService.getCourseById(courseId),
-          lessonService.getAllLessonsProgress(), // expects array of { lessonId, isVideoWatched, watchedAt? }
+          // FIX: Do not pass userId, just use named params
+          lessonService.getAllLessonsProgress({
+            sectionId,
+            page: 1,
+            limit: 100,
+          }),
         ]);
 
         if (!courseResp.data) {
@@ -192,7 +205,7 @@ export default function LessonViewerPage() {
     return () => {
       cancelledRef.current = true;
     };
-  }, [authLoading, courseId, sectionId, lessonId]);
+  }, [authLoading, courseId, sectionId, lessonId, user?.id]);
 
   // Re-compute locks whenever progressMap or course changes
   useEffect(() => {
@@ -319,14 +332,18 @@ export default function LessonViewerPage() {
         },
       }));
 
-      // call backend
-      const resp = await lessonService.updateProgress(targetLessonId, {
-        isVideoWatched: true,
+      // call backend — use the API's expected payload shape (status)
+      await lessonService.updateProgress(targetLessonId, {
+        status: "watched",
       });
 
       // update section and course progress after backend returns
       const [progressResp, courseResp] = await Promise.all([
-        lessonService.getAllLessonsProgress(),
+        lessonService.getAllLessonsProgress({
+          sectionId,
+          page: 1,
+          limit: 100,
+        }),
         courseService.getCourseById(courseId!),
       ]);
 
