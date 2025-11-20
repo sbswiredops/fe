@@ -9,18 +9,14 @@ import { useEnrolledCourses } from "@/components/contexts/EnrolledCoursesContext
 import { Course, Section, Lesson } from "@/types/api";
 
 const userService = new UserService();
-export const runtime = 'edge';
+export const runtime = "edge";
 
 interface CourseDetail extends Course {
   sections?: Section[];
   instructorBio?: string;
 }
 
-function CourseHeader({
-  course,
-}: {
-  course: CourseDetail;
-}): JSX.Element {
+function CourseHeader({ course }: { course: CourseDetail }): JSX.Element {
   return (
     <>
       <div className="bg-gradient-to-r from-gray-900 to-gray-800 text-white py-12 mb-8">
@@ -45,18 +41,11 @@ function CourseHeader({
   );
 }
 
-function CourseInfoSection({
-  course,
-}: {
-  course: CourseDetail;
-}): JSX.Element {
+function CourseInfoSection({ course }: { course: CourseDetail }): JSX.Element {
   const totalLessons = Array.isArray(course.sections)
     ? course.sections.reduce(
         (sum: number, section: any) =>
-          sum +
-          (Array.isArray(section.lessons)
-            ? section.lessons.length
-            : 0),
+          sum + (Array.isArray(section.lessons) ? section.lessons.length : 0),
         0
       )
     : 0;
@@ -67,8 +56,16 @@ function CourseInfoSection({
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-4">
             <div className="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
-              <svg className="w-6 h-6 text-blue-600" fill="currentColor" viewBox="0 0 20 20">
-                <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-11a1 1 0 10-2 0v2H7a1 1 0 100 2h2v2a1 1 0 102 0v-2h2a1 1 0 100-2h-2V7z" clipRule="evenodd" />
+              <svg
+                className="w-6 h-6 text-blue-600"
+                fill="currentColor"
+                viewBox="0 0 20 20"
+              >
+                <path
+                  fillRule="evenodd"
+                  d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-11a1 1 0 10-2 0v2H7a1 1 0 100 2h2v2a1 1 0 102 0v-2h2a1 1 0 100-2h-2V7z"
+                  clipRule="evenodd"
+                />
               </svg>
             </div>
             <div>
@@ -81,7 +78,9 @@ function CourseInfoSection({
             </div>
           </div>
           <div className="text-right">
-            <div className="text-2xl font-bold text-gray-900">{totalLessons}</div>
+            <div className="text-2xl font-bold text-gray-900">
+              {totalLessons}
+            </div>
             <div className="text-sm text-gray-500">Total Lessons</div>
           </div>
         </div>
@@ -107,6 +106,12 @@ function LessonItem({
     );
   };
 
+  const handleOpenResource = () => {
+    router.push(
+      `/dashboard/student/learn/lesson/${lesson.id}?courseId=${courseId}&sectionId=${section.id}&tab=resource`
+    );
+  };
+
   const getFileName = (path: string) => {
     return path.split("/").pop() || "Download";
   };
@@ -127,30 +132,46 @@ function LessonItem({
             <h4 className="font-medium text-gray-900 text-sm mb-2">
               {String(lesson.title || "Untitled Lesson")}
             </h4>
-            
+
             {/* Resource Files - Clickable */}
             <div className="space-y-1 mb-3">
               {lesson.video && (
-                <div 
+                <div
                   onClick={handleOpenLesson}
                   className="flex items-center gap-2 text-xs text-gray-600 cursor-pointer hover:text-blue-600 transition-colors"
                 >
-                  <svg className="w-3 h-3 text-blue-500 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                  <svg
+                    className="w-3 h-3 text-blue-500 flex-shrink-0"
+                    fill="currentColor"
+                    viewBox="0 0 20 20"
+                  >
                     <path d="M2 6a2 2 0 012-2h12a2 2 0 012 2v8a2 2 0 01-2 2H4a2 2 0 01-2-2V6zm12 .5a.5.5 0 01.5.5v5a.5.5 0 01-.5.5H6a.5.5 0 01-.5-.5V7a.5.5 0 01.5-.5h8z" />
                   </svg>
-                  <span className="font-mono text-gray-500 text-xs hover:text-blue-600">video.m3u8</span>
+                  <span className="font-mono text-gray-500 text-xs hover:text-blue-600">
+                    video.m3u8
+                  </span>
                 </div>
               )}
 
               {lesson.resource && (
-                <div 
-                  onClick={handleOpenLesson}
+                <div
+                  onClick={handleOpenResource}
                   className="flex items-center gap-2 text-xs text-gray-600 cursor-pointer hover:text-green-600 transition-colors"
                 >
-                  <svg className="w-3 h-3 text-red-500 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
-                    <path fillRule="evenodd" d="M3 17a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm3.293-7.707a1 1 0 011.414 0L9 10.586V3a1 1 0 112 0v7.586l1.293-1.293a1 1 0 111.414 1.414l-3 3a1 1 0 01-1.414 0l-3-3a1 1 0 010-1.414z" clipRule="evenodd" />
+                  <svg
+                    className="w-3 h-3 text-red-500 flex-shrink-0"
+                    fill="currentColor"
+                    viewBox="0 0 20 20"
+                  >
+                    <path
+                      fillRule="evenodd"
+                      d="M3 17a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm3.293-7.707a1 1 0 011.414 0L9 10.586V3a1 1 0 112 0v7.586l1.293-1.293a1 1 0 111.414 1.414l-3 3a1 1 0 01-1.414 0l-3-3a1 1 0 010-1.414z"
+                      clipRule="evenodd"
+                    />
                   </svg>
-                  <span className="font-mono text-gray-500 text-xs hover:text-green-600">{getFileName(lesson.resource)}</span>
+                  <span className="font-mono text-gray-500 text-xs hover:text-green-600">
+                    {getFileName(lesson.resource)}
+                  </span>
                 </div>
               )}
             </div>
@@ -198,18 +219,26 @@ function QuizItem({
       <div className="flex-1 min-w-0">
         <div className="flex items-start justify-between mb-2">
           <div className="flex-1">
-            <h4 
+            <h4
               onClick={handleOpenQuiz}
               className="font-medium text-gray-900 text-sm mb-2 cursor-pointer hover:text-purple-600 transition-colors"
             >
               {quiz.title || "Section Quiz"}
             </h4>
-            <div 
+            <div
               onClick={handleOpenQuiz}
               className="flex items-center gap-2 text-xs text-gray-600 cursor-pointer hover:text-purple-600 transition-colors"
             >
-              <svg className="w-3 h-3 text-purple-500 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
-                <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-11a1 1 0 10-2 0v2H7a1 1 0 100 2h2v2a1 1 0 102 0v-2h2a1 1 0 100-2h-2V7z" clipRule="evenodd" />
+              <svg
+                className="w-3 h-3 text-purple-500 flex-shrink-0"
+                fill="currentColor"
+                viewBox="0 0 20 20"
+              >
+                <path
+                  fillRule="evenodd"
+                  d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-11a1 1 0 10-2 0v2H7a1 1 0 100 2h2v2a1 1 0 102 0v-2h2a1 1 0 100-2h-2V7z"
+                  clipRule="evenodd"
+                />
               </svg>
               <span className="text-gray-500">Quiz assessment</span>
             </div>
@@ -233,81 +262,47 @@ function AccordionItem({
   index: number;
   courseId: string;
 }): JSX.Element {
-  const lessonCount = Array.isArray(section.lessons) ? section.lessons.length : 0;
-  const quizCount = section.quizzes ? section.quizzes.length : 0;
-  const totalItems = lessonCount + quizCount;
-
-  // Mock quiz data
-  const mockQuiz = { id: 'quiz-1', title: 'Section Quiz' };
-
   return (
-    <div className="border border-gray-200 rounded-lg mb-4 overflow-hidden bg-white hover:border-gray-300 transition-colors">
+    <div className="border-b border-gray-200 last:border-b-0">
       <button
         onClick={onToggle}
-        className="w-full px-6 py-4 flex items-center justify-between hover:bg-gray-50 transition-colors text-left"
+        className={`w-full flex items-center justify-between px-3 py-2 text-left hover:bg-gray-50 transition-colors
+          ${isOpen ? "bg-gray-100" : "bg-white"}`}
+        style={{ minHeight: 40 }}
       >
-        <div className="flex items-center gap-4 flex-1">
-          <div className="flex-shrink-0">
-            <div className="w-10 h-10 bg-gray-100 rounded-lg flex items-center justify-center">
-              <span className="text-gray-600 font-semibold text-sm">
-                {index + 1}
-              </span>
-            </div>
-          </div>
-          <div className="flex-1">
-            <h3 className="font-semibold text-gray-900 text-base mb-1">
-              {String(section.title || "Untitled Section")}
-            </h3>
-            <p className="text-sm text-gray-600">
-              {totalItems} {totalItems === 1 ? 'item' : 'items'}
-              {lessonCount > 0 && ` • ${lessonCount} lesson${lessonCount === 1 ? '' : 's'}`}
-              {quizCount > 0 && ` • ${quizCount} quiz${quizCount === 1 ? '' : 'zes'}`}
-            </p>
-          </div>
-        </div>
-        
-        <div className="flex items-center gap-2">
-          <svg 
-            className={`w-5 h-5 text-gray-400 transition-transform duration-200 ${isOpen ? 'rotate-180' : ''}`}
-            fill="none" 
-            stroke="currentColor" 
-            viewBox="0 0 24 24"
-          >
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-          </svg>
-        </div>
+        <span className="font-medium text-gray-900 text-sm truncate">
+          {section.title || "Untitled Section"}
+        </span>
+        <svg
+          className={`w-4 h-4 text-gray-400 transition-transform duration-200 ${
+            isOpen ? "rotate-180" : ""
+          }`}
+          fill="none"
+          stroke="currentColor"
+          viewBox="0 0 24 24"
+        >
+          <path
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            strokeWidth={2}
+            d="M19 9l-7 7-7-7"
+          />
+        </svg>
       </button>
-
       {isOpen && (
-        <div className="border-t border-gray-200">
-          <div className="p-4">
-            {/* Lessons */}
-            {Array.isArray(section.lessons) && section.lessons.length > 0 ? (
-              section.lessons
-                .sort((a: Lesson, b: Lesson) => (a.orderIndex || 0) - (b.orderIndex || 0))
-                .map((lesson: Lesson, lessonIdx: number) => (
-                  <LessonItem
-                    key={lesson.id || lessonIdx}
-                    lesson={lesson}
-                    section={section}
-                    courseId={String(courseId || "")}
-                  />
-                ))
-            ) : (
-              <div className="text-center py-4 text-gray-500 text-sm">
-                No lessons available in this section
-              </div>
-            )}
-
-            {/* Quiz */}
-            {index === 0 && ( // Show quiz only for first section as in the example
-              <QuizItem
-                quiz={mockQuiz}
+        <div className="px-3 py-2 bg-white">
+          {Array.isArray(section.lessons) && section.lessons.length > 0 ? (
+            section.lessons.map((lesson: Lesson, lessonIdx: number) => (
+              <LessonItem
+                key={lesson.id || lessonIdx}
+                lesson={lesson}
                 section={section}
-                courseId={String(courseId || "")}
+                courseId={courseId}
               />
-            )}
-          </div>
+            ))
+          ) : (
+            <div className="text-xs text-gray-400 py-1 pl-4">No lessons</div>
+          )}
         </div>
       )}
     </div>
@@ -321,7 +316,9 @@ function CourseContents({
   sections: Section[];
   courseId: string;
 }): JSX.Element {
-  const sortedSections = [...sections].sort((a: Section, b: Section) => (a.orderIndex || 0) - (b.orderIndex || 0));
+  const sortedSections = [...sections].sort(
+    (a: Section, b: Section) => (a.orderIndex || 0) - (b.orderIndex || 0)
+  );
   const [openSections, setOpenSections] = useState<Set<string>>(
     new Set([sortedSections[0]?.id])
   );
@@ -336,28 +333,14 @@ function CourseContents({
     setOpenSections(newOpen);
   };
 
-  const totalLessons = sections.reduce((sum, section) => 
-    sum + (Array.isArray(section.lessons) ? section.lessons.length : 0), 0
-  );
-
-  if (!Array.isArray(sections) || sections.length === 0) {
-    return (
-      <div className="bg-white rounded-lg p-8 text-center border border-gray-200">
-        <svg className="w-12 h-12 text-gray-300 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.746 0 3.332.477 4.5 1.253v13C19.832 18.477 18.246 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
-        </svg>
-        <p className="text-gray-500 font-medium">No course content available yet</p>
-        <p className="text-gray-400 mt-2 text-sm">Check back later for updated curriculum</p>
-      </div>
-    );
-  }
-
   return (
     <div className="bg-white rounded-lg border border-gray-200 overflow-hidden">
-      <div className="px-6 py-4 border-b border-gray-200 bg-gray-50">
-        <h2 className="text-xl font-bold text-gray-900">Course Curriculum</h2>
+      <div className="px-4 py-3 border-b border-gray-200 bg-gray-50">
+        <h2 className="text-base font-semibold text-gray-900">
+          Course Curriculum
+        </h2>
       </div>
-      <div className="p-6">
+      <div>
         {sortedSections.map((section: Section, index: number) => (
           <AccordionItem
             key={section.id}
@@ -416,7 +399,8 @@ export default function Page(): JSX.Element {
 
         if (Array.isArray(coursesList) && coursesList.length > 0) {
           const found = coursesList.find(
-            (c: any) => c && typeof c === "object" && String(c.id) === String(id)
+            (c: any) =>
+              c && typeof c === "object" && String(c.id) === String(id)
           );
 
           if (!ignore && found && typeof found === "object" && found.id) {
