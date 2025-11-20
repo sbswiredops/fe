@@ -34,7 +34,7 @@ function normalizeType(input?: string | null): CourseType | "all" {
   return "all";
 }
 
-function AllCoursesClient() {
+function CoursesClient() {
   const { t, currentLanguage } = useLanguage();
   const searchParams = useSearchParams();
 
@@ -505,7 +505,7 @@ export default function AllCoursesPage() {
       <Suspense
         fallback={<div className="py-32 text-center text-lg">লোড হচ্ছে...</div>}
       >
-        <AllCoursesClient />
+        <CoursesClient />
       </Suspense>
     </MainLayout>
   );

@@ -67,8 +67,15 @@ export default function FeaturedCourses() {
               duration: durationStr,
               thumbnail: c.thumbnail || "/placeholder-course.jpg",
               category: String(categoryName),
-              enrolledStudents: Number(c.enrollmentCount ?? 0),
+              // keep the existing enrolledStudents for consumers that use it
+              enrolledStudents: Number(c.enrollmentCount ?? c.enrolledStudents ?? 0),
+              // ensure Course type's required enrollmentCount is present
+              enrollmentCount: Number(c.enrollmentCount ?? c.enrolledStudents ?? 0),
               rating: Number(c.rating ?? 0),
+              // ensure Course type's required courseIntroVideo is present (nullable)
+              courseIntroVideo: c.courseIntroVideo ?? c.introVideo ?? null,
+              // ensure Course type's required sections is present (empty array default)
+              sections: Array.isArray(c.sections) ? c.sections : [],
               createdAt: created,
             };
           });

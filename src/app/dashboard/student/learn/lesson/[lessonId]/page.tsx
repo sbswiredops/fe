@@ -1,4 +1,3 @@
-/* eslint-disable @next/next/no-img-element */
 "use client";
 
 import React, { useEffect, useState, useRef, JSX } from "react";
@@ -95,7 +94,7 @@ export default function LessonViewerPage() {
     };
 
     fetchData();
-  }, [authLoading, courseId, sectionId, lessonId]);
+  }, [authLoading, courseId, sectionId, lessonId, pdfUrl]);
 
   // --------------------------
   // Handle lesson navigation
@@ -275,7 +274,7 @@ export default function LessonViewerPage() {
                       />
                     )}
                     {/* Section Quizzes */}
-                    {section?.quizzes?.length > 0 && section.quizzes.map((quiz) => (
+                    {section?.quizzes && section.quizzes.map((quiz) => (
                       <ContentToggleButton
                         key={quiz.id}
                         label={quiz.title}
@@ -349,7 +348,11 @@ export default function LessonViewerPage() {
                 <button
                   onClick={() => {
                     const newExpanded = new Set(expandedSections);
-                    isExpanded ? newExpanded.delete(sec.id) : newExpanded.add(sec.id);
+                    if (isExpanded) {
+                      newExpanded.delete(sec.id);
+                    } else {
+                      newExpanded.add(sec.id);
+                    }
                     setExpandedSections(newExpanded);
                   }}
                   className="w-full text-left px-3 py-2 hover:bg-gray-100 transition-colors flex items-center justify-between"
@@ -396,7 +399,7 @@ export default function LessonViewerPage() {
                     ))}
 
                     {/* Section Quizzes */}
-                    {sec.quizzes?.length > 0 &&
+                    {sec.quizzes && sec.quizzes.length > 0 &&
                       sec.quizzes.map((q) => (
                         <button
                           key={q.id}

@@ -53,7 +53,7 @@ function FaqsManagement() {
     };
     load();
     return () => ac.abort();
-  }, []);
+  }, [showToast]);
 
   const [faqs, setFaqs] = React.useState<Faq[]>([
     {

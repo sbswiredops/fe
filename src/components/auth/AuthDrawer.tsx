@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import { useRouter, useSearchParams } from "next/navigation"; // added
+import { useRouter } from "next/navigation"; // remove useSearchParams import
 import Button from "@/components/ui/Button";
 import Input from "@/components/ui/Input";
 import ConfirmationModal from "@/components/ui/ConfirmationModal";
@@ -41,8 +41,17 @@ export default function AuthDrawer({
     resetPassword,
   } = useAuth();
   const { showToast, ToastContainer } = useToast();
-  const router = useRouter(); // added
-  const searchParams = useSearchParams(); // added
+  const router = useRouter();
+
+  // Replace useSearchParams with local state
+  const [nextUrl, setNextUrl] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      const params = new URLSearchParams(window.location.search);
+      setNextUrl(params.get("next"));
+    }
+  }, []);
 
   const [step, setStep] = useState<AuthStep>(initialMode);
   const [formData, setFormData] = useState({
@@ -189,19 +198,31 @@ export default function AuthDrawer({
       }
 
       // Check for next URL in query params
-      const nextUrl = searchParams.get("next");
-
       let target = nextUrl || "/dashboard";
 
       // If no next URL provided, navigate to role dashboard
       if (!nextUrl) {
         const storedUser = authService.getCurrentUserFromStorage<any>();
         const roleRaw = storedUser?.role;
-        const roleValue = typeof roleRaw === "string" ? roleRaw : String(roleRaw?.name || "").trim().toLowerCase().replace(/[\s-]+/g, "_");
+        const roleValue =
+          typeof roleRaw === "string"
+            ? roleRaw
+            : String(roleRaw?.name || "")
+                .trim()
+                .toLowerCase()
+                .replace(/[\s-]+/g, "_");
 
-        if (["admin","super_admin","sales_marketing","finance_accountant","content_creator"].includes(roleValue)) {
+        if (
+          [
+            "admin",
+            "super_admin",
+            "sales_marketing",
+            "finance_accountant",
+            "content_creator",
+          ].includes(roleValue)
+        ) {
           target = "/dashboard/admin";
-        } else if (["teacher","instructor"].includes(roleValue)) {
+        } else if (["teacher", "instructor"].includes(roleValue)) {
           target = "/dashboard/teacher";
         } else if (roleValue === "student") {
           target = "/dashboard/student";

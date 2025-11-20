@@ -101,19 +101,30 @@ export default function RecordedCoursesSection() {
             <CardSlider
               items={courses.map((course) => ({
                 ...course,
+                // ensure duration is a string for the slider/card
                 duration:
                   typeof course.duration === "string"
                     ? course.duration
                     : String(course.duration),
+                // thumbnail must be a string
                 thumbnail: course.thumbnail ?? "",
+                // rating must be a number
                 rating:
                   typeof course.rating === "number"
                     ? course.rating
                     : Number(course.rating),
+                // CardSlider / Course expects createdAt as a Date in many components
                 createdAt:
                   typeof course.createdAt === "string"
                     ? new Date(course.createdAt)
                     : course.createdAt,
+                // add missing Course properties with safe defaults so the mapped object matches the Course type
+                sections: (course as any).sections ?? [],
+                courseIntroVideo: (course as any).courseIntroVideo ?? null,
+                enrollmentCount:
+                  (course as any).enrollmentCount ??
+                  (course as any).enrolledStudents ??
+                  0,
               }))}
               title={t("Recorded Courses") || "Recorded Courses"}
               categories={[

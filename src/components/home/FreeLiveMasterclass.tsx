@@ -21,6 +21,9 @@ interface FreeMasterclass {
   thumbnail: string;
   isLive: boolean;
   createdAt: Date;
+  sections: any[]; // <-- Remove the optional '?'
+  courseIntroVideo: string;
+  enrollmentCount: number;
 }
 
 function MasterclassCard({ masterclass }: { masterclass: FreeMasterclass }) {
@@ -89,6 +92,9 @@ export default function FreeLiveMasterclass() {
               rating: Number(c.rating ?? 0),
               createdAt: created,
               isLive: live,
+              sections: Array.isArray(c.sections) ? c.sections : [],
+              courseIntroVideo: c.courseIntroVideo ?? "",
+              enrollmentCount: Number(c.enrollmentCount ?? 0),
             } as FreeMasterclass;
           });
           setApiMasterclasses(mapped);

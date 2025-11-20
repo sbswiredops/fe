@@ -1,11 +1,11 @@
 "use client";
 
-import React, { useEffect, useState, useRef } from "react";
+import React, { useEffect, useState, useRef, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import AuthDrawer from "@/components/auth/AuthDrawer";
 import { useAuth } from "@/components/contexts/AuthContext";
 
-export default function LoginPage() {
+function LoginPageContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const { user, isLoading } = useAuth();
@@ -45,5 +45,15 @@ export default function LoginPage() {
         initialMode={mode}
       />
     </div>
+  );
+}
+
+export default function LoginPage() {
+  return (
+    <Suspense
+      fallback={<div className="py-32 text-center text-lg">Loading...</div>}
+    >
+      <LoginPageContent />
+    </Suspense>
   );
 }

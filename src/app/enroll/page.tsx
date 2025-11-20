@@ -211,8 +211,8 @@ export default function EnrollPage() {
                     <div className="absolute top-3 left-3 price-badge">
                       {typeof course.category === "string"
                         ? course.category
-                        : typeof course.category === "object" && course.category?.name
-                        ? course.category.name
+                        : typeof course.category === "object" && (course.category as any)?.name
+                        ? (course.category as any).name
                         : ""}
                     </div>
                   </div>
@@ -225,7 +225,7 @@ export default function EnrollPage() {
                       </div>
                     </div>
                     <div className="mt-3 text-sm text-gray-600">
-                      {course.enrolledStudents} students • {course.rating}⭐
+                      {Number(course.enrollmentCount ?? 0)} students • {course.rating}⭐
                     </div>
 
                     <div className="flex items-start justify-between mt-4">

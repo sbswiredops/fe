@@ -239,13 +239,15 @@ export default function CoursesPage(): JSX.Element {
     // Search by title or category
     if (searchTerm) {
       const search = searchTerm.toLowerCase();
-      filtered = filtered.filter(
-        (c) =>
-          String(c.title || "").toLowerCase().includes(search) ||
-          (typeof c.category === "string"
-            ? c.category.toLowerCase().includes(search)
-            : (c.category as any)?.name?.toLowerCase().includes(search))
-      );
+      filtered = filtered.filter((c) => {
+        const title = String(c.title || "").toLowerCase();
+        const categoryString =
+          typeof c.category === "string"
+            ? c.category
+            : (c.category as any)?.name;
+        const category = String(categoryString || "").toLowerCase();
+        return title.includes(search) || category.includes(search);
+      });
     }
 
     setFilteredCourses(filtered);
