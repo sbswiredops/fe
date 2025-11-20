@@ -8,6 +8,7 @@ import { VideoPlayer } from "@/components/VideoPlayer";
 import { userService } from "@/services/userService";
 import { courseService } from "@/services/courseService";
 import { lessonService } from "@/services/lessonService";
+import { quizService } from "@/services/quizService";
 import { Lesson, Section, Course } from "@/types/api";
 import { useAuth } from "@/components/contexts/AuthContext";
 import QuizViewer from "@/components/ui/QuizViewer";
@@ -17,6 +18,14 @@ type CourseDetail = Course & {
   sections?: Section[];
   instructorBio?: string;
 };
+
+type LessonProgressMap = Record<
+  string,
+  {
+    isVideoWatched: boolean;
+    watchedAt?: string | null;
+  }
+>;
 
 export default function LessonViewerPage() {
   const params = useParams();
@@ -28,7 +37,6 @@ export default function LessonViewerPage() {
   const courseId = searchParams.get("courseId");
   const sectionId = searchParams.get("sectionId");
 
-  // Add this line to get the tab value from the URL
   const initialTab = searchParams.get("tab");
 
   const [course, setCourse] = useState<CourseDetail | null>(null);
@@ -42,7 +50,6 @@ export default function LessonViewerPage() {
     new Set()
   );
 
-
   const [viewMode, setViewMode] = useState<"video" | "pdf" | "quiz">(
     initialTab === "resource" ? "pdf" : "video"
   );
@@ -54,31 +61,96 @@ export default function LessonViewerPage() {
     title: string;
   } | null>(null);
 
-  const cancelledRef = useRef(false);
+  // Progress & lock state
+  const [progressMap, setProgressMap] = useState<LessonProgressMap>({});
+  const [lessonLockedMap, setLessonLockedMap] = useState<
+    Record<string, boolean>
+  >({});
+  const [sectionLockedMap, setSectionLockedMap] = useState<
+    Record<string, boolean>
+  >({});
+  const [sectionCompletionPercent, setSectionCompletionPercent] = useState<
+    Record<string, number>
+  >({});
 
-  // --------------------------
-  // Fetch course, section, lesson
-  // --------------------------
+  const cancelledRef = useRef(false);
+  const updatingRef = useRef(false);
+
+  // Update viewMode when the tab parameter changes
+  useEffect(() => {
+    if (initialTab === "resource") {
+      setViewMode("pdf");
+    } else {
+      setViewMode("video");
+    }
+  }, [initialTab]);
+
+  // Auto-load PDF when lesson is loaded and resource tab is active
+  useEffect(() => {
+    if (
+      lesson?.resource &&
+      initialTab === "resource" &&
+      !pdfUrl &&
+      !pdfError &&
+      !isPdfLoading
+    ) {
+      loadPdf();
+    }
+  }, [lesson?.id, initialTab]);
+
+  // Fetch course and user's lesson progress (optimized: do both once)
   useEffect(() => {
     const fetchData = async () => {
       if (authLoading || !courseId || !sectionId) return;
 
+      // Add this log to debug
+      console.log(
+        "courseId:",
+        courseId,
+        "sectionId:",
+        sectionId,
+        "lessonId:",
+        lessonId
+      );
+
       cancelledRef.current = false;
-      setViewMode("video");
+      // reset pdf states but keep viewMode
       if (pdfUrl) URL.revokeObjectURL(pdfUrl);
       setPdfUrl(null);
       setPdfError(null);
 
+      setIsLoading(true);
+      setError(null);
+
       try {
-        const courseResponse = await courseService.getCourseById(courseId);
-        if (!courseResponse.data) {
+        // 1) fetch course with sections/lessons
+        const [courseResp, progressResp] = await Promise.all([
+          courseService.getCourseById(courseId),
+          lessonService.getAllLessonsProgress(), // expects array of { lessonId, isVideoWatched, watchedAt? }
+        ]);
+
+        if (!courseResp.data) {
           setError("Course not found");
           setIsLoading(false);
           return;
         }
-        const courseData = courseResponse.data;
+
+        const courseData = courseResp.data as CourseDetail;
         setCourse(courseData);
 
+        // map progress
+        const progArr = (progressResp.data || []) as any[];
+        const pMap: LessonProgressMap = {};
+        for (const p of progArr) {
+          if (!p?.lessonId) continue;
+          pMap[p.lessonId] = {
+            isVideoWatched: !!p.isVideoWatched,
+            watchedAt: p.watchedAt ?? null,
+          };
+        }
+        setProgressMap(pMap);
+
+        // find section & lesson
         const foundSection =
           courseData.sections?.find((s) => s.id === sectionId) || null;
         setSection(foundSection);
@@ -103,6 +175,9 @@ export default function LessonViewerPage() {
           }
         }
 
+        // compute locks and completion percents
+        computeLocksAndPercents(courseData, pMap);
+
         setIsLoading(false);
       } catch (err) {
         console.error("Failed to fetch lesson:", err);
@@ -112,12 +187,59 @@ export default function LessonViewerPage() {
     };
 
     fetchData();
+
+    // cleanup when unmount or deps change
+    return () => {
+      cancelledRef.current = true;
+    };
   }, [authLoading, courseId, sectionId, lessonId]);
 
-  // --------------------------
-  // Handle lesson navigation
-  // --------------------------
+  // Re-compute locks whenever progressMap or course changes
+  useEffect(() => {
+    if (course) computeLocksAndPercents(course as CourseDetail, progressMap);
+  }, [progressMap, course]);
+
+  const computeLocksAndPercents = (
+    courseData: CourseDetail,
+    pMap: LessonProgressMap
+  ) => {
+    const lessonLock: Record<string, boolean> = {};
+    const sectionLock: Record<string, boolean> = {};
+    const sectionPercent: Record<string, number> = {};
+
+    (courseData.sections || []).forEach((sec) => {
+      const lessons = (sec.lessons || []).sort(
+        (a, b) => (a.orderIndex || 0) - (b.orderIndex || 0)
+      );
+      let completed = 0;
+
+      lessons.forEach((l, i) => {
+        const prevCompleted =
+          i === 0 ? true : !!pMap[lessons[i - 1].id]?.isVideoWatched;
+        lessonLock[l.id] = !!(l as any).isLocked || !prevCompleted;
+        if (pMap[l.id]?.isVideoWatched) completed++;
+      });
+
+      const total = lessons.length;
+      sectionPercent[sec.id] =
+        total === 0 ? 0 : Math.round((completed / total) * 100);
+      sectionLock[sec.id] =
+        total === 0 || completed < total || !!(sec as any).isQuizLocked;
+    });
+
+    setLessonLockedMap(lessonLock);
+    setSectionLockedMap(sectionLock);
+    setSectionCompletionPercent(sectionPercent);
+  };
+
   const handleLessonSelect = (selectedLesson: Lesson, secId: string) => {
+    // Prevent navigation if lesson is locked
+    if (lessonLockedMap[selectedLesson.id]) {
+      // optionally show toast — here simple alert
+      alert("This lesson is locked. Complete previous lessons to unlock.");
+      return;
+    }
+
     cancelledRef.current = false;
     setViewMode("video");
     setPdfUrl(null);
@@ -128,9 +250,6 @@ export default function LessonViewerPage() {
     );
   };
 
-  // --------------------------
-  // Load PDF resource
-  // --------------------------
   const loadPdf = async () => {
     if (!lesson?.id) return;
 
@@ -166,18 +285,73 @@ export default function LessonViewerPage() {
     };
   }, [pdfUrl]);
 
-  // --------------------------
-  // Sort lessons
-  // --------------------------
   const sortedLessons = section?.lessons?.length
     ? [...(section?.lessons || [])].sort(
         (a, b) => (a.orderIndex || 0) - (b.orderIndex || 0)
       )
     : [];
 
-  // --------------------------
-  // Loading / Error UI
-  // --------------------------
+  const handleMarkLessonCompleteLocal = (lessonIdToMark: string) => {
+    // optimistic local update
+    setProgressMap((prev) => ({
+      ...prev,
+      [lessonIdToMark]: {
+        isVideoWatched: true,
+        watchedAt: new Date().toISOString(),
+      },
+    }));
+  };
+
+  // inside handleCompleteLesson
+  const handleCompleteLesson = async (endedLessonId?: string) => {
+    if (updatingRef.current) return;
+    const targetLessonId = endedLessonId || lesson?.id;
+    if (!targetLessonId) return;
+
+    updatingRef.current = true;
+    try {
+      // optimistic local update
+      setProgressMap((prev) => ({
+        ...prev,
+        [targetLessonId]: {
+          isVideoWatched: true,
+          watchedAt: new Date().toISOString(),
+        },
+      }));
+
+      // call backend
+      const resp = await lessonService.updateProgress(targetLessonId, {
+        isVideoWatched: true,
+      });
+
+      // update section and course progress after backend returns
+      const [progressResp, courseResp] = await Promise.all([
+        lessonService.getAllLessonsProgress(),
+        courseService.getCourseById(courseId!),
+      ]);
+
+      // rebuild progress map
+      const newMap: LessonProgressMap = {};
+      (progressResp.data || []).forEach((p) => {
+        if (!p?.lessonId) return;
+        newMap[p.lessonId] = {
+          isVideoWatched: !!p.isVideoWatched,
+          watchedAt: p.watchedAt || null,
+        };
+      });
+      setProgressMap(newMap);
+
+      // refresh course & recompute locks
+      if (courseResp.data)
+        computeLocksAndPercents(courseResp.data as CourseDetail, newMap);
+    } catch (err) {
+      console.error(err);
+      alert("Failed to save progress. Please try again.");
+    } finally {
+      updatingRef.current = false;
+    }
+  };
+
   if (authLoading || isLoading) {
     return (
       <DashboardLayout>
@@ -224,9 +398,6 @@ export default function LessonViewerPage() {
     );
   }
 
-  // --------------------------
-  // Content Toggle Button Component
-  // --------------------------
   const ContentToggleButton = (props: {
     label: string;
     icon: JSX.Element;
@@ -273,13 +444,9 @@ export default function LessonViewerPage() {
     );
   };
 
-  // --------------------------
-  // Main Render
-  // --------------------------
   return (
     <DashboardLayout>
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        {/* Back Button */}
         <div className="mb-6">
           <button
             onClick={() => router.back()}
@@ -303,22 +470,26 @@ export default function LessonViewerPage() {
         </div>
 
         <div className="bg-white rounded-xl overflow-hidden border border-gray-200 shadow-sm mb-6">
-          {/* Header */}
           <div className="bg-gradient-to-r from-purple-600 to-purple-700 px-6 sm:px-8 py-4">
             <h1 className="text-2xl font-bold text-white">{lesson.title}</h1>
             <p className="text-blue-100 text-sm mt-2">
               {section.title} • {course.title}
             </p>
+            {/* Simple section progress */}
+            <div className="mt-2 text-xs text-white/90">
+              Section progress: {sectionCompletionPercent[section.id] ?? 0}%{" "}
+              {sectionCompletionPercent[section.id] === 100
+                ? "✓ Completed"
+                : ""}
+            </div>
           </div>
 
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 p-6 sm:p-8">
-            {/* Lesson Content */}
             <div className="lg:col-span-2">
               {lesson.video ||
               lesson.resource ||
               (section?.quizzes?.length ?? 0) > 0 ? (
                 <>
-                  {/* Toggle Buttons */}
                   <div className="flex gap-2 mb-4 flex-wrap">
                     {lesson.video && (
                       <ContentToggleButton
@@ -357,33 +528,42 @@ export default function LessonViewerPage() {
                         loading={isPdfLoading}
                       />
                     )}
-                    {/* Section Quizzes */}
                     {(section?.quizzes?.length ?? 0) > 0 &&
-                      section?.quizzes?.map((quiz) => (
-                        <ContentToggleButton
-                          key={quiz.id}
-                          label={quiz.title}
-                          icon={
-                            <svg
-                              className="w-4 h-4"
-                              fill="currentColor"
-                              viewBox="0 0 20 20"
-                            >
-                              <path d="M5.5 13a3.5 3.5 0 01-.369-6.98 4 4 0 117.753-1.3A4.5 4.5 0 1113.5 13H11V9.413l1.293 1.293a1 1 0 001.414-1.414l-3-3a1 1 0 00-1.414 0l-3 3a1 1 0 001.414 1.414L9 9.414V13H5.5z" />
-                            </svg>
-                          }
-                          active={
-                            viewMode === "quiz" && selectedQuiz?.id === quiz.id
-                          }
-                          onClick={() => {
-                            setSelectedQuiz(quiz);
-                            setViewMode("quiz");
-                          }}
-                        />
-                      ))}
+                      (section.quizzes || []).map((quiz) => {
+                        const sectionLocked = !!sectionLockedMap[section.id];
+                        const buttonDisabled = sectionLocked;
+                        return (
+                          <ContentToggleButton
+                            key={quiz.id}
+                            label={quiz.title}
+                            icon={
+                              <svg
+                                className="w-4 h-4"
+                                fill="currentColor"
+                                viewBox="0 0 20 20"
+                              >
+                                <path d="M5.5 13a3.5 3.5 0 01-.369-6.98 4 4 0 117.753-1.3A4.5 4.5 0 1113.5 13H11V9.413l1.293 1.293a1 1 0 001.414-1.414l-3-3a1 1 0 00-1.414 0l-3 3a1 1 0 001.414 1.414L9 9.414V13H5.5z" />
+                              </svg>
+                            }
+                            active={
+                              viewMode === "quiz" &&
+                              selectedQuiz?.id === quiz.id
+                            }
+                            onClick={() => {
+                              if (buttonDisabled) {
+                                alert(
+                                  "Quiz locked. Complete all lessons in this section to unlock."
+                                );
+                                return;
+                              }
+                              setSelectedQuiz(quiz);
+                              setViewMode("quiz");
+                            }}
+                          />
+                        );
+                      })}
                   </div>
 
-                  {/* Content Viewer */}
                   {viewMode === "video" && lesson.video && (
                     <div className="bg-black rounded-lg overflow-hidden mb-6 aspect-video">
                       <VideoPlayer
@@ -391,6 +571,7 @@ export default function LessonViewerPage() {
                         className="w-full h-full object-contain"
                         autoPlay
                         controls
+                        onEnded={() => void handleCompleteLesson(lesson.id)}
                       />
                     </div>
                   )}
@@ -442,7 +623,6 @@ export default function LessonViewerPage() {
                 </div>
               )}
 
-              {/* Lesson Details */}
               <div className="bg-gray-50 rounded-lg p-6 border border-gray-200">
                 <h3 className="font-semibold text-gray-900 mb-4">
                   About This Lesson
@@ -453,7 +633,6 @@ export default function LessonViewerPage() {
               </div>
             </div>
 
-            {/* Curriculum Sidebar */}
             <div className="lg:col-span-1">
               <div className="bg-gray-50 rounded-lg p-4 border border-gray-200 sticky top-6">
                 <h3 className="font-semibold text-gray-900 text-sm mb-4">
@@ -462,27 +641,32 @@ export default function LessonViewerPage() {
                 <div className="space-y-2 max-h-screen overflow-y-auto">
                   {course?.sections?.length ? (
                     course.sections
+                      .slice()
                       .sort((a, b) => (a.orderIndex || 0) - (b.orderIndex || 0))
                       .map((sec) => {
                         const isExpanded = expandedSections.has(sec.id);
                         const secLessons =
-                          sec.lessons?.sort(
-                            (a, b) => (a.orderIndex || 0) - (b.orderIndex || 0)
-                          ) || [];
+                          sec.lessons
+                            ?.slice()
+                            .sort(
+                              (a, b) =>
+                                (a.orderIndex || 0) - (b.orderIndex || 0)
+                            ) || [];
+
+                        const secPercent =
+                          sectionCompletionPercent[sec.id] ?? 0;
+                        const secLocked = !!sectionLockedMap[sec.id];
+
                         return (
                           <div
                             key={sec.id}
                             className="border border-gray-200 rounded-lg overflow-hidden bg-white"
                           >
-                            {/* Section Header */}
                             <button
                               onClick={() => {
                                 const newExpanded = new Set(expandedSections);
-                                if (isExpanded) {
-                                  newExpanded.delete(sec.id);
-                                } else {
-                                  newExpanded.add(sec.id);
-                                }
+                                if (isExpanded) newExpanded.delete(sec.id);
+                                else newExpanded.add(sec.id);
                                 setExpandedSections(newExpanded);
                               }}
                               className="w-full text-left px-3 py-2 hover:bg-gray-100 transition-colors flex items-center justify-between"
@@ -490,85 +674,85 @@ export default function LessonViewerPage() {
                               <p className="text-xs font-semibold text-gray-900 truncate">
                                 {sec.title}
                               </p>
-                              <svg
-                                className={`w-4 h-4 text-gray-600 transition-transform ${
-                                  isExpanded ? "rotate-180" : ""
-                                }`}
-                                fill="none"
-                                stroke="currentColor"
-                                viewBox="0 0 24 24"
-                              >
-                                <path
-                                  strokeLinecap="round"
-                                  strokeLinejoin="round"
-                                  strokeWidth={2}
-                                  d="M19 14l-7 7m0 0l-7-7m7 7V3"
-                                />
-                              </svg>
+
+                              <div className="flex items-center gap-2">
+                                <span className="text-xs text-gray-500">
+                                  {secPercent}%
+                                </span>
+                                <svg
+                                  className={`w-4 h-4 text-gray-600 transition-transform ${
+                                    isExpanded ? "rotate-180" : ""
+                                  }`}
+                                  fill="none"
+                                  stroke="currentColor"
+                                  viewBox="0 0 24 24"
+                                >
+                                  <path
+                                    strokeLinecap="round"
+                                    strokeLinejoin="round"
+                                    strokeWidth={2}
+                                    d="M19 14l-7 7m0 0l-7-7m7 7V3"
+                                  />
+                                </svg>
+                              </div>
                             </button>
 
-                            {/* Expanded Lessons & Quizzes */}
                             {isExpanded && (
                               <div className="pl-4 pr-2 py-2 space-y-1">
-                                {/* Lessons */}
-                                {secLessons.map((l) => (
-                                  <div
-                                    key={l.id}
-                                    className="flex items-center justify-between gap-2"
-                                  >
+                                {secLessons.map((l) => {
+                                  const completed =
+                                    !!progressMap[l.id]?.isVideoWatched;
+                                  const locked = !!lessonLockedMap[l.id];
+                                  return (
                                     <button
+                                      key={l.id}
                                       onClick={() =>
                                         handleLessonSelect(l, sec.id)
                                       }
-                                      className={`flex-1 text-left text-xs px-2 py-1 rounded hover:bg-purple-50 transition-colors ${
-                                        lesson.id === l.id
-                                          ? "bg-purple-100 font-semibold"
-                                          : "text-gray-700"
+                                      disabled={locked}
+                                      className={`flex-1 text-left text-xs px-2 py-1 rounded ${
+                                        locked
+                                          ? "opacity-40 cursor-not-allowed"
+                                          : ""
                                       }`}
                                     >
-                                      🎬 {l.title}
+                                      {completed ? "✅" : "🎬"} {l.title}
                                     </button>
-                                    {/* Lesson Resource */}
-                                    {l.resource && (
-                                      <button
-                                        title="Open Resource"
-                                        onClick={() => {
-                                          router.push(
-                                            `/dashboard/student/learn/lesson/${l.id}?courseId=${courseId}&sectionId=${sec.id}&tab=resource`
-                                          );
-                                          setLesson(l);
-                                          loadPdf();
-                                          setSection(sec);
-                                          setViewMode("pdf");
-                                        }}
-                                        className="text-gray-500 hover:text-purple-600 text-xs px-1"
-                                      >
-                                        📄
-                                      </button>
-                                    )}
-                                  </div>
-                                ))}
+                                  );
+                                })}
 
-                                {/* Section Quizzes */}
-                                {sec.quizzes &&
-                                  sec.quizzes.length > 0 &&
-                                  sec.quizzes.map((q) => (
-                                    <button
-                                      key={q.id}
-                                      onClick={() => {
-                                        setSelectedQuiz(q);
-                                        setSection(sec);
-                                        setViewMode("quiz");
-                                      }}
-                                      className={`w-full text-left text-xs px-2 py-1 rounded hover:bg-purple-50 transition-colors ${
-                                        selectedQuiz?.id === q.id
-                                          ? "bg-purple-100 font-semibold"
-                                          : "text-gray-700"
-                                      }`}
-                                    >
-                                      🎯 {q.title}
-                                    </button>
-                                  ))}
+                                {(sec?.quizzes?.length ?? 0) > 0 &&
+                                  (sec.quizzes || []).map((q) => {
+                                    const qDisabled =
+                                      !!sectionLockedMap[sec.id];
+                                    return (
+                                      <button
+                                        key={q.id}
+                                        onClick={() => {
+                                          if (qDisabled) {
+                                            alert(
+                                              "Quiz is locked. Complete all lessons in this section to unlock."
+                                            );
+                                            return;
+                                          }
+                                          setSelectedQuiz(q);
+                                          setSection(sec);
+                                          setViewMode("quiz");
+                                        }}
+                                        className={`w-full text-left text-xs px-2 py-1 rounded transition-colors ${
+                                          selectedQuiz?.id === q.id
+                                            ? "bg-purple-100 font-semibold"
+                                            : "text-gray-700"
+                                        } ${
+                                          qDisabled
+                                            ? "opacity-40 cursor-not-allowed"
+                                            : "hover:bg-purple-50"
+                                        }`}
+                                      >
+                                        🎯 {q.title}
+                                      </button>
+                                    );
+                                  })}
                               </div>
                             )}
                           </div>

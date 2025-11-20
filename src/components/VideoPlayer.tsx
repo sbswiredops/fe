@@ -9,6 +9,7 @@ interface VideoPlayerProps {
   autoPlay?: boolean;
   controls?: boolean;
   onError?: (error: Error) => void;
+  onEnded?: () => void; // <-- Add this line
 }
 
 export const VideoPlayer: React.FC<VideoPlayerProps> = ({
@@ -17,6 +18,7 @@ export const VideoPlayer: React.FC<VideoPlayerProps> = ({
   autoPlay = true,
   controls = true,
   onError,
+  onEnded, // <-- Add this line
 }) => {
   const videoRef = useRef<HTMLVideoElement>(null);
   const [error, setError] = useState<string | null>(null);
@@ -72,7 +74,8 @@ export const VideoPlayer: React.FC<VideoPlayerProps> = ({
         }
       }
     } catch (err) {
-      const errorMsg = err instanceof Error ? err.message : "Failed to load video";
+      const errorMsg =
+        err instanceof Error ? err.message : "Failed to load video";
       setError(errorMsg);
       onError?.(err instanceof Error ? err : new Error(errorMsg));
     }
@@ -80,7 +83,9 @@ export const VideoPlayer: React.FC<VideoPlayerProps> = ({
 
   if (error) {
     return (
-      <div className={`${className} bg-red-50 flex items-center justify-center`}>
+      <div
+        className={`${className} bg-red-50 flex items-center justify-center`}
+      >
         <div className="text-center">
           <svg
             className="w-12 h-12 text-red-500 mx-auto mb-2"
@@ -107,6 +112,7 @@ export const VideoPlayer: React.FC<VideoPlayerProps> = ({
       controls={controls}
       controlsList="nodownload"
       className={className}
+      onEnded={onEnded} // <-- Add this line
     />
   );
 };

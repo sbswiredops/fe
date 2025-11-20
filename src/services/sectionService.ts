@@ -46,6 +46,11 @@ export class SectionService {
     return this.client.patch<Section>(API_CONFIG.ENDPOINTS.SECTION_BY_ID(sectionId), data);
   }
 
+  /* SECTION QUIZ UNLOCK */
+  async unlockQuiz(sectionId: string) {
+    return this.client.post(API_CONFIG.ENDPOINTS.UNLOCK_SECTION_QUIZ(sectionId));
+  }
+
   /** Delete a section */
   async deleteSection(sectionId: string): Promise<ApiResponse<null>> {
     return this.client.delete(API_CONFIG.ENDPOINTS.SECTION_BY_ID(sectionId));

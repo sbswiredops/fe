@@ -152,6 +152,12 @@ export class QuizService {
     );
   }
 
+  async unlockSectionQuiz(sectionId: string): Promise<ApiResponse<any>> {
+    return this.client.post<any>(
+      API_CONFIG.ENDPOINTS.UNLOCK_SECTION_QUIZ(sectionId),
+      {}
+    );
+  }
   /* ---------------- GET QUIZ RESULT ---------------- */
 
   async getQuizResult(
@@ -162,6 +168,8 @@ export class QuizService {
     );
   }
 }
+
+
 
 export const quizService = new QuizService();
 export default quizService;

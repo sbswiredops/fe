@@ -110,6 +110,31 @@ export class LessonService {
     );
   }
 
+    /* ---------------- LESSON PROGRESS ---------------- */
+
+  // Get all progress of logged-in user
+  async getAllLessonsProgress(): Promise<ApiResponse<any[]>> {
+    return this.client.get<any[]>(API_CONFIG.ENDPOINTS.LESSONS_PROGRESS);
+  }
+ // Update specific lesson progress
+  async updateProgress(
+    lessonId: string,
+    payload: { status: string }
+  ): Promise<ApiResponse<any>> {
+    return this.client.post<any>(
+      API_CONFIG.ENDPOINTS.LESSON_PROGRESS(lessonId),
+      payload
+    );
+  }
+   // Admin: get specific user's lesson progress
+  async getUserLessonProgress(
+    userId: string
+  ): Promise<ApiResponse<any[]>> {
+    return this.client.get<any[]>(
+      API_CONFIG.ENDPOINTS.USER_LESSONS_PROGRESS(userId)
+    );
+  }
+
   /** Update a lesson (supports file uploads) */
   async updateLesson(
     lessonId: string,

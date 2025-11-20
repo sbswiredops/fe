@@ -42,7 +42,6 @@ export const API_CONFIG = {
     COURSES_FEATURED: '/courses/featured',
     COURSE_BY_ID: (id: string) => `/courses/${id}`,
     COURSE_ENROLL: (id: string) => `/courses/${id}/enroll`,
-    COURSE_PROGRESS: (id: string) => `/courses/${id}/progress`,
     COURSE_UPLOAD_THUMBNAIL: (id: string) => `/courses/${id}/upload-thumbnail`,
     COURSE_LESSONS: (id: string) => `/courses/${id}/lessons`,
     COURSE_SECTIONS: (id: string) => `/courses/${id}/sections`,
@@ -52,14 +51,37 @@ export const API_CONFIG = {
 
 
     // Lessons
+    // Lessons
     ALL_LESSIONS: '/courses/lessons',
     LESSON_BY_ID: (lessonId: string) => `/courses/lessons/${lessonId}`,
+
+    // Update lesson progress (POST)
     LESSON_PROGRESS: (lessonId: string) => `/courses/lessons/${lessonId}/progress`,
+
+    // Lessons under a section
     LESSONS_BY_SECTION: (sectionId: string) => `/courses/sections/${sectionId}/lessons`,
+
+    // Get own lesson progress (GET)
     LESSONS_PROGRESS: '/courses/lessons/progress',
-    USER_LESSONS_PROGRESS: (userId: string) => `/courses/users/${userId}/lessons/progress`,
-    LESSON_PDF_BY_ID: (id: string) => `/courses/lessons/${id}/pdf`, // ✅ নতুন
-    LESSON_VIDEO_BY_ID: (id: string) => `/courses/lessons/${id}/video`, // ✅ নতুন
+
+    // Admin get user lesson progress (GET)
+    USER_LESSONS_PROGRESS: (userId: string) =>
+      `/courses/users/${userId}/lessons/progress`,
+
+    // Additional
+    LESSON_PDF_BY_ID: (id: string) => `/courses/lessons/${id}/pdf`,
+    LESSON_VIDEO_BY_ID: (id: string) => `/courses/lessons/${id}/video`,
+
+    // 🔥 New Based on Backend
+    UNLOCK_SECTION_QUIZ: (sectionId: string) =>
+      `/courses/sections/${sectionId}/unlock-quiz`,
+
+    UPDATE_ENROLLMENT_PROGRESS: (courseId: string) =>
+      `/courses/${courseId}/update-progress`,
+
+    COURSE_PROGRESS: (courseId: string) =>
+      `/courses/${courseId}/progress`,
+
 
     // Sections
     SECTIONS: '/courses/sections',
