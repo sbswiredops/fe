@@ -17,6 +17,9 @@ type CourseDetail = Course & {
   instructorBio?: string;
 };
 
+export const runtime = 'edge';
+
+
 export default function LessonViewerPage() {
   const params = useParams();
   const router = useRouter();

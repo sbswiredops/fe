@@ -18,12 +18,14 @@ import VideoModal from "@/components/ui/VideoModal";
 import LoginPrompt from "@/components/ui/LoginPrompt";
 import { Play, BookOpen, Lock, Unlock } from "lucide-react";
 
+export const runtime = "edge";
+
 const StarRating = ({ rating }: { rating: number }) => {
   return (
     <div className="flex items-center space-x-1">
       {[1, 2, 3, 4, 5].map((star) => (
         <svg
-          key={star} // Fixed the closing curly brace
+          key={star}
           className={`w-5 h-5 ${
             star <= rating ? "text-yellow-400" : "text-gray-300"
           }`}
