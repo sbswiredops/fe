@@ -173,6 +173,8 @@ export const QuizViewer: React.FC<QuizViewerProps> = ({
       if (document.hidden && hasStarted && !result) {
         setForceClosed(true);
         handleSubmitQuiz(answers);
+      } else if (!document.hidden && forceClosed && !result) {
+        resetAndRestartQuiz();
       }
     };
 
