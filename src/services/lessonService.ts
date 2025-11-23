@@ -6,6 +6,7 @@ import {
   CreateLessonRequest,
   UpdateLessonRequest,
   LessonsQuery,
+  UpdateLessonProgressDto, // <-- add this import
 } from '@/types/api';
 
 export class LessonService {
@@ -112,30 +113,30 @@ export class LessonService {
 
   /* ---------------- LESSON PROGRESS ---------------- */
 
-// Get all progress of logged-in user
-async getAllLessonsProgress(options: { sectionId: string; page?: number; limit?: number }): Promise<ApiResponse<any[]>> {
-  const { sectionId, page = 1, limit = 10 } = options;
+  // Get all progress of logged-in user
+  async getAllLessonsProgress(options: { sectionId: string; page?: number; limit?: number }): Promise<ApiResponse<any[]>> {
+    const { sectionId, page = 1, limit = 10 } = options;
 
-  // Build URL with path param and query params
-  const url = `${API_CONFIG.ENDPOINTS.LESSONS_PROGRESS(sectionId)}?page=${page}&limit=${limit}`;
+    // Build URL with path param and query params
+    const url = `${API_CONFIG.ENDPOINTS.LESSONS_PROGRESS(sectionId)}?page=${page}&limit=${limit}`;
 
-  const response = await this.client.get<any>(url);
+    const response = await this.client.get<any>(url);
 
-  if (response.success && response.data?.items) {
-    return {
-      ...response,
-      data: response.data.items,
-    };
+    if (response.success && response.data?.items) {
+      return {
+        ...response,
+        data: response.data.items,
+      };
+    }
+
+    return response as ApiResponse<any[]>;
   }
-
-  return response as ApiResponse<any[]>;
-}
 
 
   // Update specific lesson progress
   async updateProgress(
     lessonId: string,
-    payload: { status: string }
+    payload: UpdateLessonProgressDto // <-- update type here
   ): Promise<ApiResponse<any>> {
     return this.client.post<any>(
       API_CONFIG.ENDPOINTS.LESSON_PROGRESS(lessonId),

@@ -364,7 +364,7 @@ export default function LessonViewerPage() {
 
       // call backend — use the API's expected payload shape (status)
       await lessonService.updateProgress(targetLessonId, {
-        status: "watched",
+        isVideoWatched: true,
       });
 
       // update section and course progress after backend returns

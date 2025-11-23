@@ -299,6 +299,11 @@ export interface UpdateLessonRequest {
   isFree?: boolean;
 }
 
+export interface UpdateLessonProgressDto {
+  isVideoWatched: boolean;
+  watchedSeconds?: number;
+}
+
 // Progress Types
 export interface LessonProgress {
   id: string;
