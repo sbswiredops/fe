@@ -227,6 +227,16 @@ export const QuizViewer: React.FC<QuizViewerProps> = ({
     await handleSubmitQuiz(answers);
   };
 
+  const resetAndRestartQuiz = () => {
+    setForceClosed(false);
+    setCurrentQuestionIndex(0);
+    setAnswers({});
+    setTimeRemaining(quizDetails?.totalTime ? quizDetails.totalTime * 60 : 0);
+    setHasTimeExpired(false);
+    setResult(null);
+    handleStartQuiz();
+  };
+
   // ================= Loading & Error =================
   if (isLoading)
     return (
