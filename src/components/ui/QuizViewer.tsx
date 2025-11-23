@@ -233,11 +233,15 @@ export const QuizViewer: React.FC<QuizViewerProps> = ({
 
   // ================= Quiz UI =================
   return (
-    <div className={`${className} bg-white flex flex-col overflow-hidden`}>
+    <div
+      className={`${className} bg-white flex flex-col overflow-hidden max-w-full w-full rounded-2xl shadow-lg`}
+    >
       {/* HEADER */}
-      <div className="bg-gradient-to-r from-purple-600 to-purple-700 px-6 py-4">
+      <div className="bg-gradient-to-r from-purple-600 to-purple-700 px-4 py-3 sm:px-6 sm:py-4">
         <div className="flex items-center justify-between">
-          <h3 className="text-xl font-bold text-white">{quizTitle}</h3>
+          <h3 className="text-lg sm:text-xl font-bold text-white break-words">
+            {quizTitle}
+          </h3>
           {onClose && (
             <button
               onClick={onClose}
@@ -247,20 +251,20 @@ export const QuizViewer: React.FC<QuizViewerProps> = ({
             </button>
           )}
         </div>
-        <div className="mt-4 bg-purple-500 h-2 rounded-full">
+        <div className="mt-3 sm:mt-4 bg-purple-500 h-2 rounded-full">
           <div
             className="h-full bg-white transition-all"
             style={{ width: `${progress}%` }}
           />
         </div>
-        <p className="text-blue-100 text-sm mt-2">
+        <p className="text-blue-100 text-xs sm:text-sm mt-2">
           Question {currentQuestionIndex + 1} of {questions.length}
         </p>
       </div>
 
       {/* BODY */}
-      <div className="flex-1 overflow-y-auto p-6">
-        <h4 className="text-xl font-semibold text-gray-900 mb-6">
+      <div className="flex-1 overflow-y-auto p-3 sm:p-6">
+        <h4 className="text-base sm:text-xl font-semibold text-gray-900 mb-4 sm:mb-6 break-words">
           {currentQuestion.text}
         </h4>
 
@@ -287,7 +291,15 @@ export const QuizViewer: React.FC<QuizViewerProps> = ({
                 onChange={() => handleAnswer(option.id)}
                 className="w-4 h-4 accent-purple-600"
               />
-              <span className="ml-3">{option.text}</span>
+              <span
+                className={`ml-3 ${
+                  answers[currentQuestion.id] === option.id
+                    ? "text-purple-700 font-semibold"
+                    : "text-gray-800"
+                }`}
+              >
+                {option.text}
+              </span>
             </label>
           ))}
 
@@ -314,7 +326,15 @@ export const QuizViewer: React.FC<QuizViewerProps> = ({
                   onChange={() => toggleMultiSelect(option.id)}
                   className="w-4 h-4 accent-blue-600"
                 />
-                <span className="ml-3">{option.text}</span>
+                <span
+                  className={`ml-3 ${
+                    selected.includes(option.id)
+                      ? "text-blue-700 font-semibold"
+                      : "text-gray-800"
+                  }`}
+                >
+                  {option.text}
+                </span>
               </label>
             );
           })}
@@ -340,7 +360,15 @@ export const QuizViewer: React.FC<QuizViewerProps> = ({
                 onChange={() => handleAnswer(val)}
                 className="w-4 h-4 accent-purple-600"
               />
-              <span className="ml-3">{val.toUpperCase()}</span>
+              <span
+                className={`ml-3 ${
+                  answers[currentQuestion.id] === val
+                    ? "text-purple-700 font-semibold"
+                    : "text-gray-800"
+                }`}
+              >
+                {val.toUpperCase()}
+              </span>
             </label>
           ))}
 
@@ -348,7 +376,7 @@ export const QuizViewer: React.FC<QuizViewerProps> = ({
         {currentQuestion.type === "fill_blank" && (
           <input
             type="text"
-            className="w-full px-4 py-2 border rounded-lg"
+            className="w-full px-4 py-2 border rounded-lg text-gray-800 placeholder-gray-400"
             value={answers[currentQuestion.id] || ""}
             onChange={(e) => handleAnswer(e.target.value)}
             placeholder="Type your answer..."
@@ -358,7 +386,7 @@ export const QuizViewer: React.FC<QuizViewerProps> = ({
         {/* SHORT ANSWER */}
         {currentQuestion.type === "short" && (
           <textarea
-            className="w-full px-4 py-2 border rounded-lg"
+            className="w-full px-4 py-2 border rounded-lg text-gray-800 placeholder-gray-400"
             value={answers[currentQuestion.id] || ""}
             onChange={(e) => handleAnswer(e.target.value)}
             rows={4}
@@ -368,27 +396,27 @@ export const QuizViewer: React.FC<QuizViewerProps> = ({
       </div>
 
       {/* FOOTER */}
-      <div className="border-t p-6 flex justify-between bg-gray-50">
+      <div className="border-t p-3 sm:p-6 flex flex-col sm:flex-row justify-between items-stretch sm:items-center bg-gray-50 gap-3 sm:gap-0">
         <button
           onClick={handlePrevious}
           disabled={currentQuestionIndex === 0}
-          className={`px-4 py-2 rounded-lg ${
+          className={`px-3 py-2 rounded-lg text-sm border ${
             currentQuestionIndex === 0
-              ? "bg-gray-200 text-gray-400 cursor-not-allowed"
-              : "bg-gray-200 hover:bg-gray-300"
+              ? "bg-gray-200 text-gray-400 border-gray-300 cursor-not-allowed"
+              : "bg-gray-200 text-gray-800 border-gray-300 hover:bg-gray-300"
           }`}
         >
           Previous
         </button>
 
-        <div className="flex gap-2">
+        <div className="flex gap-1 sm:gap-2 justify-center">
           {questions.map((_, idx) => {
             const isAnswered = answers[questions[idx].id];
             return (
               <button
                 key={idx}
                 onClick={() => setCurrentQuestionIndex(idx)}
-                className={`w-8 h-8 rounded-lg ${
+                className={`w-8 h-8 rounded-lg text-sm ${
                   idx === currentQuestionIndex
                     ? "bg-purple-600 text-white"
                     : isAnswered
@@ -406,14 +434,14 @@ export const QuizViewer: React.FC<QuizViewerProps> = ({
           <button
             onClick={handleSubmit}
             disabled={isSubmitting}
-            className="px-4 py-2 bg-green-600 text-white rounded-lg"
+            className="px-3 py-2 bg-green-600 text-white rounded-lg text-sm"
           >
             {isSubmitting ? "Submitting..." : "Submit Quiz"}
           </button>
         ) : (
           <button
             onClick={handleNext}
-            className="px-4 py-2 bg-purple-600 text-white rounded-lg"
+            className="px-3 py-2 bg-purple-600 text-white rounded-lg text-sm"
           >
             Next
           </button>
