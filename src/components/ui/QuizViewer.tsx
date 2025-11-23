@@ -281,7 +281,7 @@ export const QuizViewer: React.FC<QuizViewerProps> = ({
           </div>
         </div>
         <button
-          onClick={() => setHasStarted(true)}
+          onClick={handleStartQuiz}
           className="mt-2 w-full bg-green-500 hover:bg-green-600 text-white font-bold py-3 px-4 rounded-lg"
         >
           Start Quiz
