@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useCallback } from "react";
 import { quizService } from "@/services/quizService";
 
 type QuestionType = "mcq" | "multi" | "true_false" | "fill_blank" | "short";
@@ -53,6 +53,9 @@ export const QuizViewer: React.FC<QuizViewerProps> = ({
   const [answers, setAnswers] = useState<Record<string, any>>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [result, setResult] = useState<QuizResultResponse | null>(null);
+  const [timeRemaining, setTimeRemaining] = useState<number>(0);
+  const [hasTimeExpired, setHasTimeExpired] = useState(false);
+  const [forceClosed, setForceClosed] = useState(false);
 
   useEffect(() => {
     const loadQuizData = async () => {
@@ -91,6 +94,19 @@ export const QuizViewer: React.FC<QuizViewerProps> = ({
           );
           setQuestions(mappedQuestions);
         }
+
+        const startTimeKey = `quiz_start_time_${quizId}`;
+        const savedStartTime = localStorage.getItem(startTimeKey);
+        if (savedStartTime) {
+          const elapsedSeconds = Math.floor(
+            (Date.now() - parseInt(savedStartTime)) / 1000
+          );
+          const detailsData = detailsResponse.data;
+          const totalTimeInSeconds = (detailsData?.totalTime ?? 0) * 60;
+          const remaining = Math.max(0, totalTimeInSeconds - elapsedSeconds);
+          setTimeRemaining(remaining);
+          setHasStarted(true);
+        }
       } catch (err: any) {
         setError(err?.message || "Failed to load quiz");
       } finally {
@@ -100,6 +116,84 @@ export const QuizViewer: React.FC<QuizViewerProps> = ({
 
     loadQuizData();
   }, [quizId]);
+
+  const handleSubmitQuiz = useCallback(
+    async (answersToSubmit: Record<string, any>) => {
+      setIsSubmitting(true);
+      try {
+        const response = await quizService.submitQuiz(quizId, answersToSubmit);
+        if (response.data) setResult(response.data);
+        const startTimeKey = `quiz_start_time_${quizId}`;
+        localStorage.removeItem(startTimeKey);
+      } catch (err: any) {
+        alert(err?.message || "Failed to submit quiz");
+      } finally {
+        setIsSubmitting(false);
+      }
+    },
+    [quizId]
+  );
+
+  useEffect(() => {
+    if (!hasStarted || hasTimeExpired || result) return;
+
+    const timerInterval = setInterval(() => {
+      setTimeRemaining((prev) => {
+        if (prev <= 1) {
+          setHasTimeExpired(true);
+          clearInterval(timerInterval);
+          return 0;
+        }
+        return prev - 1;
+      });
+    }, 1000);
+
+    return () => clearInterval(timerInterval);
+  }, [hasStarted, hasTimeExpired, result]);
+
+  useEffect(() => {
+    if (!hasTimeExpired || !hasStarted || result) return;
+    handleSubmitQuiz(answers);
+  }, [hasTimeExpired, hasStarted, result, answers, handleSubmitQuiz]);
+
+  useEffect(() => {
+    if (!hasStarted || result) return;
+
+    const handleBeforeUnload = (e: BeforeUnloadEvent) => {
+      e.preventDefault();
+      e.returnValue = "";
+      handleSubmitQuiz(answers);
+    };
+
+    const handleUnload = () => {
+      handleSubmitQuiz(answers);
+    };
+
+    // TAB CHANGE: force close and reset quiz
+    const handleVisibilityChange = () => {
+      if (document.hidden && hasStarted && !result) {
+        // Remove quiz timer from localStorage
+        localStorage.removeItem(`quiz_start_time_${quizId}`);
+        // Reset all quiz states
+        setHasStarted(false);
+        setCurrentQuestionIndex(0);
+        setAnswers({});
+        setTimeRemaining(0);
+        setHasTimeExpired(false);
+        setForceClosed(true);
+      }
+    };
+
+    window.addEventListener("beforeunload", handleBeforeUnload);
+    window.addEventListener("unload", handleUnload);
+    document.addEventListener("visibilitychange", handleVisibilityChange);
+
+    return () => {
+      window.removeEventListener("beforeunload", handleBeforeUnload);
+      window.removeEventListener("unload", handleUnload);
+      document.removeEventListener("visibilitychange", handleVisibilityChange);
+    };
+  }, [hasStarted, answers, result, handleSubmitQuiz, quizId]);
 
   const handleAnswer = (value: any) => {
     setAnswers({
@@ -127,16 +221,18 @@ export const QuizViewer: React.FC<QuizViewerProps> = ({
       setCurrentQuestionIndex(currentQuestionIndex - 1);
   };
 
-  const handleSubmit = async () => {
-    setIsSubmitting(true);
-    try {
-      const response = await quizService.submitQuiz(quizId, answers);
-      if (response.data) setResult(response.data);
-    } catch (err: any) {
-      alert(err?.message || "Failed to submit quiz");
-    } finally {
-      setIsSubmitting(false);
+  const handleStartQuiz = () => {
+    if (quizDetails) {
+      const startTimeKey = `quiz_start_time_${quizId}`;
+      const now = Date.now();
+      localStorage.setItem(startTimeKey, now.toString());
+      setHasStarted(true);
+      setTimeRemaining(quizDetails.totalTime * 60);
     }
+  };
+
+  const handleSubmit = async () => {
+    await handleSubmitQuiz(answers);
   };
 
   // ================= Loading & Error =================
@@ -164,6 +260,21 @@ export const QuizViewer: React.FC<QuizViewerProps> = ({
   if (!hasStarted && quizDetails)
     return (
       <div className="bg-white rounded-2xl shadow-lg p-6 sm:p-8 max-w-md w-full mx-auto">
+        {/* RED NOTE AT THE TOP */}
+        <p style={{ color: "red", fontWeight: "bold" }} className="mb-4">
+          Note: The quiz will be automatically submitted if you reload, close
+          the page, or when the time ends.
+          <br />
+          <span style={{ color: "darkred" }}>
+            If you switch browser tab or minimize, the quiz will be closed and
+            you must start again.
+          </span>
+        </p>
+        {forceClosed && (
+          <div className="mb-3 text-center text-red-600 font-semibold">
+            Quiz closed due to tab change. Please start again.
+          </div>
+        )}
         <h2 className="text-2xl font-bold text-gray-900 mb-2">{quizTitle}</h2>
         <p className="text-gray-600 text-sm mb-4">
           Get ready to test your knowledge
@@ -198,7 +309,7 @@ export const QuizViewer: React.FC<QuizViewerProps> = ({
           </div>
         </div>
         <button
-          onClick={() => setHasStarted(true)}
+          onClick={handleStartQuiz}
           className="mt-2 w-full bg-green-500 hover:bg-green-600 text-white font-bold py-3 px-4 rounded-lg"
         >
           Start Quiz
@@ -267,14 +378,26 @@ export const QuizViewer: React.FC<QuizViewerProps> = ({
           <h3 className="text-lg sm:text-xl font-bold text-white break-words">
             {quizTitle}
           </h3>
-          {onClose && (
-            <button
-              onClick={onClose}
-              className="text-white hover:bg-purple-800 p-1 rounded transition-colors"
-            >
-              ×
-            </button>
-          )}
+          <div className="flex items-center gap-4">
+            {hasStarted && !result && (
+              <div
+                className={`text-sm sm:text-base font-bold ${
+                  timeRemaining <= 60 ? "text-red-300" : "text-white"
+                }`}
+              >
+                {Math.floor(timeRemaining / 60)}:
+                {String(timeRemaining % 60).padStart(2, "0")}
+              </div>
+            )}
+            {onClose && (
+              <button
+                onClick={onClose}
+                className="text-white hover:bg-purple-800 p-1 rounded transition-colors"
+              >
+                ×
+              </button>
+            )}
+          </div>
         </div>
         <div className="mt-3 sm:mt-4 bg-purple-500 h-2 rounded-full">
           <div
