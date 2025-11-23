@@ -62,7 +62,8 @@ export const API_CONFIG = {
     LESSONS_BY_SECTION: (sectionId: string) => `/courses/sections/${sectionId}/lessons`,
 
     // Get own lesson progress (GET)
-    LESSONS_PROGRESS: '/courses/lessons/progress',
+    // Get own lesson progress (GET) — sectionId is a required param
+    LESSONS_PROGRESS: (sectionId: string) => `/courses/lessons/progress/${sectionId}`,
 
     // Admin get user lesson progress (GET)
     USER_LESSONS_PROGRESS: (userId: string) => `/courses/users/${userId}/lessons/progress`,

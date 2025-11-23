@@ -5,6 +5,7 @@ import HMRErrorHandler from "@/components/HRMErrorHandler";
 import { LanguageProvider } from "@/components/contexts/LanguageContext";
 import { AuthProvider } from "@/components/contexts/AuthContext";
 import { EnrolledCoursesProvider } from "@/components/contexts/EnrolledCoursesContext";
+import { ToastContainer } from "react-toastify";
 
 export default function ClientProviders({
   children,
@@ -19,7 +20,10 @@ export default function ClientProviders({
         <HMRErrorHandler />
         <LanguageProvider>
           <AuthProvider>
-            <EnrolledCoursesProvider>{children}</EnrolledCoursesProvider>
+            <EnrolledCoursesProvider>
+              {children}
+              <ToastContainer position="top-right" autoClose={3000} />
+            </EnrolledCoursesProvider>
           </AuthProvider>
         </LanguageProvider>
       </ErrorBoundary>

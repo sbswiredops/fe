@@ -112,19 +112,26 @@ export class LessonService {
 
   /* ---------------- LESSON PROGRESS ---------------- */
 
-  // Get all progress of logged-in user
-  async getAllLessonsProgress(options?: { page?: number; limit?: number; sectionId?: string }): Promise<ApiResponse<any[]>> {
-    // No userId in path, options are sent as query params
-    const response = await this.client.get<any>(API_CONFIG.ENDPOINTS.LESSONS_PROGRESS, options);
+// Get all progress of logged-in user
+async getAllLessonsProgress(options: { sectionId: string; page?: number; limit?: number }): Promise<ApiResponse<any[]>> {
+  const { sectionId, page = 1, limit = 10 } = options;
 
-    if (response.success && response.data?.items) {
-      return {
-        ...response,
-        data: response.data.items,
-      };
-    }
-    return response as ApiResponse<any[]>;
+  // Build URL with path param and query params
+  const url = `${API_CONFIG.ENDPOINTS.LESSONS_PROGRESS(sectionId)}?page=${page}&limit=${limit}`;
+
+  const response = await this.client.get<any>(url);
+
+  if (response.success && response.data?.items) {
+    return {
+      ...response,
+      data: response.data.items,
+    };
   }
+
+  return response as ApiResponse<any[]>;
+}
+
+
   // Update specific lesson progress
   async updateProgress(
     lessonId: string,

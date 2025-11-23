@@ -13,6 +13,7 @@ import { Lesson, Section, Course } from "@/types/api";
 import { useAuth } from "@/components/contexts/AuthContext";
 import QuizViewer from "@/components/ui/QuizViewer";
 import PDFViewer from "@/components/ui/PDFViwer";
+import useToast from "@/components/hoock/toast";
 
 type CourseDetail = Course & {
   sections?: Section[];
@@ -32,6 +33,7 @@ export default function LessonViewerPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const { user, isLoading: authLoading } = useAuth();
+  const t = useToast(); // এখানে একবার কল করুন
 
   const lessonId = String(params.lessonId || "");
   const courseId = searchParams.get("courseId") ?? undefined;
@@ -136,7 +138,7 @@ export default function LessonViewerPage() {
           courseService.getCourseById(courseId),
           // FIX: Do not pass userId, just use named params
           lessonService.getAllLessonsProgress({
-            sectionId,
+            sectionId: sectionId as string,
             page: 1,
             limit: 100,
           }),
@@ -220,7 +222,29 @@ export default function LessonViewerPage() {
     const sectionLock: Record<string, boolean> = {};
     const sectionPercent: Record<string, number> = {};
 
+    // কোন সেকশন ১০০% হয়েছে কিনা চেক করুন
+    let anySectionCompleted = false;
     (courseData.sections || []).forEach((sec) => {
+      const lessons = (sec.lessons || []).sort(
+        (a, b) => (a.orderIndex || 0) - (b.orderIndex || 0)
+      );
+      let completed = 0;
+
+      lessons.forEach((l) => {
+        if (pMap[l.id]?.isVideoWatched) completed++;
+      });
+
+      const total = lessons.length;
+      sectionPercent[sec.id] =
+        total === 0 ? 0 : Math.round((completed / total) * 100);
+
+      if (sectionPercent[sec.id] === 100) {
+        anySectionCompleted = true;
+      }
+    });
+
+    // এখন লক সেট করুন
+    (courseData.sections || []).forEach((sec, secIdx) => {
       const lessons = (sec.lessons || []).sort(
         (a, b) => (a.orderIndex || 0) - (b.orderIndex || 0)
       );
@@ -229,13 +253,17 @@ export default function LessonViewerPage() {
       lessons.forEach((l, i) => {
         const prevCompleted =
           i === 0 ? true : !!pMap[lessons[i - 1].id]?.isVideoWatched;
-        lessonLock[l.id] = !!(l as any).isLocked || !prevCompleted;
+
+        // যদি কোনো সেকশন ১০০% না হয়, তাহলে শুধু প্রথম সেকশন ছাড়া বাকি সব লক
+        if (!anySectionCompleted && secIdx !== 0) {
+          lessonLock[l.id] = true;
+        } else {
+          lessonLock[l.id] = !!(l as any).isLocked || !prevCompleted;
+        }
         if (pMap[l.id]?.isVideoWatched) completed++;
       });
 
       const total = lessons.length;
-      sectionPercent[sec.id] =
-        total === 0 ? 0 : Math.round((completed / total) * 100);
       sectionLock[sec.id] =
         total === 0 || completed < total || !!(sec as any).isQuizLocked;
     });
@@ -248,8 +276,10 @@ export default function LessonViewerPage() {
   const handleLessonSelect = (selectedLesson: Lesson, secId: string) => {
     // Prevent navigation if lesson is locked
     if (lessonLockedMap[selectedLesson.id]) {
-      // optionally show toast — here simple alert
-      alert("This lesson is locked. Complete previous lessons to unlock.");
+      t.showToast(
+        "This lesson is locked. Complete previous lessons or a section to unlock.",
+        "error"
+      );
       return;
     }
 
@@ -340,7 +370,7 @@ export default function LessonViewerPage() {
       // update section and course progress after backend returns
       const [progressResp, courseResp] = await Promise.all([
         lessonService.getAllLessonsProgress({
-          sectionId,
+          sectionId: sectionId!,
           page: 1,
           limit: 100,
         }),
@@ -726,12 +756,14 @@ export default function LessonViewerPage() {
                                       onClick={() =>
                                         handleLessonSelect(l, sec.id)
                                       }
-                                      disabled={locked}
                                       className={`flex-1 text-left text-xs px-2 py-1 rounded ${
                                         locked
-                                          ? "opacity-40 cursor-not-allowed"
-                                          : ""
+                                          ? "text-gray-400 bg-gray-50 cursor-not-allowed"
+                                          : "text-gray-700 hover:bg-purple-50"
                                       }`}
+                                      tabIndex={locked ? -1 : 0}
+                                      aria-disabled={locked}
+                                      type="button"
                                     >
                                       {completed ? "✅" : "🎬"} {l.title}
                                     </button>
@@ -747,8 +779,9 @@ export default function LessonViewerPage() {
                                         key={q.id}
                                         onClick={() => {
                                           if (qDisabled) {
-                                            alert(
-                                              "Quiz is locked. Complete all lessons in this section to unlock."
+                                            t.showToast(
+                                              "Quiz is locked. Complete all lessons in this section to unlock.",
+                                              "error"
                                             );
                                             return;
                                           }
