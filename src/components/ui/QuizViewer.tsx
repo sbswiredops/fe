@@ -93,6 +93,19 @@ export const QuizViewer: React.FC<QuizViewerProps> = ({
           );
           setQuestions(mappedQuestions);
         }
+
+        const startTimeKey = `quiz_start_time_${quizId}`;
+        const savedStartTime = localStorage.getItem(startTimeKey);
+        if (savedStartTime) {
+          const elapsedSeconds = Math.floor(
+            (Date.now() - parseInt(savedStartTime)) / 1000
+          );
+          const detailsData = detailsResponse.data;
+          const totalTimeInSeconds = (detailsData?.totalTime ?? 0) * 60;
+          const remaining = Math.max(0, totalTimeInSeconds - elapsedSeconds);
+          setTimeRemaining(remaining);
+          setHasStarted(true);
+        }
       } catch (err: any) {
         setError(err?.message || "Failed to load quiz");
       } finally {
