@@ -116,6 +116,72 @@ export const QuizViewer: React.FC<QuizViewerProps> = ({
     loadQuizData();
   }, [quizId]);
 
+  const handleSubmitQuiz = async (answersToSubmit: Record<string, any>) => {
+    setIsSubmitting(true);
+    try {
+      const response = await quizService.submitQuiz(quizId, answersToSubmit);
+      if (response.data) setResult(response.data);
+      const startTimeKey = `quiz_start_time_${quizId}`;
+      localStorage.removeItem(startTimeKey);
+    } catch (err: any) {
+      alert(err?.message || "Failed to submit quiz");
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  useEffect(() => {
+    if (!hasStarted || hasTimeExpired || result) return;
+
+    const timerInterval = setInterval(() => {
+      setTimeRemaining((prev) => {
+        if (prev <= 1) {
+          setHasTimeExpired(true);
+          clearInterval(timerInterval);
+          return 0;
+        }
+        return prev - 1;
+      });
+    }, 1000);
+
+    return () => clearInterval(timerInterval);
+  }, [hasStarted, hasTimeExpired, result]);
+
+  useEffect(() => {
+    if (!hasTimeExpired || !hasStarted || result) return;
+    handleSubmitQuiz(answers);
+  }, [hasTimeExpired]);
+
+  useEffect(() => {
+    if (!hasStarted || result) return;
+
+    const handleBeforeUnload = (e: BeforeUnloadEvent) => {
+      e.preventDefault();
+      e.returnValue = "";
+      handleSubmitQuiz(answers);
+    };
+
+    const handleUnload = () => {
+      handleSubmitQuiz(answers);
+    };
+
+    const handleVisibilityChange = () => {
+      if (document.hidden) {
+        handleSubmitQuiz(answers);
+      }
+    };
+
+    window.addEventListener("beforeunload", handleBeforeUnload);
+    window.addEventListener("unload", handleUnload);
+    document.addEventListener("visibilitychange", handleVisibilityChange);
+
+    return () => {
+      window.removeEventListener("beforeunload", handleBeforeUnload);
+      window.removeEventListener("unload", handleUnload);
+      document.removeEventListener("visibilitychange", handleVisibilityChange);
+    };
+  }, [hasStarted, answers, result]);
+
   const handleAnswer = (value: any) => {
     setAnswers({
       ...answers,
