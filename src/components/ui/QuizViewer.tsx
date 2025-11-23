@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useCallback } from "react";
 import { quizService } from "@/services/quizService";
 
 type QuestionType = "mcq" | "multi" | "true_false" | "fill_blank" | "short";
@@ -55,6 +55,7 @@ export const QuizViewer: React.FC<QuizViewerProps> = ({
   const [result, setResult] = useState<QuizResultResponse | null>(null);
   const [timeRemaining, setTimeRemaining] = useState<number>(0);
   const [hasTimeExpired, setHasTimeExpired] = useState(false);
+  const [forceClosed, setForceClosed] = useState(false);
 
   useEffect(() => {
     const loadQuizData = async () => {
@@ -116,19 +117,22 @@ export const QuizViewer: React.FC<QuizViewerProps> = ({
     loadQuizData();
   }, [quizId]);
 
-  const handleSubmitQuiz = async (answersToSubmit: Record<string, any>) => {
-    setIsSubmitting(true);
-    try {
-      const response = await quizService.submitQuiz(quizId, answersToSubmit);
-      if (response.data) setResult(response.data);
-      const startTimeKey = `quiz_start_time_${quizId}`;
-      localStorage.removeItem(startTimeKey);
-    } catch (err: any) {
-      alert(err?.message || "Failed to submit quiz");
-    } finally {
-      setIsSubmitting(false);
-    }
-  };
+  const handleSubmitQuiz = useCallback(
+    async (answersToSubmit: Record<string, any>) => {
+      setIsSubmitting(true);
+      try {
+        const response = await quizService.submitQuiz(quizId, answersToSubmit);
+        if (response.data) setResult(response.data);
+        const startTimeKey = `quiz_start_time_${quizId}`;
+        localStorage.removeItem(startTimeKey);
+      } catch (err: any) {
+        alert(err?.message || "Failed to submit quiz");
+      } finally {
+        setIsSubmitting(false);
+      }
+    },
+    [quizId]
+  );
 
   useEffect(() => {
     if (!hasStarted || hasTimeExpired || result) return;
@@ -150,7 +154,7 @@ export const QuizViewer: React.FC<QuizViewerProps> = ({
   useEffect(() => {
     if (!hasTimeExpired || !hasStarted || result) return;
     handleSubmitQuiz(answers);
-  }, [hasTimeExpired]);
+  }, [hasTimeExpired, hasStarted, result, answers, handleSubmitQuiz]);
 
   useEffect(() => {
     if (!hasStarted || result) return;
@@ -166,7 +170,8 @@ export const QuizViewer: React.FC<QuizViewerProps> = ({
     };
 
     const handleVisibilityChange = () => {
-      if (document.hidden) {
+      if (document.hidden && hasStarted && !result) {
+        setForceClosed(true);
         handleSubmitQuiz(answers);
       }
     };
@@ -180,7 +185,7 @@ export const QuizViewer: React.FC<QuizViewerProps> = ({
       window.removeEventListener("unload", handleUnload);
       document.removeEventListener("visibilitychange", handleVisibilityChange);
     };
-  }, [hasStarted, answers, result]);
+  }, [hasStarted, answers, result, handleSubmitQuiz, quizId]);
 
   const handleAnswer = (value: any) => {
     setAnswers({
@@ -247,6 +252,21 @@ export const QuizViewer: React.FC<QuizViewerProps> = ({
   if (!hasStarted && quizDetails)
     return (
       <div className="bg-white rounded-2xl shadow-lg p-6 sm:p-8 max-w-md w-full mx-auto">
+        {/* RED NOTE AT THE TOP */}
+        <p style={{ color: "red", fontWeight: "bold" }} className="mb-4">
+          Note: The quiz will be automatically submitted if you reload, close
+          the page, or when the time ends.
+          <br />
+          <span style={{ color: "darkred" }}>
+            If you switch browser tab or minimize, the quiz will be closed and
+            you must start again.
+          </span>
+        </p>
+        {forceClosed && (
+          <div className="mb-3 text-center text-red-600 font-semibold">
+            Quiz closed due to tab change. Please start again.
+          </div>
+        )}
         <h2 className="text-2xl font-bold text-gray-900 mb-2">{quizTitle}</h2>
         <p className="text-gray-600 text-sm mb-4">
           Get ready to test your knowledge
@@ -352,8 +372,13 @@ export const QuizViewer: React.FC<QuizViewerProps> = ({
           </h3>
           <div className="flex items-center gap-4">
             {hasStarted && !result && (
-              <div className={`text-sm sm:text-base font-bold ${timeRemaining <= 60 ? "text-red-300" : "text-white"}`}>
-                {Math.floor(timeRemaining / 60)}:{String(timeRemaining % 60).padStart(2, "0")}
+              <div
+                className={`text-sm sm:text-base font-bold ${
+                  timeRemaining <= 60 ? "text-red-300" : "text-white"
+                }`}
+              >
+                {Math.floor(timeRemaining / 60)}:
+                {String(timeRemaining % 60).padStart(2, "0")}
               </div>
             )}
             {onClose && (
