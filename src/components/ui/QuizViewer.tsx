@@ -208,16 +208,18 @@ export const QuizViewer: React.FC<QuizViewerProps> = ({
       setCurrentQuestionIndex(currentQuestionIndex - 1);
   };
 
-  const handleSubmit = async () => {
-    setIsSubmitting(true);
-    try {
-      const response = await quizService.submitQuiz(quizId, answers);
-      if (response.data) setResult(response.data);
-    } catch (err: any) {
-      alert(err?.message || "Failed to submit quiz");
-    } finally {
-      setIsSubmitting(false);
+  const handleStartQuiz = () => {
+    if (quizDetails) {
+      const startTimeKey = `quiz_start_time_${quizId}`;
+      const now = Date.now();
+      localStorage.setItem(startTimeKey, now.toString());
+      setHasStarted(true);
+      setTimeRemaining(quizDetails.totalTime * 60);
     }
+  };
+
+  const handleSubmit = async () => {
+    await handleSubmitQuiz(answers);
   };
 
   // ================= Loading & Error =================
