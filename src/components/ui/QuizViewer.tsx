@@ -187,7 +187,7 @@ export const QuizViewer: React.FC<QuizViewerProps> = ({
       window.removeEventListener("unload", handleUnload);
       document.removeEventListener("visibilitychange", handleVisibilityChange);
     };
-  }, [hasStarted, answers, result, handleSubmitQuiz, quizId]);
+  }, [hasStarted, answers, result, handleSubmitQuiz, quizId, forceClosed]);
 
   const handleAnswer = (value: any) => {
     setAnswers({
