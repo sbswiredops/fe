@@ -577,8 +577,7 @@ export default function LessonViewerPage() {
                     )}
                     {(section?.quizzes?.length ?? 0) > 0 &&
                       (section.quizzes || []).map((quiz) => {
-                        const sectionLocked = !!sectionLockedMap[section.id];
-                        const buttonDisabled = sectionLocked;
+                        const buttonDisabled = section.isQuizLocked; // <-- এখানে সরাসরি section.isQuizLocked ব্যবহার করুন
                         return (
                           <ContentToggleButton
                             key={quiz.id}
@@ -598,8 +597,9 @@ export default function LessonViewerPage() {
                             }
                             onClick={() => {
                               if (buttonDisabled) {
-                                alert(
-                                  "Quiz locked. Complete all lessons in this section to unlock."
+                                t.showToast(
+                                  "Quiz locked. Complete all lessons in this section to unlock.",
+                                  "error"
                                 );
                                 return;
                               }
@@ -772,8 +772,7 @@ export default function LessonViewerPage() {
 
                                 {(sec?.quizzes?.length ?? 0) > 0 &&
                                   (sec.quizzes || []).map((q) => {
-                                    const qDisabled =
-                                      !!sectionLockedMap[sec.id];
+                                    const qDisabled = sec.isQuizLocked; // <-- এখানে
                                     return (
                                       <button
                                         key={q.id}

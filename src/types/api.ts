@@ -238,7 +238,7 @@ export interface Section {
   createdAt: string;
   updatedAt: string;
   orderIndex?: number;
-
+  isQuizLocked?: boolean; // <-- Add this line
 }
 
 export interface CreateSectionRequest {
