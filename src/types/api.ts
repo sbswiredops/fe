@@ -342,6 +342,7 @@ export interface UpdateProgressRequest {
 
 // Quiz Types
 export interface Quiz {
+  totalMarks?: number;
   id: string;
   courseId?: string;
   sectionId?: string;

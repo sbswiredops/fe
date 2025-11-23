@@ -22,6 +22,7 @@ interface QuizDetails {
   passMark: number;
   hasNegativeMark: boolean;
   negativeMarkPercentage?: number;
+  totalMarks?: number;
 }
 
 interface QuizResultResponse {
@@ -58,22 +59,21 @@ export const QuizViewer: React.FC<QuizViewerProps> = ({
       setIsLoading(true);
       setError(null);
       try {
-        // Fetch quiz details
         const detailsResponse = await quizService.getById(quizId);
         if (detailsResponse.data) {
           const quiz = detailsResponse.data;
           setQuizDetails({
-            id: quiz.id, // remove quiz._id
+            id: quiz.id,
             title: quiz.title,
-            totalQuestions: quiz.questions?.length || 0,
-            totalTime: quiz.timeLimit || 0,
-            passMark: quiz.passingScore || 0,
-            hasNegativeMark: false,
-            negativeMarkPercentage: 0,
+            totalQuestions: quiz.totalQuestions ?? 0,
+            totalTime: quiz.totalTime ?? 0,
+            passMark: quiz.passMark ?? 0,
+            hasNegativeMark: quiz.hasNegativeMark ?? false,
+            negativeMarkPercentage: quiz.negativeMarkPercentage ?? 0,
+            totalMarks: quiz.totalMarks ?? 0,
           });
         }
 
-        // Fetch questions
         const questionsResponse = await quizService.getQuestions(quizId);
         if (questionsResponse.data) {
           const mappedQuestions: Question[] = questionsResponse.data.map(
@@ -163,29 +163,54 @@ export const QuizViewer: React.FC<QuizViewerProps> = ({
 
   if (!hasStarted && quizDetails)
     return (
-      <div
-        className={`${className} flex items-center justify-center bg-gradient-to-br from-gray-50 to-gray-100`}
-      >
-        <div className="bg-white rounded-2xl shadow-lg p-8 max-w-md w-full mx-4">
-          <h2 className="text-2xl font-bold text-gray-900 mb-2">{quizTitle}</h2>
-          <p className="text-gray-600 text-sm">
-            Get ready to test your knowledge
-          </p>
-          <button
-            onClick={() => setHasStarted(true)}
-            className="mt-6 w-full bg-green-500 hover:bg-green-600 text-white font-bold py-3 px-4 rounded-lg"
-          >
-            Start Quiz
-          </button>
-          {onClose && (
-            <button
-              onClick={onClose}
-              className="mt-3 w-full bg-gray-200 hover:bg-gray-300 text-gray-800 font-medium py-2 px-4 rounded-lg"
-            >
-              Cancel
-            </button>
-          )}
+      <div className="bg-white rounded-2xl shadow-lg p-6 sm:p-8 max-w-md w-full mx-auto">
+        <h2 className="text-2xl font-bold text-gray-900 mb-2">{quizTitle}</h2>
+        <p className="text-gray-600 text-sm mb-4">
+          Get ready to test your knowledge
+        </p>
+        {/* Quiz Summary */}
+        <div className="mb-6 p-4 bg-gray-50 border border-gray-200 text-sm text-gray-700">
+          <div className="flex justify-between mb-1">
+            <span>Total Questions:</span>
+            <span className="font-semibold">{quizDetails.totalQuestions}</span>
+          </div>
+          <div className="flex justify-between mb-1">
+            <span>Total Marks:</span>
+            <span className="font-semibold">
+              {quizDetails.totalMarks ?? "-"}
+            </span>
+          </div>
+          <div className="flex justify-between mb-1">
+            <span>Pass Mark:</span>
+            <span className="font-semibold">{quizDetails.passMark}%</span>
+          </div>
+          <div className="flex justify-between mb-1">
+            <span>Total Time:</span>
+            <span className="font-semibold">{quizDetails.totalTime} min</span>
+          </div>
+          <div className="flex justify-between">
+            <span>Negative Marking:</span>
+            <span className="font-semibold">
+              {quizDetails.hasNegativeMark
+                ? `Yes (${quizDetails.negativeMarkPercentage ?? 0}%)`
+                : "No"}
+            </span>
+          </div>
         </div>
+        <button
+          onClick={() => setHasStarted(true)}
+          className="mt-2 w-full bg-green-500 hover:bg-green-600 text-white font-bold py-3 px-4 rounded-lg"
+        >
+          Start Quiz
+        </button>
+        {onClose && (
+          <button
+            onClick={onClose}
+            className="mt-3 w-full bg-gray-200 hover:bg-gray-300 text-gray-800 font-medium py-2 px-4 rounded-lg"
+          >
+            Cancel
+          </button>
+        )}
       </div>
     );
 
