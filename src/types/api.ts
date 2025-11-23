@@ -260,20 +260,20 @@ export interface Lesson {
   courseId: string;
   title: string;
   content: string;
-  video?: string; // Video URL for the lesson
-  resource?: string; // Resource URL for the lesson
-  duration: number; // Duration in minutes
+  video?: string;
+  resource?: string;
+  duration: number;
   orderIndex: number;
-  isPublished: boolean; // Indicates if the lesson is published
-  isFree: boolean; // Indicates if the lesson is free or locked
+  isPublished: boolean;
+  isFree: boolean;
   createdAt: string;
   updatedAt: string;
   createdBy?: string;
   updatedBy?: string;
-  section?: Section; // Optional reference to the parent section
-  course?: Course; // Optional reference to the parent course
-  progressRecords?: LessonProgress[]; // Tracks progress for the lesson
-  quizzes?: Array<{ id: string; title: string }>; // Optional quizzes associated with this lesson
+  section?: Section;
+  course?: Course;
+  progressRecords?: LessonProgress[];
+  quizzes?: Array<{ id: string; title: string }>;
 }
 
 export interface CreateLessonRequest {
@@ -282,7 +282,7 @@ export interface CreateLessonRequest {
   content: string;
   video?: string | File;
   resource?: string | File;
-  duration: number; // minutes
+  duration: number;
   orderIndex: number;
   isPublished?: boolean;
   isFree?: boolean;
@@ -293,7 +293,7 @@ export interface UpdateLessonRequest {
   content?: string;
   video?: string | File;
   resource?: string | File;
-  duration?: number; // minutes
+  duration?: number;
   orderIndex?: number;
   isPublished?: boolean;
   isFree?: boolean;
