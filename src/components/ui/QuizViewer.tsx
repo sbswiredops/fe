@@ -53,6 +53,8 @@ export const QuizViewer: React.FC<QuizViewerProps> = ({
   const [answers, setAnswers] = useState<Record<string, any>>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [result, setResult] = useState<QuizResultResponse | null>(null);
+  const [timeRemaining, setTimeRemaining] = useState<number>(0);
+  const [hasTimeExpired, setHasTimeExpired] = useState(false);
 
   useEffect(() => {
     const loadQuizData = async () => {
