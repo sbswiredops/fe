@@ -36,6 +36,7 @@ interface QuizViewerProps {
   quizTitle: string;
   onClose?: () => void;
   className?: string;
+  isTabActive?: boolean;
 }
 
 export const QuizViewer: React.FC<QuizViewerProps> = ({
@@ -43,6 +44,7 @@ export const QuizViewer: React.FC<QuizViewerProps> = ({
   quizTitle,
   onClose,
   className = "w-full h-full",
+  isTabActive = true,
 }) => {
   const [questions, setQuestions] = useState<Question[]>([]);
   const [quizDetails, setQuizDetails] = useState<QuizDetails | null>(null);
@@ -151,39 +153,9 @@ export const QuizViewer: React.FC<QuizViewerProps> = ({
     return () => clearInterval(timerInterval);
   }, [hasStarted, hasTimeExpired, result]);
 
-  useEffect(() => {
-    if (!hasTimeExpired || !hasStarted || result) return;
-    handleSubmitQuiz(answers);
-  }, [hasTimeExpired, hasStarted, result, answers, handleSubmitQuiz]);
-
-  const handleAnswer = (value: any) => {
-    setAnswers({
-      ...answers,
-      [questions[currentQuestionIndex].id]: value,
-    });
-  };
-
-  const toggleMultiSelect = (optionId: string) => {
-    const prev = answers[questions[currentQuestionIndex].id] || [];
-    if (prev.includes(optionId)) {
-      handleAnswer(prev.filter((id: string) => id !== optionId));
-    } else {
-      handleAnswer([...prev, optionId]);
-    }
-  };
-
-  const handleNext = () => {
-    if (currentQuestionIndex < questions.length - 1)
-      setCurrentQuestionIndex(currentQuestionIndex + 1);
-  };
-
-  const handlePrevious = () => {
-    if (currentQuestionIndex > 0)
-      setCurrentQuestionIndex(currentQuestionIndex - 1);
-  };
-
   const handleStartQuiz = useCallback(() => {
     if (quizDetails) {
+      setForceClosed(false); // Only reset here!
       const startTimeKey = `quiz_start_time_${quizId}`;
       const now = Date.now();
       localStorage.setItem(startTimeKey, now.toString());
@@ -192,19 +164,20 @@ export const QuizViewer: React.FC<QuizViewerProps> = ({
     }
   }, [quizDetails, quizId]);
 
-  const handleSubmit = async () => {
-    await handleSubmitQuiz(answers);
-  };
-
   const resetAndRestartQuiz = useCallback(() => {
-    setForceClosed(false);
     setCurrentQuestionIndex(0);
     setAnswers({});
     setTimeRemaining(quizDetails?.totalTime ? quizDetails.totalTime * 60 : 0);
     setHasTimeExpired(false);
     setResult(null);
-    handleStartQuiz();
-  }, [quizDetails, handleStartQuiz]);
+    setHasStarted(false);
+    // DON'T reset setForceClosed(false) here!
+  }, [quizDetails]);
+
+  useEffect(() => {
+    if (!hasTimeExpired || !hasStarted || result) return;
+    handleSubmitQuiz(answers);
+  }, [hasTimeExpired, hasStarted, result, answers, handleSubmitQuiz]);
 
   useEffect(() => {
     if (!hasStarted || result) return;
@@ -237,7 +210,75 @@ export const QuizViewer: React.FC<QuizViewerProps> = ({
       window.removeEventListener("unload", handleUnload);
       document.removeEventListener("visibilitychange", handleVisibilityChange);
     };
-  }, [hasStarted, answers, result, handleSubmitQuiz, quizId, forceClosed, resetAndRestartQuiz]);
+  }, [
+    hasStarted,
+    answers,
+    result,
+    handleSubmitQuiz,
+    quizId,
+    forceClosed,
+    resetAndRestartQuiz,
+  ]);
+
+  const handleAnswer = (value: any) => {
+    setAnswers({
+      ...answers,
+      [questions[currentQuestionIndex].id]: value,
+    });
+  };
+
+  const toggleMultiSelect = (optionId: string) => {
+    const prev = answers[questions[currentQuestionIndex].id] || [];
+    if (prev.includes(optionId)) {
+      handleAnswer(prev.filter((id: string) => id !== optionId));
+    } else {
+      handleAnswer([...prev, optionId]);
+    }
+  };
+
+  const handleNext = () => {
+    if (currentQuestionIndex < questions.length - 1)
+      setCurrentQuestionIndex(currentQuestionIndex + 1);
+  };
+
+  const handlePrevious = () => {
+    if (currentQuestionIndex > 0)
+      setCurrentQuestionIndex(currentQuestionIndex - 1);
+  };
+
+  const prevTabActiveRef = React.useRef(isTabActive);
+
+  useEffect(() => {
+    if (
+      prevTabActiveRef.current === true &&
+      isTabActive === false &&
+      hasStarted &&
+      !result
+    ) {
+      setForceClosed(true);
+      handleSubmitQuiz(answers);
+    } else if (
+      prevTabActiveRef.current === false &&
+      isTabActive === true &&
+      forceClosed &&
+      !result
+    ) {
+      resetAndRestartQuiz();
+    }
+    prevTabActiveRef.current = isTabActive;
+  }, [
+    isTabActive,
+    hasStarted,
+    result,
+    forceClosed,
+    answers,
+    handleSubmitQuiz,
+    resetAndRestartQuiz,
+  ]);
+
+  const handleSubmit = async () => {
+    await handleSubmitQuiz(answers);
+  };
 
   // ================= Loading & Error =================
   if (isLoading)

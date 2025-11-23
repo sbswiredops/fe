@@ -657,6 +657,7 @@ export default function LessonViewerPage() {
                         quizId={selectedQuiz.id}
                         quizTitle={selectedQuiz.title}
                         onClose={() => setViewMode("video")}
+                        isTabActive={viewMode === "quiz"}
                         className="w-full h-full"
                       />
                     </div>
