@@ -156,45 +156,6 @@ export const QuizViewer: React.FC<QuizViewerProps> = ({
     handleSubmitQuiz(answers);
   }, [hasTimeExpired, hasStarted, result, answers, handleSubmitQuiz]);
 
-  useEffect(() => {
-    if (!hasStarted || result) return;
-
-    const handleBeforeUnload = (e: BeforeUnloadEvent) => {
-      e.preventDefault();
-      e.returnValue = "";
-      handleSubmitQuiz(answers);
-    };
-
-    const handleUnload = () => {
-      handleSubmitQuiz(answers);
-    };
-
-    // TAB CHANGE: force close and reset quiz
-    const handleVisibilityChange = () => {
-      if (document.hidden && hasStarted && !result) {
-        // Remove quiz timer from localStorage
-        localStorage.removeItem(`quiz_start_time_${quizId}`);
-        // Reset all quiz states
-        setHasStarted(false);
-        setCurrentQuestionIndex(0);
-        setAnswers({});
-        setTimeRemaining(0);
-        setHasTimeExpired(false);
-        setForceClosed(true);
-      }
-    };
-
-    window.addEventListener("beforeunload", handleBeforeUnload);
-    window.addEventListener("unload", handleUnload);
-    document.addEventListener("visibilitychange", handleVisibilityChange);
-
-    return () => {
-      window.removeEventListener("beforeunload", handleBeforeUnload);
-      window.removeEventListener("unload", handleUnload);
-      document.removeEventListener("visibilitychange", handleVisibilityChange);
-    };
-  }, [hasStarted, answers, result, handleSubmitQuiz, quizId]);
-
   const handleAnswer = (value: any) => {
     setAnswers({
       ...answers,
@@ -221,7 +182,7 @@ export const QuizViewer: React.FC<QuizViewerProps> = ({
       setCurrentQuestionIndex(currentQuestionIndex - 1);
   };
 
-  const handleStartQuiz = () => {
+  const handleStartQuiz = useCallback(() => {
     if (quizDetails) {
       const startTimeKey = `quiz_start_time_${quizId}`;
       const now = Date.now();
@@ -229,11 +190,54 @@ export const QuizViewer: React.FC<QuizViewerProps> = ({
       setHasStarted(true);
       setTimeRemaining(quizDetails.totalTime * 60);
     }
-  };
+  }, [quizDetails, quizId]);
 
   const handleSubmit = async () => {
     await handleSubmitQuiz(answers);
   };
+
+  const resetAndRestartQuiz = useCallback(() => {
+    setForceClosed(false);
+    setCurrentQuestionIndex(0);
+    setAnswers({});
+    setTimeRemaining(quizDetails?.totalTime ? quizDetails.totalTime * 60 : 0);
+    setHasTimeExpired(false);
+    setResult(null);
+    handleStartQuiz();
+  }, [quizDetails, handleStartQuiz]);
+
+  useEffect(() => {
+    if (!hasStarted || result) return;
+
+    const handleBeforeUnload = (e: BeforeUnloadEvent) => {
+      e.preventDefault();
+      e.returnValue = "";
+      handleSubmitQuiz(answers);
+    };
+
+    const handleUnload = () => {
+      handleSubmitQuiz(answers);
+    };
+
+    const handleVisibilityChange = () => {
+      if (document.hidden && hasStarted && !result) {
+        setForceClosed(true);
+        handleSubmitQuiz(answers);
+      } else if (!document.hidden && forceClosed && !result) {
+        resetAndRestartQuiz();
+      }
+    };
+
+    window.addEventListener("beforeunload", handleBeforeUnload);
+    window.addEventListener("unload", handleUnload);
+    document.addEventListener("visibilitychange", handleVisibilityChange);
+
+    return () => {
+      window.removeEventListener("beforeunload", handleBeforeUnload);
+      window.removeEventListener("unload", handleUnload);
+      document.removeEventListener("visibilitychange", handleVisibilityChange);
+    };
+  }, [hasStarted, answers, result, handleSubmitQuiz, quizId, forceClosed, resetAndRestartQuiz]);
 
   // ================= Loading & Error =================
   if (isLoading)
