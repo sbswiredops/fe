@@ -350,14 +350,21 @@ export const QuizViewer: React.FC<QuizViewerProps> = ({
           <h3 className="text-lg sm:text-xl font-bold text-white break-words">
             {quizTitle}
           </h3>
-          {onClose && (
-            <button
-              onClick={onClose}
-              className="text-white hover:bg-purple-800 p-1 rounded transition-colors"
-            >
-              ×
-            </button>
-          )}
+          <div className="flex items-center gap-4">
+            {hasStarted && !result && (
+              <div className={`text-sm sm:text-base font-bold ${timeRemaining <= 60 ? "text-red-300" : "text-white"}`}>
+                {Math.floor(timeRemaining / 60)}:{String(timeRemaining % 60).padStart(2, "0")}
+              </div>
+            )}
+            {onClose && (
+              <button
+                onClick={onClose}
+                className="text-white hover:bg-purple-800 p-1 rounded transition-colors"
+              >
+                ×
+              </button>
+            )}
+          </div>
         </div>
         <div className="mt-3 sm:mt-4 bg-purple-500 h-2 rounded-full">
           <div
