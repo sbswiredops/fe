@@ -82,17 +82,25 @@ export const QuizViewer: React.FC<QuizViewerProps> = ({
         const questionsResponse = await quizService.getQuestions(quizId);
         if (questionsResponse.data) {
           const mappedQuestions: Question[] = questionsResponse.data.map(
-            (q: any, idx: number) => ({
-              id: q.id || q._id || q.questionId || idx.toString(),
-              text: q.text,
-              type: q.type,
-              options: q.options?.map((opt: any, oidx: number) => ({
-                id: opt.value || opt.text || oidx.toString(),
-                text: opt.text,
-              })),
-              correctAnswer: q.correctAnswer,
-              explanation: q.explanation,
-            })
+            (q: any, idx: number) => {
+              const seen = new Set();
+              const uniqueOptions = (q.options || []).filter((opt: any) => {
+                if (seen.has(opt.text)) return false;
+                seen.add(opt.text);
+                return true;
+              });
+              return {
+                id: q.id || q._id || q.questionId || idx.toString(),
+                text: q.text,
+                type: q.type,
+                options: uniqueOptions.map((opt: any, oidx: number) => ({
+                  id: opt.id || `${q.id || q._id || q.questionId || idx}_${oidx}`,
+                  text: opt.text,
+                })),
+                correctAnswer: q.correctAnswer,
+                explanation: q.explanation,
+              };
+            }
           );
           setQuestions(mappedQuestions);
         }
@@ -220,10 +228,17 @@ export const QuizViewer: React.FC<QuizViewerProps> = ({
     resetAndRestartQuiz,
   ]);
 
+  // FIX: convert "true"/"false" to boolean for true_false questions
   const handleAnswer = (value: any) => {
+    const currentQ = questions[currentQuestionIndex];
+    let answerValue = value;
+    if (currentQ.type === "true_false") {
+      if (value === "true") answerValue = true;
+      else if (value === "false") answerValue = false;
+    }
     setAnswers({
       ...answers,
-      [questions[currentQuestionIndex].id]: value,
+      [currentQ.id]: answerValue,
     });
   };
 
@@ -385,22 +400,22 @@ export const QuizViewer: React.FC<QuizViewerProps> = ({
         className={`${className} flex flex-col items-center justify-center p-6`}
       >
         <div className="bg-white rounded-lg shadow p-6 w-full max-w-md">
-          <h3 className="text-xl font-bold mb-4">Quiz Result</h3>
-          <p>
+          <h3 className="text-xl font-bold mb-4 text-gray-900">Quiz Result</h3>
+          <p className="text-gray-800">
             Score: <span className="font-bold">{result.initialScore}</span>
           </p>
-          <p>
+          <p className="text-gray-800">
             Auto-graded:{" "}
             <span className="font-bold">{result.autoGradableQuestions}</span>
           </p>
-          <p>
+          <p className="text-gray-800">
             Pending manual check:{" "}
             <span className="font-bold">{result.pendingManualCheck}</span>
           </p>
           {onClose && (
             <button
               onClick={onClose}
-              className="mt-4 px-4 py-2 bg-gray-200 rounded hover:bg-gray-300"
+              className="mt-4 px-4 py-2 bg-gray-200 rounded hover:bg-gray-300 text-gray-800 font-medium"
             >
               Close
             </button>
@@ -540,22 +555,24 @@ export const QuizViewer: React.FC<QuizViewerProps> = ({
               className="flex items-center p-4 border-2 rounded-lg cursor-pointer mb-2"
               style={{
                 borderColor:
-                  answers[currentQuestion.id] === val ? "#2563eb" : "#e5e7eb",
+                  answers[currentQuestion.id] === (val === "true")
+                    ? "#2563eb"
+                    : "#e5e7eb",
                 backgroundColor:
-                  answers[currentQuestion.id] === val
+                  answers[currentQuestion.id] === (val === "true")
                     ? "#eff6ff"
                     : "transparent",
               }}
             >
               <input
                 type="radio"
-                checked={answers[currentQuestion.id] === val}
+                checked={answers[currentQuestion.id] === (val === "true")}
                 onChange={() => handleAnswer(val)}
                 className="w-4 h-4 accent-purple-600"
               />
               <span
                 className={`ml-3 ${
-                  answers[currentQuestion.id] === val
+                  answers[currentQuestion.id] === (val === "true")
                     ? "text-purple-700 font-semibold"
                     : "text-gray-800"
                 }`}

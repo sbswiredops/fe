@@ -38,6 +38,7 @@ const createQuestionForm = (type: QuestionType = "mcq") => ({
           { text: "", isCorrect: true },
           { text: "", isCorrect: false },
         ],
+  mark: 1, // <-- Add this line
 });
 
 function QuizzesManagement() {
@@ -192,105 +193,102 @@ function QuizzesManagement() {
     }
   };
 
- const handleAdd = async () => {
-  try {
-    const payload: any = {
-      courseId: formData.courseId || undefined,
-      sectionId: formData.sectionId || undefined,
-      title: formData.title,
-      description: formData.description,
-      isLocked: !!formData.isLocked,
-      isPaid: !!formData.isPaid,
-      price:
-        formData.price !== "" && formData.price !== undefined
-          ? parseFloat(formData.price as any)
-          : undefined,
-      totalTime:
-        formData.totalTime !== "" && formData.totalTime !== undefined
-          ? parseInt(formData.totalTime as any, 10)
-          : undefined,
-      passMark:
-        formData.passMark !== "" && formData.passMark !== undefined
-          ? parseFloat(formData.passMark as any)
-          : undefined,
-      hasNegativeMark: !!formData.hasNegativeMark,
-      negativeMarkPercentage:
-        formData.hasNegativeMark && formData.negativeMarkPercentage !== ""
-          ? parseFloat(formData.negativeMarkPercentage as any)
-          : undefined,
-    };
+  const handleAdd = async () => {
+    try {
+      const payload: any = {
+        courseId: formData.courseId || undefined,
+        sectionId: formData.sectionId || undefined,
+        title: formData.title,
+        description: formData.description,
+        isLocked: !!formData.isLocked,
+        isPaid: !!formData.isPaid,
+        price:
+          formData.price !== "" && formData.price !== undefined
+            ? parseFloat(formData.price as any)
+            : undefined,
+        totalTime:
+          formData.totalTime !== "" && formData.totalTime !== undefined
+            ? parseInt(formData.totalTime as any, 10)
+            : undefined,
+        passMark:
+          formData.passMark !== "" && formData.passMark !== undefined
+            ? parseFloat(formData.passMark as any)
+            : undefined,
+        hasNegativeMark: !!formData.hasNegativeMark,
+        negativeMarkPercentage:
+          formData.hasNegativeMark && formData.negativeMarkPercentage !== ""
+            ? parseFloat(formData.negativeMarkPercentage as any)
+            : undefined,
+      };
 
-    const res = await quizService.create(payload);
-    if (res.success) {
-      showToast("Quiz created", "success");
-      if (res.data) setQuizzes((p) => [res.data as any, ...p]);
-      setRefreshTick((x) => x + 1);
-    } else {
-      showToast(res.error || "Failed to create quiz", "error");
+      const res = await quizService.create(payload);
+      if (res.success) {
+        showToast("Quiz created", "success");
+        if (res.data) setQuizzes((p) => [res.data as any, ...p]);
+        setRefreshTick((x) => x + 1);
+      } else {
+        showToast(res.error || "Failed to create quiz", "error");
+      }
+    } catch (e: any) {
+      showToast(e?.message || "Failed to create quiz", "error");
     }
-  } catch (e: any) {
-    showToast(e?.message || "Failed to create quiz", "error");
-  }
-  setIsAddModalOpen(false);
-  resetForm();
-};
+    setIsAddModalOpen(false);
+    resetForm();
+  };
 
-const handleEdit = async () => {
-  if (!selectedItem) return;
-  try {
-    const payload: any = {
-      title: formData.title,
-      description: formData.description,
-      isLocked:
-        typeof formData.isLocked === "boolean"
-          ? formData.isLocked
-          : undefined,
-      isPaid:
-        typeof formData.isPaid === "boolean"
-          ? formData.isPaid
-          : undefined,
-      price:
-        formData.price !== "" && formData.price !== undefined
-          ? parseFloat(formData.price as any)
-          : undefined,
-      totalTime:
-        formData.totalTime !== "" && formData.totalTime !== undefined
-          ? parseInt(formData.totalTime as any, 10)
-          : undefined,
-      passMark:
-        formData.passMark !== "" && formData.passMark !== undefined
-          ? parseFloat(formData.passMark as any)
-          : undefined,
-      hasNegativeMark:
-        typeof formData.hasNegativeMark === "boolean"
-          ? formData.hasNegativeMark
-          : undefined,
-      negativeMarkPercentage:
-        formData.hasNegativeMark && formData.negativeMarkPercentage !== ""
-          ? parseFloat(formData.negativeMarkPercentage as any)
-          : undefined,
-    };
+  const handleEdit = async () => {
+    if (!selectedItem) return;
+    try {
+      const payload: any = {
+        title: formData.title,
+        description: formData.description,
+        isLocked:
+          typeof formData.isLocked === "boolean"
+            ? formData.isLocked
+            : undefined,
+        isPaid:
+          typeof formData.isPaid === "boolean" ? formData.isPaid : undefined,
+        price:
+          formData.price !== "" && formData.price !== undefined
+            ? parseFloat(formData.price as any)
+            : undefined,
+        totalTime:
+          formData.totalTime !== "" && formData.totalTime !== undefined
+            ? parseInt(formData.totalTime as any, 10)
+            : undefined,
+        passMark:
+          formData.passMark !== "" && formData.passMark !== undefined
+            ? parseFloat(formData.passMark as any)
+            : undefined,
+        hasNegativeMark:
+          typeof formData.hasNegativeMark === "boolean"
+            ? formData.hasNegativeMark
+            : undefined,
+        negativeMarkPercentage:
+          formData.hasNegativeMark && formData.negativeMarkPercentage !== ""
+            ? parseFloat(formData.negativeMarkPercentage as any)
+            : undefined,
+      };
 
-    const res = await quizService.update(selectedItem.id, payload);
-    if (res.success) {
-      showToast("Quiz updated", "success");
-      setQuizzes((prev) =>
-        prev.map((q: any) =>
-          q.id === selectedItem.id ? { ...q, ...payload } : q
-        )
-      );
-      setRefreshTick((x) => x + 1);
-    } else {
-      showToast(res.error || "Failed to update quiz", "error");
+      const res = await quizService.update(selectedItem.id, payload);
+      if (res.success) {
+        showToast("Quiz updated", "success");
+        setQuizzes((prev) =>
+          prev.map((q: any) =>
+            q.id === selectedItem.id ? { ...q, ...payload } : q
+          )
+        );
+        setRefreshTick((x) => x + 1);
+      } else {
+        showToast(res.error || "Failed to update quiz", "error");
+      }
+    } catch (e: any) {
+      showToast(e?.message || "Failed to update quiz", "error");
     }
-  } catch (e: any) {
-    showToast(e?.message || "Failed to update quiz", "error");
-  }
-  setIsEditModalOpen(false);
-  setSelectedItem(null);
-  resetForm();
-};
-
+    setIsEditModalOpen(false);
+    setSelectedItem(null);
+    resetForm();
+  };
 
   const handleDelete = async () => {
     if (!selectedItem) return;
@@ -466,7 +464,7 @@ const handleEdit = async () => {
 
   const handleQuestionFieldChange = (
     questionIndex: number,
-    field: "text" | "type" | "correctAnswer",
+    field: "text" | "type" | "correctAnswer" | "mark",
     value: string
   ) => {
     setQuestionForms((prev) => {
@@ -668,7 +666,6 @@ const handleEdit = async () => {
       }
 
       payload.push({
-        quizId: selectedQuizForQuestion.id,
         text: form.text.trim(),
         type: form.type,
         correctAnswer:
@@ -683,6 +680,7 @@ const handleEdit = async () => {
           form.type === "true_false"
             ? trimmedOptions
             : undefined,
+        mark: form.mark ?? 1, // <-- Add this line
       });
     }
 
@@ -1500,13 +1498,23 @@ const handleEdit = async () => {
                                 <input
                                   type="checkbox"
                                   checked={option.isCorrect}
-                                  onChange={() =>
-                                    toggleCorrectOption(
-                                      questionIndex,
-                                      optionIndex,
-                                      questionForm.type === "multi"
-                                    )
-                                  }
+                                  onChange={() => {
+                                    setQuestionForms((prev) => {
+                                      const next = [...prev];
+                                      const q = next[questionIndex];
+                                      if (!q) return prev;
+                                      const newOptions = q.options.map(
+                                        (o: any, i: number) =>
+                                          q.type === "multi"
+                                            ? i === optionIndex
+                                              ? { ...o, isCorrect: !o.isCorrect }
+                                              : o
+                                            : { ...o, isCorrect: i === optionIndex }
+                                      );
+                                      next[questionIndex] = { ...q, options: newOptions };
+                                      return next;
+                                    });
+                                  }}
                                 />
                                 Correct
                               </label>
@@ -1515,10 +1523,17 @@ const handleEdit = async () => {
                                   type="button"
                                   variant="ghost"
                                   size="sm"
-                                  onClick={() =>
-                                    removeOptionRow(questionIndex, optionIndex)
-                                  }
-                                  className="text-red-500 justify-center px-2"
+                                  onClick={() => {
+                                    setQuestionForms((prev) => {
+                                      const next = [...prev];
+                                      const q = next[questionIndex];
+                                      if (!q) return prev;
+                                      const newOptions = q.options.filter((_, i: number) => i !== optionIndex);
+                                      next[questionIndex] = { ...q, options: newOptions };
+                                      return next;
+                                    });
+                                  }}
+                                  className="text-red-500 px-2"
                                 >
                                   Remove
                                 </Button>
@@ -1592,6 +1607,24 @@ const handleEdit = async () => {
                           />
                         </div>
                       )}
+                      <div className="space-y-2">
+                        <label className="block text-sm font-medium text-gray-700">
+                          Mark
+                        </label>
+                        <Input
+                          type="number"
+                          min={1}
+                          value={questionForm.mark}
+                          onChange={(e) =>
+                            handleQuestionFieldChange(
+                              questionIndex,
+                              "mark",
+                              e.target.value
+                            )
+                          }
+                          placeholder="Enter mark for this question"
+                        />
+                      </div>
                     </div>
                   ))}
                 </div>
@@ -1793,13 +1826,23 @@ const handleEdit = async () => {
                                       <input
                                         type="checkbox"
                                         checked={option.isCorrect}
-                                        onChange={() =>
-                                          toggleCorrectOption(
-                                            questionIndex,
-                                            optionIndex,
-                                            questionForm.type === "multi"
-                                          )
-                                        }
+                                        onChange={() => {
+                                          setQuestionForms((prev) => {
+                                            const next = [...prev];
+                                            const q = next[questionIndex];
+                                            if (!q) return prev;
+                                            const newOptions = q.options.map(
+                                              (o: any, i: number) =>
+                                                q.type === "multi"
+                                                  ? i === optionIndex
+                                                    ? { ...o, isCorrect: !o.isCorrect }
+                                                    : o
+                                                  : { ...o, isCorrect: i === optionIndex }
+                                            );
+                                            next[questionIndex] = { ...q, options: newOptions };
+                                            return next;
+                                          });
+                                        }}
                                       />
                                       Correct
                                     </label>
@@ -1808,13 +1851,17 @@ const handleEdit = async () => {
                                         type="button"
                                         variant="ghost"
                                         size="sm"
-                                        onClick={() =>
-                                          removeOptionRow(
-                                            questionIndex,
-                                            optionIndex
-                                          )
-                                        }
-                                        className="text-red-500 justify-center px-2"
+                                        onClick={() => {
+                                          setQuestionForms((prev) => {
+                                            const next = [...prev];
+                                            const q = next[questionIndex];
+                                            if (!q) return prev;
+                                            const newOptions = q.options.filter((_, i: number) => i !== optionIndex);
+                                            next[questionIndex] = { ...q, options: newOptions };
+                                            return next;
+                                          });
+                                        }}
+                                        className="text-red-500 px-2"
                                       >
                                         Remove
                                       </Button>
@@ -1891,6 +1938,24 @@ const handleEdit = async () => {
                               />
                             </div>
                           )}
+                          <div className="space-y-2">
+                            <label className="block text-sm font-medium text-gray-700">
+                              Mark
+                            </label>
+                            <Input
+                              type="number"
+                              min={1}
+                              value={questionForm.mark}
+                              onChange={(e) =>
+                                handleQuestionFieldChange(
+                                  questionIndex,
+                                  "mark",
+                                  e.target.value
+                                )
+                              }
+                              placeholder="Enter mark for this question"
+                            />
+                          </div>
                         </div>
                       ))}
                     </div>

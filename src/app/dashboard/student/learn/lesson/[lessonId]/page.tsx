@@ -402,18 +402,34 @@ export default function LessonViewerPage() {
       });
 
       // update section and course progress after backend returns
-      const [progressResp, courseResp] = await Promise.all([
-        lessonService.getAllLessonsProgress({
-          sectionId: sectionId!,
-          page: 1,
-          limit: 100,
-        }),
-        courseService.getCourseById(courseId!),
-      ]);
+      const courseResp = await courseService.getCourseById(courseId!);
 
-      // rebuild progress map
+      // Fetch progress for ALL sections in the course (not just current section)
+      let allProgressData: any[] = [];
+      if (courseResp.data) {
+        const courseData = courseResp.data as CourseDetail;
+        const allSectionIds = courseData.sections?.map((s) => s.id) || [];
+
+        if (allSectionIds.length > 0) {
+          try {
+            const progressPromises = allSectionIds.map((secId) =>
+              lessonService.getAllLessonsProgress({
+                sectionId: secId,
+                page: 1,
+                limit: 100,
+              })
+            );
+            const progressResponses = await Promise.all(progressPromises);
+            allProgressData = progressResponses.flatMap((resp) => resp.data || []);
+          } catch (err) {
+            console.error("Failed to fetch progress for some sections:", err);
+          }
+        }
+      }
+
+      // rebuild progress map with ALL sections data
       const newMap: LessonProgressMap = {};
-      (progressResp.data || []).forEach((p) => {
+      (allProgressData || []).forEach((p) => {
         if (!p?.lessonId) return;
         newMap[p.lessonId] = {
           isVideoWatched: !!p.isVideoWatched,
