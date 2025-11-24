@@ -74,6 +74,7 @@ export default function LessonViewerPage() {
   const [sectionCompletionPercent, setSectionCompletionPercent] = useState<
     Record<string, number>
   >({});
+  const [totalCourseProgress, setTotalCourseProgress] = useState<number>(0);
 
   const cancelledRef = useRef(false);
   const updatingRef = useRef(false);
@@ -134,15 +135,7 @@ export default function LessonViewerPage() {
 
       try {
         // 1) fetch course with sections/lessons
-        const [courseResp, progressResp] = await Promise.all([
-          courseService.getCourseById(courseId),
-          // FIX: Do not pass userId, just use named params
-          lessonService.getAllLessonsProgress({
-            sectionId: sectionId as string,
-            page: 1,
-            limit: 100,
-          }),
-        ]);
+        const courseResp = await courseService.getCourseById(courseId);
 
         if (!courseResp.data) {
           setError("Course not found");
@@ -153,10 +146,30 @@ export default function LessonViewerPage() {
         const courseData = courseResp.data as CourseDetail;
         setCourse(courseData);
 
-        // map progress
-        const progArr = (progressResp.data || []) as any[];
+        // Fetch progress for ALL sections in the course
+        const allSectionIds = courseData.sections?.map((s) => s.id) || [];
+        let allProgressData: any[] = [];
+
+        if (allSectionIds.length > 0) {
+          try {
+            // Fetch progress for each section
+            const progressPromises = allSectionIds.map((secId) =>
+              lessonService.getAllLessonsProgress({
+                sectionId: secId,
+                page: 1,
+                limit: 100,
+              })
+            );
+            const progressResponses = await Promise.all(progressPromises);
+            allProgressData = progressResponses.flatMap((resp) => resp.data || []);
+          } catch (err) {
+            console.error("Failed to fetch progress for some sections:", err);
+          }
+        }
+
+        // map all progress
         const pMap: LessonProgressMap = {};
-        for (const p of progArr) {
+        for (const p of allProgressData) {
           if (!p?.lessonId) continue;
           pMap[p.lessonId] = {
             isVideoWatched: !!p.isVideoWatched,
@@ -268,9 +281,30 @@ export default function LessonViewerPage() {
         total === 0 || completed < total || !!(sec as any).isQuizLocked;
     });
 
+    // Calculate total course progress
+    let totalLessonsInCourse = 0;
+    let totalLessonsCompleted = 0;
+
+    (courseData.sections || []).forEach((sec) => {
+      const lessons = (sec.lessons || []).sort(
+        (a, b) => (a.orderIndex || 0) - (b.orderIndex || 0)
+      );
+      lessons.forEach((l) => {
+        totalLessonsInCourse++;
+        if (pMap[l.id]?.isVideoWatched) {
+          totalLessonsCompleted++;
+        }
+      });
+    });
+
+    const courseProgressPercent = totalLessonsInCourse === 0
+      ? 0
+      : Math.round((totalLessonsCompleted / totalLessonsInCourse) * 100);
+
     setLessonLockedMap(lessonLock);
     setSectionLockedMap(sectionLock);
     setSectionCompletionPercent(sectionPercent);
+    setTotalCourseProgress(courseProgressPercent);
   };
 
   const handleLessonSelect = (selectedLesson: Lesson, secId: string) => {
@@ -683,9 +717,23 @@ export default function LessonViewerPage() {
 
             <div className="lg:col-span-1">
               <div className="bg-gray-50 rounded-lg p-4 border border-gray-200 sticky top-6">
-                <h3 className="font-semibold text-gray-900 text-sm mb-4">
-                  Course Curriculum
-                </h3>
+                <div className="mb-4">
+                  <h3 className="font-semibold text-gray-900 text-sm mb-3">
+                    Course Curriculum
+                  </h3>
+                  <div className="bg-white rounded-lg p-3 border border-gray-200">
+                    <div className="flex items-center justify-between mb-2">
+                      <span className="text-xs font-medium text-gray-700">Overall Progress</span>
+                      <span className="text-xs font-bold text-purple-600">{totalCourseProgress}%</span>
+                    </div>
+                    <div className="w-full bg-gray-200 rounded-full h-2">
+                      <div
+                        className="bg-gradient-to-r from-purple-500 to-purple-600 h-2 rounded-full transition-all"
+                        style={{ width: `${totalCourseProgress}%` }}
+                      />
+                    </div>
+                  </div>
+                </div>
                 <div className="space-y-2 max-h-screen overflow-y-auto">
                   {course?.sections?.length ? (
                     course.sections
