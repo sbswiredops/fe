@@ -10,6 +10,7 @@ import { useAuth } from "@/components/contexts/AuthContext";
 import { useLanguage } from "@/components/contexts/LanguageContext";
 import DashboardLayout from "@/components/layout/DashboardLayout";
 import { UserService } from "@/services/userService";
+import { courseService } from "@/services/courseService";
 import { useRouter } from "next/navigation";
 import { useEnrolledCourses } from "@/components/contexts/EnrolledCoursesContext";
 
@@ -51,33 +52,104 @@ function StudentDashboard() {
     if (!user?.id) return;
     setLoading(true);
 
-    Promise.all([
-      userService.getEnrolledCourses(user.id),
-      userService.getCourseStats(user.id),
-      userService.getCompletedCertificates(user.id),
-    ])
-      .then(([coursesRes, statsRes, certRes]) => {
-        let list = coursesRes.data?.courses || [];
+    (async () => {
+      try {
+        const [coursesRes, statsRes, certRes] = await Promise.all([
+          userService.getEnrolledCourses(user.id),
+          userService.getCourseStats(user.id),
+          userService.getCompletedCertificates(user.id),
+        ]);
 
-        // Example: Calculate progress if not present
-        list = list.map((course: any) => {
-          if (typeof course.progress === "number") return course;
-          // Suppose course.sections[].lessons[] and course.completedLessonIds[]
-          const totalLessons =
-            course.sections?.reduce(
+        const list = coursesRes.data?.courses || [];
+
+        // Fetch lesson progress for each course's sections
+        const { lessonService: lessonSvc } = await import("@/services/lessonService");
+
+        const enhancedList = await Promise.all(
+          list.map(async (course: any) => {
+            const sections = course.sections || [];
+            const totalLessons = sections.reduce(
               (sum: number, sec: any) => sum + (sec.lessons?.length || 0),
               0
-            ) || 0;
-          const completedLessons = course.completedLessonIds?.length || 0;
-          const progress =
-            totalLessons > 0
-              ? Math.round((completedLessons / totalLessons) * 100)
-              : 0;
-          return { ...course, progress };
-        });
+            );
 
-        setEnrolledCourses(list);
-        setCourses(list);
+            // Fetch progress for each section
+            const progressMap: Record<string, boolean> = {};
+            for (const section of sections) {
+              try {
+                const progressRes = await lessonSvc.getAllLessonsProgress({
+                  sectionId: section.id,
+                  page: 1,
+                  limit: 100,
+                });
+                if (progressRes.data) {
+                  progressRes.data.forEach((p: any) => {
+                    if (p.lessonId && p.isVideoWatched) {
+                      progressMap[p.lessonId] = true;
+                    }
+                  });
+                }
+              } catch (err) {
+                console.warn(`Failed to fetch progress for section ${section.id}:`, err);
+              }
+            }
+
+            // Calculate completed lessons and next lesson
+            let completedLessons = 0;
+            let nextLesson = "-";
+            const sortedSections = sections.sort(
+              (a: any, b: any) => (a.orderIndex || a.order || 0) - (b.orderIndex || b.order || 0)
+            );
+
+            for (const section of sortedSections) {
+              const lessons = (section.lessons || []).sort(
+                (a: any, b: any) => (a.orderIndex || 0) - (b.orderIndex || 0)
+              );
+              for (const lesson of lessons) {
+                const isCompleted = progressMap[lesson.id] === true;
+                if (isCompleted) {
+                  completedLessons++;
+                } else if (nextLesson === "-") {
+                  nextLesson = lesson.title || "Next Lesson";
+                }
+              }
+            }
+
+            // Calculate progress percentage
+            const progress =
+              totalLessons > 0
+                ? Math.round((completedLessons / totalLessons) * 100)
+                : 0;
+
+            // Calculate time left (duration is in minutes)
+            const totalDuration = typeof course.duration === "string"
+              ? parseInt(course.duration) || 0
+              : course.duration || 0;
+
+            const completedDuration =
+              completedLessons > 0 && totalLessons > 0
+                ? Math.round((completedLessons / totalLessons) * totalDuration)
+                : 0;
+
+            const timeLeftMinutes = Math.max(0, totalDuration - completedDuration);
+            const timeLeftStr =
+              timeLeftMinutes > 0
+                ? timeLeftMinutes >= 60
+                  ? `${Math.round(timeLeftMinutes / 60)}h left`
+                  : `${timeLeftMinutes}m left`
+                : "Completed";
+
+            return {
+              ...course,
+              progress,
+              nextLesson,
+              timeLeft: timeLeftStr,
+            };
+          })
+        );
+
+        setEnrolledCourses(enhancedList);
+        setCourses(enhancedList);
         setStats({
           enrolledCourses: (coursesRes.data?.courses || []).length,
           completed: statsRes.data?.completedCourses || 0,
@@ -87,8 +159,12 @@ function StudentDashboard() {
           inProgress: statsRes.data?.inProgressCourses || 0,
         });
         setCompletedCertificates(certRes.data || []);
-      })
-      .finally(() => setLoading(false));
+      } catch (err) {
+        console.error("Error fetching dashboard data:", err);
+      } finally {
+        setLoading(false);
+      }
+    })();
   }, [user?.id]);
 
   return (
