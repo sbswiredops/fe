@@ -57,7 +57,25 @@ function StudentDashboard() {
       userService.getCompletedCertificates(user.id),
     ])
       .then(([coursesRes, statsRes, certRes]) => {
-        const list = coursesRes.data?.courses || [];
+        let list = coursesRes.data?.courses || [];
+
+        // Example: Calculate progress if not present
+        list = list.map((course: any) => {
+          if (typeof course.progress === "number") return course;
+          // Suppose course.sections[].lessons[] and course.completedLessonIds[]
+          const totalLessons =
+            course.sections?.reduce(
+              (sum: number, sec: any) => sum + (sec.lessons?.length || 0),
+              0
+            ) || 0;
+          const completedLessons = course.completedLessonIds?.length || 0;
+          const progress =
+            totalLessons > 0
+              ? Math.round((completedLessons / totalLessons) * 100)
+              : 0;
+          return { ...course, progress };
+        });
+
         setEnrolledCourses(list);
         setCourses(list);
         setStats({
@@ -75,35 +93,35 @@ function StudentDashboard() {
 
   return (
     <DashboardLayout>
-      <div className="p-6">
+      <div className="p-4 sm:p-6">
         {/* Header */}
         <div className="mb-8">
-          <div className="flex justify-between items-start">
+          <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
             <div>
               <h1 className="text-2xl font-bold text-gray-900 mb-2">
                 {t("dashboard.student.title")}
               </h1>
-              <p className="text-gray-600 flex items-center gap-2">
+              <p className="text-gray-600 flex items-center gap-2 flex-wrap">
                 Welcome back, <span className="font-bold">{displayName}</span>
                 <BookOpen size={18} className="inline text-blue-500" /> Continue
                 your learning journey.
               </p>
             </div>
-            <div className="flex space-x-3">
-              <Button variant="outline" size="md">
+            <div className="flex flex-col sm:flex-row gap-2 sm:gap-3 w-full md:w-auto">
+              <Button variant="outline" size="md" className="w-full sm:w-auto">
                 <BookOpen size={18} className="inline text-blue-500 mr-1" />{" "}
                 Browse Courses
               </Button>
-              <Button size="md">
+              {/* <Button size="md" className="w-full sm:w-auto">
                 <Video size={18} className="inline text-purple-500 mr-1" /> Join
                 Live Class
-              </Button>
+              </Button> */}
             </div>
           </div>
         </div>
 
         {/* Stats Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 mb-8">
           <div
             className="rounded-lg p-6 shadow-lg border border-gray-200 card-shadow-hover animate-red-gradient"
             style={{
@@ -257,14 +275,14 @@ function StudentDashboard() {
           </div>
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 lg:gap-8">
           {/* Enrolled Courses */}
-          <div className="lg:col-span-2 bg-white rounded-lg shadow-lg border border-gray-200 p-6">
-            <div className="flex justify-between items-center mb-6">
+          <div className="lg:col-span-2 bg-white rounded-lg shadow-lg border border-gray-200 p-4 sm:p-6">
+            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 gap-2">
               <h2 className="text-xl font-semibold text-gray-900">
                 My Courses
               </h2>
-              <Button size="sm" variant="outline">
+              <Button size="sm" variant="outline" className="w-full sm:w-auto">
                 <BookOpen size={16} className="inline text-blue-500 mr-1" />{" "}
                 View All
               </Button>
@@ -275,7 +293,7 @@ function StudentDashboard() {
                   key={index}
                   className="border border-gray-200 rounded-lg p-4 hover:border-blue-300 transition-colors"
                 >
-                  <div className="flex justify-between items-start mb-3">
+                  <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-3 gap-2">
                     <div>
                       <h3 className="font-medium text-gray-900">
                         {course.title}
@@ -322,15 +340,16 @@ function StudentDashboard() {
                     </div>
                   </div>
 
-                  <div className="flex justify-between items-center text-sm text-gray-500 mb-3">
+                  <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center text-sm text-gray-500 mb-3 gap-2">
                     <span>Next: {course.nextLesson || "-"}</span>
                     <span>{course.timeLeft || "-"}</span>
                   </div>
 
-                  <div className="flex space-x-2">
+                  <div className="flex flex-col sm:flex-row gap-2">
                     {stats.completedCourseIds.includes(course.id) ? (
                       <Button
                         size="md"
+                        className="w-full sm:w-auto"
                         onClick={() => {
                           setLastSelectedCourseId(String(course.id));
                           router.push(`/dashboard/student/learn/${course.id}`);
@@ -341,6 +360,7 @@ function StudentDashboard() {
                     ) : (
                       <Button
                         size="md"
+                        className="w-full sm:w-auto"
                         onClick={() => {
                           setLastSelectedCourseId(String(course.id));
                           router.push(`/dashboard/student/learn/${course.id}`);
@@ -352,6 +372,7 @@ function StudentDashboard() {
                     <Button
                       size="md"
                       variant="outline"
+                      className="w-full sm:w-auto"
                       onClick={() => {
                         setLastSelectedCourseId(String(course.id));
                         router.push(`/courses/${course.id}`);

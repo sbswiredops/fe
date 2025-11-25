@@ -152,7 +152,10 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
   }, [user, roleLabel]);
 
   const displayInitial = useMemo(
-    () => String(displayName || "U").trim()?.[0]?.toUpperCase() || "U",
+    () =>
+      String(displayName || "U")
+        .trim()?.[0]
+        ?.toUpperCase() || "U",
     [displayName]
   );
 
@@ -210,8 +213,8 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
           {
             name: "Result",
             href: `${basePath}/result`,
-            icon: Trophy
-          }
+            icon: Trophy,
+          },
         ];
       default:
         return commonItems;
@@ -361,13 +364,12 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
             <div className="relative" ref={langRef}>
               <button
                 onClick={() => setIsLanguageDropdownOpen((v) => !v)}
-                className="flex items-center space-x-1 bg-gray-100 hover:bg-gray-200 px-2 md:px-3 py-1.5 rounded-lg transition-colors border border-gray-300"
+                className="flex items-center space-x-2 bg-gray-100 hover:bg-gray-200 px-2 md:px-3 py-1.5 rounded-lg transition-colors border border-gray-300"
                 aria-haspopup="menu"
                 aria-expanded={isLanguageDropdownOpen}
               >
-                <span className="text-lg">{currentLanguage.flag}</span>
-                <span className="hidden sm:inline text-sm font-medium text-gray-700">
-                  {currentLanguage.code.toUpperCase()}
+                <span className="text-xs text-gray-700">
+                  {currentLanguage.name}
                 </span>
                 <ChevronDown
                   className={`w-3 h-3 transition-transform text-gray-500 ${
@@ -391,8 +393,7 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
                           : "text-gray-700"
                       }`}
                     >
-                      <span>{language.flag}</span>
-                      <span>{language.name}</span>
+                      <span className="text-xs">{language.name}</span>
                     </button>
                   ))}
                 </div>

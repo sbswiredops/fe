@@ -14,6 +14,7 @@ import { useAuth } from "@/components/contexts/AuthContext";
 import QuizViewer from "@/components/ui/QuizViewer";
 import PDFViewer from "@/components/ui/PDFViwer";
 import useToast from "@/components/hoock/toast";
+import { CheckCircle, PlayCircle, Target } from "lucide-react";
 
 type CourseDetail = Course & {
   sections?: Section[];
@@ -161,7 +162,9 @@ export default function LessonViewerPage() {
               })
             );
             const progressResponses = await Promise.all(progressPromises);
-            allProgressData = progressResponses.flatMap((resp) => resp.data || []);
+            allProgressData = progressResponses.flatMap(
+              (resp) => resp.data || []
+            );
           } catch (err) {
             console.error("Failed to fetch progress for some sections:", err);
           }
@@ -297,9 +300,10 @@ export default function LessonViewerPage() {
       });
     });
 
-    const courseProgressPercent = totalLessonsInCourse === 0
-      ? 0
-      : Math.round((totalLessonsCompleted / totalLessonsInCourse) * 100);
+    const courseProgressPercent =
+      totalLessonsInCourse === 0
+        ? 0
+        : Math.round((totalLessonsCompleted / totalLessonsInCourse) * 100);
 
     setLessonLockedMap(lessonLock);
     setSectionLockedMap(sectionLock);
@@ -420,7 +424,9 @@ export default function LessonViewerPage() {
               })
             );
             const progressResponses = await Promise.all(progressPromises);
-            allProgressData = progressResponses.flatMap((resp) => resp.data || []);
+            allProgressData = progressResponses.flatMap(
+              (resp) => resp.data || []
+            );
           } catch (err) {
             console.error("Failed to fetch progress for some sections:", err);
           }
@@ -739,8 +745,12 @@ export default function LessonViewerPage() {
                   </h3>
                   <div className="bg-white rounded-lg p-3 border border-gray-200">
                     <div className="flex items-center justify-between mb-2">
-                      <span className="text-xs font-medium text-gray-700">Overall Progress</span>
-                      <span className="text-xs font-bold text-purple-600">{totalCourseProgress}%</span>
+                      <span className="text-xs font-medium text-gray-700">
+                        Overall Progress
+                      </span>
+                      <span className="text-xs font-bold text-purple-600">
+                        {totalCourseProgress}%
+                      </span>
                     </div>
                     <div className="w-full bg-gray-200 rounded-full h-2">
                       <div
@@ -825,12 +835,23 @@ export default function LessonViewerPage() {
                                         locked
                                           ? "text-gray-400 bg-gray-50 cursor-not-allowed"
                                           : "text-gray-700 hover:bg-purple-50"
-                                      }`}
+                                      } flex items-center gap-1`}
                                       tabIndex={locked ? -1 : 0}
                                       aria-disabled={locked}
                                       type="button"
                                     >
-                                      {completed ? "✅" : "🎬"} {l.title}
+                                      {completed ? (
+                                        <CheckCircle
+                                          size={16}
+                                          className="text-green-500"
+                                        />
+                                      ) : (
+                                        <PlayCircle
+                                          size={16}
+                                          className="text-purple-500"
+                                        />
+                                      )}
+                                      {l.title}
                                     </button>
                                   );
                                 })}
@@ -853,17 +874,21 @@ export default function LessonViewerPage() {
                                           setSection(sec);
                                           setViewMode("quiz");
                                         }}
-                                        className={`w-full text-left text-xs px-2 py-1 rounded transition-colors ${
-                                          selectedQuiz?.id === q.id
-                                            ? "bg-purple-100 font-semibold"
-                                            : "text-gray-700"
-                                        } ${
-                                          qDisabled
-                                            ? "opacity-40 cursor-not-allowed"
-                                            : "hover:bg-purple-50"
-                                        }`}
+                                        className={`w-full text-left text-xs px-2 py-1 rounded transition-colors
+    ${
+      selectedQuiz?.id === q.id
+        ? "bg-purple-100 font-semibold text-purple-700"
+        : "text-gray-700"
+    }
+    ${qDisabled ? "opacity-40 cursor-not-allowed" : "hover:bg-purple-50"}
+flex items-center gap-1
+`}
                                       >
-                                        🎯 {q.title}
+                                        <Target
+                                          size={16}
+                                          className="text-pink-500"
+                                        />
+                                        {q.title}
                                       </button>
                                     );
                                   })}
