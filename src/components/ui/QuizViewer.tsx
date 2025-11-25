@@ -5,11 +5,16 @@ import { quizService } from "@/services/quizService";
 
 type QuestionType = "mcq" | "multi" | "true_false" | "fill_blank" | "short";
 
+interface Option {
+  id: string;
+  text: string;
+}
+
 interface Question {
   id: string;
   text: string;
   type: QuestionType;
-  options?: Array<{ id: string; text: string }>;
+  options?: Option[];
   correctAnswer?: string;
   explanation?: string;
 }
@@ -58,6 +63,8 @@ export const QuizViewer: React.FC<QuizViewerProps> = ({
   const [timeRemaining, setTimeRemaining] = useState<number>(0);
   const [hasTimeExpired, setHasTimeExpired] = useState(false);
   const [forceClosed, setForceClosed] = useState(false);
+  const [showUnansweredModal, setShowUnansweredModal] = useState(false);
+  const [unansweredQuestions, setUnansweredQuestions] = useState<number[]>([]);
 
   useEffect(() => {
     const loadQuizData = async () => {
@@ -83,20 +90,35 @@ export const QuizViewer: React.FC<QuizViewerProps> = ({
         if (questionsResponse.data) {
           const mappedQuestions: Question[] = questionsResponse.data.map(
             (q: any, idx: number) => {
-              const seen = new Set();
-              const uniqueOptions = (q.options || []).filter((opt: any) => {
-                if (seen.has(opt.text)) return false;
-                seen.add(opt.text);
+              // Deduplicate by option text but keep stable ids.
+              const seen = new Set<string>();
+              const rawOptions = q.options || [];
+
+              const uniqueOptions = rawOptions.filter((opt: any) => {
+                const text = String(opt.text ?? "");
+                if (seen.has(text)) return false;
+                seen.add(text);
                 return true;
               });
+
+              // Ensure every option has an id: prefer opt.id, then opt.value, then fallback to a generated id
+              const options: Option[] = uniqueOptions.map(
+                (opt: any, oidx: number) => {
+                  const rawId = opt.id ?? opt.value ?? opt._id ?? opt.key;
+                  const id =
+                    rawId !== undefined && rawId !== null
+                      ? String(rawId)
+                      : `${q.id ?? q._id ?? q.questionId ?? idx}_${oidx}`;
+                  const text = String(opt.text ?? String(opt.label ?? id));
+                  return { id, text };
+                }
+              );
+
               return {
                 id: q.id || q._id || q.questionId || idx.toString(),
                 text: q.text,
                 type: q.type,
-                options: uniqueOptions.map((opt: any, oidx: number) => ({
-                  id: opt.id || `${q.id || q._id || q.questionId || idx}_${oidx}`,
-                  text: opt.text,
-                })),
+                options,
                 correctAnswer: q.correctAnswer,
                 explanation: q.explanation,
               };
@@ -127,11 +149,105 @@ export const QuizViewer: React.FC<QuizViewerProps> = ({
     loadQuizData();
   }, [quizId]);
 
+  // Prepare answers BEFORE submitting:
+  // Converts any option-text answers into option.id by matching current questions/options.
+  const prepareAnswersForSubmit = (rawAnswers: Record<string, any>) => {
+    const prepared: Record<string, any> = {};
+
+    for (const q of questions) {
+      const raw = rawAnswers[q.id];
+
+      if (raw === undefined || raw === null) {
+        // keep as-is (undefined means unanswered)
+        continue;
+      }
+
+      // Helper to find option id by matching id first, then by text
+      const resolveToOptionId = (value: any): string | null => {
+        if (!q.options || q.options.length === 0) return null;
+        const asString = String(value);
+        // exact match by id
+        const byId = q.options.find((opt) => String(opt.id) === asString);
+        if (byId) return byId.id;
+        // match by text (case-sensitive first, then case-insensitive)
+        const byText = q.options.find((opt) => opt.text === asString);
+        if (byText) return byText.id;
+        const byTextLower = q.options.find(
+          (opt) => String(opt.text).toLowerCase() === asString.toLowerCase()
+        );
+        if (byTextLower) return byTextLower.id;
+        // nothing matched
+        return null;
+      };
+
+      if (q.type === "mcq") {
+        // Expect a single id; if value looks like text, convert
+        if (typeof raw === "string" || typeof raw === "number") {
+          const resolved = resolveToOptionId(raw);
+          prepared[q.id] = resolved ?? String(raw); // fallback to raw if cannot resolve
+        } else {
+          // anything else (boolean? object?) just stringify or pass through
+          prepared[q.id] = typeof raw === "boolean" ? raw : String(raw);
+        }
+      } else if (q.type === "multi") {
+        // Expect an array. Normalize:
+        let arrayVal: any[] = [];
+        if (Array.isArray(raw)) arrayVal = raw;
+        else if (typeof raw === "string") {
+          // maybe the FE accidentally sent a JSON string or comma separated values
+          try {
+            const parsed = JSON.parse(raw);
+            if (Array.isArray(parsed)) arrayVal = parsed;
+            else arrayVal = raw.split(",").map((s) => s.trim());
+          } catch {
+            arrayVal = raw.split(",").map((s) => s.trim());
+          }
+        } else {
+          // single value -> convert to array
+          arrayVal = [raw];
+        }
+
+        const resolvedIds: string[] = [];
+        for (const v of arrayVal) {
+          const resolved = resolveToOptionId(v);
+          if (resolved) resolvedIds.push(resolved);
+          else {
+            // if cannot resolve, still push string form (backend may decide)
+            resolvedIds.push(String(v));
+          }
+        }
+
+        prepared[q.id] = resolvedIds;
+      } else if (q.type === "true_false") {
+        // keep booleans as booleans
+        if (typeof raw === "boolean") prepared[q.id] = raw;
+        else if (typeof raw === "string") {
+          const low = raw.toLowerCase();
+          if (low === "true") prepared[q.id] = true;
+          else if (low === "false") prepared[q.id] = false;
+          else prepared[q.id] = Boolean(raw);
+        } else {
+          prepared[q.id] = Boolean(raw);
+        }
+      } else {
+        // fill_blank / short -> keep as string
+        if (typeof raw === "string") prepared[q.id] = raw;
+        else prepared[q.id] = String(raw);
+      }
+    }
+
+    return prepared;
+  };
+
   const handleSubmitQuiz = useCallback(
     async (answersToSubmit: Record<string, any>) => {
       setIsSubmitting(true);
       try {
-        const response = await quizService.submitQuiz(quizId, answersToSubmit);
+        const prepared = prepareAnswersForSubmit(answersToSubmit);
+        // Useful debug (you can remove later)
+        // console.log("[QuizViewer] prepared answers for submit:", prepared);
+
+        const response = await quizService.submitQuiz(quizId, prepared);
         if (response.data) setResult(response.data);
         const startTimeKey = `quiz_start_time_${quizId}`;
         localStorage.removeItem(startTimeKey);
@@ -141,7 +257,7 @@ export const QuizViewer: React.FC<QuizViewerProps> = ({
         setIsSubmitting(false);
       }
     },
-    [quizId]
+    [quizId, questions]
   );
 
   useEffect(() => {
@@ -163,7 +279,7 @@ export const QuizViewer: React.FC<QuizViewerProps> = ({
 
   const handleStartQuiz = useCallback(() => {
     if (quizDetails) {
-      setForceClosed(false); // Only reset here!
+      setForceClosed(false);
       const startTimeKey = `quiz_start_time_${quizId}`;
       const now = Date.now();
       localStorage.setItem(startTimeKey, now.toString());
@@ -179,7 +295,6 @@ export const QuizViewer: React.FC<QuizViewerProps> = ({
     setHasTimeExpired(false);
     setResult(null);
     setHasStarted(false);
-    // DON'T reset setForceClosed(false) here!
   }, [quizDetails]);
 
   useEffect(() => {
@@ -232,18 +347,20 @@ export const QuizViewer: React.FC<QuizViewerProps> = ({
   const handleAnswer = (value: any) => {
     const currentQ = questions[currentQuestionIndex];
     let answerValue = value;
-    if (currentQ.type === "true_false") {
+    if (currentQ?.type === "true_false") {
       if (value === "true") answerValue = true;
       else if (value === "false") answerValue = false;
     }
-    setAnswers({
-      ...answers,
+    setAnswers((prev) => ({
+      ...prev,
       [currentQ.id]: answerValue,
-    });
+    }));
   };
 
   const toggleMultiSelect = (optionId: string) => {
-    const prev = answers[questions[currentQuestionIndex].id] || [];
+    const q = questions[currentQuestionIndex];
+    const prev = (answers[q.id] as any[]) || [];
+    // Ensure we always keep IDs in local state (this uses option.id)
     if (prev.includes(optionId)) {
       handleAnswer(prev.filter((id: string) => id !== optionId));
     } else {
@@ -292,6 +409,23 @@ export const QuizViewer: React.FC<QuizViewerProps> = ({
   ]);
 
   const handleSubmit = async () => {
+    // Check for unanswered questions
+    const unanswered = questions
+      .map((q, idx) =>
+        !answers.hasOwnProperty(q.id) ||
+        answers[q.id] === "" ||
+        (q.type === "multi" &&
+          (!Array.isArray(answers[q.id]) || answers[q.id].length === 0))
+          ? idx
+          : -1
+      )
+      .filter((idx) => idx !== -1);
+
+    if (unanswered.length > 0) {
+      setUnansweredQuestions(unanswered);
+      setShowUnansweredModal(true);
+      return;
+    }
     await handleSubmitQuiz(answers);
   };
 
@@ -320,7 +454,6 @@ export const QuizViewer: React.FC<QuizViewerProps> = ({
   if (!hasStarted && quizDetails)
     return (
       <div className="bg-white rounded-2xl shadow-lg p-6 sm:p-8 max-w-md w-full mx-auto">
-        {/* RED NOTE AT THE TOP */}
         <p style={{ color: "red", fontWeight: "bold" }} className="mb-4">
           Note: The quiz will be automatically submitted if you reload, close
           the page, or when the time ends.
@@ -339,7 +472,7 @@ export const QuizViewer: React.FC<QuizViewerProps> = ({
         <p className="text-gray-600 text-sm mb-4">
           Get ready to test your knowledge
         </p>
-        {/* Quiz Summary */}
+
         <div className="mb-6 p-4 bg-gray-50 border border-gray-200 text-sm text-gray-700">
           <div className="flex justify-between mb-1">
             <span>Total Questions:</span>
@@ -427,237 +560,274 @@ export const QuizViewer: React.FC<QuizViewerProps> = ({
   const currentQuestion = questions[currentQuestionIndex];
   const progress = ((currentQuestionIndex + 1) / questions.length) * 100;
 
-  // ================= Quiz UI =================
   return (
-    <div
-      className={`${className} bg-white flex flex-col overflow-hidden max-w-full w-full rounded-2xl shadow-lg`}
-    >
-      {/* HEADER */}
-      <div className="bg-gradient-to-r from-purple-600 to-purple-700 px-4 py-3 sm:px-6 sm:py-4">
-        <div className="flex items-center justify-between">
-          <h3 className="text-lg sm:text-xl font-bold text-white break-words">
-            {quizTitle}
-          </h3>
-          <div className="flex items-center gap-4">
-            {hasStarted && !result && (
-              <div
-                className={`text-sm sm:text-base font-bold ${
-                  timeRemaining <= 60 ? "text-red-300" : "text-white"
-                }`}
-              >
-                {Math.floor(timeRemaining / 60)}:
-                {String(timeRemaining % 60).padStart(2, "0")}
-              </div>
-            )}
-            {onClose && (
+    <>
+      {/* Unanswered Modal */}
+      {showUnansweredModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-[rgba(0,0,0,0.15)]">
+          <div className="bg-white rounded-lg shadow-lg p-6 max-w-sm w-full">
+            <h2 className="text-lg font-bold mb-2 text-red-600">
+              Unanswered Questions
+            </h2>
+            <p className="mb-4 text-gray-700">
+              You have not answered all questions. Are you sure you want to
+              submit?
+            </p>
+            <div className="flex gap-3 justify-end">
               <button
-                onClick={onClose}
-                className="text-white hover:bg-purple-800 p-1 rounded transition-colors"
+                className="px-4 py-2 bg-white border border-gray-300 text-gray-700 rounded hover:bg-gray-100"
+                onClick={() => {
+                  setShowUnansweredModal(false);
+                  if (unansweredQuestions.length > 0) {
+                    setCurrentQuestionIndex(unansweredQuestions[0]);
+                  }
+                }}
               >
-                ×
+                Cancel
               </button>
-            )}
+              <button
+                className="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700"
+                onClick={async () => {
+                  setShowUnansweredModal(false);
+                  await handleSubmitQuiz(answers);
+                }}
+              >
+                OK
+              </button>
+            </div>
           </div>
         </div>
-        <div className="mt-3 sm:mt-4 bg-purple-500 h-2 rounded-full">
-          <div
-            className="h-full bg-white transition-all"
-            style={{ width: `${progress}%` }}
-          />
+      )}
+
+      {/* Main Quiz UI */}
+      <div
+        className={`${className} bg-white flex flex-col overflow-hidden max-w-full w-full rounded-2xl shadow-lg`}
+      >
+        <div className="bg-gradient-to-r from-purple-600 to-purple-700 px-4 py-3 sm:px-6 sm:py-4">
+          <div className="flex items-center justify-between">
+            <h3 className="text-lg sm:text-xl font-bold text-white break-words">
+              {quizTitle}
+            </h3>
+            <div className="flex items-center gap-4">
+              {hasStarted && !result && (
+                <div
+                  className={`text-sm sm:text-base font-bold ${
+                    timeRemaining <= 60 ? "text-red-300" : "text-white"
+                  }`}
+                >
+                  {Math.floor(timeRemaining / 60)}:
+                  {String(timeRemaining % 60).padStart(2, "0")}
+                </div>
+              )}
+              {onClose && (
+                <button
+                  onClick={onClose}
+                  className="text-white hover:bg-purple-800 p-1 rounded transition-colors"
+                >
+                  ×
+                </button>
+              )}
+            </div>
+          </div>
+          <div className="mt-3 sm:mt-4 bg-purple-500 h-2 rounded-full">
+            <div
+              className="h-full bg-white transition-all"
+              style={{ width: `${progress}%` }}
+            />
+          </div>
+          <p className="text-blue-100 text-xs sm:text-sm mt-2">
+            Question {currentQuestionIndex + 1} of {questions.length}
+          </p>
         </div>
-        <p className="text-blue-100 text-xs sm:text-sm mt-2">
-          Question {currentQuestionIndex + 1} of {questions.length}
-        </p>
-      </div>
 
-      {/* BODY */}
-      <div className="flex-1 overflow-y-auto p-3 sm:p-6">
-        <h4 className="text-base sm:text-xl font-semibold text-gray-900 mb-4 sm:mb-6 break-words">
-          {currentQuestion.text}
-        </h4>
+        <div className="flex-1 overflow-y-auto p-3 sm:p-6">
+          <h4 className="text-base sm:text-xl font-semibold text-gray-900 mb-4 sm:mb-6 break-words">
+            {currentQuestion.text}
+          </h4>
 
-        {/* MCQ */}
-        {currentQuestion.type === "mcq" &&
-          currentQuestion.options?.map((option) => (
-            <label
-              key={option.id}
-              className="flex items-center p-4 border-2 rounded-lg cursor-pointer mb-2"
-              style={{
-                borderColor:
-                  answers[currentQuestion.id] === option.id
-                    ? "#2563eb"
-                    : "#e5e7eb",
-                backgroundColor:
-                  answers[currentQuestion.id] === option.id
-                    ? "#eff6ff"
-                    : "transparent",
-              }}
-            >
-              <input
-                type="radio"
-                checked={answers[currentQuestion.id] === option.id}
-                onChange={() => handleAnswer(option.id)}
-                className="w-4 h-4 accent-purple-600"
-              />
-              <span
-                className={`ml-3 ${
-                  answers[currentQuestion.id] === option.id
-                    ? "text-purple-700 font-semibold"
-                    : "text-gray-800"
-                }`}
-              >
-                {option.text}
-              </span>
-            </label>
-          ))}
-
-        {/* MULTI */}
-        {currentQuestion.type === "multi" &&
-          currentQuestion.options?.map((option) => {
-            const selected = answers[currentQuestion.id] || [];
-            return (
+          {/* MCQ */}
+          {currentQuestion.type === "mcq" &&
+            currentQuestion.options?.map((option) => (
               <label
                 key={option.id}
                 className="flex items-center p-4 border-2 rounded-lg cursor-pointer mb-2"
                 style={{
-                  borderColor: selected.includes(option.id)
-                    ? "#2563eb"
-                    : "#e5e7eb",
-                  backgroundColor: selected.includes(option.id)
-                    ? "#eff6ff"
-                    : "transparent",
+                  borderColor:
+                    answers[currentQuestion.id] === option.id
+                      ? "#2563eb"
+                      : "#e5e7eb",
+                  backgroundColor:
+                    answers[currentQuestion.id] === option.id
+                      ? "#eff6ff"
+                      : "transparent",
                 }}
               >
                 <input
-                  type="checkbox"
-                  checked={selected.includes(option.id)}
-                  onChange={() => toggleMultiSelect(option.id)}
-                  className="w-4 h-4 accent-blue-600"
+                  type="radio"
+                  checked={answers[currentQuestion.id] === option.id}
+                  onChange={() => handleAnswer(option.id)}
+                  className="w-4 h-4 accent-purple-600"
                 />
                 <span
                   className={`ml-3 ${
-                    selected.includes(option.id)
-                      ? "text-blue-700 font-semibold"
+                    answers[currentQuestion.id] === option.id
+                      ? "text-purple-700 font-semibold"
                       : "text-gray-800"
                   }`}
                 >
                   {option.text}
                 </span>
               </label>
-            );
-          })}
+            ))}
 
-        {/* TRUE / FALSE */}
-        {currentQuestion.type === "true_false" &&
-          ["true", "false"].map((val) => (
-            <label
-              key={val}
-              className="flex items-center p-4 border-2 rounded-lg cursor-pointer mb-2"
-              style={{
-                borderColor:
-                  answers[currentQuestion.id] === (val === "true")
-                    ? "#2563eb"
-                    : "#e5e7eb",
-                backgroundColor:
-                  answers[currentQuestion.id] === (val === "true")
-                    ? "#eff6ff"
-                    : "transparent",
-              }}
-            >
-              <input
-                type="radio"
-                checked={answers[currentQuestion.id] === (val === "true")}
-                onChange={() => handleAnswer(val)}
-                className="w-4 h-4 accent-purple-600"
-              />
-              <span
-                className={`ml-3 ${
-                  answers[currentQuestion.id] === (val === "true")
-                    ? "text-purple-700 font-semibold"
-                    : "text-gray-800"
-                }`}
+          {/* MULTI */}
+          {currentQuestion.type === "multi" &&
+            currentQuestion.options?.map((option) => {
+              const selected = (answers[currentQuestion.id] as string[]) || [];
+              return (
+                <label
+                  key={option.id}
+                  className="flex items-center p-4 border-2 rounded-lg cursor-pointer mb-2"
+                  style={{
+                    borderColor: selected.includes(option.id)
+                      ? "#2563eb"
+                      : "#e5e7eb",
+                    backgroundColor: selected.includes(option.id)
+                      ? "#eff6ff"
+                      : "transparent",
+                  }}
+                >
+                  <input
+                    type="checkbox"
+                    checked={selected.includes(option.id)}
+                    onChange={() => toggleMultiSelect(option.id)}
+                    className="w-4 h-4 accent-blue-600"
+                  />
+                  <span
+                    className={`ml-3 ${
+                      selected.includes(option.id)
+                        ? "text-blue-700 font-semibold"
+                        : "text-gray-800"
+                    }`}
+                  >
+                    {option.text}
+                  </span>
+                </label>
+              );
+            })}
+
+          {/* TRUE / FALSE */}
+          {currentQuestion.type === "true_false" &&
+            ["true", "false"].map((val) => (
+              <label
+                key={val}
+                className="flex items-center p-4 border-2 rounded-lg cursor-pointer mb-2"
+                style={{
+                  borderColor:
+                    answers[currentQuestion.id] === (val === "true")
+                      ? "#2563eb"
+                      : "#e5e7eb",
+                  backgroundColor:
+                    answers[currentQuestion.id] === (val === "true")
+                      ? "#eff6ff"
+                      : "transparent",
+                }}
               >
-                {val.toUpperCase()}
-              </span>
-            </label>
-          ))}
+                <input
+                  type="radio"
+                  checked={answers[currentQuestion.id] === (val === "true")}
+                  onChange={() => handleAnswer(val)}
+                  className="w-4 h-4 accent-purple-600"
+                />
+                <span
+                  className={`ml-3 ${
+                    answers[currentQuestion.id] === (val === "true")
+                      ? "text-purple-700 font-semibold"
+                      : "text-gray-800"
+                  }`}
+                >
+                  {val.toUpperCase()}
+                </span>
+              </label>
+            ))}
 
-        {/* FILL BLANK */}
-        {currentQuestion.type === "fill_blank" && (
-          <input
-            type="text"
-            className="w-full px-4 py-2 border rounded-lg text-gray-800 placeholder-gray-400"
-            value={answers[currentQuestion.id] || ""}
-            onChange={(e) => handleAnswer(e.target.value)}
-            placeholder="Type your answer..."
-          />
-        )}
+          {/* FILL BLANK */}
+          {currentQuestion.type === "fill_blank" && (
+            <input
+              type="text"
+              className="w-full px-4 py-2 border rounded-lg text-gray-800 placeholder-gray-400"
+              value={answers[currentQuestion.id] || ""}
+              onChange={(e) => handleAnswer(e.target.value)}
+              placeholder="Type your answer..."
+            />
+          )}
 
-        {/* SHORT ANSWER */}
-        {currentQuestion.type === "short" && (
-          <textarea
-            className="w-full px-4 py-2 border rounded-lg text-gray-800 placeholder-gray-400"
-            value={answers[currentQuestion.id] || ""}
-            onChange={(e) => handleAnswer(e.target.value)}
-            rows={4}
-            placeholder="Write your answer..."
-          />
-        )}
-      </div>
-
-      {/* FOOTER */}
-      <div className="border-t p-3 sm:p-6 flex flex-col sm:flex-row justify-between items-stretch sm:items-center bg-gray-50 gap-3 sm:gap-0">
-        <button
-          onClick={handlePrevious}
-          disabled={currentQuestionIndex === 0}
-          className={`px-3 py-2 rounded-lg text-sm border ${
-            currentQuestionIndex === 0
-              ? "bg-gray-200 text-gray-400 border-gray-300 cursor-not-allowed"
-              : "bg-gray-200 text-gray-800 border-gray-300 hover:bg-gray-300"
-          }`}
-        >
-          Previous
-        </button>
-
-        <div className="flex gap-1 sm:gap-2 justify-center">
-          {questions.map((_, idx) => {
-            const isAnswered = answers[questions[idx].id];
-            return (
-              <button
-                key={idx}
-                onClick={() => setCurrentQuestionIndex(idx)}
-                className={`w-8 h-8 rounded-lg text-sm ${
-                  idx === currentQuestionIndex
-                    ? "bg-purple-600 text-white"
-                    : isAnswered
-                    ? "bg-green-500 text-white"
-                    : "bg-gray-300"
-                }`}
-              >
-                {idx + 1}
-              </button>
-            );
-          })}
+          {/* SHORT ANSWER */}
+          {currentQuestion.type === "short" && (
+            <textarea
+              className="w-full px-4 py-2 border rounded-lg text-gray-800 placeholder-gray-400"
+              value={answers[currentQuestion.id] || ""}
+              onChange={(e) => handleAnswer(e.target.value)}
+              rows={4}
+              placeholder="Write your answer..."
+            />
+          )}
         </div>
 
-        {currentQuestionIndex === questions.length - 1 ? (
+        <div className="border-t p-3 sm:p-6 flex flex-col sm:flex-row justify-between items-stretch sm:items-center bg-gray-50 gap-3 sm:gap-0">
           <button
-            onClick={handleSubmit}
-            disabled={isSubmitting}
-            className="px-3 py-2 bg-green-600 text-white rounded-lg text-sm"
+            onClick={handlePrevious}
+            disabled={currentQuestionIndex === 0}
+            className={`px-3 py-2 rounded-lg text-sm border ${
+              currentQuestionIndex === 0
+                ? "bg-gray-200 text-gray-400 border-gray-300 cursor-not-allowed"
+                : "bg-gray-200 text-gray-800 border-gray-300 hover:bg-gray-300"
+            }`}
           >
-            {isSubmitting ? "Submitting..." : "Submit Quiz"}
+            Previous
           </button>
-        ) : (
-          <button
-            onClick={handleNext}
-            className="px-3 py-2 bg-purple-600 text-white rounded-lg text-sm"
-          >
-            Next
-          </button>
-        )}
+
+          <div className="flex gap-1 sm:gap-2 justify-center">
+            {questions.map((_, idx) => {
+              // FIX: Use hasOwnProperty so that false is also considered answered
+              const isAnswered = answers.hasOwnProperty(questions[idx].id);
+              return (
+                <button
+                  key={idx}
+                  onClick={() => setCurrentQuestionIndex(idx)}
+                  className={`w-8 h-8 rounded-lg text-sm ${
+                    idx === currentQuestionIndex
+                      ? "bg-purple-600 text-white"
+                      : isAnswered
+                      ? "bg-green-500 text-white"
+                      : "bg-gray-300"
+                  }`}
+                >
+                  {idx + 1}
+                </button>
+              );
+            })}
+          </div>
+
+          {currentQuestionIndex === questions.length - 1 ? (
+            <button
+              onClick={handleSubmit}
+              disabled={isSubmitting}
+              className="px-3 py-2 bg-green-600 text-white rounded-lg text-sm"
+            >
+              {isSubmitting ? "Submitting..." : "Submit Quiz"}
+            </button>
+          ) : (
+            <button
+              onClick={handleNext}
+              className="px-3 py-2 bg-purple-600 text-white rounded-lg text-sm"
+            >
+              Next
+            </button>
+          )}
+        </div>
       </div>
-    </div>
+    </>
   );
 };
 
