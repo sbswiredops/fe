@@ -8,7 +8,6 @@ import { VideoPlayer } from "@/components/VideoPlayer";
 import { userService } from "@/services/userService";
 import { courseService } from "@/services/courseService";
 import { lessonService } from "@/services/lessonService";
-import { quizService } from "@/services/quizService";
 import { Lesson, Section, Course } from "@/types/api";
 import { useAuth } from "@/components/contexts/AuthContext";
 import QuizViewer from "@/components/ui/QuizViewer";
@@ -383,7 +382,6 @@ export default function LessonViewerPage() {
     }));
   };
 
-  // inside handleCompleteLesson
   const handleCompleteLesson = async (endedLessonId?: string) => {
     if (updatingRef.current) return;
     const targetLessonId = endedLessonId || lesson?.id;
@@ -391,7 +389,6 @@ export default function LessonViewerPage() {
 
     updatingRef.current = true;
     try {
-      // optimistic local update
       setProgressMap((prev) => ({
         ...prev,
         [targetLessonId]: {
@@ -400,12 +397,41 @@ export default function LessonViewerPage() {
         },
       }));
 
-      // call backend — use the API's expected payload shape (status)
-      await lessonService.updateProgress(targetLessonId, {
+      // --- Optimistically update totalCourseProgress here ---
+      if (course) {
+        let totalLessons = 0;
+        let completedLessons = 0;
+        (course.sections || []).forEach((sec) => {
+          (sec.lessons || []).forEach((l) => {
+            totalLessons++;
+            if (
+              (course && (l.id === targetLessonId)) ||
+              false
+            ) {
+              completedLessons++;
+            }
+          });
+        });
+        if (totalLessons > 0) {
+          const optimisticPercent = Math.round(
+            ((completedLessons + 1) / totalLessons) * 100
+          );
+          setTotalCourseProgress(optimisticPercent);
+        }
+      }
+      // ------------------------------------------------------
+
+      // call backend and capture lesson progress (which also updates enrollment progress)
+      const updateRes = await lessonService.updateProgress(targetLessonId, {
         isVideoWatched: true,
       });
 
-      // update section and course progress after backend returns
+      // Use backend value for enrollment progress if provided
+      if (updateRes?.data?.enrollmentProgress !== undefined) {
+        setTotalCourseProgress(updateRes.data.enrollmentProgress);
+      }
+
+      // refresh course & progress from server
       const courseResp = await courseService.getCourseById(courseId!);
 
       // Fetch progress for ALL sections in the course (not just current section)
@@ -434,19 +460,19 @@ export default function LessonViewerPage() {
       }
 
       // rebuild progress map with ALL sections data
-      const newMap: LessonProgressMap = {};
+      const refreshedMap: LessonProgressMap = {};
       (allProgressData || []).forEach((p) => {
         if (!p?.lessonId) return;
-        newMap[p.lessonId] = {
+        refreshedMap[p.lessonId] = {
           isVideoWatched: !!p.isVideoWatched,
           watchedAt: p.watchedAt || null,
         };
       });
-      setProgressMap(newMap);
+      setProgressMap(refreshedMap);
 
       // refresh course & recompute locks
       if (courseResp.data)
-        computeLocksAndPercents(courseResp.data as CourseDetail, newMap);
+        computeLocksAndPercents(courseResp.data as CourseDetail, refreshedMap);
     } catch (err) {
       console.error(err);
       alert("Failed to save progress. Please try again.");

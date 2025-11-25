@@ -202,6 +202,13 @@ export class LessonService {
   async deleteLesson(lessonId: string): Promise<ApiResponse<null>> {
     return this.client.delete(API_CONFIG.ENDPOINTS.LESSON_BY_ID(lessonId));
   }
+
+  // Add this method to update enrollment progress
+  async updateEnrollmentProgress(courseId: string): Promise<ApiResponse<any>> {
+    return this.client.post<any>(
+      API_CONFIG.ENDPOINTS.UPDATE_ENROLLMENT_PROGRESS(courseId)
+    );
+  }
 }
 
 export const lessonService = new LessonService();
