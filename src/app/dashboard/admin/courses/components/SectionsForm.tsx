@@ -86,7 +86,6 @@ export default function SectionsForm({ formData, onChange, courses }: Props) {
           label="Order"
           name="orderIndex"
           type="number"
-          // prefer orderIndex but fall back to order if present (compatibility)
           value={formData.orderIndex ?? formData.order ?? ""}
           onChange={onChange}
           placeholder="Section order"
@@ -107,6 +106,34 @@ export default function SectionsForm({ formData, onChange, courses }: Props) {
             <option value="inactive">Inactive</option>
           </select>
         </div>
+      </div>
+      <div className="flex items-center space-x-2">
+        <input
+          type="checkbox"
+          id="isFinalSection"
+          name="isFinalSection"
+          checked={!!formData.isFinalSection}
+          onChange={(e) =>
+            onChange(
+              // Create a synthetic event with the correct shape for checkboxes
+              {
+                ...e,
+                target: {
+                  ...e.target,
+                  name: "isFinalSection",
+                  value: e.target.checked ? "true" : "",
+                },
+              } as React.ChangeEvent<HTMLInputElement>
+            )
+          }
+          className="h-4 w-4 text-[#51356e] border-gray-300 rounded"
+        />
+        <label
+          htmlFor="isFinalSection"
+          className="text-sm font-medium text-gray-700"
+        >
+          Is Final Section
+        </label>
       </div>
     </>
   );

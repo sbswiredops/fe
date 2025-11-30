@@ -758,6 +758,27 @@ function QuizzesManagement() {
     setQuestionModalType(null);
   };
 
+  const [filteredSections, setFilteredSections] = React.useState<Section[]>([]);
+
+  React.useEffect(() => {
+    if (formData.courseId) {
+      setFilteredSections(
+        sections.filter((s) => s.courseId === formData.courseId)
+      );
+      // Reset sectionId if it doesn't belong to the selected course
+      if (
+        !sections.some(
+          (s) => s.id === formData.sectionId && s.courseId === formData.courseId
+        )
+      ) {
+        setFormData((prev: any) => ({ ...prev, sectionId: "" }));
+      }
+    } else {
+      setFilteredSections([]);
+      setFormData((prev: any) => ({ ...prev, sectionId: "" }));
+    }
+  }, [formData.courseId, sections]);
+
   return (
     <DashboardLayout>
       <div className="p-4 md:p-6 w-full max-w-full overflow-hidden">
@@ -865,7 +886,7 @@ function QuizzesManagement() {
               onChange={handleInputChange}
               setFormData={setFormData}
               courses={courses as any}
-              sections={sections as any}
+              sections={filteredSections as any} // <-- Pass filtered sections here
             />
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
@@ -882,7 +903,6 @@ function QuizzesManagement() {
                   <option value="true">Yes</option>
                 </select>
               </div>
-              {/* You can add totalQuestions and totalMarks as read-only or editable if needed */}
             </div>
             <div className="flex justify-end space-x-3 pt-4">
               <Button
@@ -1556,6 +1576,10 @@ function QuizzesManagement() {
                                   variant="ghost"
                                   size="sm"
                                   onClick={() => {
+                                    const newOptions =
+                                      questionForm.options.filter(
+                                        (_: any, i: number) => i !== optionIndex
+                                      );
                                     setQuestionForms((prev) => {
                                       const next = [...prev];
                                       const q = next[questionIndex];
@@ -1899,6 +1923,11 @@ function QuizzesManagement() {
                                         variant="ghost"
                                         size="sm"
                                         onClick={() => {
+                                          const newOptions =
+                                            questionForm.options.filter(
+                                              (_: any, i: number) =>
+                                                i !== optionIndex
+                                            );
                                           setQuestionForms((prev) => {
                                             const next = [...prev];
                                             const q = next[questionIndex];

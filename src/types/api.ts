@@ -226,7 +226,7 @@ export interface CourseFilters extends PaginationQuery {
 }
 
 // Section Types
-export interface Section {
+export type Section = {
   id: string;
   courseId: string;
   title: string;
@@ -238,6 +238,7 @@ export interface Section {
   createdAt: string;
   updatedAt: string;
   orderIndex?: number;
+  isFinalSection?: boolean;
   isQuizLocked?: boolean; // <-- Add this line
 }
 

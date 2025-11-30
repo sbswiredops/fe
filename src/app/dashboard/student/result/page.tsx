@@ -47,110 +47,131 @@ function QuestionReview({
   answer,
 }: {
   question: QuizQuestion;
-  answer: QuizAnswer;
+  answer?: QuizAnswer;
 }): JSX.Element {
-  const getUserAnswerText = () => {
-    if (answer.userAnswer === undefined || answer.userAnswer === null)
-      return "Not answered";
-
-    if (question.type === "true_false") {
-      return answer.userAnswer === "true" || answer.userAnswer === true
-        ? "True"
-        : "False";
+  // Parse correct answer for multi if it's a JSON string of texts
+  let correctTexts: string[] = [];
+  if (question.type === "multi" && typeof question.correctAnswer === "string") {
+    try {
+      correctTexts = JSON.parse(question.correctAnswer);
+    } catch {
+      correctTexts = [];
     }
+  } else if (Array.isArray(question.correctAnswer)) {
+    correctTexts = question.correctAnswer;
+  } else if (typeof question.correctAnswer === "string") {
+    correctTexts = [question.correctAnswer];
+  }
 
-    if (question.type === "mcq" || question.type === "multi") {
-      const selectedIds = Array.isArray(answer.userAnswer)
-        ? answer.userAnswer
-        : [answer.userAnswer];
-      return (
-        question.options
-          ?.filter((opt) => selectedIds.includes(opt.id))
-          .map((opt) => opt.text)
-          .join(", ") || "Not answered"
-      );
-    }
-
-    return String(answer.userAnswer);
-  };
-
-  const getCorrectAnswerText = () => {
-    if (question.correctAnswer === undefined || question.correctAnswer === null)
-      return "Not available";
-
-    if (question.type === "true_false") {
-      return String(question.correctAnswer) === "true" ? "True" : "False";
-    }
-
-    if (question.type === "mcq" || question.type === "multi") {
-      const correctIds = Array.isArray(question.correctAnswer)
-        ? question.correctAnswer
-        : [question.correctAnswer];
-      return (
-        question.options
-          ?.filter((opt) => correctIds.includes(opt.id))
-          .map((opt) => opt.text)
-          .join(", ") || "Not available"
-      );
-    }
-
-    return String(question.correctAnswer);
-  };
-
-  const userAnswerText = getUserAnswerText();
-  const correctAnswerText = getCorrectAnswerText();
+  // User selected ids
+  const selectedIds = answer
+    ? Array.isArray(answer.userAnswer)
+      ? answer.userAnswer
+      : answer.userAnswer
+      ? [answer.userAnswer]
+      : []
+    : [];
 
   return (
     <div className="bg-white rounded-lg border border-gray-200 p-6 mb-4">
-      {/* Question Header */}
-      <div className="flex items-start justify-between mb-4">
-        <div className="flex-1">
-          <h4 className="font-semibold text-gray-900 text-sm mb-1">
-            {String(question.text)}
-          </h4>
-        </div>
-        <div
-          className={`flex-shrink-0 ml-4 w-8 h-8 rounded-full flex items-center justify-center font-bold text-white text-sm ${
-            answer.isCorrect ? "bg-green-500" : "bg-red-500"
-          }`}
-        >
-          {answer.isCorrect ? "✓" : "✗"}
-        </div>
-      </div>
+      {/* Question Text */}
+      <h4 className="font-semibold text-gray-900 text-base mb-2">
+        {question.text}
+      </h4>
 
-      {/* Score */}
-      <div className="mb-4 p-3 bg-gray-50 rounded-lg border border-gray-200">
-        <p className="text-xs text-gray-600 font-medium">
-          Points:{" "}
-          <span className="text-gray-900 font-bold">
-            {answer.points}/{answer.maxPoints}
-          </span>
-        </p>
-      </div>
+      {/* Options List */}
+      {question.options && question.options.length > 0 && (
+        <ul className="mb-4 space-y-2">
+          {
+            [
+              ...new Map(
+                question.options.map((opt) => [opt.text, opt])
+              ).values(),
+            ].map((opt) => {
+              // Always match correct by text for mcq, multi, true_false
+              const isCorrect = correctTexts.includes(opt.text);
+              const isSelected = selectedIds.includes(opt.id);
+              return (
+                <li
+                  key={opt.text}
+                  className={`px-3 py-2 rounded border flex items-center gap-2
+                    ${
+                      isCorrect
+                        ? "border-green-500 bg-green-50 font-semibold text-green-700"
+                        : "border-gray-300"
+                    }
+                    ${
+                      isSelected && !isCorrect
+                        ? "bg-purple-50 border-purple-400"
+                        : ""
+                    }
+                  `}
+                >
+                  {isCorrect && (
+                    <span className="inline-block w-5 h-5 rounded-full bg-green-500 text-white  items-center justify-center text-xs mr-1">
+                      ✓
+                    </span>
+                  )}
+                  {isSelected && !isCorrect && (
+                    <span className="inline-block w-5 h-5 rounded-full bg-purple-500 text-white  items-center justify-center text-xs mr-1">
+                      •
+                    </span>
+                  )}
+                  <span className="text-base">{opt.text}</span>
+                </li>
+              );
+            })
+          }
+        </ul>
+      )}
 
       {/* User's Answer */}
       <div className="mb-4">
         <p className="text-xs text-gray-600 font-medium mb-2">Your Answer:</p>
         <div
           className={`p-3 rounded-lg border-l-4 ${
-            answer.isCorrect
+            answer?.isCorrect
               ? "bg-green-50 border-l-green-500 text-green-800"
               : "bg-red-50 border-l-red-500 text-red-800"
           }`}
         >
-          <p className="text-sm font-medium">{userAnswerText}</p>
+          <p className="text-sm font-medium">
+            {!answer
+              ? "Not answered"
+              : answer.userAnswer === undefined || answer.userAnswer === null
+              ? "Not answered"
+              : question.type === "true_false"
+              ? answer.userAnswer === "true" || answer.userAnswer === true
+                ? "True"
+                : "False"
+              : question.options
+              ? question.options
+                  .filter((opt) => selectedIds.includes(opt.id))
+                  .map((opt) => opt.text)
+                  .join(", ") || "Not answered"
+              : String(answer.userAnswer)}
+          </p>
         </div>
       </div>
 
       {/* Correct Answer if wrong */}
-      {!answer.isCorrect && (
+      {answer && !answer.isCorrect && (
         <div className="mb-4">
           <p className="text-xs text-gray-600 font-medium mb-2">
             Correct Answer:
           </p>
           <div className="p-3 rounded-lg border-l-4 border-l-green-500 bg-green-50">
             <p className="text-sm font-medium text-green-800">
-              {correctAnswerText}
+              {question.options
+                ? question.options
+                    .filter((opt) =>
+                      question.type === "multi"
+                        ? correctTexts.includes(opt.text)
+                        : correctTexts.includes(opt.id)
+                    )
+                    .map((opt) => opt.text)
+                    .join(", ") || "Not available"
+                : String(question.correctAnswer)}
             </p>
           </div>
         </div>
@@ -173,6 +194,13 @@ function QuestionReview({
 function ResultCard({ result }: { result: QuizResultData }): JSX.Element {
   if (!result) return <div>Result data unavailable</div>;
 
+  // Normalize answers to always be an array
+  const answers: QuizAnswer[] = Array.isArray(result.answers)
+    ? result.answers
+    : result.answers && typeof result.answers === "object"
+    ? Object.values(result.answers)
+    : [];
+
   const scorePercentage = result.maxScore
     ? (result.totalScore / result.maxScore) * 100
     : 0;
@@ -185,7 +213,7 @@ function ResultCard({ result }: { result: QuizResultData }): JSX.Element {
     minute: "2-digit",
   });
 
-  const correctCount = result.answers?.filter((a) => a.isCorrect).length || 0;
+  const correctCount = answers.filter((a) => a.isCorrect).length;
 
   return (
     <div className="bg-white rounded-lg border border-gray-200 overflow-hidden shadow-sm mb-6">
@@ -252,17 +280,14 @@ function ResultCard({ result }: { result: QuizResultData }): JSX.Element {
         </h4>
         {result.questions?.length ? (
           result.questions.map((q, idx) => {
-            const answer = result.answers?.find((a) => a.questionId === q.id);
+            const answer = answers.find((a) => a.questionId === q.id);
+            // Always show question and options, even if no answer
             return (
               <div key={q.id} className="mb-4">
                 <p className="text-xs text-gray-500 font-semibold mb-2">
                   Question {idx + 1}
                 </p>
-                {answer ? (
-                  <QuestionReview question={q} answer={answer} />
-                ) : (
-                  <p className="text-gray-600 text-sm">No answer submitted</p>
-                )}
+                <QuestionReview question={q} answer={answer} />
               </div>
             );
           })

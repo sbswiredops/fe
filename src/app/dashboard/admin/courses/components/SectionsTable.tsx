@@ -102,6 +102,15 @@ export default function SectionsTable({
           ),
         },
         {
+          key: "isFinalSection",
+          header: "Final Section",
+          render: (s: any) => (
+            <span className="text-sm text-gray-900">
+              {s.isFinalSection ? "Yes" : "No"}
+            </span>
+          ),
+        },
+        {
           key: "actions",
           header: "Actions",
           render: (s: any) => (

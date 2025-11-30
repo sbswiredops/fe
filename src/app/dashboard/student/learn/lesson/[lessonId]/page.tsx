@@ -243,7 +243,6 @@ export default function LessonViewerPage() {
     const sectionLock: Record<string, boolean> = {};
     const sectionPercent: Record<string, number> = {};
 
-    // কোন সেকশন ১০০% হয়েছে কিনা চেক করুন
     let anySectionCompleted = false;
     (courseData.sections || []).forEach((sec) => {
       const lessons = (sec.lessons || []).sort(
@@ -252,7 +251,9 @@ export default function LessonViewerPage() {
       let completed = 0;
 
       lessons.forEach((l) => {
-        if (pMap[l.id]?.isVideoWatched) completed++;
+        // If lesson has no video, treat as completed
+        const isCompleted = l.video ? !!pMap[l.id]?.isVideoWatched : true;
+        if (isCompleted) completed++;
       });
 
       const total = lessons.length;
@@ -264,7 +265,6 @@ export default function LessonViewerPage() {
       }
     });
 
-    // এখন লক সেট করুন
     (courseData.sections || []).forEach((sec, secIdx) => {
       const lessons = (sec.lessons || []).sort(
         (a, b) => (a.orderIndex || 0) - (b.orderIndex || 0)
@@ -273,15 +273,23 @@ export default function LessonViewerPage() {
 
       lessons.forEach((l, i) => {
         const prevCompleted =
-          i === 0 ? true : !!pMap[lessons[i - 1].id]?.isVideoWatched;
+          i === 0
+            ? true
+            : lessons[i - 1].video
+            ? !!pMap[lessons[i - 1].id]?.isVideoWatched
+            : true; // If previous lesson has no video, treat as completed
 
-        // যদি কোনো সেকশন ১০০% না হয়, তাহলে শুধু প্রথম সেকশন ছাড়া বাকি সব লক
+        // If lesson has no video, treat as completed (not locked)
         if (!anySectionCompleted && secIdx !== 0) {
           lessonLock[l.id] = true;
         } else {
-          lessonLock[l.id] = !!(l as any).isLocked || !prevCompleted;
+          lessonLock[l.id] = l.video
+            ? !!(l as any).isLocked || !prevCompleted
+            : false;
         }
-        if (pMap[l.id]?.isVideoWatched) completed++;
+        // Count as completed if no video or watched
+        const isCompleted = l.video ? !!pMap[l.id]?.isVideoWatched : true;
+        if (isCompleted) completed++;
       });
 
       const total = lessons.length;
@@ -299,7 +307,9 @@ export default function LessonViewerPage() {
       );
       lessons.forEach((l) => {
         totalLessonsInCourse++;
-        if (pMap[l.id]?.isVideoWatched) {
+        // If lesson has no video, treat as completed
+        const isCompleted = l.video ? !!pMap[l.id]?.isVideoWatched : true;
+        if (isCompleted) {
           totalLessonsCompleted++;
         }
       });
@@ -626,9 +636,7 @@ export default function LessonViewerPage() {
                     {lesson.video && (
                       <ContentToggleButton
                         label="Video"
-                        icon={
-                          <PlayCircle className="w-5 h-5" /> 
-                        }
+                        icon={<PlayCircle className="w-5 h-5" />}
                         active={viewMode === "video"}
                         onClick={() => setViewMode("video")}
                       />
@@ -636,9 +644,7 @@ export default function LessonViewerPage() {
                     {lesson.resource && (
                       <ContentToggleButton
                         label="Resource"
-                        icon={
-                          <FileText className="w-5 h-5" /> 
-                        }
+                        icon={<FileText className="w-5 h-5" />}
                         active={viewMode === "pdf"}
                         onClick={loadPdf}
                         loading={isPdfLoading}
@@ -646,20 +652,24 @@ export default function LessonViewerPage() {
                     )}
                     {(section?.quizzes?.length ?? 0) > 0 &&
                       (section.quizzes || []).map((quiz) => {
-                        const buttonDisabled = section.isQuizLocked;
+                        // ⭐ FINAL SECTION: unlock quiz if course progress is 100%
+                        const isFinalSection = section.isFinalSection;
+                        const quizLocked =
+                          isFinalSection && totalCourseProgress === 100
+                            ? false
+                            : section.isQuizLocked;
+
                         return (
                           <ContentToggleButton
                             key={quiz.id}
                             label="Quiz"
-                            icon={
-                              <FileQuestion className="w-5 h-5" /> 
-                            }
+                            icon={<FileQuestion className="w-5 h-5" />}
                             active={
                               viewMode === "quiz" &&
                               selectedQuiz?.id === quiz.id
                             }
                             onClick={() => {
-                              if (buttonDisabled) {
+                              if (quizLocked) {
                                 t.showToast(
                                   "Quiz locked. Complete all lessons in this section to unlock.",
                                   "error"
@@ -865,7 +875,14 @@ export default function LessonViewerPage() {
 
                                 {(sec?.quizzes?.length ?? 0) > 0 &&
                                   (sec.quizzes || []).map((q) => {
-                                    const qDisabled = sec.isQuizLocked; // <-- এখানে
+                                    // ⭐ FINAL SECTION: unlock quiz if course progress is 100%
+                                    const isFinalSection = sec.isFinalSection;
+                                    const qDisabled =
+                                      isFinalSection &&
+                                      totalCourseProgress === 100
+                                        ? false
+                                        : sec.isQuizLocked;
+
                                     return (
                                       <button
                                         key={q.id}

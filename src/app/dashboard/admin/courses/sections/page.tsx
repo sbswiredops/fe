@@ -160,7 +160,6 @@ function SectionsManagement() {
   };
   const openEditModal = (item: any) => {
     setSelectedItem(item);
-    // populate editable fields including orderIndex so user can change it
     setFormData({
       title: item.title ?? "",
       description: item.description ?? "",
@@ -172,6 +171,7 @@ function SectionsManagement() {
           : item.order !== undefined
           ? String(item.order)
           : "",
+      isFinalSection: !!item.isFinalSection, // <-- add this line
     });
     setIsEditModalOpen(true);
   };
@@ -185,12 +185,12 @@ function SectionsManagement() {
       const payload = {
         title: formData.title,
         description: formData.description,
-        // include orderIndex when provided (convert to number)
         ...(formData.orderIndex !== undefined &&
         formData.orderIndex !== "" &&
         formData.orderIndex !== null
           ? { orderIndex: Number(formData.orderIndex) }
           : {}),
+        isFinalSection: !!formData.isFinalSection, // <-- add this line
       } as any;
       const res = await sectionService.createSection(
         formData.courseId,
@@ -212,6 +212,7 @@ function SectionsManagement() {
           createdAt: srvData.createdAt || new Date().toISOString(),
           courseId: formData.courseId,
           courseName: course?.title || "",
+          isFinalSection: srvData.isFinalSection ?? !!formData.isFinalSection, // <-- add this line
         };
         setSections((p) => [newItem, ...p]);
         setRefreshTick((x) => x + 1);
@@ -228,10 +229,10 @@ function SectionsManagement() {
   const handleEdit = async () => {
     if (!selectedItem) return;
     try {
-      // build payload and include orderIndex when user provided it
       const payload: any = {
         title: formData.title,
         description: formData.description,
+        isFinalSection: !!formData.isFinalSection, // <-- add this line
       };
       if (
         formData.orderIndex !== undefined &&
@@ -469,7 +470,11 @@ function SectionsManagement() {
                       {key.replace(/([A-Z])/g, " $1").trim()}
                     </label>
                     <p className="text-sm text-gray-900">
-                      {typeof value === "string" || typeof value === "number"
+                      {key === "isFinalSection"
+                        ? value
+                          ? "Yes"
+                          : "No"
+                        : typeof value === "string" || typeof value === "number"
                         ? value.toString()
                         : "N/A"}
                     </p>
