@@ -28,6 +28,8 @@ interface QuizDetails {
   hasNegativeMark: boolean;
   negativeMarkPercentage?: number;
   totalMarks?: number;
+  isFinalQuiz?: boolean; // <-- added
+  hasAttemptedFinalQuiz?: boolean; // <-- added
 }
 
 interface QuizResultResponse {
@@ -65,6 +67,9 @@ export const QuizViewer: React.FC<QuizViewerProps> = ({
   const [forceClosed, setForceClosed] = useState(false);
   const [showUnansweredModal, setShowUnansweredModal] = useState(false);
   const [unansweredQuestions, setUnansweredQuestions] = useState<number[]>([]);
+  const [quizStartTimestamp, setQuizStartTimestamp] = useState<number | null>(
+    null
+  );
 
   useEffect(() => {
     const loadQuizData = async () => {
@@ -83,6 +88,8 @@ export const QuizViewer: React.FC<QuizViewerProps> = ({
             hasNegativeMark: quiz.hasNegativeMark ?? false,
             negativeMarkPercentage: quiz.negativeMarkPercentage ?? 0,
             totalMarks: quiz.totalMarks ?? 0,
+            isFinalQuiz: quiz.isFinalQuiz ?? false, // <-- added
+            hasAttemptedFinalQuiz: quiz.hasAttemptedFinalQuiz ?? false, // <-- added
           });
         }
 
@@ -244,10 +251,19 @@ export const QuizViewer: React.FC<QuizViewerProps> = ({
       setIsSubmitting(true);
       try {
         const prepared = prepareAnswersForSubmit(answersToSubmit);
-        // Useful debug (you can remove later)
-        // console.log("[QuizViewer] prepared answers for submit:", prepared);
 
-        const response = await quizService.submitQuiz(quizId, prepared);
+        // Calculate timeSpent in seconds
+        let timeSpent = undefined;
+        if (quizStartTimestamp) {
+          timeSpent = Math.floor((Date.now() - quizStartTimestamp) / 1000);
+        }
+
+        // Pass timeSpent to backend
+        const response = await quizService.submitQuiz(
+          quizId,
+          prepared,
+          timeSpent
+        );
         if (response.data) setResult(response.data);
         const startTimeKey = `quiz_start_time_${quizId}`;
         localStorage.removeItem(startTimeKey);
@@ -257,7 +273,7 @@ export const QuizViewer: React.FC<QuizViewerProps> = ({
         setIsSubmitting(false);
       }
     },
-    [quizId, questions]
+    [quizId, questions, quizStartTimestamp]
   );
 
   useEffect(() => {
@@ -278,15 +294,30 @@ export const QuizViewer: React.FC<QuizViewerProps> = ({
   }, [hasStarted, hasTimeExpired, result]);
 
   const handleStartQuiz = useCallback(() => {
-    if (quizDetails) {
-      setForceClosed(false);
-      const startTimeKey = `quiz_start_time_${quizId}`;
-      const now = Date.now();
-      localStorage.setItem(startTimeKey, now.toString());
-      setHasStarted(true);
-      setTimeRemaining(quizDetails.totalTime * 60);
+    if (
+      quizDetails &&
+      quizDetails.isFinalQuiz &&
+      quizDetails.hasAttemptedFinalQuiz
+    ) {
+      return; // Prevent starting if already attempted
     }
+    setForceClosed(false);
+    const startTimeKey = `quiz_start_time_${quizId}`;
+    const now = Date.now();
+    localStorage.setItem(startTimeKey, now.toString());
+    setQuizStartTimestamp(now); // <-- Track start time
+    setHasStarted(true);
+    setTimeRemaining(quizDetails?.totalTime ? quizDetails.totalTime * 60 : 0);
   }, [quizDetails, quizId]);
+
+  useEffect(() => {
+    // Restore quizStartTimestamp if quiz was started before
+    const startTimeKey = `quiz_start_time_${quizId}`;
+    const savedStartTime = localStorage.getItem(startTimeKey);
+    if (savedStartTime) {
+      setQuizStartTimestamp(parseInt(savedStartTime));
+    }
+  }, [quizId]);
 
   const resetAndRestartQuiz = useCallback(() => {
     setCurrentQuestionIndex(0);
@@ -468,6 +499,13 @@ export const QuizViewer: React.FC<QuizViewerProps> = ({
             Quiz closed due to tab change. Please start again.
           </div>
         )}
+        {/* Final quiz attempt message */}
+        {quizDetails.isFinalQuiz && quizDetails.hasAttemptedFinalQuiz && (
+          <div className="mb-3 text-center text-red-600 font-semibold">
+            You have already attempted the final quiz. You cannot attempt it
+            again.
+          </div>
+        )}
         <h2 className="text-2xl font-bold text-gray-900 mb-2">{quizTitle}</h2>
         <p className="text-gray-600 text-sm mb-4">
           Get ready to test your knowledge
@@ -504,6 +542,9 @@ export const QuizViewer: React.FC<QuizViewerProps> = ({
         <button
           onClick={handleStartQuiz}
           className="mt-2 w-full bg-green-500 hover:bg-green-600 text-white font-bold py-3 px-4 rounded-lg"
+          disabled={
+            quizDetails.isFinalQuiz && quizDetails.hasAttemptedFinalQuiz
+          }
         >
           Start Quiz
         </button>

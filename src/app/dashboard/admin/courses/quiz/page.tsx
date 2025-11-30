@@ -219,6 +219,7 @@ function QuizzesManagement() {
           formData.hasNegativeMark && formData.negativeMarkPercentage !== ""
             ? parseFloat(formData.negativeMarkPercentage as any)
             : undefined,
+        isFinalQuiz: formData.isFinalQuiz === "true",
       };
 
       const res = await quizService.create(payload);
@@ -268,6 +269,11 @@ function QuizzesManagement() {
           formData.hasNegativeMark && formData.negativeMarkPercentage !== ""
             ? parseFloat(formData.negativeMarkPercentage as any)
             : undefined,
+        isFinalQuiz:
+          formData.isFinalQuiz === "true" || formData.isFinalQuiz === true, // <-- Add this line
+        // Optionally allow editing totalQuestions/totalMarks if you want
+        // totalQuestions: Number(formData.totalQuestions) || undefined,
+        // totalMarks: Number(formData.totalMarks) || undefined,
       };
 
       const res = await quizService.update(selectedItem.id, payload);
@@ -861,6 +867,23 @@ function QuizzesManagement() {
               courses={courses as any}
               sections={sections as any}
             />
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700">
+                  Is Final Quiz
+                </label>
+                <select
+                  name="isFinalQuiz"
+                  value={formData.isFinalQuiz ? "true" : "false"}
+                  onChange={handleInputChange}
+                  className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm text-gray-900" // <-- add text-gray-900
+                >
+                  <option value="false">No</option>
+                  <option value="true">Yes</option>
+                </select>
+              </div>
+              {/* You can add totalQuestions and totalMarks as read-only or editable if needed */}
+            </div>
             <div className="flex justify-end space-x-3 pt-4">
               <Button
                 variant="danger"
@@ -1507,11 +1530,20 @@ function QuizzesManagement() {
                                         (o: any, i: number) =>
                                           q.type === "multi"
                                             ? i === optionIndex
-                                              ? { ...o, isCorrect: !o.isCorrect }
+                                              ? {
+                                                  ...o,
+                                                  isCorrect: !o.isCorrect,
+                                                }
                                               : o
-                                            : { ...o, isCorrect: i === optionIndex }
+                                            : {
+                                                ...o,
+                                                isCorrect: i === optionIndex,
+                                              }
                                       );
-                                      next[questionIndex] = { ...q, options: newOptions };
+                                      next[questionIndex] = {
+                                        ...q,
+                                        options: newOptions,
+                                      };
                                       return next;
                                     });
                                   }}
@@ -1528,8 +1560,13 @@ function QuizzesManagement() {
                                       const next = [...prev];
                                       const q = next[questionIndex];
                                       if (!q) return prev;
-                                      const newOptions = q.options.filter((_, i: number) => i !== optionIndex);
-                                      next[questionIndex] = { ...q, options: newOptions };
+                                      const newOptions = q.options.filter(
+                                        (_: any, i: number) => i !== optionIndex
+                                      );
+                                      next[questionIndex] = {
+                                        ...q,
+                                        options: newOptions,
+                                      };
                                       return next;
                                     });
                                   }}
@@ -1835,11 +1872,21 @@ function QuizzesManagement() {
                                               (o: any, i: number) =>
                                                 q.type === "multi"
                                                   ? i === optionIndex
-                                                    ? { ...o, isCorrect: !o.isCorrect }
+                                                    ? {
+                                                        ...o,
+                                                        isCorrect: !o.isCorrect,
+                                                      }
                                                     : o
-                                                  : { ...o, isCorrect: i === optionIndex }
+                                                  : {
+                                                      ...o,
+                                                      isCorrect:
+                                                        i === optionIndex,
+                                                    }
                                             );
-                                            next[questionIndex] = { ...q, options: newOptions };
+                                            next[questionIndex] = {
+                                              ...q,
+                                              options: newOptions,
+                                            };
                                             return next;
                                           });
                                         }}
@@ -1856,8 +1903,14 @@ function QuizzesManagement() {
                                             const next = [...prev];
                                             const q = next[questionIndex];
                                             if (!q) return prev;
-                                            const newOptions = q.options.filter((_, i: number) => i !== optionIndex);
-                                            next[questionIndex] = { ...q, options: newOptions };
+                                            const newOptions = q.options.filter(
+                                              (_: any, i: number) =>
+                                                i !== optionIndex
+                                            );
+                                            next[questionIndex] = {
+                                              ...q,
+                                              options: newOptions,
+                                            };
                                             return next;
                                           });
                                         }}

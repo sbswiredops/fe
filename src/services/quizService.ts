@@ -22,9 +22,9 @@ export interface QuizQuestionPayload {
   }[];
 }
 
-export interface QuizSubmitPayload {
-  [questionId: string]: string | string[] | boolean;
-}
+export type QuizSubmitPayload = Record<string, string | string[] | boolean> & {
+  timeSpent?: number;
+};
 
 export interface QuizResultResponse {
   initialScore: number;
@@ -144,11 +144,14 @@ export class QuizService {
 
   async submitQuiz(
     quizId: string,
-    answers: QuizSubmitPayload
+    answers: QuizSubmitPayload,
+    timeSpent?: number // <-- add this parameter
   ): Promise<ApiResponse<QuizResultResponse>> {
+    // Merge timeSpent into answers payload if provided
+    const payload = timeSpent !== undefined ? { ...answers, timeSpent } : answers;
     return this.client.post<QuizResultResponse>(
       API_CONFIG.ENDPOINTS.QUIZ_SUBMIT(quizId),
-      answers
+      payload
     );
   }
 

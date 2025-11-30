@@ -38,6 +38,7 @@ interface QuizResultData {
   questions: QuizQuestion[];
   answers: QuizAnswer[];
   timeSpent?: number;
+  isFinalQuiz?: boolean;
 }
 
 // ---------------- Question Review ----------------
@@ -278,120 +279,74 @@ function ResultCard({ result }: { result: QuizResultData }): JSX.Element {
 // ---------------- Results Page ----------------
 export default function ResultsPage(): JSX.Element {
   const router = useRouter();
-
-  // Add local state for query params
-  const [quizId, setQuizId] = useState<string | null>(null);
-  const [resultId, setResultId] = useState<string | null>(null);
-
-  useEffect(() => {
-    if (typeof window !== "undefined") {
-      const params = new URLSearchParams(window.location.search);
-      setQuizId(params.get("quizId"));
-      setResultId(params.get("resultId"));
-    }
-  }, []);
-
   const { user, isLoading: authLoading } = useAuth();
   const userId = user?.id;
 
-  const [results, setResults] = useState<QuizResultData[]>([]);
-  const [filteredResults, setFilteredResults] = useState<QuizResultData[]>([]);
+  const [finalResult, setFinalResult] = useState<QuizResultData | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [filterBy, setFilterBy] = useState<"all" | "passed" | "failed">("all");
-  const [searchTerm, setSearchTerm] = useState("");
 
-  // ---------------- Fetch Results ----------------
+  // Fetch only the final quiz result for this user
   useEffect(() => {
     if (authLoading || !userId) return;
 
     let isMounted = true;
 
-    const fetchResults = async () => {
+    const fetchFinalQuizResult = async () => {
       setLoading(true);
       setError(null);
 
       try {
-        const endpoint = resultId
-          ? `${API_CONFIG.ENDPOINTS.QUIZZES}/${resultId}`
-          : `${API_CONFIG.ENDPOINTS.QUIZZES}`;
-
-        const response = await apiClient.get<any>(endpoint, {
-          userId,
-          ...(quizId && { quizId }),
-        });
+        const response = await apiClient.get<any>(
+          `${API_CONFIG.ENDPOINTS.QUIZZES}/my-final-result`
+        );
 
         if (!isMounted) return;
 
-        const resultsList = Array.isArray(response?.data)
-          ? response.data
-          : response?.data?.results || [];
+        // Check for backend "no result" message
+        if (
+          response?.data &&
+          typeof response.data === "object" &&
+          response.data.message === "No final quiz result yet."
+        ) {
+          setFinalResult(null);
+          setError(null);
+          return;
+        }
 
-        setResults(resultsList);
+        setFinalResult(response?.data || null);
       } catch (err: any) {
+        console.error("Failed to fetch final quiz result:", err);
         if (!isMounted) return;
-        console.error("Error fetching quiz results:", err);
-        setResults([]);
-        setError("Failed to fetch quiz results.");
+
+        // If 404, treat as "no result yet" (not an error)
+        if (err?.response?.status === 404) {
+          setFinalResult(null);
+          setError(null);
+        } else {
+          setFinalResult(null);
+          setError("Failed to fetch your final quiz result.");
+        }
       } finally {
         if (isMounted) setLoading(false);
       }
     };
 
-    fetchResults();
+    fetchFinalQuizResult();
 
     return () => {
       isMounted = false;
     };
-  }, [userId, authLoading, quizId, resultId]);
+  }, [userId, authLoading]);
 
-  // ---------------- Filter & Search ----------------
-  useEffect(() => {
-    let filtered = results || [];
-
-    if (filterBy === "passed") filtered = filtered.filter((r) => r.isPassed);
-    if (filterBy === "failed") filtered = filtered.filter((r) => !r.isPassed);
-
-    if (searchTerm) {
-      const search = searchTerm.toLowerCase();
-      filtered = filtered.filter(
-        (r) =>
-          (r.quizTitle || "").toLowerCase().includes(search) ||
-          r.courseName?.toLowerCase().includes(search)
-      );
-    }
-
-    setFilteredResults(filtered);
-  }, [results, filterBy, searchTerm]);
-
-  // ---------------- Stats ----------------
-  const stats = {
-    totalAttempts: results.length,
-    passed: results.filter((r) => r.isPassed).length,
-    failed: results.filter((r) => !r.isPassed).length,
-    averageScore:
-      results.length > 0
-        ? (
-            results.reduce(
-              (sum, r) =>
-                sum +
-                (r.totalScore && r.maxScore
-                  ? (r.totalScore / r.maxScore) * 100
-                  : 0),
-              0
-            ) / results.length
-          ).toFixed(1)
-        : "0",
-  };
-
-  if (authLoading || (loading && results.length === 0)) {
+  if (authLoading || loading) {
     return (
       <DashboardLayout>
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
           <div className="flex items-center justify-center h-96">
             <div className="text-center">
               <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500 mx-auto mb-4"></div>
-              <p className="text-gray-600">Loading quiz results...</p>
+              <p className="text-gray-600">Loading your final quiz result...</p>
             </div>
           </div>
         </div>
@@ -402,108 +357,23 @@ export default function ResultsPage(): JSX.Element {
   return (
     <DashboardLayout>
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        {/* Header */}
-        <div className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-900 mb-2">
-            Quiz Results
-          </h1>
-          <p className="text-gray-600">
-            Review your quiz attempts and track your progress
-          </p>
-        </div>
-
-        {/* Stats */}
-        {results.length > 0 && (
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
-            <div className="bg-white rounded-lg border border-gray-200 p-4">
-              <p className="text-xs text-gray-600 mb-1">Total Attempts</p>
-              <p className="text-2xl font-bold text-gray-900">
-                {stats.totalAttempts}
-              </p>
-            </div>
-            <div className="bg-white rounded-lg border border-gray-200 p-4">
-              <p className="text-xs text-gray-600 mb-1">Passed</p>
-              <p className="text-2xl font-bold text-green-600">
-                {stats.passed}
-              </p>
-            </div>
-            <div className="bg-white rounded-lg border border-gray-200 p-4">
-              <p className="text-xs text-gray-600 mb-1">Failed</p>
-              <p className="text-2xl font-bold text-red-600">{stats.failed}</p>
-            </div>
-            <div className="bg-white rounded-lg border border-gray-200 p-4">
-              <p className="text-xs text-gray-600 mb-1">Avg Score</p>
-              <p className="text-2xl font-bold text-blue-600">
-                {stats.averageScore}%
-              </p>
-            </div>
-          </div>
-        )}
-
-        {/* Error */}
+        <h1 className="text-3xl font-bold text-gray-900 mb-6">
+          Final Quiz Result
+        </h1>
         {error && (
           <div className="bg-red-50 border border-red-200 rounded-lg p-4 mb-6">
             <p className="text-red-700 text-sm font-medium">{error}</p>
           </div>
         )}
-
-        {/* Results List */}
-        {results.length > 0 ? (
-          <>
-            {/* Filter/Search */}
-            <div className="bg-white rounded-lg border border-gray-200 p-4 mb-6">
-              <div className="flex flex-col md:flex-row gap-4">
-                <div className="flex-1">
-                  <input
-                    type="text"
-                    placeholder="Search by quiz or course name..."
-                    value={searchTerm}
-                    onChange={(e) => setSearchTerm(e.target.value)}
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
-                  />
-                </div>
-                <div className="flex gap-2">
-                  {(["all", "passed", "failed"] as const).map((filter) => (
-                    <button
-                      key={filter}
-                      onClick={() => setFilterBy(filter)}
-                      className={`px-4 py-2 rounded-lg font-medium text-sm transition-colors whitespace-nowrap ${
-                        filterBy === filter
-                          ? "bg-blue-600 text-white"
-                          : "bg-gray-100 text-gray-700 hover:bg-gray-200"
-                      }`}
-                    >
-                      {filter === "all"
-                        ? "All"
-                        : filter === "passed"
-                        ? "Passed"
-                        : "Failed"}
-                    </button>
-                  ))}
-                </div>
-              </div>
-            </div>
-
-            {/* Results Cards */}
-            {filteredResults.length > 0 ? (
-              <div>
-                {filteredResults.map((result) => (
-                  <ResultCard key={result.id} result={result} />
-                ))}
-              </div>
-            ) : (
-              <div className="bg-gray-50 rounded-lg border border-gray-200 p-12 text-center">
-                <p className="text-gray-600 font-medium">No results found</p>
-              </div>
-            )}
-          </>
+        {finalResult ? (
+          <ResultCard result={finalResult} />
         ) : (
           <div className="bg-gray-50 rounded-lg border border-gray-200 p-12 text-center">
             <h3 className="text-gray-900 font-bold text-lg mb-2">
-              No Quiz Results Yet
+              No Final Quiz Result Yet
             </h3>
             <p className="text-gray-600 mb-6">
-              Complete some quizzes to see your results and track your progress!
+              You have not attempted the final quiz yet.
             </p>
             <button
               onClick={() => router.push("/dashboard/student/courses")}

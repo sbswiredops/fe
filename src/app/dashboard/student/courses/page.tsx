@@ -24,7 +24,8 @@ function CourseCard({ course }: { course: EnrolledCourseData }): JSX.Element {
   const router = useRouter();
   const progressPercentage = course.progress?.progressPercentage || 0;
   const completedLessons = course.progress?.completedLessons || 0;
-  const totalLessons = course.progress?.totalLessons || course.totalLessons || 0;
+  const totalLessons =
+    course.progress?.totalLessons || course.totalLessons || 0;
 
   const handleContinue = () => {
     router.push(`/dashboard/student/learn/${course.id}`);
@@ -177,7 +178,9 @@ export default function CoursesPage(): JSX.Element {
   const userId = user?.id;
 
   const [courses, setCoursesState] = useState<EnrolledCourseData[]>([]);
-  const [filteredCourses, setFilteredCourses] = useState<EnrolledCourseData[]>([]);
+  const [filteredCourses, setFilteredCourses] = useState<EnrolledCourseData[]>(
+    []
+  );
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [filterBy, setFilterBy] = useState<"all" | "in-progress" | "completed">(
@@ -200,7 +203,47 @@ export default function CoursesPage(): JSX.Element {
         const response = await userService.getEnrolledCourses(userId);
 
         if (isMounted) {
-          const coursesList = response?.data?.courses || [];
+          let coursesList = response?.data?.courses || [];
+
+          // Progress হিসাব করুন
+          coursesList = coursesList.map((course: any) => {
+            const sections = Array.isArray(course.sections)
+              ? course.sections
+              : [];
+            const lessons = sections.flatMap((sec: any) =>
+              Array.isArray(sec.lessons) ? sec.lessons : []
+            );
+            const totalLessons = lessons.length;
+
+            // Backend থেকে progress আনুন, fallback 0
+            const progressPercentage =
+              course.enrollment?.progress !== undefined
+                ? course.enrollment.progress
+                : 0;
+
+            // isCompleted থাকলে সেট করুন
+            const isCompleted =
+              course.enrollment?.isCompleted !== undefined
+                ? course.enrollment.isCompleted
+                : false;
+
+            // completedLessons হিসাব করুন
+            let completedLessons = course.completedLessons;
+            if (completedLessons === undefined) {
+              completedLessons = isCompleted ? totalLessons : 0;
+            }
+
+            return {
+              ...course,
+              progress: {
+                completedLessons,
+                totalLessons,
+                progressPercentage,
+              },
+              isCompleted,
+            };
+          });
+
           setCoursesState(coursesList);
           setCourses(coursesList);
         }
@@ -230,10 +273,14 @@ export default function CoursesPage(): JSX.Element {
     // Filter by status
     if (filterBy === "in-progress") {
       filtered = filtered.filter(
-        (c) => (c.progress?.progressPercentage || 0) > 0 && (c.progress?.progressPercentage || 0) < 100
+        (c) =>
+          (c.progress?.progressPercentage || 0) > 0 &&
+          (c.progress?.progressPercentage || 0) < 100
       );
     } else if (filterBy === "completed") {
-      filtered = filtered.filter((c) => (c.progress?.progressPercentage || 0) === 100);
+      filtered = filtered.filter(
+        (c) => (c.progress?.progressPercentage || 0) === 100
+      );
     }
 
     // Search by title or category
@@ -260,7 +307,9 @@ export default function CoursesPage(): JSX.Element {
       (c) => (c.progress?.progressPercentage || 0) === 100
     ).length,
     inProgressCourses: courses.filter(
-      (c) => (c.progress?.progressPercentage || 0) > 0 && (c.progress?.progressPercentage || 0) < 100
+      (c) =>
+        (c.progress?.progressPercentage || 0) > 0 &&
+        (c.progress?.progressPercentage || 0) < 100
     ).length,
     totalHours: courses.reduce(
       (sum, c) => sum + (parseInt(String(c.duration || 0)) || 0),
@@ -269,8 +318,10 @@ export default function CoursesPage(): JSX.Element {
     averageProgress:
       courses.length > 0
         ? Math.round(
-            courses.reduce((sum, c) => sum + (c.progress?.progressPercentage || 0), 0) /
-              courses.length
+            courses.reduce(
+              (sum, c) => sum + (c.progress?.progressPercentage || 0),
+              0
+            ) / courses.length
           )
         : 0,
   };
@@ -363,23 +414,25 @@ export default function CoursesPage(): JSX.Element {
 
                 {/* Filter Tabs */}
                 <div className="flex gap-2">
-                  {(["all", "in-progress", "completed"] as const).map((filter) => (
-                    <button
-                      key={filter}
-                      onClick={() => setFilterBy(filter)}
-                      className={`px-4 py-2 rounded-lg font-medium text-sm transition-colors whitespace-nowrap ${
-                        filterBy === filter
-                          ? "bg-blue-600 text-white"
-                          : "bg-gray-100 text-gray-700 hover:bg-gray-200"
-                      }`}
-                    >
-                      {filter === "all"
-                        ? "All"
-                        : filter === "in-progress"
-                        ? "In Progress"
-                        : "Completed"}
-                    </button>
-                  ))}
+                  {(["all", "in-progress", "completed"] as const).map(
+                    (filter) => (
+                      <button
+                        key={filter}
+                        onClick={() => setFilterBy(filter)}
+                        className={`px-4 py-2 rounded-lg font-medium text-sm transition-colors whitespace-nowrap ${
+                          filterBy === filter
+                            ? "bg-blue-600 text-white"
+                            : "bg-gray-100 text-gray-700 hover:bg-gray-200"
+                        }`}
+                      >
+                        {filter === "all"
+                          ? "All"
+                          : filter === "in-progress"
+                          ? "In Progress"
+                          : "Completed"}
+                      </button>
+                    )
+                  )}
                 </div>
               </div>
             </div>

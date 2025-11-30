@@ -7,6 +7,7 @@ import { UserService } from "@/services/userService";
 import { useAuth } from "@/components/contexts/AuthContext";
 import { useEnrolledCourses } from "@/components/contexts/EnrolledCoursesContext";
 import { Course, Section, Lesson } from "@/types/api";
+import { Video, FileText } from "lucide-react";
 
 const userService = new UserService();
 export const runtime = "edge";
@@ -17,6 +18,35 @@ interface CourseDetail extends Course {
 }
 
 function CourseHeader({ course }: { course: CourseDetail }): JSX.Element {
+  const router = useRouter();
+
+  // Find the first lesson id and section id
+  let firstLessonId: string | null = null;
+  let firstSectionId: string | null = null;
+  if (Array.isArray(course.sections) && course.sections.length > 0) {
+    const sortedSections = [...course.sections].sort(
+      (a: any, b: any) => (a.orderIndex || 0) - (b.orderIndex || 0)
+    );
+    for (const section of sortedSections) {
+      if (Array.isArray(section.lessons) && section.lessons.length > 0) {
+        const sortedLessons = [...section.lessons].sort(
+          (a: any, b: any) => (a.orderIndex || 0) - (b.orderIndex || 0)
+        );
+        firstLessonId = sortedLessons[0]?.id;
+        firstSectionId = section.id;
+        break;
+      }
+    }
+  }
+
+  const handleStartLearning = () => {
+    if (firstLessonId && firstSectionId && course.id) {
+      router.push(
+        `/dashboard/student/learn/lesson/${firstLessonId}?courseId=${course.id}&sectionId=${firstSectionId}`
+      );
+    }
+  };
+
   return (
     <>
       <div className="bg-gradient-to-r from-gray-900 to-gray-800 text-white py-12 mb-8">
@@ -28,7 +58,11 @@ function CourseHeader({ course }: { course: CourseDetail }): JSX.Element {
             <p className="text-gray-300 text-lg leading-relaxed max-w-3xl mx-auto mb-8">
               {String(course.description || "No description available")}
             </p>
-            <button className="bg-green-500 hover:bg-green-600 text-white font-bold py-3.5 px-8 rounded-lg transition-all duration-300 transform hover:scale-105 inline-flex items-center gap-3 text-lg shadow-lg">
+            <button
+              className="bg-green-500 hover:bg-green-600 text-white font-bold py-3.5 px-8 rounded-lg transition-all duration-300 transform hover:scale-105 inline-flex items-center gap-3 text-lg shadow-lg"
+              onClick={handleStartLearning}
+              disabled={!firstLessonId}
+            >
               <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
                 <path d="M6.3 2.841A1.5 1.5 0 004 4.11V15.89a1.5 1.5 0 002.3 1.269l9.344-5.89a1.5 1.5 0 000-2.538L6.3 2.84z" />
               </svg>
@@ -41,7 +75,11 @@ function CourseHeader({ course }: { course: CourseDetail }): JSX.Element {
   );
 }
 
-function CourseInfoSection({ course }: { course: CourseDetail }): JSX.Element {
+function CourseInfoSection({
+  course,
+}: {
+  course: CourseDetail;
+}): JSX.Element | null {
   const totalLessons = Array.isArray(course.sections)
     ? course.sections.reduce(
         (sum: number, section: any) =>
@@ -50,43 +88,7 @@ function CourseInfoSection({ course }: { course: CourseDetail }): JSX.Element {
       )
     : 0;
 
-  return (
-    <div className="mb-8">
-      <div className="bg-white rounded-lg border border-gray-200 p-6 shadow-sm">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-4">
-            <div className="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
-              <svg
-                className="w-6 h-6 text-blue-600"
-                fill="currentColor"
-                viewBox="0 0 20 20"
-              >
-                <path
-                  fillRule="evenodd"
-                  d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-11a1 1 0 10-2 0v2H7a1 1 0 100 2h2v2a1 1 0 102 0v-2h2a1 1 0 100-2h-2V7z"
-                  clipRule="evenodd"
-                />
-              </svg>
-            </div>
-            <div>
-              <h3 className="font-semibold text-gray-900 text-lg">
-                {String(course.category || "General")} Course
-              </h3>
-              <p className="text-gray-600 text-sm">
-                {totalLessons} lessons • Complete learning materials
-              </p>
-            </div>
-          </div>
-          <div className="text-right">
-            <div className="text-2xl font-bold text-gray-900">
-              {totalLessons}
-            </div>
-            <div className="text-sm text-gray-500">Total Lessons</div>
-          </div>
-        </div>
-      </div>
-    </div>
-  );
+  return null; // Removed the info card div
 }
 
 function LessonItem({
@@ -119,17 +121,13 @@ function LessonItem({
   return (
     <div className="flex items-start gap-4 py-4 px-2 border-b border-gray-100 last:border-b-0">
       {/* Checkbox */}
-      <div className="flex-shrink-0 mt-1">
-        <div className="w-5 h-5 border-2 border-gray-300 rounded flex items-center justify-center bg-white">
-          {/* Empty checkbox - will be filled when completed */}
-        </div>
-      </div>
+      <div className="flex-shrink-0 mt-1"></div>
 
       {/* Lesson Content */}
       <div className="flex-1 min-w-0">
         <div className="flex items-start justify-between mb-2">
           <div className="flex-1">
-            <h4 className="font-medium text-gray-900 text-sm mb-2">
+            <h4 className="font-semibold text-gray-900 text-lg mb-2">
               {String(lesson.title || "Untitled Lesson")}
             </h4>
 
@@ -138,16 +136,10 @@ function LessonItem({
               {lesson.video && (
                 <div
                   onClick={handleOpenLesson}
-                  className="flex items-center gap-2 text-xs text-gray-600 cursor-pointer hover:text-blue-600 transition-colors"
+                  className="flex items-center gap-2 text-lg text-gray-600 cursor-pointer hover:text-blue-600 transition-colors"
                 >
-                  <svg
-                    className="w-3 h-3 text-blue-500 flex-shrink-0"
-                    fill="currentColor"
-                    viewBox="0 0 20 20"
-                  >
-                    <path d="M2 6a2 2 0 012-2h12a2 2 0 012 2v8a2 2 0 01-2 2H4a2 2 0 01-2-2V6zm12 .5a.5.5 0 01.5.5v5a.5.5 0 01-.5.5H6a.5.5 0 01-.5-.5V7a.5.5 0 01.5-.5h8z" />
-                  </svg>
-                  <span className="font-mono text-gray-500 text-xs hover:text-blue-600">
+                  <Video className="w-5 h-5 text-blue-500 flex-shrink-0" />
+                  <span className="font-mono text-gray-500 text-base hover:text-blue-600">
                     video.m3u8
                   </span>
                 </div>
@@ -156,20 +148,10 @@ function LessonItem({
               {lesson.resource && (
                 <div
                   onClick={handleOpenResource}
-                  className="flex items-center gap-2 text-xs text-gray-600 cursor-pointer hover:text-green-600 transition-colors"
+                  className="flex items-center gap-2 text-gray-600 cursor-pointer hover:text-green-600 transition-colors"
                 >
-                  <svg
-                    className="w-3 h-3 text-red-500 flex-shrink-0"
-                    fill="currentColor"
-                    viewBox="0 0 20 20"
-                  >
-                    <path
-                      fillRule="evenodd"
-                      d="M3 17a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm3.293-7.707a1 1 0 011.414 0L9 10.586V3a1 1 0 112 0v7.586l1.293-1.293a1 1 0 111.414 1.414l-3 3a1 1 0 01-1.414 0l-3-3a1 1 0 010-1.414z"
-                      clipRule="evenodd"
-                    />
-                  </svg>
-                  <span className="font-mono text-gray-500 text-xs hover:text-green-600">
+                  <FileText className="w-5 h-5 text-red-500 flex-shrink-0" />
+                  <span className="font-mono text-gray-500 text-base hover:text-green-600">
                     {getFileName(lesson.resource)}
                   </span>
                 </div>
@@ -270,7 +252,7 @@ function AccordionItem({
           ${isOpen ? "bg-gray-100" : "bg-white"}`}
         style={{ minHeight: 40 }}
       >
-        <span className="font-medium text-gray-900 text-sm truncate">
+        <span className="font-medium text-gray-900 text-xl truncate">
           {section.title || "Untitled Section"}
         </span>
         <svg
@@ -290,7 +272,7 @@ function AccordionItem({
         </svg>
       </button>
       {isOpen && (
-        <div className="px-3 py-2 bg-white">
+        <div className="px-3 py-2 bg-white ">
           {Array.isArray(section.lessons) && section.lessons.length > 0 ? (
             section.lessons.map((lesson: Lesson, lessonIdx: number) => (
               <LessonItem
@@ -301,7 +283,7 @@ function AccordionItem({
               />
             ))
           ) : (
-            <div className="text-xs text-gray-400 py-1 pl-4">No lessons</div>
+            <div className="text-xl text-gray-400 py-1 pl-4">No lessons</div>
           )}
         </div>
       )}
@@ -336,7 +318,7 @@ function CourseContents({
   return (
     <div className="bg-white rounded-lg border border-gray-200 overflow-hidden">
       <div className="px-4 py-3 border-b border-gray-200 bg-gray-50">
-        <h2 className="text-base font-semibold text-gray-900">
+        <h2 className="text-2xl font-semibold  text-gray-900">
           Course Curriculum
         </h2>
       </div>

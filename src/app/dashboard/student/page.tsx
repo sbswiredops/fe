@@ -63,7 +63,9 @@ function StudentDashboard() {
         const list = coursesRes.data?.courses || [];
 
         // Fetch lesson progress for each course's sections
-        const { lessonService: lessonSvc } = await import("@/services/lessonService");
+        const { lessonService: lessonSvc } = await import(
+          "@/services/lessonService"
+        );
 
         const enhancedList = await Promise.all(
           list.map(async (course: any) => {
@@ -90,7 +92,10 @@ function StudentDashboard() {
                   });
                 }
               } catch (err) {
-                console.warn(`Failed to fetch progress for section ${section.id}:`, err);
+                console.warn(
+                  `Failed to fetch progress for section ${section.id}:`,
+                  err
+                );
               }
             }
 
@@ -98,7 +103,8 @@ function StudentDashboard() {
             let completedLessons = 0;
             let nextLesson = "-";
             const sortedSections = sections.sort(
-              (a: any, b: any) => (a.orderIndex || a.order || 0) - (b.orderIndex || b.order || 0)
+              (a: any, b: any) =>
+                (a.orderIndex || a.order || 0) - (b.orderIndex || b.order || 0)
             );
 
             for (const section of sortedSections) {
@@ -122,16 +128,20 @@ function StudentDashboard() {
                 : 0;
 
             // Calculate time left (duration is in minutes)
-            const totalDuration = typeof course.duration === "string"
-              ? parseInt(course.duration) || 0
-              : course.duration || 0;
+            const totalDuration =
+              typeof course.duration === "string"
+                ? parseInt(course.duration) || 0
+                : course.duration || 0;
 
             const completedDuration =
               completedLessons > 0 && totalLessons > 0
                 ? Math.round((completedLessons / totalLessons) * totalDuration)
                 : 0;
 
-            const timeLeftMinutes = Math.max(0, totalDuration - completedDuration);
+            const timeLeftMinutes = Math.max(
+              0,
+              totalDuration - completedDuration
+            );
             const timeLeftStr =
               timeLeftMinutes > 0
                 ? timeLeftMinutes >= 60
@@ -184,7 +194,12 @@ function StudentDashboard() {
               </p>
             </div>
             <div className="flex flex-col sm:flex-row gap-2 sm:gap-3 w-full md:w-auto">
-              <Button variant="outline" size="md" className="w-full sm:w-auto">
+              <Button
+                variant="outline"
+                size="md"
+                className="w-full sm:w-auto"
+                onClick={() => router.push("/courses")}
+              >
                 <BookOpen size={18} className="inline text-blue-500 mr-1" />{" "}
                 Browse Courses
               </Button>
@@ -358,7 +373,12 @@ function StudentDashboard() {
               <h2 className="text-xl font-semibold text-gray-900">
                 My Courses
               </h2>
-              <Button size="sm" variant="outline" className="w-full sm:w-auto">
+              <Button
+                size="sm"
+                variant="outline"
+                className="w-full sm:w-auto"
+                onClick={() => router.push("/dashboard/student/courses")}
+              >
                 <BookOpen size={16} className="inline text-blue-500 mr-1" />{" "}
                 View All
               </Button>
@@ -445,17 +465,7 @@ function StudentDashboard() {
                         Continue Learning
                       </Button>
                     )}
-                    <Button
-                      size="md"
-                      variant="outline"
-                      className="w-full sm:w-auto"
-                      onClick={() => {
-                        setLastSelectedCourseId(String(course.id));
-                        router.push(`/courses/${course.id}`);
-                      }}
-                    >
-                      View Details
-                    </Button>
+                    {/* Removed View Details button */}
                   </div>
                 </div>
               ))}

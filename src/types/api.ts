@@ -342,29 +342,29 @@ export interface UpdateProgressRequest {
 
 // Quiz Types
 export interface Quiz {
-  totalMarks?: number;
   id: string;
-  courseId?: string;
-  sectionId?: string;
   title: string;
   description?: string;
-  questions?: QuizQuestion[];
-  timeLimit?: number;       // map to totalTime
-  passingScore?: number;    // map to passMark
-  maxAttempts?: number;
-  status?: 'active' | 'inactive';
+  orderIndex?: number;
   isLocked?: boolean;
   isPaid?: boolean;
   price?: number;
-  createdAt: string;
-  updatedAt: string;
-
-  // Add these for frontend convenience
+  createdAt?: string;
+  createdby?: string;
+  updatedAt?: string;
+  updatedby?: string;
+  course?: any; // or Course type if defined
+  section?: any; // or Section type if defined
+  questions?: any[]; // or Question[] if defined
   totalQuestions?: number;
+  totalMarks?: number;
   totalTime?: number;
   passMark?: number;
   hasNegativeMark?: boolean;
   negativeMarkPercentage?: number;
+  // --- New fields for final quiz logic ---
+  isFinalQuiz?: boolean;
+  hasAttemptedFinalQuiz?: boolean;
 }
 
 

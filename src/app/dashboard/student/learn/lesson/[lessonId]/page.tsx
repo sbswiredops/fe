@@ -13,7 +13,13 @@ import { useAuth } from "@/components/contexts/AuthContext";
 import QuizViewer from "@/components/ui/QuizViewer";
 import PDFViewer from "@/components/ui/PDFViwer";
 import useToast from "@/components/hoock/toast";
-import { CheckCircle, PlayCircle, Target } from "lucide-react";
+import {
+  CheckCircle,
+  PlayCircle,
+  Target,
+  FileQuestion,
+  FileText,
+} from "lucide-react";
 
 type CourseDetail = Course & {
   sections?: Section[];
@@ -404,10 +410,7 @@ export default function LessonViewerPage() {
         (course.sections || []).forEach((sec) => {
           (sec.lessons || []).forEach((l) => {
             totalLessons++;
-            if (
-              (course && (l.id === targetLessonId)) ||
-              false
-            ) {
+            if ((course && l.id === targetLessonId) || false) {
               completedLessons++;
             }
           });
@@ -579,7 +582,7 @@ export default function LessonViewerPage() {
         <div className="mb-6">
           <button
             onClick={() => router.back()}
-            className="flex items-center gap-2 text-purple-600 hover:text-purple-700 font-medium text-sm"
+            className="flex items-center gap-2 text-blue-600 hover:text-blue-700 font-medium text-sm"
           >
             <svg
               className="w-4 h-4"
@@ -599,13 +602,13 @@ export default function LessonViewerPage() {
         </div>
 
         <div className="bg-white rounded-xl overflow-hidden border border-gray-200 shadow-sm mb-6">
-          <div className="bg-gradient-to-r from-purple-600 to-purple-700 px-6 sm:px-8 py-4">
+          <div className="bg-[#51356e] px-6 sm:px-8 py-4">
             <h1 className="text-2xl font-bold text-white">{lesson.title}</h1>
-            <p className="text-blue-100 text-sm mt-2">
+            <p className="text-blue-100 text-base mt-2">
               {section.title} • {course.title}
             </p>
             {/* Simple section progress */}
-            <div className="mt-2 text-xs text-white/90">
+            <div className="mt-2 text-sm text-white/90">
               Section progress: {sectionCompletionPercent[section.id] ?? 0}%{" "}
               {sectionCompletionPercent[section.id] === 100
                 ? "✓ Completed"
@@ -624,13 +627,7 @@ export default function LessonViewerPage() {
                       <ContentToggleButton
                         label="Video"
                         icon={
-                          <svg
-                            className="w-4 h-4"
-                            fill="currentColor"
-                            viewBox="0 0 20 20"
-                          >
-                            <path d="M2 6a2 2 0 012-2h12a2 2 0 012 2v8a2 2 0 01-2 2H4a2 2 0 01-2-2V6zm12 .5a.5.5 0 01.5.5v5a.5.5 0 01-.5.5H6a.5.5 0 01-.5-.5V7a.5.5 0 01.5-.5h8z" />
-                          </svg>
+                          <PlayCircle className="w-5 h-5" /> 
                         }
                         active={viewMode === "video"}
                         onClick={() => setViewMode("video")}
@@ -640,17 +637,7 @@ export default function LessonViewerPage() {
                       <ContentToggleButton
                         label="Resource"
                         icon={
-                          <svg
-                            className="w-4 h-4"
-                            fill="currentColor"
-                            viewBox="0 0 20 20"
-                          >
-                            <path
-                              fillRule="evenodd"
-                              d="M8 4a2 2 0 012-2h4a1 1 0 01.894.553l1.5 3a1 1 0 01-.894 1.447h-.5a1 1 0 00-.894.553l-.5 1a1 1 0 01-.894.553H9a1 1 0 00-.894.553l-1 2A1 1 0 007 12h-.5a1 1 0 01-.894-.553l-1-2A1 1 0 004 9V4z"
-                              clipRule="evenodd"
-                            />
-                          </svg>
+                          <FileText className="w-5 h-5" /> 
                         }
                         active={viewMode === "pdf"}
                         onClick={loadPdf}
@@ -659,19 +646,13 @@ export default function LessonViewerPage() {
                     )}
                     {(section?.quizzes?.length ?? 0) > 0 &&
                       (section.quizzes || []).map((quiz) => {
-                        const buttonDisabled = section.isQuizLocked; // <-- এখানে সরাসরি section.isQuizLocked ব্যবহার করুন
+                        const buttonDisabled = section.isQuizLocked;
                         return (
                           <ContentToggleButton
                             key={quiz.id}
-                            label={quiz.title}
+                            label="Quiz"
                             icon={
-                              <svg
-                                className="w-4 h-4"
-                                fill="currentColor"
-                                viewBox="0 0 20 20"
-                              >
-                                <path d="M5.5 13a3.5 3.5 0 01-.369-6.98 4 4 0 117.753-1.3A4.5 4.5 0 1113.5 13H11V9.413l1.293 1.293a1 1 0 001.414-1.414l-3-3a1 1 0 00-1.414 0l-3 3a1 1 0 001.414 1.414L9 9.414V13H5.5z" />
-                              </svg>
+                              <FileQuestion className="w-5 h-5" /> 
                             }
                             active={
                               viewMode === "quiz" &&
@@ -766,7 +747,7 @@ export default function LessonViewerPage() {
             <div className="lg:col-span-1">
               <div className="bg-gray-50 rounded-lg p-4 border border-gray-200 sticky top-6">
                 <div className="mb-4">
-                  <h3 className="font-semibold text-gray-900 text-sm mb-3">
+                  <h3 className="font-semibold text-gray-900 text-2xl mb-3">
                     Course Curriculum
                   </h3>
                   <div className="bg-white rounded-lg p-3 border border-gray-200">
@@ -819,7 +800,7 @@ export default function LessonViewerPage() {
                               }}
                               className="w-full text-left px-3 py-2 hover:bg-gray-100 transition-colors flex items-center justify-between"
                             >
-                              <p className="text-xs font-semibold text-gray-900 truncate">
+                              <p className="text-xl font-semibold text-gray-900 truncate">
                                 {sec.title}
                               </p>
 
@@ -857,7 +838,7 @@ export default function LessonViewerPage() {
                                       onClick={() =>
                                         handleLessonSelect(l, sec.id)
                                       }
-                                      className={`flex-1 text-left text-xs px-2 py-1 rounded ${
+                                      className={`flex-1 text-left text-base px-2 py-1 rounded ${
                                         locked
                                           ? "text-gray-400 bg-gray-50 cursor-not-allowed"
                                           : "text-gray-700 hover:bg-purple-50"
@@ -900,7 +881,7 @@ export default function LessonViewerPage() {
                                           setSection(sec);
                                           setViewMode("quiz");
                                         }}
-                                        className={`w-full text-left text-xs px-2 py-1 rounded transition-colors
+                                        className={`w-full text-left text-base px-2 py-1 rounded transition-colors
     ${
       selectedQuiz?.id === q.id
         ? "bg-purple-100 font-semibold text-purple-700"
