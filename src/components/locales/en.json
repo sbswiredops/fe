@@ -269,9 +269,11 @@
   "contact": {
     "title": "Contact Us",
     "subtitle": "Get in touch with our team. We're here to help you succeed.",
+    "name1": "Book Free Consultation",
     "form": {
       "name": "Full Name",
-      "email": "Email Address",
+      "email": "Email",
+      "phone":"Mobile Number",
       "subject": "Subject",
       "message": "Message",
       "send": "Send Message"

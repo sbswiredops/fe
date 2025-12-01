@@ -10,6 +10,7 @@ function ContactContent() {
   const [formData, setFormData] = useState({
     name: "",
     email: "",
+    phone: "",
     subject: "",
     message: "",
   });
@@ -50,7 +51,7 @@ function ContactContent() {
             {/* Contact Form */}
             <div className="contact-form bg-white p-8 rounded-xl shadow-lg border border-gray-100">
               <h2 className="text-2xl font-bold text-gray-800 mb-6">
-                {t("contact.form.name")}
+                {t("contact.name1")}
               </h2>
               <form onSubmit={handleSubmit} className="space-y-6">
                 <div>
@@ -86,6 +87,23 @@ function ContactContent() {
                     onChange={handleChange}
                     className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#51356e] focus:border-transparent"
                     required
+                  />
+                </div>
+
+                <div>
+                  <label
+                    htmlFor="phone"
+                    className="block text-sm font-medium text-gray-700 mb-2"
+                  >
+                    {t("contact.form.phone") || "Phone"}
+                  </label>
+                  <input
+                    type="tel"
+                    id="phone"
+                    name="phone"
+                    value={formData.phone}
+                    onChange={handleChange}
+                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#51356e] focus:border-transparent"
                   />
                 </div>
 
