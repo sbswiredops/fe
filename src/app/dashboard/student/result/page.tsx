@@ -6,15 +6,17 @@ import DashboardLayout from "@/components/layout/DashboardLayout";
 import { useAuth } from "@/components/contexts/AuthContext";
 import { apiClient } from "@/lib/api";
 import { API_CONFIG } from "@/lib/config";
+import { Check, Dot } from "lucide-react";
 
 // ---------------- Types ----------------
 interface QuizQuestion {
   id: string;
   text: string;
   type: "mcq" | "multi" | "true_false" | "fill_blank" | "short";
-  options?: Array<{ id: string; text: string }>;
+  options?: Array<{ id: string; text: string; isCorrect?: boolean }>;
   correctAnswer?: string | string[];
   explanation?: string;
+  mark?: number;
 }
 
 interface QuizAnswer {
@@ -82,22 +84,19 @@ function QuestionReview({
       {/* Options List */}
       {question.options && question.options.length > 0 && (
         <ul className="mb-4 space-y-2">
-          {
-            [
-              ...new Map(
-                question.options.map((opt) => [opt.text, opt])
-              ).values(),
-            ].map((opt) => {
-              // Always match correct by text for mcq, multi, true_false
-              const isCorrect = correctTexts.includes(opt.text);
-              const isSelected = selectedIds.includes(opt.id);
-              return (
-                <li
-                  key={opt.text}
-                  className={`px-3 py-2 rounded border flex items-center gap-2
+          {[
+            ...new Map(question.options.map((opt) => [opt.text, opt])).values(),
+          ].map((opt) => {
+            // Always match correct by text for mcq, multi, true_false
+            const isCorrect = correctTexts.includes(opt.text);
+            const isSelected = selectedIds.includes(opt.id);
+            return (
+              <li
+                key={opt.text}
+                className={`px-3 py-2 rounded border flex items-center gap-2
                     ${
                       isCorrect
-                        ? "border-green-500 bg-green-50 font-semibold text-green-700"
+                        ? "border-green-500 bg-green-50 font-semibold"
                         : "border-gray-300"
                     }
                     ${
@@ -106,22 +105,21 @@ function QuestionReview({
                         : ""
                     }
                   `}
-                >
-                  {isCorrect && (
-                    <span className="inline-block w-5 h-5 rounded-full bg-green-500 text-white  items-center justify-center text-xs mr-1">
-                      ✓
-                    </span>
-                  )}
-                  {isSelected && !isCorrect && (
-                    <span className="inline-block w-5 h-5 rounded-full bg-purple-500 text-white  items-center justify-center text-xs mr-1">
-                      •
-                    </span>
-                  )}
-                  <span className="text-base">{opt.text}</span>
-                </li>
-              );
-            })
-          }
+              >
+                {isCorrect && (
+                  <span className=" w-5 h-5 rounded-full bg-green-500 text-white flex items-center justify-center text-xs mr-1">
+                    <Check className="w-4 h-4" />
+                  </span>
+                )}
+                {isSelected && !isCorrect && (
+                  <span className=" w-5 h-5 rounded-full bg-purple-500 text-white flex items-center justify-center text-xs mr-1">
+                    <Dot className="w-4 h-4" />
+                  </span>
+                )}
+                <span className="text-base text-gray-900">{opt.text}</span>
+              </li>
+            );
+          })}
         </ul>
       )}
 
@@ -191,32 +189,82 @@ function QuestionReview({
 }
 
 // ---------------- Result Card ----------------
-function ResultCard({ result }: { result: QuizResultData }): JSX.Element {
+function ResultCard({
+  result,
+  showDetails = false,
+}: {
+  result: QuizResultData;
+  showDetails?: boolean;
+}): JSX.Element {
   if (!result) return <div>Result data unavailable</div>;
 
-  // Normalize answers to always be an array
-  const answers: QuizAnswer[] = Array.isArray(result.answers)
-    ? result.answers
-    : result.answers && typeof result.answers === "object"
-    ? Object.values(result.answers)
+  // Always default questions to an array (fix for undefined error)
+  const questions: QuizQuestion[] = Array.isArray(result.questions)
+    ? result.questions
     : [];
+  // Explicitly type answersObj to fix TS error
+  const answersObj: Record<string, any> = result.answers || {};
+  const answers: QuizAnswer[] = questions.map((q) => {
+    const userAnswer = answersObj[q.id];
+    let isCorrect = false;
+    let points = 0;
+    const maxPoints = q.mark || 1;
+
+    // Check correctness (simple logic, adjust as needed)
+    if (userAnswer !== undefined && userAnswer !== null) {
+      if (q.type === "multi") {
+        try {
+          const correct = Array.isArray(q.correctAnswer)
+            ? q.correctAnswer
+            : JSON.parse(q.correctAnswer as string);
+          isCorrect =
+            Array.isArray(userAnswer) &&
+            correct.length === userAnswer.length &&
+            correct.every((v: any) => userAnswer.includes(v));
+        } catch {
+          isCorrect = false;
+        }
+      } else if (q.type === "mcq" || q.type === "true_false") {
+        isCorrect =
+          q.options?.find((opt) => opt.id === userAnswer)?.isCorrect ||
+          q.correctAnswer === userAnswer ||
+          String(q.correctAnswer).toLowerCase() ===
+            String(userAnswer).toLowerCase();
+      } else {
+        isCorrect =
+          String(q.correctAnswer).trim().toLowerCase() ===
+          String(userAnswer).trim().toLowerCase();
+      }
+      points = isCorrect ? maxPoints : 0;
+    }
+
+    return {
+      questionId: q.id,
+      userAnswer,
+      isCorrect,
+      points,
+      maxPoints,
+    };
+  });
 
   const scorePercentage = result.maxScore
     ? (result.totalScore / result.maxScore) * 100
     : 0;
   const submittedDate = new Date(result.submittedAt);
-  const formattedDate = submittedDate.toLocaleDateString("en-US", {
-    year: "numeric",
-    month: "long",
-    day: "numeric",
-    hour: "2-digit",
-    minute: "2-digit",
-  });
+  const formattedDate = isNaN(submittedDate.getTime())
+    ? "N/A"
+    : submittedDate.toLocaleDateString("en-US", {
+        year: "numeric",
+        month: "long",
+        day: "numeric",
+        hour: "2-digit",
+        minute: "2-digit",
+      });
 
   const correctCount = answers.filter((a) => a.isCorrect).length;
 
   return (
-    <div className="bg-white rounded-lg border border-gray-200 overflow-hidden shadow-sm mb-6">
+    <div className="bg-white rounded-lg border border-gray-200 overflow-hidden">
       {/* Header */}
       <div
         className={`px-6 py-4 ${
@@ -245,8 +293,6 @@ function ResultCard({ result }: { result: QuizResultData }): JSX.Element {
             {result.isPassed ? "✓ PASSED" : "✗ FAILED"}
           </div>
         </div>
-
-        {/* Score Bar */}
         <div className="space-y-2">
           <div className="flex items-center justify-between">
             <span className="text-sm font-semibold text-gray-900">
@@ -267,36 +313,36 @@ function ResultCard({ result }: { result: QuizResultData }): JSX.Element {
           <div className="flex items-center justify-between text-xs text-gray-600">
             <span>Passing Score: {result.passingScore}</span>
             <span>
-              Correct: {correctCount}/{result.questions?.length || 0}
+              Correct: {correctCount}/{questions.length}
             </span>
           </div>
         </div>
       </div>
-
-      {/* Questions Review */}
-      <div className="p-6">
-        <h4 className="text-lg font-bold text-gray-900 mb-4">
-          Question Review
-        </h4>
-        {result.questions?.length ? (
-          result.questions.map((q, idx) => {
-            const answer = answers.find((a) => a.questionId === q.id);
-            // Always show question and options, even if no answer
-            return (
-              <div key={q.id} className="mb-4">
-                <p className="text-xs text-gray-500 font-semibold mb-2">
-                  Question {idx + 1}
-                </p>
-                <QuestionReview question={q} answer={answer} />
-              </div>
-            );
-          })
-        ) : (
-          <p className="text-gray-600 text-sm">
-            No questions available for review
-          </p>
-        )}
-      </div>
+      {/* Expandable Details */}
+      {showDetails && (
+        <div className="p-6">
+          <h4 className="text-lg font-bold text-gray-900 mb-4">
+            Question Review
+          </h4>
+          {questions.length ? (
+            questions.map((q, idx) => {
+              const answer = answers.find((a) => a.questionId === q.id);
+              return (
+                <div key={`${result.id}-${q.id}`} className="mb-4">
+                  <p className="text-xs text-gray-500 font-semibold mb-2">
+                    Question {idx + 1}
+                  </p>
+                  <QuestionReview question={q} answer={answer} />
+                </div>
+              );
+            })
+          ) : (
+            <p className="text-gray-600 text-sm">
+              No questions available for review
+            </p>
+          )}
+        </div>
+      )}
     </div>
   );
 }
@@ -307,17 +353,17 @@ export default function ResultsPage(): JSX.Element {
   const { user, isLoading: authLoading } = useAuth();
   const userId = user?.id;
 
-  const [finalResult, setFinalResult] = useState<QuizResultData | null>(null);
+  const [results, setResults] = useState<QuizResultData[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [expandedIndex, setExpandedIndex] = useState<number | null>(null);
 
-  // Fetch only the final quiz result for this user
   useEffect(() => {
     if (authLoading || !userId) return;
 
     let isMounted = true;
 
-    const fetchFinalQuizResult = async () => {
+    const fetchQuizResults = async () => {
       setLoading(true);
       setError(null);
 
@@ -328,36 +374,34 @@ export default function ResultsPage(): JSX.Element {
 
         if (!isMounted) return;
 
-        // Check for backend "no result" message
-        if (
+        // If array, set results
+        if (Array.isArray(response?.data?.data)) {
+          setResults(response.data.data);
+        } else if (
           response?.data &&
-          typeof response.data === "object" &&
           response.data.message === "No final quiz result yet."
         ) {
-          setFinalResult(null);
-          setError(null);
-          return;
+          setResults([]);
+        } else if (response?.data) {
+          setResults([response.data]);
+        } else {
+          setResults([]);
         }
-
-        setFinalResult(response?.data || null);
       } catch (err: any) {
-        console.error("Failed to fetch final quiz result:", err);
         if (!isMounted) return;
-
-        // If 404, treat as "no result yet" (not an error)
         if (err?.response?.status === 404) {
-          setFinalResult(null);
+          setResults([]);
           setError(null);
         } else {
-          setFinalResult(null);
-          setError("Failed to fetch your final quiz result.");
+          setResults([]);
+          setError("Failed to fetch your quiz results.");
         }
       } finally {
         if (isMounted) setLoading(false);
       }
     };
 
-    fetchFinalQuizResult();
+    fetchQuizResults();
 
     return () => {
       isMounted = false;
@@ -371,7 +415,7 @@ export default function ResultsPage(): JSX.Element {
           <div className="flex items-center justify-center h-96">
             <div className="text-center">
               <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500 mx-auto mb-4"></div>
-              <p className="text-gray-600">Loading your final quiz result...</p>
+              <p className="text-gray-600">Loading your quiz results...</p>
             </div>
           </div>
         </div>
@@ -383,22 +427,40 @@ export default function ResultsPage(): JSX.Element {
     <DashboardLayout>
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <h1 className="text-3xl font-bold text-gray-900 mb-6">
-          Final Quiz Result
+          Final Quiz Results
         </h1>
         {error && (
           <div className="bg-red-50 border border-red-200 rounded-lg p-4 mb-6">
             <p className="text-red-700 text-sm font-medium">{error}</p>
           </div>
         )}
-        {finalResult ? (
-          <ResultCard result={finalResult} />
+        {results.length ? (
+          <div>
+            {results.map((result, idx) => (
+              <div key={result.id} className="mb-4">
+                <div
+                  className={`cursor-pointer transition-all ${
+                    expandedIndex === idx ? "shadow-lg" : "shadow-sm"
+                  }`}
+                  onClick={() =>
+                    setExpandedIndex(expandedIndex === idx ? null : idx)
+                  }
+                >
+                  <ResultCard
+                    result={result}
+                    showDetails={expandedIndex === idx}
+                  />
+                </div>
+              </div>
+            ))}
+          </div>
         ) : (
           <div className="bg-gray-50 rounded-lg border border-gray-200 p-12 text-center">
             <h3 className="text-gray-900 font-bold text-lg mb-2">
               No Final Quiz Result Yet
             </h3>
             <p className="text-gray-600 mb-6">
-              You have not attempted the final quiz yet.
+              You have not attempted any final quiz yet.
             </p>
             <button
               onClick={() => router.push("/dashboard/student/courses")}
