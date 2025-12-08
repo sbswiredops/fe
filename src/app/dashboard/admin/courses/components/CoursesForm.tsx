@@ -14,6 +14,14 @@ interface Props {
   instructors?: any[] | { items?: any[] } | undefined;
 }
 
+// Add this helper function above your component
+function getDiscountPrice(price: number, discountPercentage: number): number {
+  if (!price || !discountPercentage) return 0;
+  // If percentage is less than 1, treat as 1%
+  const percent = discountPercentage < 1 ? 1 : discountPercentage;
+  return Math.round((price * (100 - percent)) / 100);
+}
+
 export default function CoursesForm({
   formData,
   onChange,
@@ -35,6 +43,20 @@ export default function CoursesForm({
       return (instructors as any).items;
     return [];
   }, [instructors]);
+
+  // Auto-calculate discountPrice when price or discountPercentage changes
+  React.useEffect(() => {
+    const price = parseFloat(formData.price) || 0;
+    let discountPercentage = parseFloat(formData.discountPercentage) || 0;
+    if (discountPercentage < 1 && discountPercentage > 0)
+      discountPercentage = 1;
+    const discountPrice = getDiscountPrice(price, discountPercentage);
+    setFormData((prev: any) => ({
+      ...prev,
+      discountPrice: discountPrice || "",
+    }));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [formData.price, formData.discountPercentage]);
 
   return (
     <>
@@ -203,9 +225,9 @@ export default function CoursesForm({
           )}
         </select>
       </div>
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         <Input
-          label="Price ($)"
+          label="Price"
           name="price"
           type="number"
           step="0.01"
@@ -215,28 +237,7 @@ export default function CoursesForm({
           required
         />
         <Input
-          label="Duration (minutes)"
-          name="duration"
-          type="number"
-          value={formData.duration || ""}
-          onChange={onChange}
-          placeholder="e.g., 120"
-          required
-        />
-      </div>
-
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <Input
-          label="Discount Price ($)"
-          name="discountPrice"
-          type="number"
-          step="0.01"
-          value={formData.discountPrice ?? ""}
-          onChange={onChange}
-          placeholder="Enter discount price"
-        />
-        <Input
-          label="Discount Percentage (%)"
+          label="Discount Percentage"
           name="discountPercentage"
           type="number"
           step="0.01"
@@ -246,7 +247,27 @@ export default function CoursesForm({
           onChange={onChange}
           placeholder="Enter discount percentage"
         />
+        <Input
+          label="Discount Price"
+          name="discountPrice"
+          type="number"
+          step="0.01"
+          value={formData.discountPrice ?? ""}
+          readOnly
+          placeholder="Auto calculated"
+        />
       </div>
+
+      {/* Keep duration input somewhere if needed */}
+      <Input
+        label="Duration (minutes)"
+        name="duration"
+        type="number"
+        value={formData.duration || ""}
+        onChange={onChange}
+        placeholder="e.g., 120"
+        required
+      />
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div>

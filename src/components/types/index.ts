@@ -21,21 +21,45 @@ export interface Section {
   title: string;
   lessons: Lesson[];
 }
+export interface Instructor {
+  id: string;
+  name: string;
+  firstName?: string;
+  lastName?: string;
+  avatar?: string | null;
+  bio?: string;
+}
+
+export interface Category {
+  id: string;
+  name: string;
+  description?: string;
+  categories_avatar?: string | null;
+  icon?: string;
+  isActive?: boolean;
+  createdAt?: string;
+  updatedAt?: string;
+}
+
 export interface Course {
   id: string;
   title: string;
   description: string;
-  instructor: string;
+  instructor: Instructor;
   instructorId: string;
-  price: number;
-  duration: string;
+  price: number | string;
+  duration: number | string;
   thumbnail: string;
-  category: string;
-  rating: number;
+  category: Category;
+  rating: number | string;
   sections: any[];
-  courseIntroVideo: string;
+  courseIntroVideo: string | null;
   enrollmentCount: number;
-  createdAt: Date; // Add this line
+  createdAt: Date | string;
+  tags?: string[];
+  requirements?: string[];
+  learningOutcomes?: string[];
+  // Add other fields as needed
 }
 
 export interface LiveClass {

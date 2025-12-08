@@ -9,7 +9,9 @@ import Modal from "@/components/ui/Modal";
 import Input from "@/components/ui/Input";
 import ConfirmationModal from "@/components/ui/ConfirmationModal";
 import useToast from "@/components/hoock/toast";
-import { CourseService } from "@/services/courseService"; // added
+import { CourseService } from "@/services/courseService";
+import { FaqService } from "@/services/faqService"; // <-- Add this
+import { useAuth } from "@/components/contexts/AuthContext"; // <-- Add this
 
 interface Faq {
   id: string;
@@ -21,6 +23,7 @@ interface Faq {
 
 function FaqsManagement() {
   const { showToast, ToastContainer } = useToast();
+  const { user } = useAuth(); // <-- For token if needed
 
   const [courseOptions, setCourseOptions] = React.useState<
     { id: string; title: string }[]
@@ -55,26 +58,38 @@ function FaqsManagement() {
     return () => ac.abort();
   }, [showToast]);
 
-  const [faqs, setFaqs] = React.useState<Faq[]>([
-    {
-      id: "1",
-      question: "How long do I have access to the course?",
-      answer:
-        "You get lifetime access, including future updates and improvements.",
-      updatedAt: new Date().toISOString(),
-      courseId: "c-101",
-    },
-    {
-      id: "2",
-      question: "Do I need prior experience?",
-      answer: "No prior experience is required. We start from basics.",
-      updatedAt: new Date().toISOString(),
-      courseId: "c-102",
-    },
-  ]);
+  // --- FAQ Service Integration ---
+  const faqService = React.useMemo(() => new FaqService(), []);
+  const [faqs, setFaqs] = React.useState<Faq[]>([]);
+  const [loadingFaqs, setLoadingFaqs] = React.useState(false);
+
+  // Load all FAQs (optionally for all courses, or you can filter by course)
+  const loadFaqs = async () => {
+    setLoadingFaqs(true);
+    try {
+      let allFaqs: Faq[] = [];
+      for (const course of courseOptions) {
+        const res = await faqService.listFaqs(course.id);
+        if (res.success && Array.isArray(res.data)) {
+          allFaqs = [...allFaqs, ...res.data];
+        }
+      }
+      setFaqs(allFaqs);
+    } catch {
+      showToast("Failed to load FAQs", "error");
+    } finally {
+      setLoadingFaqs(false);
+    }
+  };
+
+  React.useEffect(() => {
+    if (courseOptions.length > 0) {
+      loadFaqs();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [courseOptions]);
 
   const [search, setSearch] = React.useState("");
-
   const [isAddOpen, setIsAddOpen] = React.useState(false);
   const [isEditOpen, setIsEditOpen] = React.useState(false);
   const [isDeleteOpen, setIsDeleteOpen] = React.useState(false);
@@ -125,7 +140,8 @@ function FaqsManagement() {
     setSelected(null);
   };
 
-  const saveNew = () => {
+  // --- CRUD with backend ---
+  const saveNew = async () => {
     if (!form.question?.trim() || !form.answer?.trim()) {
       showToast("Question and answer are required.", "error");
       return;
@@ -134,50 +150,70 @@ function FaqsManagement() {
       showToast("Please select a course.", "error");
       return;
     }
-    const item: Faq = {
-      id: String(Date.now()),
-      question: String(form.question),
-      answer: String(form.answer),
-      updatedAt: new Date().toISOString(),
-      courseId: String(form.courseId),
+    try {
+      const res = await faqService.createFaq(form.courseId, {
+        question: form.question,
+        answer: form.answer,
+        // Do NOT send courseId in payload for create
+      });
+      if (res.success) {
+        showToast("FAQ added.", "success");
+        closeAll();
+        loadFaqs();
+      } else {
+        showToast(res.message || "Failed to add FAQ", "error");
+      }
+    } catch {
+      showToast("Failed to add FAQ", "error");
+    }
+  };
+
+  const saveEdit = async () => {
+    if (!selected) return;
+    if (!form.question?.trim() || !form.answer?.trim()) {
+      showToast("Question and answer are required.", "error");
+      return;
+    }
+    if (!form.courseId) {
+      showToast("Please select a course.", "error");
+      return;
+    }
+    // Only send courseId if changed
+    const payload: any = {
+      question: form.question,
+      answer: form.answer,
     };
-    setFaqs((prev) => [item, ...prev]);
-    showToast("FAQ added.", "success");
-    closeAll();
+    if (form.courseId !== selected.courseId) {
+      payload.courseId = form.courseId;
+    }
+    try {
+      const res = await faqService.updateFaq(selected.id, payload);
+      if (res.success) {
+        showToast("FAQ updated.", "success");
+        closeAll();
+        loadFaqs();
+      } else {
+        showToast(res.message || "Failed to update FAQ", "error");
+      }
+    } catch {
+      showToast("Failed to update FAQ", "error");
+    }
   };
 
-  const saveEdit = () => {
+  const confirmDelete = async () => {
     if (!selected) return;
-    if (!form.question?.trim() || !form.answer?.trim()) {
-      showToast("Question and answer are required.", "error");
-      return;
+    try {
+      const res = await faqService.deleteFaq(selected.id);
+      if (res.success) {
+        showToast("FAQ deleted.", "success");
+        closeAll();
+        loadFaqs();
+      } else {
+        showToast(res.message || "Failed to delete FAQ", "error");
+      }
+    } catch {
+      showToast("Failed to delete FAQ", "error");
     }
-    if (!form.courseId) {
-      showToast("Please select a course.", "error");
-      return;
-    }
-    setFaqs((prev) =>
-      prev.map((f) =>
-        f.id === selected.id
-          ? {
-              ...f,
-              question: String(form.question),
-              answer: String(form.answer),
-              updatedAt: new Date().toISOString(),
-              courseId: String(form.courseId),
-            }
-          : f
-      )
-    );
-    showToast("FAQ updated.", "success");
-    closeAll();
-  };
-
-  const confirmDelete = () => {
-    if (!selected) return;
-    setFaqs((prev) => prev.filter((f) => f.id !== selected.id));
-    showToast("FAQ deleted.", "success");
-    closeAll();
   };
 
   return (
@@ -219,44 +255,51 @@ function FaqsManagement() {
                 </tr>
               </thead>
               <tbody>
-                {filtered.length === 0 && (
+                {loadingFaqs ? (
+                  <tr>
+                    <td colSpan={5} className="py-6 text-center text-gray-500">
+                      Loading...
+                    </td>
+                  </tr>
+                ) : filtered.length === 0 ? (
                   <tr>
                     <td className="py-6 text-center text-gray-500" colSpan={5}>
                       No FAQs found
                     </td>
                   </tr>
+                ) : (
+                  filtered.map((row) => (
+                    <tr key={row.id} className="border-b last:border-b-0">
+                      <td className="py-3 pr-4 font-medium text-gray-900 max-w-[300px] truncate">
+                        {row.question}
+                      </td>
+                      <td className="py-3 pr-4 text-gray-700 max-w-[420px] truncate">
+                        {row.answer}
+                      </td>
+                      <td className="py-3 pr-4 text-gray-700">
+                        <span className="px-2 py-1 rounded-full bg-blue-50 text-blue-700 text-xs">
+                          {getCourseTitle(row.courseId)}
+                        </span>
+                      </td>
+                      <td className="py-3 pr-4 text-gray-600">
+                        {new Date(row.updatedAt).toLocaleString()}
+                      </td>
+                      <td className="py-3 pr-4">
+                        <div className="flex justify-end gap-2">
+                          <Button variant="need" onClick={() => openEdit(row)}>
+                            Edit
+                          </Button>
+                          <Button
+                            variant="danger"
+                            onClick={() => openDelete(row)}
+                          >
+                            Delete
+                          </Button>
+                        </div>
+                      </td>
+                    </tr>
+                  ))
                 )}
-                {filtered.map((row) => (
-                  <tr key={row.id} className="border-b last:border-b-0">
-                    <td className="py-3 pr-4 font-medium text-gray-900 max-w-[300px] truncate">
-                      {row.question}
-                    </td>
-                    <td className="py-3 pr-4 text-gray-700 max-w-[420px] truncate">
-                      {row.answer}
-                    </td>
-                    <td className="py-3 pr-4 text-gray-700">
-                      <span className="px-2 py-1 rounded-full bg-blue-50 text-blue-700 text-xs">
-                        {getCourseTitle(row.courseId)}
-                      </span>
-                    </td>
-                    <td className="py-3 pr-4 text-gray-600">
-                      {new Date(row.updatedAt).toLocaleString()}
-                    </td>
-                    <td className="py-3 pr-4">
-                      <div className="flex justify-end gap-2">
-                        <Button variant="need" onClick={() => openEdit(row)}>
-                          Edit
-                        </Button>
-                        <Button
-                          variant="danger"
-                          onClick={() => openDelete(row)}
-                        >
-                          Delete
-                        </Button>
-                      </div>
-                    </td>
-                  </tr>
-                ))}
               </tbody>
             </table>
           </div>

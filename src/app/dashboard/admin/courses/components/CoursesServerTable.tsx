@@ -59,17 +59,10 @@ export default function CoursesServerTable({
           ),
         },
         {
-          key: "courseType",
-          header: "Type",
-          render: (c: any) => (
-            <span className="text-sm text-gray-900">{c.courseType || "-"}</span>
-          ),
-        },
-        {
           key: "price",
           header: "Price",
           render: (c: any) => (
-            <span className="text-sm text-gray-900">${c.price}</span>
+            <span className="text-sm text-gray-900">{c.price}</span>
           ),
         },
         {
@@ -89,18 +82,6 @@ export default function CoursesServerTable({
           header: "Percentage",
           render: (c: any) => {
             let val = c.discountPercentage;
-            if (val !== null && val !== undefined && val !== "") {
-              val = typeof val === "string" ? val.replace(/\.00$/, "") : val;
-              return <span className="text-sm text-gray-900">{val}</span>;
-            }
-            return <span className="text-sm text-gray-900">-</span>;
-          },
-        },
-        {
-          key: "total",
-          header: "Total",
-          render: (c: any) => {
-            let val = c.total;
             if (val !== null && val !== undefined && val !== "") {
               val = typeof val === "string" ? val.replace(/\.00$/, "") : val;
               return <span className="text-sm text-gray-900">{val}</span>;

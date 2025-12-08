@@ -117,6 +117,13 @@ export const API_CONFIG = {
     ROLE_DELETE: (id: string) => `/roles/${id}`,
     // POST /roles/{id}/permissions - assign permissions to role
     ROLE_ASSIGN_PERMISSIONS: (id: string) => `/roles/${id}/permissions`,
+
+    // FAQs
+    COURSE_CREATE_FAQ: (id: string) => `/courses/${id}/faqs`, // POST: Create FAQ for a course
+    COURSE_LIST_FAQS: (id: string) => `/courses/${id}/faqs`,   // GET: List FAQs for a course
+    COURSE_FAQ_BY_ID: (faqId: string) => `/courses/faqs/${faqId}`, // GET: Get FAQ by ID
+    COURSE_UPDATE_FAQ: (faqId: string) => `/courses/faqs/${faqId}`, // PATCH: Update FAQ
+    COURSE_DELETE_FAQ: (faqId: string) => `/courses/faqs/${faqId}`, // DELETE: Delete FAQ
   },
   PAGINATION: {
     DEFAULT_PAGE_SIZE: 10,

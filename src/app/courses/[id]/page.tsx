@@ -102,11 +102,11 @@ export default function CourseDetailsPage() {
 
           const courseData = {
             ...course,
-
             instructor:
-              typeof course.instructor === "string"
+              typeof course.instructor === "object" &&
+              course.instructor !== null
                 ? course.instructor
-                : course.instructor?.name || "Unknown Instructor",
+                : { name: course.instructor ?? "Unknown Instructor" }, // fallback to object with name
 
             instructorId: course.instructorId ?? "",
 
@@ -193,16 +193,30 @@ export default function CourseDetailsPage() {
   const {
     title,
     description,
+    shortDescription,
     thumbnail,
     courseIntroVideo,
     price,
+    discountPrice,
+    discountPercentage,
+    level,
+    type,
+    isPublished,
+    isFeatured,
     duration,
     enrollmentCount,
     rating,
+    reviewCount,
+    total,
+    createdAt,
+    updatedAt,
     instructor,
     category,
     sections,
-  } = fetchedCourse as Course;
+    tags,
+    requirements,
+    learningOutcomes,
+  } = fetchedCourse as any;
 
   return (
     <MainLayout>
@@ -229,19 +243,98 @@ export default function CourseDetailsPage() {
               {/* Left Column - Course Info */}
               <div className="lg:col-span-2">
                 <div className="mb-6">
+                  {/* Category */}
                   <span className="inline-block px-3 py-1 bg-blue-100 text-blue-800 text-sm font-medium rounded-full mb-4">
-                    {typeof category === "object" &&
-                    category !== null &&
-                    "name" in category
-                      ? (category as { name: string }).name
-                      : typeof category === "string"
-                      ? category
-                      : "General"}
+                    {category?.icon} {category?.name}
+                    {category?.isActive === false && (
+                      <span className="ml-2 text-xs bg-red-100 text-red-600 px-2 rounded">
+                        Inactive
+                      </span>
+                    )}
                   </span>
-                  <h1 className="text-3xl lg:text-4xl font-bold text-gray-900 mb-4">
+                  {/* Title */}
+                  <h1 className="text-3xl lg:text-4xl font-bold text-gray-900 mb-2">
                     {title}
                   </h1>
-                  <p className="text-xl text-gray-600 mb-6">{description}</p>
+                  {/* Short Description */}
+                  {shortDescription && (
+                    <p className="text-base text-gray-500 mb-2">
+                      {shortDescription}
+                    </p>
+                  )}
+                  {/* Description */}
+                  <p className="text-xl text-gray-600 mb-4">{description}</p>
+                  {/* Level, Type, Featured, Published */}
+                  <div className="flex flex-wrap gap-2 mb-2">
+                    <span className="px-2 py-1 bg-gray-100 rounded text-xs">
+                      {level}
+                    </span>
+                    <span className="px-2 py-1 bg-gray-100 rounded text-xs">
+                      {type}
+                    </span>
+                    {isFeatured && (
+                      <span className="px-2 py-1 bg-yellow-100 text-yellow-800 rounded text-xs">
+                        Featured
+                      </span>
+                    )}
+                    {isPublished ? (
+                      <span className="px-2 py-1 bg-green-100 text-green-800 rounded text-xs">
+                        Published
+                      </span>
+                    ) : (
+                      <span className="px-2 py-1 bg-red-100 text-red-800 rounded text-xs">
+                        Unpublished
+                      </span>
+                    )}
+                  </div>
+                  {/* Price & Discount */}
+                  <div className="mb-2">
+                    {discountPrice ? (
+                      <>
+                        <span className="line-through text-gray-400">
+                          ৳{price}
+                        </span>
+                        <span className="text-red-600 ml-2 font-bold">
+                          ৳{discountPrice}
+                        </span>
+                        <span className="ml-2 text-green-600">
+                          ({discountPercentage}% off)
+                        </span>
+                      </>
+                    ) : (
+                      <span className="font-bold text-blue-600">৳{price}</span>
+                    )}
+                  </div>
+                  {/* Review Count & Total Content */}
+                  <div className="mb-2 flex gap-8">
+                    <span>
+                      <span className="font-semibold text-gray-800">
+                        Rating:
+                      </span>{" "}
+                      <span className="text-yellow-500">{rating}</span>
+                      <span className="ml-2 text-gray-500 text-xs">
+                        ({reviewCount} reviews)
+                      </span>
+                    </span>
+                    <span>
+                      <span className="font-semibold text-gray-800">
+                        Total Content:
+                      </span>{" "}
+                      <span className="text-gray-700">{total}</span>
+                    </span>
+                  </div>
+                  {/* Created/Updated Dates */}
+                  <div className="mb-2 text-xs text-gray-400">
+                    Created: {new Date(createdAt).toLocaleDateString()} |
+                    Updated: {new Date(updatedAt).toLocaleDateString()}
+                  </div>
+                  {/* Category Description */}
+                  {category?.description && (
+                    <div className="mb-2 text-sm text-gray-500">
+                      <span className="font-semibold">Category Info:</span>{" "}
+                      {category.description}
+                    </div>
+                  )}
                 </div>
 
                 {/* Course Intro Video Section */}
@@ -258,17 +351,48 @@ export default function CourseDetailsPage() {
                   </section>
                 )}
 
+                {/* Course Instructor Section */}
+                <div className="mb-8">
+                  <h3 className="text-2xl font-bold text-gray-900 mb-4">
+                    Course instructor
+                  </h3>
+                  <div className="border rounded-lg p-4 flex items-center space-x-4 bg-white">
+                    {fetchedCourse?.instructor?.avatar ? (
+                      <img
+                        src={fetchedCourse.instructor.avatar}
+                        alt={fetchedCourse.instructor.name}
+                        className="w-14 h-14 rounded-full object-cover"
+                      />
+                    ) : (
+                      <div className="w-14 h-14 rounded-full bg-yellow-100 flex items-center justify-center text-gray-700 font-bold text-xl">
+                        {fetchedCourse?.instructor?.name?.[0] || "?"}
+                      </div>
+                    )}
+                    <div>
+                      <div className="font-semibold text-lg text-gray-900 flex items-center">
+                        {fetchedCourse?.instructor?.name}
+                        {/* Optional: Add a link to instructor profile */}
+                        {/* <Link href={`/instructor/${fetchedCourse?.instructor?.id}`} className="ml-2 text-blue-600 hover:underline">&gt;</Link> */}
+                      </div>
+                      <div className="text-gray-700 text-sm mt-1">
+                        {fetchedCourse?.instructor?.bio}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
                 {/* Course Content */}
                 <section className="bg-white rounded-xl p-6 shadow-sm border border-gray-200">
                   <h2 className="text-2xl font-bold text-gray-900 mb-6">
                     Content preview
                   </h2>
                   <Accordion
-                    items={sections.map((section) => ({
+                    items={sections.map((section: any) => ({
                       id: section.id,
                       title: section.title,
                       content: (
                         <div className="space-y-3">
+                          {/* Lessons */}
                           {section.lessons && section.lessons.length > 0 ? (
                             section.lessons.map((lesson: any) => {
                               const canAccess = user && lesson.isFree;
@@ -344,10 +468,100 @@ export default function CourseDetailsPage() {
                               No lessons available in this section.
                             </p>
                           )}
+
+                          {/* Quizzes */}
+                          {section.quizzes && section.quizzes.length > 0 && (
+                            <div className="mt-4 space-y-2">
+                              <h5 className="font-semibold text-gray-800">
+                                Quizzes:
+                              </h5>
+                              {section.quizzes.map((quiz: any) => (
+                                <div
+                                  key={quiz.id}
+                                  className="flex items-center space-x-3 py-2 px-2 bg-gray-50 rounded"
+                                >
+                                  <span className="font-medium text-gray-900">
+                                    {quiz.title}
+                                  </span>
+                                  <span className="text-xs text-gray-500">
+                                    {quiz.totalQuestions} Questions,{" "}
+                                    {quiz.totalMarks} Marks
+                                  </span>
+                                  {quiz.isLocked ? (
+                                    <Lock className="w-4 h-4 text-gray-400" />
+                                  ) : (
+                                    <Unlock className="w-4 h-4 text-green-500" />
+                                  )}
+                                  {/* Quiz Button */}
+                                  <button
+                                    className={`px-2 py-1 rounded text-xs font-medium transition-colors ${
+                                      quiz.isLocked
+                                        ? "bg-gray-100 text-gray-400 cursor-not-allowed"
+                                        : "bg-purple-50 text-purple-600 hover:bg-purple-100"
+                                    }`}
+                                    disabled={quiz.isLocked}
+                                    onClick={() => {
+                                      // Quiz click handler, e.g. open quiz modal or redirect
+                                      if (!quiz.isLocked) {
+                                        // Example: router.push(`/quiz/${quiz.id}`)
+                                      }
+                                    }}
+                                  >
+                                    Start Quiz
+                                  </button>
+                                </div>
+                              ))}
+                            </div>
+                          )}
                         </div>
                       ),
                     }))}
                   />
+                </section>
+
+                <section className="mt-8">
+                  <div className="flex flex-wrap gap-8 mb-2">
+                    <div>
+                      <span className="font-semibold text-gray-800">
+                        Enrollment:
+                      </span>{" "}
+                      <span className="text-gray-700">{enrollmentCount}</span>
+                    </div>
+                    <div>
+                      <span className="font-semibold text-gray-800">
+                        Rating:
+                      </span>{" "}
+                      <span className="text-yellow-500">{rating}</span>
+                    </div>
+                  </div>
+                  <div className="mb-2">
+                    <span className="font-semibold text-gray-800">Tags:</span>{" "}
+                    <span className="text-gray-700">
+                      {Array.isArray(tags) ? tags.join(", ") : ""}
+                    </span>
+                  </div>
+                  <div className="mb-2">
+                    <span className="font-semibold text-gray-800">
+                      Requirements:
+                    </span>
+                    <ul className="list-disc ml-6 text-gray-700">
+                      {Array.isArray(requirements) &&
+                        requirements.map((req, idx) => (
+                          <li key={idx}>{req}</li>
+                        ))}
+                    </ul>
+                  </div>
+                  <div>
+                    <span className="font-semibold text-gray-800">
+                      Learning Outcomes:
+                    </span>
+                    <ul className="list-disc ml-6 text-gray-700">
+                      {Array.isArray(learningOutcomes) &&
+                        learningOutcomes.map((outcome, idx) => (
+                          <li key={idx}>{outcome}</li>
+                        ))}
+                    </ul>
+                  </div>
                 </section>
               </div>
 

@@ -343,15 +343,16 @@ function CoursesManagement() {
         showToast("Course created", "success");
         if (res.data) setCourses((p) => [res.data as any, ...p]);
         setRefreshTick((x) => x + 1);
+        setIsAddModalOpen(false); // Only close on success
+        resetForm(); // Only reset on success
       } else {
         showToast(res.error || "Failed to create course", "error");
+        // Do NOT close modal or reset form
       }
     } catch (e: any) {
       showToast(e?.message || "Failed to create course", "error");
+      // Do NOT close modal or reset form
     }
-
-    setIsAddModalOpen(false);
-    resetForm();
   };
 
   const handleEdit = async () => {
@@ -458,11 +459,16 @@ function CoursesManagement() {
           )
         );
         setRefreshTick((x) => x + 1);
+        setIsEditModalOpen(false); // Only close on success
+        setSelectedItem(null);
+        resetForm(); // Only reset on success
       } else {
         showToast(res.error || "Failed to update course", "error");
+        // Do NOT close modal or reset form
       }
     } catch (e: any) {
       showToast(e?.message || "Failed to update course", "error");
+      // Do NOT close modal or reset form
     }
     setIsEditModalOpen(false);
     setSelectedItem(null);
