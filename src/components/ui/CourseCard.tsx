@@ -69,7 +69,7 @@ export default function CourseCard({ course }: { course: Course }) {
           <div>
             {/* Category Badge */}
             <span className="inline-block mb-2 px-3 py-1 bg-gray-100 text-gray-700 text-xs rounded font-medium">
-              {course.category || "Web Development"}
+              {course.category ? String(course.category) : "Web Development"}
             </span>
             <h3 className="text-lg font-bold text-gray-900 mb-2 line-clamp-2 group-hover:text-blue-700 transition-colors">
               {course.title}
@@ -89,7 +89,7 @@ export default function CourseCard({ course }: { course: Course }) {
               </div>
             </div>
             <div className="flex items-center justify-between mb-3">
-              <StarRating rating={course.rating ?? 0} />
+              <StarRating rating={Number(course.rating) || 0} />
               <span className="text-sm text-gray-500">
                 {((course as any).enrolledStudents ?? 0).toLocaleString()}{" "}
                 {t("featuredCourses.students")}

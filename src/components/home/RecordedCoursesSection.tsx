@@ -76,7 +76,7 @@ export default function RecordedCoursesSection() {
 
   return (
     <section className="py-8 md:py-16 bg-white">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div className="max-w-7xl mx-auto px-4 sm:px-10 lg:px-50">
         {/* Header with responsive spacing and font sizes */}
         <div className="text-center mb-8 md:mb-12">
           <h2 className="text-2xl md:text-3xl lg:text-4xl font-bold text-gray-900 mb-3 md:mb-4">
@@ -125,11 +125,57 @@ export default function RecordedCoursesSection() {
                   (course as any).enrollmentCount ??
                   (course as any).enrolledStudents ??
                   0,
+                // Fix: instructor should be an object, not a string
+                instructor:
+                  typeof course.instructor === "object" && course.instructor !== null
+                    ? {
+                        id: (course.instructor as any).id ?? course.instructorId ?? "",
+                        name: (course.instructor as any)?.name ?? "",
+                        firstName: (course.instructor as any)?.firstName,
+                        lastName: (course.instructor as any)?.lastName,
+                        avatar: (course.instructor as any)?.avatar,
+                        bio: (course.instructor as any)?.bio,
+                      }
+                    : {
+                        id: course.instructorId ?? "",
+                        name: typeof course.instructor === "string" ? course.instructor : "",
+                      },
               }))}
               title={t("Recorded Courses") || "Recorded Courses"}
-              categories={[
-                ...new Set(courses.map((c) => c.category || "General")),
-              ]}
+              categories={
+                courses
+                  .map((c) => {
+                    if (typeof c.category === "object" && c.category !== null) {
+                      // Ensure the object has an id and name
+                      return {
+                        id: (c.category as any).id ?? (typeof c.category === "object" && (c.category as any).name ? (c.category as any).name.toLowerCase().replace(/\s+/g, "-") : "general"),
+                        name: (c.category as any).name ?? String(c.category),
+                        description: (c.category as any).description ?? "",
+                        categories_avatar: (c.category as any).categories_avatar ?? null,
+                        icon: (c.category as any).icon ?? undefined,
+                        isActive: (c.category as any).isActive ?? undefined,
+                        createdAt: (c.category as any).createdAt ?? undefined,
+                        updatedAt: (c.category as any).updatedAt ?? undefined,
+                      };
+                    } else {
+                      // Fallback for string category
+                      const name = c.category || "General";
+                      return {
+                        id: name.toLowerCase().replace(/\s+/g, "-"),
+                        name,
+                        description: "",
+                        categories_avatar: null,
+                      };
+                    }
+                  })
+                  .filter(
+                    (cat, idx, arr) =>
+                      cat &&
+                      arr.findIndex(
+                        (c) => c.id === cat.id
+                      ) === idx
+                  )
+              }
               className="mb-4 md:mb-8"
               renderItem={(course) => (
                 <div className="px-2 md:px-3 w-full">

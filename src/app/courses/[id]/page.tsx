@@ -102,11 +102,35 @@ export default function CourseDetailsPage() {
 
           const courseData = {
             ...course,
-            instructor:
-              typeof course.instructor === "object" &&
-              course.instructor !== null
-                ? course.instructor
-                : { name: course.instructor ?? "Unknown Instructor" }, // fallback to object with name
+            instructor: (() => {
+              if (
+                typeof course.instructor === "object" &&
+                course.instructor !== null &&
+                typeof course.instructor.id === "string"
+              ) {
+                // Ensure name is always a string (not undefined)
+                return {
+                  ...course.instructor,
+                  name:
+                    typeof course.instructor.name === "string" &&
+                    course.instructor.name
+                      ? course.instructor.name
+                      : "Unknown Instructor",
+                };
+              } else {
+                // Provide all required Instructor fields with safe defaults
+                return {
+                  id: course.instructorId ?? "unknown",
+                  name: typeof course.instructor === "string" && course.instructor
+                    ? course.instructor
+                    : "Unknown Instructor",
+                  firstName: "",
+                  lastName: "",
+                  avatar: null,
+                  bio: "",
+                };
+              }
+            })(),
 
             instructorId: course.instructorId ?? "",
 

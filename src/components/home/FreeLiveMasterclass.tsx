@@ -27,6 +27,14 @@ interface FreeMasterclass {
 }
 
 function MasterclassCard({ masterclass }: { masterclass: FreeMasterclass }) {
+  // Convert instructor string to Instructor object for CourseCard
+  const courseForCard = {
+    ...masterclass,
+    instructor: {
+      id: masterclass.instructorId,
+      name: masterclass.instructor,
+    },
+  };
   return (
     <div className="relative">
       {masterclass.isLive && (
@@ -34,7 +42,7 @@ function MasterclassCard({ masterclass }: { masterclass: FreeMasterclass }) {
           LIVE
         </span>
       )}
-      <CourseCard course={masterclass} />
+      <CourseCard course={courseForCard} />
     </div>
   );
 }

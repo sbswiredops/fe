@@ -50,7 +50,7 @@ export interface Course {
   price: number | string;
   duration: number | string;
   thumbnail: string;
-  category: Category;
+  category: Category | string; // Allow both Category object or string for flexibility
   rating: number | string;
   sections: any[];
   courseIntroVideo: string | null;

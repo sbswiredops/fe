@@ -71,7 +71,10 @@ export default function EnrollPage() {
             id: String(c.id),
             title: String(c.title || ""),
             description: String(c.description || ""),
-            instructor: String(instructorName),
+            instructor: c?.instructor ?? {
+              id: String(c?.instructorId || ""),
+              name: String(instructorName),
+            },
             instructorId: String(c.instructorId || c?.instructor?.id || ""),
             price: Number(c.price ?? 0),
             duration: durationStr,
@@ -221,7 +224,9 @@ export default function EnrollPage() {
                     <div className="mt-4 flex items-center gap-3">
                       <div className="text-sm text-gray-500">Instructor</div>
                       <div className="text-sm font-semibold text-gray-900">
-                        {course.instructor}
+                        {typeof course.instructor === "object" && course.instructor.name
+                          ? course.instructor.name
+                          : String(course.instructor)}
                       </div>
                     </div>
                     <div className="mt-3 text-sm text-gray-600">

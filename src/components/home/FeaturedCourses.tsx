@@ -42,13 +42,19 @@ export default function FeaturedCourses() {
         }
         if (!ignore && Array.isArray(list)) {
           const mapped: Course[] = list.map((c: any) => {
-            const instructorName =
-              c?.instructor?.name ||
-              [c?.instructor?.firstName, c?.instructor?.lastName]
-                .filter(Boolean)
-                .join(" ") ||
-              c?.instructorId ||
-              "Instructor";
+            const instructorObj =
+              c?.instructor && typeof c.instructor === "object"
+                ? c.instructor
+                : {
+                    id: c?.instructorId || "",
+                    name:
+                      c?.instructor?.name ||
+                      [c?.instructor?.firstName, c?.instructor?.lastName]
+                        .filter(Boolean)
+                        .join(" ") ||
+                      c?.instructorId ||
+                      "Instructor",
+                  };
             const categoryName = c?.category?.name || c?.category || "General";
             const created = c?.createdAt ? new Date(c.createdAt) : new Date();
             const durationStr =
@@ -61,7 +67,7 @@ export default function FeaturedCourses() {
               id: String(c.id),
               title: String(c.title || ""),
               description: String(c.description || ""),
-              instructor: String(instructorName),
+              instructor: instructorObj,
               instructorId: String(c.instructorId || c?.instructor?.id || ""),
               price: Number(c.price ?? 0),
               duration: durationStr,

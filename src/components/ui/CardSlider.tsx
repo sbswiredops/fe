@@ -5,7 +5,7 @@ import { Course } from "../types";
 export interface CardSliderProps {
   items: Course[];
   title?: string;
-  categories?: string[];
+  categories?: Course["category"][];
   className?: string;
   renderItem?: (item: Course) => React.ReactNode;
 }
@@ -18,7 +18,7 @@ export default function CardSlider({
   renderItem,
 }: CardSliderProps) {
   const [search, setSearch] = useState("");
-  const [category, setCategory] = useState("all");
+  const [category, setCategory] = useState<Course["category"] | "all">("all");
   const [visibleSlides, setVisibleSlides] = useState(3);
   const containerRef = useRef<HTMLDivElement | null>(null);
   const [isHovered, setIsHovered] = useState(false);
@@ -28,10 +28,15 @@ export default function CardSlider({
     return items.filter((it) => {
       if (category !== "all" && it.category !== category) return false;
       if (!q) return true;
+      // Normalize instructor to a string (supports both string or object with a `name` field)
+      const instructorName =
+        typeof it.instructor === "string"
+          ? it.instructor
+          : it.instructor?.name ?? "";
       return (
         it.title.toLowerCase().includes(q) ||
         it.description.toLowerCase().includes(q) ||
-        (it.instructor || "").toLowerCase().includes(q)
+        instructorName.toLowerCase().includes(q)
       );
     });
   }, [items, search, category]);
@@ -161,8 +166,10 @@ export default function CardSlider({
           {/* Category select */}
           <div className="flex-1 sm:flex-initial flex items-center bg-white border border-gray-200 rounded">
             <select
-              value={category}
-              onChange={(e) => setCategory(e.target.value)}
+              value={String(category)}
+              onChange={(e) =>
+                setCategory(e.target.value as Course["category"] | "all")
+              }
               className="w-full px-3 py-2 text-sm outline-none bg-transparent text-gray-900"
               aria-label="Filter by category"
             >
@@ -170,8 +177,12 @@ export default function CardSlider({
                 All categories
               </option>
               {categories.map((c) => (
-                <option key={c} value={c} className="text-gray-900">
-                  {c}
+                <option
+                  key={typeof c === "object" && c !== null ? c.id : c}
+                  value={typeof c === "object" && c !== null ? c.id : c}
+                  className="text-gray-900"
+                >
+                  {typeof c === "object" && c !== null && "name" in c ? c.name : String(c)}
                 </option>
               ))}
             </select>
