@@ -3,7 +3,14 @@
 import React from "react";
 import Link from "next/link";
 import { useLanguage } from "../contexts/LanguageContext";
-import { Mail, MapPin, Facebook, Instagram, Linkedin, Youtube } from "lucide-react";
+import {
+  Mail,
+  MapPin,
+  Facebook,
+  Instagram,
+  Linkedin,
+  Youtube,
+} from "lucide-react";
 
 export default function Footer() {
   const { t } = useLanguage();
@@ -41,7 +48,7 @@ export default function Footer() {
     },
     {
       name: "Facebook",
-      href: "https://www.facebook.com/profile.php?id=61579715964796",
+      href: "https://www.facebook.com/Shekhaboltd/",
       icon: Facebook,
     },
   ];
@@ -154,7 +161,10 @@ export default function Footer() {
         {/* Bottom bar */}
         <div className="mt-10 border-t border-gray-400 pt-6 flex flex-col md:flex-row md:items-center md:justify-between gap-4">
           <p className="text-sm text-gray-200 hover:text-[#F8F9FA]">
-            © {new Date().getFullYear()} shekhabo.com
+            © {new Date().getFullYear()} Shekhabo Ltd.
+          </p>
+          <p className="text-sm text-gray-200 md:text-right">
+            TRAD/DNCC/028948/2025&nbsp;|&nbsp;TIN 158155909036
           </p>
         </div>
       </div>
