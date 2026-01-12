@@ -147,14 +147,34 @@ function LessonsManagement() {
       if (res.success) {
         showToast("Lesson created", "success");
         setRefreshTick((x) => x + 1); // trigger table reload
+        setIsAddModalOpen(false); // Only close on success
+        resetForm();
       } else {
-        showToast(res.error || "Failed to create lesson", "error");
+        // Always prefer res.message if available
+        let msg =
+          (res.message && typeof res.message === "string")
+            ? res.message
+            : (res.error && typeof res.error === "string")
+            ? res.error
+            : "Failed to create lesson. Please check your input and try again.";
+        if (msg.includes("504")) {
+          msg = "Server timeout. Please try again later.";
+        }
+        showToast(msg, "error");
       }
     } catch (e: any) {
-      showToast(e?.message || "Failed to create lesson", "error");
+      // Also check for e.response?.data?.message if available
+      let msg =
+        (e?.response?.data?.message && typeof e.response.data.message === "string")
+          ? e.response.data.message
+          : (e?.message && typeof e.message === "string")
+          ? e.message
+          : "Failed to create lesson. Please check your input and try again.";
+      if (msg.includes("504")) {
+        msg = "Server timeout. Please try again later.";
+      }
+      showToast(msg, "error");
     }
-    setIsAddModalOpen(false);
-    resetForm();
   };
 
   const handleEdit = async () => {
