@@ -295,33 +295,48 @@ export default function CourseDetailsPage() {
           <div className="absolute inset-0 bg-gradient-to-br from-blue-600/10 via-purple-600/10 to-transparent"></div>
 
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 lg:py-16 relative z-10">
-            <div className="grid lg:grid-cols-3 gap-8 lg:gap-12">
+            <div className="grid lg:grid-cols-3 gap-8 lg:gap-12 items-start">
               {/* LEFT COLUMN - Course Info */}
-              <div className="lg:col-span-2 space-y-8 overflow-y-auto max-h-[calc(100vh-4rem)] pr-2 scrollbar-hide">
+              <div className="lg:col-span-2 flex flex-col gap-8">
                 {/* Category & Title */}
-                <div className="space-y-4">
-                  <div className="inline-flex items-center gap-2">
-                    <span className="inline-block px-4 py-2 bg-gradient-to-r from-blue-100 to-purple-100 text-blue-700 text-sm font-semibold rounded-full backdrop-blur-sm border border-blue-200/50">
-                      {category?.name || "Course"}
-                    </span>
-                    {isFeatured && (
-                      <span className="inline-block px-4 py-2 bg-gradient-to-r from-yellow-100 to-orange-100 text-orange-700 text-sm font-semibold rounded-full backdrop-blur-sm border border-orange-200/50 flex items-center gap-1">
-                        <Zap className="w-4 h-4" /> Featured
-                      </span>
-                    )}
+                {/* Banner & Title Section */}
+                <div className="rounded-3xl bg-white/80 shadow-lg border border-white/40 p-8 flex flex-col gap-4">
+                  <div className="flex flex-col md:flex-row md:items-center gap-6">
+                    <div className="flex-shrink-0 w-full md:w-64 h-40 md:h-48 rounded-2xl overflow-hidden bg-gradient-to-br from-blue-400 to-purple-500 flex items-center justify-center">
+                      {thumbnail ? (
+                        <img
+                          src={thumbnail}
+                          alt={title || "Course thumbnail"}
+                          className="w-full h-full object-cover"
+                        />
+                      ) : (
+                        <div className="w-full h-full bg-gradient-to-br from-blue-400 to-purple-500 animate-pulse" />
+                      )}
+                    </div>
+                    <div className="flex-1 flex flex-col gap-2">
+                      <div className="flex items-center gap-2">
+                        <span className="inline-block px-4 py-2 bg-gradient-to-r from-blue-100 to-purple-100 text-blue-700 text-sm font-semibold rounded-full border border-blue-200/50">
+                          {category?.name || "Course"}
+                        </span>
+                        {isFeatured && (
+                          <span className="inline-block px-4 py-2 bg-gradient-to-r from-yellow-100 to-orange-100 text-orange-700 text-sm font-semibold rounded-full border border-orange-200/50 flex items-center gap-1">
+                            <Zap className="w-4 h-4" /> Featured
+                          </span>
+                        )}
+                      </div>
+                      <h1 className="text-3xl md:text-4xl font-bold text-gray-900 leading-tight">
+                        {title}
+                      </h1>
+                      {shortDescription && (
+                        <p className="text-base md:text-lg text-gray-600 leading-relaxed">
+                          {shortDescription}
+                        </p>
+                      )}
+                    </div>
                   </div>
-
-                  <h1 className="text-4xl lg:text-5xl font-bold text-gray-900 leading-tight">
-                    {title}
-                  </h1>
-
-                  {shortDescription && (
-                    <p className="text-lg text-gray-600 leading-relaxed">
-                      {shortDescription}
-                    </p>
-                  )}
                 </div>
 
+                {/* Key Stats Row */}
                 {/* Key Stats Row */}
                 <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
                   <div className="bg-white/60 backdrop-blur-sm rounded-xl p-4 border border-white/40 hover:border-blue-200 transition-colors">
@@ -382,6 +397,7 @@ export default function CourseDetailsPage() {
                 </div>
 
                 {/* Rating & Reviews */}
+                {/* Rating & Instructor */}
                 <div className="bg-white/60 backdrop-blur-sm rounded-2xl p-6 border border-white/40">
                   <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-6">
                     <div>
@@ -405,9 +421,10 @@ export default function CourseDetailsPage() {
                 </div>
 
                 {/* Description */}
+                {/* Course Overview */}
                 <div className="space-y-4">
-                  <h2 className="text-2xl font-bold text-gray-900">
-                    Course Overview
+                  <h2 className="text-2xl font-bold text-gray-900 border-l-4 border-blue-500 pl-3 mb-2">
+                    কোর্স পরিচিতি
                   </h2>
                   <p className="text-gray-700 leading-relaxed text-lg">
                     {description}
@@ -417,13 +434,12 @@ export default function CourseDetailsPage() {
                 {/* Course Intro Video */}
                 {courseIntroVideo && (
                   <section className="space-y-4">
-                    <h2 className="text-2xl font-bold text-gray-900">
-                      Course Introduction
+                    <h2 className="text-2xl font-bold text-gray-900 border-l-4 border-purple-500 pl-3 mb-2">
+                      কোর্স ইন্ট্রো ভিডিও
                     </h2>
                     <YouTubePlayer videoUrl={courseIntroVideo} />
                     <p className="text-sm text-gray-500 italic">
-                      Get a preview of what you'll learn in this comprehensive
-                      course.
+                      কোর্সের সংক্ষিপ্ত পরিচিতি ভিডিও
                     </p>
                   </section>
                 )}
@@ -431,25 +447,15 @@ export default function CourseDetailsPage() {
 
               {/* RIGHT COLUMN - Pricing Card */}
               <div className="lg:col-span-1">
-                <div className="sticky top-24 bg-white/80 backdrop-blur-md rounded-3xl shadow-xl border border-white/40 overflow-hidden hover:shadow-2xl transition-shadow">
-                  {/* Course Thumbnail */}
-                  <div className="relative h-48 bg-gradient-to-br from-blue-400 to-purple-500 flex items-center justify-center overflow-hidden">
-                    {thumbnail ? (
-                      <img
-                        src={thumbnail}
-                        alt={title || "Course thumbnail"}
-                        className="w-full h-full object-cover hover:scale-110 transition-transform duration-300"
-                      />
-                    ) : (
-                      <div className="w-full h-full bg-gradient-to-br from-blue-400 to-purple-500 animate-pulse" />
-                    )}
-                  </div>
-
-                  <div className="p-8 space-y-6">
+                <div
+                  className="sticky top-8 bg-white/90 backdrop-blur-md rounded-3xl shadow-2xl border border-white/40 overflow-hidden transition-shadow flex flex-col"
+                  style={{ minHeight: 420 }}
+                >
+                  <div className="p-8 space-y-6 flex-1 flex flex-col justify-between">
                     {/* Pricing */}
                     <div className="space-y-3">
-                      <p className="text-sm text-gray-500 uppercase tracking-widest font-semibold">
-                        Price
+                      <p className="text-lg font-bold text-gray-900 mb-1">
+                        কোর্স ফি
                       </p>
                       <div className="flex items-baseline gap-3">
                         <span className="text-4xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
@@ -463,22 +469,18 @@ export default function CourseDetailsPage() {
                       </div>
                       {discountPrice && (
                         <p className="text-sm font-semibold text-green-600">
-                          Save {discountPercentage}%
+                          {discountPercentage}% ছাড়
                         </p>
                       )}
                       <p className="text-xs text-gray-500">
-                        One-time payment • Lifetime access
+                        একবার পেমেন্ট • ২ বছরের কন্টেন্ট অ্যাক্সেস
                       </p>
                     </div>
 
                     {/* CTA Button */}
                     <Button
                       size="lg"
-                      className="w-full font-semibold text-white rounded-xl py-3 hover:shadow-lg transition-all duration-300 text-base"
-                      style={{
-                        backgroundColor: "var(--color-text-primary)",
-                        borderColor: "var(--color-text-primary)",
-                      }}
+                      className="w-full font-semibold text-white rounded-xl py-3 hover:shadow-lg transition-all duration-300 text-base bg-gradient-to-r from-blue-600 to-purple-600 border-0"
                       onClick={() => {
                         if (!user) {
                           router.push(`/login?next=/courses/${id}`);
@@ -487,37 +489,37 @@ export default function CourseDetailsPage() {
                         router.push(`/enroll?courseId=${id}`);
                       }}
                     >
-                      Enroll Now
+                      কোর্সে ভর্তি হন
                     </Button>
 
                     {/* Course Includes */}
                     <div className="space-y-4 pt-6 border-t border-gray-200">
-                      <p className="font-bold text-gray-900 text-sm uppercase tracking-wide">
-                        This course includes:
+                      <p className="font-bold text-gray-900 text-base mb-2">
+                        এই কোর্সে যা যা পাচ্ছেন
                       </p>
                       <ul className="space-y-3">
                         <li className="flex items-start gap-3">
                           <CheckCircle className="w-5 h-5 text-green-500 flex-shrink-0 mt-0.5" />
                           <span className="text-sm text-gray-700">
-                            {duration} minutes of content
+                            {duration} মিনিটের রেকর্ডেড ভিডিও
                           </span>
                         </li>
                         <li className="flex items-start gap-3">
                           <CheckCircle className="w-5 h-5 text-green-500 flex-shrink-0 mt-0.5" />
                           <span className="text-sm text-gray-700">
-                            Lifetime access
+                            ২ বছরের কন্টেন্ট অ্যাক্সেস
                           </span>
                         </li>
                         <li className="flex items-start gap-3">
                           <CheckCircle className="w-5 h-5 text-green-500 flex-shrink-0 mt-0.5" />
                           <span className="text-sm text-gray-700">
-                            Certificate of completion
+                            প্রফেশনাল সার্টিফিকেট
                           </span>
                         </li>
                         <li className="flex items-start gap-3">
                           <CheckCircle className="w-5 h-5 text-green-500 flex-shrink-0 mt-0.5" />
                           <span className="text-sm text-gray-700">
-                            24/7 student support
+                            ২৪/৭ স্টুডেন্ট সাপোর্ট
                           </span>
                         </li>
                       </ul>
