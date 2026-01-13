@@ -104,7 +104,7 @@ function LessonItem({
 
   const handleOpenLesson = () => {
     router.push(
-      `/dashboard/student/learn/lesson/${lesson.id}?courseId=${courseId}&sectionId=${section.id}`
+      `/dashboard/student/lesson/${lesson.id}?courseId=${courseId}&sectionId=${section.id}`
     );
   };
 
