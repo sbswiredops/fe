@@ -319,7 +319,7 @@ export default function CourseDetailsPage() {
                           {category?.name || "Course"}
                         </span>
                         {isFeatured && (
-                          <span className="inline-block px-4 py-2 bg-gradient-to-r from-yellow-100 to-orange-100 text-orange-700 text-sm font-semibold rounded-full border border-orange-200/50 flex items-center gap-1">
+                          <span className="px-4 py-2 bg-gradient-to-r from-yellow-100 to-orange-100 text-orange-700 text-sm font-semibold rounded-full border border-orange-200/50 flex items-center gap-1">
                             <Zap className="w-4 h-4" /> Featured
                           </span>
                         )}
@@ -441,6 +441,134 @@ export default function CourseDetailsPage() {
                     <p className="text-sm text-gray-500 italic">
                       কোর্সের সংক্ষিপ্ত পরিচিতি ভিডিও
                     </p>
+                  </section>
+                )}
+
+                {/* Course Curriculum Section */}
+                {Array.isArray(sections) && sections.length > 0 && (
+                  <section className="mt-8">
+                    <h2 className="text-2xl font-bold text-gray-900 mb-4 border-l-4 border-blue-500 pl-3">
+                      কোর্সের সম্পূর্ণ কারিকুলাম
+                    </h2>
+                    <div className="rounded-2xl border border-gray-200 bg-white/80 overflow-hidden">
+                      {sections.map((section: any, sIdx: number) => (
+                        <div
+                          key={section.id || sIdx}
+                          className="border-b border-gray-200"
+                        >
+                          <div className="px-6 py-4 font-bold text-lg text-gray-900 bg-gray-50 flex items-center justify-between">
+                            <span>{section.title || `Module ${sIdx + 1}`}</span>
+                            {section.isQuizLocked && (
+                              <span className="ml-2 px-2 py-1 text-xs rounded bg-red-100 text-red-600 border border-red-200 flex items-center gap-1">
+                                <Lock className="w-4 h-4 inline" /> Quiz Locked
+                              </span>
+                            )}
+                            {section.isFinalSection && (
+                              <span className="ml-2 px-2 py-1 text-xs rounded bg-green-100 text-green-700 border border-green-200 flex items-center gap-1">
+                                <Award className="w-4 h-4 inline" /> Final
+                                Section
+                              </span>
+                            )}
+                          </div>
+                          {/* Lessons */}
+                          {Array.isArray(section.lessons) &&
+                            section.lessons.length > 0 && (
+                              <ul className="divide-y divide-gray-100">
+                                {section.lessons.map(
+                                  (lesson: any, lIdx: number) => (
+                                    <li
+                                      key={lesson.id || lIdx}
+                                      className="flex flex-wrap md:flex-nowrap items-center px-8 py-3 group hover:bg-blue-50 transition border-l-4 border-transparent hover:border-blue-400"
+                                      style={{ gap: "0.5rem" }}
+                                    >
+                                      {/* Lesson type icon and badge with lesson title */}
+                                      {lesson.video && (
+                                        <span className="inline-flex items-center px-2 py-0.5 rounded bg-blue-100 text-blue-700 text-xs font-semibold gap-1 mr-3">
+                                          <Play className="w-4 h-4" />{" "}
+                                          {lesson.title}
+                                        </span>
+                                      )}
+                                      {lesson.resource && !lesson.video && (
+                                        <span className="inline-flex items-center px-2 py-0.5 rounded bg-purple-100 text-purple-700 text-xs font-semibold gap-1 mr-3">
+                                          <BookOpen className="w-4 h-4" />{" "}
+                                          {lesson.title}
+                                        </span>
+                                      )}
+                                      {/* If neither video nor resource, just show title */}
+                                      {!lesson.video && !lesson.resource && (
+                                        <span className="flex-1 font-medium text-gray-900 min-w-0 truncate">
+                                          {lesson.title}
+                                        </span>
+                                      )}
+                                      {/* Lock/Unlock status */}
+                                      {lesson.isFree ? (
+                                        <span className="ml-2 px-2 py-0.5 text-xs rounded bg-green-100 text-green-700 border border-green-200 flex items-center gap-1 font-semibold">
+                                          <Unlock className="w-4 h-4 inline" />{" "}
+                                          Free
+                                        </span>
+                                      ) : (
+                                        <span className="ml-2 px-2 py-0.5 text-xs rounded bg-gray-100 text-gray-600 border border-gray-200 flex items-center gap-1 font-semibold">
+                                          <Lock className="w-4 h-4 inline" />{" "}
+                                          Locked
+                                        </span>
+                                      )}
+                                      {/* Duration */}
+                                      {lesson.duration && (
+                                        <span className="ml-2 px-2 py-0.5 text-xs rounded bg-slate-100 text-slate-700 border border-slate-200 font-semibold">
+                                          {lesson.duration} min
+                                        </span>
+                                      )}
+                                    </li>
+                                  )
+                                )}
+                              </ul>
+                            )}
+                          {/* Quizzes */}
+                          {Array.isArray(section.quizzes) &&
+                            section.quizzes.length > 0 && (
+                              <ul className="divide-y divide-gray-100">
+                                {section.quizzes.map(
+                                  (quiz: any, qIdx: number) => (
+                                    <li
+                                      key={quiz.id || qIdx}
+                                      className="flex items-center px-8 py-3 group hover:bg-purple-50 transition"
+                                    >
+                                      <span className="inline-flex items-center px-2 py-0.5 rounded bg-purple-100 text-purple-700 text-xs font-semibold gap-1 mr-3">
+                                        <Award className="w-4 h-4" />
+                                        {quiz.title}
+                                        <span className="ml-1">Quiz</span>
+                                      </span>
+                                      {/* Lock/Unlock status */}
+                                      {quiz.isLocked ? (
+                                        <span className="ml-2 px-2 py-1 text-xs rounded bg-gray-100 text-gray-600 border border-gray-200 flex items-center gap-1">
+                                          <Lock className="w-4 h-4 inline" />{" "}
+                                          Locked
+                                        </span>
+                                      ) : (
+                                        <span className="ml-2 px-2 py-1 text-xs rounded bg-green-100 text-green-700 border border-green-200 flex items-center gap-1">
+                                          <Unlock className="w-4 h-4 inline" />{" "}
+                                          Unlocked
+                                        </span>
+                                      )}
+                                      {/* Quiz info */}
+                                      <span className="ml-2 text-xs text-gray-500">
+                                        {quiz.totalQuestions} Qs,{" "}
+                                        {quiz.totalMarks} Marks,{" "}
+                                        {quiz.totalTime} min
+                                      </span>
+                                      {quiz.isFinalQuiz && (
+                                        <span className="ml-2 px-2 py-1 text-xs rounded bg-yellow-100 text-yellow-700 border border-yellow-200 flex items-center gap-1">
+                                          Final Quiz
+                                        </span>
+                                      )}
+                                    </li>
+                                  )
+                                )}
+                              </ul>
+                            )}
+                        </div>
+                      ))}
+                    </div>
                   </section>
                 )}
               </div>

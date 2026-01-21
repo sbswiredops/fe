@@ -56,7 +56,10 @@ export class CourseService {
 
   // Get course by ID
   async getCourseById(id: string): Promise<ApiResponse<Course>> {
-    return this.client.get<Course>(API_CONFIG.ENDPOINTS.COURSE_BY_ID(id));
+    console.log('[CourseService] getCourseById called with id:', id);
+    const response = await this.client.get<Course>(API_CONFIG.ENDPOINTS.COURSE_BY_ID(id));
+    console.log('[CourseService] getCourseById response:', response);
+    return response;
   }
 
   async createCourse(courseData: CreateCourseRequest | FormData): Promise<ApiResponse<Course>> {
