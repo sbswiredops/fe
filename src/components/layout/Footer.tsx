@@ -28,6 +28,7 @@ export default function Footer() {
     { name: t("footer.contactUs"), href: "/contact" },
     { name: t("footer.privacyPolicy"), href: "/privacy" },
     { name: t("footer.termsOfService"), href: "/terms" },
+    { name: "Refund Policy", href: "/refund" },
   ];
 
   const socialLinks = [
