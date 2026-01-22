@@ -28,7 +28,7 @@ function TermsContent() {
             {t("terms.title")}
           </h1>
           <p className="hero-subtitle text-lg text-gray-600">
-            {t("terms.lastUpdated")}: December 2024
+            {t("terms.lastUpdated")}: December 2025
           </p>
         </div>
       </section>

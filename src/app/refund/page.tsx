@@ -13,13 +13,7 @@ export default function RefundPolicy() {
             <h1 className="text-5xl md:text-6xl font-bold text-gray-800 mb-6">
               Refund Policy
             </h1>
-            <p className="text-lg text-gray-600 mb-2">
-              Platform Name: <span className="font-semibold">Shekhabo</span>
-            </p>
-            <p className="text-lg text-gray-600">
-              Currency:{" "}
-              <span className="font-semibold">Bangladeshi Taka (BDT)</span>
-            </p>
+           
           </div>
         </section>
 
@@ -29,9 +23,7 @@ export default function RefundPolicy() {
             <div className="max-w-4xl mx-auto prose prose-lg">
               {/* Introduction */}
               <div className="policy-section mb-12">
-                <h2 className="text-3xl font-bold text-gray-800 mb-6">
-                  Introduction
-                </h2>
+               
                 <p className="text-gray-600 leading-relaxed">
                   Shekhabo is committed to providing quality educational
                   services. This Refund Policy outlines the conditions under

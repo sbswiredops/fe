@@ -33,6 +33,7 @@ type LessonProgressMap = Record<
     watchedAt?: string | null;
   }
 >;
+export const runtime = 'edge';
 
 export default function LessonViewerPage() {
   const params = useParams();

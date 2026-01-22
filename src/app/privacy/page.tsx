@@ -24,7 +24,7 @@ function PrivacyContent() {
             {t("privacy.title")}
           </h1>
           <p className="hero-subtitle text-lg text-gray-600">
-            {t("privacy.lastUpdated")}: December 2024
+            {t("privacy.lastUpdated")}: December 2025
           </p>
         </div>
       </section>
