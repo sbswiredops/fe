@@ -1063,7 +1063,10 @@ export default function CourseDetailsPage() {
                 />
                 <ul className="space-y-4">
                   {requirements.map((req: string, idx: number) => (
-                    <li key={req ?? `req-${idx}`} className="flex gap-4 items-start group">
+                    <li
+                      key={req ?? `req-${idx}`}
+                      className="flex gap-4 items-start group"
+                    >
                       <div className="w-6 h-6 rounded-full bg-blue-100 flex items-center justify-center flex-shrink-0 mt-0.5 group-hover:bg-blue-200 transition-colors">
                         <span className="text-blue-600 text-sm font-bold">
                           {idx + 1}
@@ -1086,7 +1089,10 @@ export default function CourseDetailsPage() {
                 />
                 <ul className="space-y-4">
                   {learningOutcomes.map((outcome: string, idx: number) => (
-                    <li key={outcome ?? `outcome-${idx}`} className="flex gap-4 items-start group">
+                    <li
+                      key={outcome ?? `outcome-${idx}`}
+                      className="flex gap-4 items-start group"
+                    >
                       <div className="w-6 h-6 rounded-full bg-green-100 flex items-center justify-center flex-shrink-0 mt-0.5 group-hover:bg-green-200 transition-colors">
                         <CheckCircle className="w-4 h-4 text-green-600" />
                       </div>
