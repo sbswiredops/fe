@@ -273,7 +273,7 @@
     "form": {
       "name": "Full Name",
       "email": "Email",
-      "phone":"Mobile Number",
+      "phone": "Mobile Number",
       "subject": "Subject",
       "message": "Message",
       "send": "Send Message"
@@ -417,5 +417,78 @@
       "title": "Contact Information",
       "content": "If you have any questions about these Terms of Service, please contact us at teamshekhabo@gmail.com"
     }
+  },
+  "courseDetails": {
+    "breadcrumb": {
+      "home": "Home",
+      "courses": "Courses"
+    },
+    "video": {
+      "watchVideo": "Watch Video",
+      "invalidUrl": "Invalid YouTube URL"
+    },
+    "cta": {
+      "enroll": "Enroll Now",
+      "enrollNow": "Enroll Now"
+    },
+    "stats": {
+      "minutes": "Minutes",
+      "students": "Students",
+      "level": "Level",
+      "modules": "Modules"
+    },
+    "sections": {
+      "courseIntro": "Course Introduction",
+      "introVideo": "Course Intro Video",
+      "curriculum": "Complete Curriculum",
+      "requirements": "Requirements",
+      "learningOutcomes": "What You'll Learn",
+      "skills": "Skills You'll Gain"
+    },
+    "curriculum": {
+      "lessons": "lessons",
+      "quiz": "quiz",
+      "min": "min",
+      "module": "Module",
+      "final": "Final",
+      "free": "Free",
+      "questions": "questions",
+      "marks": "marks"
+    },
+    "pricing": {
+      "courseFee": "Course Fee",
+      "discountRunning": "discount running!",
+      "oneTimePayment": "One-time payment",
+      "lifetimeAccess": "Lifetime access",
+      "securePayment": "Secure Payment",
+      "moneyBackGuarantee": "Money Back Guarantee",
+      "whatYouGet": "What you'll get"
+    },
+    "features": {
+      "videoMinutes": "minutes of video",
+      "hdQuality": "HD Quality",
+      "lifetimeAccess": "Lifetime Access",
+      "anyDevice": "From any device",
+      "certificate": "Certificate",
+      "afterCompletion": "After completion",
+      "support": "24/7 Support",
+      "anyIssue": "For any issue"
+    },
+    "socialProof": {
+      "studentsEnrolled": "students enrolled",
+      "inThisCourse": "in this course"
+    },
+    "meta": {
+      "instructor": "Instructor",
+      "rating": "Rating",
+      "reviews": "reviews",
+      "created": "Created",
+      "updated": "Updated",
+      "type": "Type",
+      "language": "Language",
+      "bangla": "Bangla"
+    },
+    "loading": "Loading course details...",
+    "featured": "Featured"
   }
 }

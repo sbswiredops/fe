@@ -417,5 +417,78 @@
       "title": "যোগাযোগের তথ্য",
       "content": "এই সেবার শর্তাবলী সম্পর্কে আপনার কোনো প্রশ্ন থাকলে, অনুগ্রহ করে teamshekhabo@gmail.com -এ আমাদের সাথে যোগাযোগ করুন"
     }
+  },
+  "courseDetails": {
+    "breadcrumb": {
+      "home": "হোম",
+      "courses": "কোর্স"
+    },
+    "video": {
+      "watchVideo": "ভিডিও দেখুন",
+      "invalidUrl": "অবৈধ YouTube URL"
+    },
+    "cta": {
+      "enroll": "ভর্তি হন",
+      "enrollNow": "এখনই ভর্তি হন"
+    },
+    "stats": {
+      "minutes": "মিনিট",
+      "students": "শিক্ষার্থী",
+      "level": "লেভেল",
+      "modules": "মডিউল"
+    },
+    "sections": {
+      "courseIntro": "কোর্স পরিচিতি",
+      "introVideo": "কোর্স ইন্ট্রো ভিডিও",
+      "curriculum": "কোর্সের সম্পূর্ণ কারিকুলাম",
+      "requirements": "প্রয়োজনীয়তা",
+      "learningOutcomes": "যা শিখবেন",
+      "skills": "যে দক্ষতা অর্জন করবেন"
+    },
+    "curriculum": {
+      "lessons": "লেসন",
+      "quiz": "কুইজ",
+      "min": "মিনিট",
+      "module": "মডিউল",
+      "final": "ফাইনাল",
+      "free": "ফ্রি",
+      "questions": "প্রশ্ন",
+      "marks": "মার্কস"
+    },
+    "pricing": {
+      "courseFee": "কোর্স ফি",
+      "discountRunning": "ছাড় চলছে!",
+      "oneTimePayment": "একবার পেমেন্ট",
+      "lifetimeAccess": "আজীবন অ্যাক্সেস",
+      "securePayment": "নিরাপদ পেমেন্ট",
+      "moneyBackGuarantee": "মানি ব্যাক গ্যারান্টি",
+      "whatYouGet": "এই কোর্সে যা পাচ্ছেন"
+    },
+    "features": {
+      "videoMinutes": "মিনিটের ভিডিও",
+      "hdQuality": "HD কোয়ালিটি",
+      "lifetimeAccess": "আজীবন অ্যাক্সেস",
+      "anyDevice": "যেকোনো ডিভাইস থেকে",
+      "certificate": "সার্টিফিকেট",
+      "afterCompletion": "কোর্স শেষে",
+      "support": "২৪/৭ সাপোর্ট",
+      "anyIssue": "যেকোনো সমস্যায়"
+    },
+    "socialProof": {
+      "studentsEnrolled": "শিক্ষার্থী ভর্তি হয়েছেন",
+      "inThisCourse": "এই কোর্সে"
+    },
+    "meta": {
+      "instructor": "ইন্সট্রাক্টর",
+      "rating": "রেটিং",
+      "reviews": "রিভিউ",
+      "created": "তৈরি",
+      "updated": "আপডেট",
+      "type": "ধরন",
+      "language": "ভাষা",
+      "bangla": "বাংলা"
+    },
+    "loading": "কোর্সের বিবরণ লোড হচ্ছে...",
+    "featured": "ফিচার্ড"
   }
 }
