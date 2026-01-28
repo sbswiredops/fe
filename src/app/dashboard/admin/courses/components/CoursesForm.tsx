@@ -7,7 +7,7 @@ interface Props {
   onChange: (
     e: React.ChangeEvent<
       HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement
-    >
+    >,
   ) => void;
   setFormData: React.Dispatch<React.SetStateAction<any>>;
   categories: any[] | { items?: any[] } | undefined;
@@ -76,7 +76,16 @@ export default function CoursesForm({
         <select
           name="type" // changed from courseType -> type to match entity field
           value={formData.type || ""}
-          onChange={onChange}
+          onChange={(e) => {
+            (e.target as HTMLSelectElement).setCustomValidity("");
+            onChange(e as any);
+          }}
+          onInvalid={(e) =>
+            (e.target as HTMLSelectElement).setCustomValidity(
+              "Please select the course type",
+            )
+          }
+          required
           className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#51356e] text-gray-900"
         >
           <option value="">Select a type</option>
@@ -174,7 +183,17 @@ export default function CoursesForm({
         <select
           name="categoryId"
           value={formData.categoryId || ""}
-          onChange={onChange}
+          onChange={(e) => {
+            // clear any previous custom validity message then call parent onChange
+            (e.target as HTMLSelectElement).setCustomValidity("");
+            onChange(e as any);
+          }}
+          onInvalid={(e) =>
+            (e.target as HTMLSelectElement).setCustomValidity(
+              "Please select the category",
+            )
+          }
+          required
           className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#51356e] text-gray-900"
         >
           <option value="">Select a category</option>

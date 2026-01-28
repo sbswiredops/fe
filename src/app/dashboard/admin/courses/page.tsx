@@ -177,7 +177,7 @@ function CoursesManagement() {
           "loadInstructors: serverEnabled",
           serverEnabled,
           "BASE_URL",
-          API_CONFIG.BASE_URL
+          API_CONFIG.BASE_URL,
         );
         const res = await userService.list({
           page: 1,
@@ -202,7 +202,7 @@ function CoursesManagement() {
           console.log(
             "loadInstructors: parsed list length",
             list.length,
-            list.slice(0, 5)
+            list.slice(0, 5),
           );
           setInstructors(list);
         } else {
@@ -219,7 +219,7 @@ function CoursesManagement() {
   const handleInputChange = (
     e: React.ChangeEvent<
       HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement
-    >
+    >,
   ) => {
     const target = e.target as HTMLInputElement & { files?: FileList };
     const { name } = target;
@@ -330,7 +330,7 @@ function CoursesManagement() {
 
       // Remove undefined keys so service gets a clean object.
       Object.keys(payload).forEach(
-        (k) => payload[k] === undefined && delete payload[k]
+        (k) => payload[k] === undefined && delete payload[k],
       );
 
       console.log("Creating course with payload:", payload);
@@ -393,14 +393,14 @@ function CoursesManagement() {
           typeof formData.isPublished === "boolean"
             ? formData.isPublished
             : formData.isPublished === undefined
-            ? undefined
-            : !!formData.isPublished,
+              ? undefined
+              : !!formData.isPublished,
         isFeatured:
           typeof formData.isFeatured === "boolean"
             ? formData.isFeatured
             : formData.isFeatured === undefined
-            ? undefined
-            : !!formData.isFeatured,
+              ? undefined
+              : !!formData.isFeatured,
         type: formData.type || undefined,
         tags: toArray(formData.tags),
         requirements: toArray(formData.requirements),
@@ -433,7 +433,7 @@ function CoursesManagement() {
         fd.append("thumbnail", payload.thumbnail);
         const dataCopy: any = { ...payload, thumbnail: undefined };
         Object.keys(dataCopy).forEach(
-          (k) => dataCopy[k] === undefined && delete dataCopy[k]
+          (k) => dataCopy[k] === undefined && delete dataCopy[k],
         );
         Object.entries(dataCopy).forEach(([k, v]) => {
           if (v === undefined || v === null) return;
@@ -446,7 +446,7 @@ function CoursesManagement() {
         bodyToSend = fd;
       } else {
         Object.keys(bodyToSend).forEach(
-          (k) => bodyToSend[k] === undefined && delete bodyToSend[k]
+          (k) => bodyToSend[k] === undefined && delete bodyToSend[k],
         );
       }
 
@@ -455,8 +455,8 @@ function CoursesManagement() {
         showToast("Course updated", "success");
         setCourses((prev) =>
           prev.map((c: any) =>
-            c.id === selectedItem.id ? { ...c, ...payload } : c
-          )
+            c.id === selectedItem.id ? { ...c, ...payload } : c,
+          ),
         );
         setRefreshTick((x) => x + 1);
         setIsEditModalOpen(false); // Only close on success
@@ -602,7 +602,7 @@ function CoursesManagement() {
           render: (c: any) => (
             <span
               className={`inline-flex px-2 py-1 text-xs font-medium rounded-full ${getLevelColor(
-                c.level
+                c.level,
               )}`}
             >
               {c.level?.charAt(0).toUpperCase() + c.level?.slice(1)}
@@ -628,7 +628,7 @@ function CoursesManagement() {
             return (
               <span
                 className={`inline-flex px-2 py-1 text-xs font-medium rounded-full ${getStatusColor(
-                  colorKey
+                  colorKey,
                 )}`}
               >
                 {label}
@@ -897,7 +897,21 @@ function CoursesManagement() {
               >
                 Cancel
               </Button>
-              <Button onClick={isAddModalOpen ? handleAdd : handleEdit}>
+              <Button
+                onClick={() => {
+                  if (!formData?.type) {
+                    showToast("Please select the course type", "error");
+                    return;
+                  }
+                  if (!formData?.categoryId) {
+                    showToast("Please select the category", "error");
+                    return;
+                  }
+                  // proceed with add or edit
+                  if (isAddModalOpen) handleAdd();
+                  else handleEdit();
+                }}
+              >
                 {isAddModalOpen ? "Add" : "Save Changes"}
               </Button>
             </div>
