@@ -18,7 +18,7 @@ export default function Home() {
       {/* <FreeLiveMasterclass /> */}
       <RecordedCoursesSection />
       <LiveCourseContents />
-      <Testimonials />
+      {/* <Testimonials /> */}
     </MainLayout>
   );
 }
