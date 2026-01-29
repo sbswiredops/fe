@@ -638,7 +638,7 @@ export default function CourseDetailsPage() {
 
   return (
     <MainLayout>
-      <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50/50 to-purple-50/50">
+      <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-purple-50">
         {/* BREADCRUMB */}
         <div className="bg-white/60 backdrop-blur-md border-b border-gray-100 sticky top-0 z-40">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3">
@@ -694,20 +694,19 @@ export default function CourseDetailsPage() {
             <div className="grid lg:grid-cols-3 gap-8 lg:gap-10 items-start">
               {/* LEFT COLUMN - Course Info */}
               <div className="lg:col-span-2 flex flex-col gap-8">
-                {/* Hero Card */}
-                <div className="rounded-3xl bg-white shadow-xl shadow-gray-200/50 border border-gray-100 overflow-hidden">
-                  {/* Thumbnail with overlay */}
-                  <div className="relative h-48 sm:h-64 lg:h-72">
-                    {thumbnail ? (
-                      <img
-                        src={thumbnail}
-                        alt={title || "Course thumbnail"}
-                        className="w-full h-full object-cover"
-                      />
-                    ) : (
-                      <div className="w-full h-full bg-gradient-to-br from-blue-500 via-purple-500 to-pink-500" />
-                    )}
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent" />
+                {/* Course Intro Video */}
+                {courseIntroVideo && (
+                  <div className="bg-white rounded-3xl shadow-xl shadow-gray-200/50 border border-gray-100 p-8 relative">
+                    <SectionHeader
+                      icon={PlayCircle}
+                      title={t("courseDetails.sections.introVideo")}
+                      color="purple"
+                    />
+                    <YouTubePlayer
+                      videoUrl={courseIntroVideo}
+                      watchLabel={t("courseDetails.video.watchVideo")}
+                      invalidLabel={t("courseDetails.video.invalidUrl")}
+                    />
 
                     {/* Badges on thumbnail */}
                     <div className="absolute top-4 left-4 flex flex-wrap gap-2">
@@ -729,87 +728,15 @@ export default function CourseDetailsPage() {
                       </h1>
                     </div>
                   </div>
+                )}
 
-                  {/* Course meta info */}
-                  <div className="p-6">
-                    {shortDescription && (
-                      <p className="text-gray-600 text-lg leading-relaxed mb-6">
-                        {shortDescription}
-                      </p>
-                    )}
-
-                    {/* Instructor & Rating row */}
-                    <div className="flex flex-wrap items-center gap-6 pb-6 border-b border-gray-100">
-                      <div className="flex items-center gap-3">
-                        <div className="w-12 h-12 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center text-white font-bold text-lg shadow-lg">
-                          {instructor?.name?.charAt(0) || "I"}
-                        </div>
-                        <div>
-                          <p className="text-xs text-gray-500 uppercase tracking-wide">
-                            {t("courseDetails.meta.instructor")}
-                          </p>
-                          <p className="font-semibold text-gray-900">
-                            {instructor?.name}
-                          </p>
-                        </div>
-                      </div>
-                      <div className="h-10 w-px bg-gray-200 hidden sm:block" />
-                      <div>
-                        <p className="text-xs text-gray-500 uppercase tracking-wide mb-1">
-                          {t("courseDetails.meta.rating")}
-                        </p>
-                        <div className="flex items-center gap-2">
-                          <StarRating rating={rating || 0} size="sm" />
-                          <span className="text-sm text-gray-500">
-                            ({reviewCount} {t("courseDetails.meta.reviews")})
-                          </span>
-                        </div>
-                      </div>
-                    </div>
-
-                    {/* Stats grid */}
-                    <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 pt-6">
-                      <div className="text-center p-4 rounded-2xl bg-gradient-to-br from-blue-50 to-blue-100/50 group hover:from-blue-100 hover:to-blue-200/50 transition-all duration-300">
-                        <Clock className="w-6 h-6 text-blue-600 mx-auto mb-2 group-hover:scale-110 transition-transform" />
-                        <p className="text-2xl font-bold text-gray-900">
-                          {duration}
-                        </p>
-                        <p className="text-xs text-gray-500 uppercase tracking-wide">
-                          {t("courseDetails.stats.minutes")}
-                        </p>
-                      </div>
-                      <div
-                        ref={enrollmentCounter.ref}
-                        className="text-center p-4 rounded-2xl bg-gradient-to-br from-purple-50 to-purple-100/50 group hover:from-purple-100 hover:to-purple-200/50 transition-all duration-300"
-                      >
-                        <Users className="w-6 h-6 text-purple-600 mx-auto mb-2 group-hover:scale-110 transition-transform" />
-                        <p className="text-2xl font-bold text-gray-900">
-                          {enrollmentCounter.count}+
-                        </p>
-                        <p className="text-xs text-gray-500 uppercase tracking-wide">
-                          {t("courseDetails.stats.students")}
-                        </p>
-                      </div>
-                      <div className="text-center p-4 rounded-2xl bg-gradient-to-br from-orange-50 to-orange-100/50 group hover:from-orange-100 hover:to-orange-200/50 transition-all duration-300">
-                        <TrendingUp className="w-6 h-6 text-orange-600 mx-auto mb-2 group-hover:scale-110 transition-transform" />
-                        <p className="text-2xl font-bold text-gray-900 capitalize">
-                          {level}
-                        </p>
-                        <p className="text-xs text-gray-500 uppercase tracking-wide">
-                          {t("courseDetails.stats.level")}
-                        </p>
-                      </div>
-                      <div className="text-center p-4 rounded-2xl bg-gradient-to-br from-green-50 to-green-100/50 group hover:from-green-100 hover:to-green-200/50 transition-all duration-300">
-                        <BookOpen className="w-6 h-6 text-green-600 mx-auto mb-2 group-hover:scale-110 transition-transform" />
-                        <p className="text-2xl font-bold text-gray-900">
-                          {sections?.length || 0}
-                        </p>
-                        <p className="text-xs text-gray-500 uppercase tracking-wide">
-                          {t("courseDetails.stats.modules")}
-                        </p>
-                      </div>
-                    </div>
-                  </div>
+                {/* Course meta info */}
+                <div className="p-6">
+                  {shortDescription && (
+                    <p className="text-gray-600 text-lg leading-relaxed mb-6">
+                      {shortDescription}
+                    </p>
+                  )}
                 </div>
 
                 {/* Course Overview Section */}
@@ -825,22 +752,6 @@ export default function CourseDetailsPage() {
                     </p>
                   </div>
                 </div>
-
-                {/* Course Intro Video */}
-                {courseIntroVideo && (
-                  <div className="bg-white rounded-3xl shadow-xl shadow-gray-200/50 border border-gray-100 p-8">
-                    <SectionHeader
-                      icon={PlayCircle}
-                      title={t("courseDetails.sections.introVideo")}
-                      color="purple"
-                    />
-                    <YouTubePlayer
-                      videoUrl={courseIntroVideo}
-                      watchLabel={t("courseDetails.video.watchVideo")}
-                      invalidLabel={t("courseDetails.video.invalidUrl")}
-                    />
-                  </div>
-                )}
 
                 {/* Course Curriculum Section */}
                 {Array.isArray(sections) && sections.length > 0 && (
