@@ -414,10 +414,12 @@ function CoursesManagement() {
           toNumber(formData.discountPrice) !== undefined
             ? toNumber(formData.discountPrice)
             : undefined,
-        discountPercentage:
-          toNumber(formData.discountPercentage) !== undefined
-            ? toNumber(formData.discountPercentage)
-            : undefined,
+        // If discountPercentage is explicitly null or undefined/empty, send undefined
+        // so the backend won't coerce it to 0. Preserve numeric 0 values.
+        discountPercentage: (() => {
+          const v = toNumber(formData.discountPercentage);
+          return v == null ? undefined : v;
+        })(),
         total:
           toNumber(formData.total) !== undefined
             ? toNumber(formData.total)

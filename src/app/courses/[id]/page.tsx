@@ -45,8 +45,6 @@ import {
   Medal,
 } from "lucide-react";
 
-export const runtime = "edge";
-
 const useCounter = (end: number, duration: number = 2000) => {
   const [count, setCount] = useState(0);
   const [isVisible, setIsVisible] = useState(false);
@@ -220,9 +218,12 @@ const FloatingCTA = ({
       <div className="flex items-center justify-between gap-4 max-w-lg mx-auto">
         <div>
           <span className="text-2xl font-bold text-gray-900">
-            ৳{discountPrice || price}
+            ৳
+            {discountPrice && price && discountPrice < price
+              ? discountPrice
+              : price}
           </span>
-          {discountPrice && (
+          {discountPrice && price && discountPrice < price && (
             <span className="text-sm line-through text-gray-400 ml-2">
               ৳{price}
             </span>
@@ -582,33 +583,6 @@ export default function CourseDetailsPage() {
   return (
     <MainLayout>
       <div className="min-h-screen bg-white">
-        <div className="sticky top-0 z-40 bg-white/95 backdrop-blur-sm border-b border-gray-200">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div className="flex items-center justify-between h-16">
-              <Link
-                href="/courses"
-                className="text-gray-600 hover:text-gray-900 font-medium text-sm flex items-center gap-2"
-              >
-                <ChevronDown className="w-4 h-4 rotate-90" />
-                Back to Courses
-              </Link>
-              <div className="flex items-center gap-2">
-                <button
-                  onClick={() => setIsWishlisted(!isWishlisted)}
-                  className={`p-2 rounded-lg transition-all duration-300 ${isWishlisted ? "bg-red-50 text-red-600" : "bg-gray-100 text-gray-600 hover:bg-gray-200"}`}
-                >
-                  <Heart
-                    className={`w-5 h-5 ${isWishlisted ? "fill-current" : ""}`}
-                  />
-                </button>
-                <button className="p-2 rounded-lg bg-gray-100 text-gray-600 hover:bg-gray-200 transition-all duration-300">
-                  <Share2 className="w-5 h-5" />
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
-
         {/* HERO SECTION */}
         <section className="bg-gradient-to-b from-blue-50 to-white border-b border-gray-200">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 lg:py-16">
@@ -701,119 +675,122 @@ export default function CourseDetailsPage() {
 
               {/* SIDEBAR - Pricing */}
               <div className="lg:col-span-1 sticky top-24 space-y-6">
-                {/* Thumbnail */}
-                {thumbnail && (
-                  <div className="rounded-lg overflow-hidden shadow-lg border border-gray-200">
-                    <img
-                      src={thumbnail}
-                      alt={title}
-                      className="w-full h-56 object-cover"
-                    />
-                  </div>
-                )}
-
-                {/* Pricing Card */}
-                <div className="bg-white border-2 border-gray-200 rounded-lg p-6 space-y-5">
-                  {discountPrice && (
-                    <div className="bg-red-100 border border-red-200 text-red-800 text-sm font-bold py-2 px-3 rounded-lg text-center">
-                      🔥 {discountPercentage}% OFF
+                {/* Pricing Card (with Thumbnail on top) */}
+                <div className="bg-white border-2 border-gray-200 rounded-lg overflow-hidden">
+                  {thumbnail && (
+                    <div className="w-full h-56 bg-gray-100 overflow-hidden">
+                      <img
+                        src={thumbnail}
+                        alt={title}
+                        className="w-full h-full object-cover"
+                      />
                     </div>
                   )}
 
-                  <div className="space-y-2">
-                    <p className="text-xs uppercase tracking-widest text-gray-500 font-bold">
-                      Course Price
-                    </p>
-                    <div className="flex items-baseline gap-2">
-                      <span className="text-4xl font-bold text-blue-600">
-                        ৳{discountPrice || price}
-                      </span>
-                      {discountPrice && (
-                        <span className="text-lg line-through text-gray-400">
-                          ৳{price}
+                  <div className="p-6 space-y-5">
+                    {discountPrice && price && discountPrice < price && (
+                      <div className="bg-red-100 border border-red-200 text-red-800 text-sm font-bold py-2 px-3 rounded-lg text-center">
+                        🔥 {discountPercentage}% OFF
+                      </div>
+                    )}
+
+                    <div className="space-y-2">
+                      <p className="text-xs uppercase tracking-widest text-gray-500 font-bold">
+                        Course Price
+                      </p>
+                      <div className="flex items-baseline gap-2">
+                        <span className="text-4xl font-bold text-blue-600">
+                          ৳
+                          {discountPrice && price && discountPrice < price
+                            ? discountPrice
+                            : price}
                         </span>
-                      )}
+                        {discountPrice && price && discountPrice < price && (
+                          <span className="text-lg line-through text-gray-400">
+                            ৳{price}
+                          </span>
+                        )}
+                      </div>
+                      <p className="text-xs text-gray-500">
+                        One-time payment • Lifetime access
+                      </p>
                     </div>
-                    <p className="text-xs text-gray-500">
-                      One-time payment • Lifetime access
-                    </p>
-                  </div>
 
-                  <Button
-                    onClick={handleEnrollClick}
-                    className="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-4 rounded-lg transition-all"
-                  >
-                    <Zap className="w-4 h-4 mr-2 inline" />
-                    Enroll Now
-                  </Button>
+                    <Button
+                      onClick={handleEnrollClick}
+                      className="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-4 rounded-lg transition-all"
+                    >
+                      <Zap className="w-4 h-4 mr-2 inline" />
+                      Enroll Now
+                    </Button>
 
-                  <div className="space-y-2 text-sm">
-                    <div className="flex items-center gap-2 text-gray-700">
-                      <CheckCircle className="w-5 h-5 text-green-600" />
-                      <span>Secure payment</span>
+                    <div className="space-y-2 text-sm">
+                      <div className="flex items-center gap-2 text-gray-700">
+                        <CheckCircle className="w-5 h-5 text-green-600" />
+                        <span>Secure payment</span>
+                      </div>
+                      <div className="flex items-center gap-2 text-gray-700">
+                        <Shield className="w-5 h-5 text-green-600" />
+                        <span>30-day money back</span>
+                      </div>
                     </div>
-                    <div className="flex items-center gap-2 text-gray-700">
-                      <Shield className="w-5 h-5 text-green-600" />
-                      <span>30-day money back</span>
-                    </div>
-                  </div>
 
-                  <div className="border-t border-gray-200 pt-5 space-y-4">
-                    <p className="text-xs uppercase tracking-widest text-gray-500 font-bold">
-                      What you get
-                    </p>
-                    <ul className="space-y-3">
-                      <li className="flex items-start gap-3">
-                        <PlayCircle className="w-4 h-4 text-blue-600 flex-shrink-0 mt-0.5" />
-                        <div>
-                          <p className="text-sm font-medium text-gray-900">
-                            {duration} minutes
-                          </p>
-                          <p className="text-xs text-gray-500">
-                            HD quality video
-                          </p>
-                        </div>
-                      </li>
-                      <li className="flex items-start gap-3">
-                        <GraduationCap className="w-4 h-4 text-blue-600 flex-shrink-0 mt-0.5" />
-                        <div>
-                          <p className="text-sm font-medium text-gray-900">
-                            Lifetime Access
-                          </p>
-                          <p className="text-xs text-gray-500">
-                            Learn at your pace
-                          </p>
-                        </div>
-                      </li>
-                      <li className="flex items-start gap-3">
-                        <Award className="w-4 h-4 text-blue-600 flex-shrink-0 mt-0.5" />
-                        <div>
-                          <p className="text-sm font-medium text-gray-900">
-                            Certificate
-                          </p>
-                          <p className="text-xs text-gray-500">
-                            Upon completion
-                          </p>
-                        </div>
-                      </li>
-                      <li className="flex items-start gap-3">
-                        <Headphones className="w-4 h-4 text-blue-600 flex-shrink-0 mt-0.5" />
-                        <div>
-                          <p className="text-sm font-medium text-gray-900">
-                            Support
-                          </p>
-                          <p className="text-xs text-gray-500">24/7 help</p>
-                        </div>
-                      </li>
-                    </ul>
+                    <div className="border-t border-gray-200 pt-5 space-y-4">
+                      <p className="text-xs uppercase tracking-widest text-gray-500 font-bold">
+                        What you get
+                      </p>
+                      <ul className="space-y-3">
+                        <li className="flex items-start gap-3">
+                          <PlayCircle className="w-4 h-4 text-blue-600 flex-shrink-0 mt-0.5" />
+                          <div>
+                            <p className="text-sm font-medium text-gray-900">
+                              {duration} minutes
+                            </p>
+                            <p className="text-xs text-gray-500">
+                              HD quality video
+                            </p>
+                          </div>
+                        </li>
+                        <li className="flex items-start gap-3">
+                          <GraduationCap className="w-4 h-4 text-blue-600 flex-shrink-0 mt-0.5" />
+                          <div>
+                            <p className="text-sm font-medium text-gray-900">
+                              Lifetime Access
+                            </p>
+                            <p className="text-xs text-gray-500">
+                              Learn at your pace
+                            </p>
+                          </div>
+                        </li>
+                        <li className="flex items-start gap-3">
+                          <Award className="w-4 h-4 text-blue-600 flex-shrink-0 mt-0.5" />
+                          <div>
+                            <p className="text-sm font-medium text-gray-900">
+                              Certificate
+                            </p>
+                            <p className="text-xs text-gray-500">
+                              Upon completion
+                            </p>
+                          </div>
+                        </li>
+                        <li className="flex items-start gap-3">
+                          <Headphones className="w-4 h-4 text-blue-600 flex-shrink-0 mt-0.5" />
+                          <div>
+                            <p className="text-sm font-medium text-gray-900">
+                              Support
+                            </p>
+                            <p className="text-xs text-gray-500">24/7 help</p>
+                          </div>
+                        </li>
+                      </ul>
+                    </div>
                   </div>
                 </div>
               </div>
             </div>
           </div>
         </section>
-
-        {/* CURRICULUM */}
+        {/* Curriculum section below */}
         {Array.isArray(sections) && sections.length > 0 && (
           <section className="bg-white border-b border-gray-200">
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 lg:py-16">
