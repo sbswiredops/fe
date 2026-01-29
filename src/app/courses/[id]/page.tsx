@@ -282,7 +282,7 @@ const CurriculumSection = ({
             {sIdx + 1}
           </div>
           <div className="text-left">
-            <h3 className="font-semibold text-gray-900 group-hover:text-blue-600 transition-colors text-sm">
+            <h3 className="font-semibold text-gray-900 group-hover:text-blue-600 transition-colors text-base">
               {section.title || `${labels.module} ${sIdx + 1}`}
             </h3>
             <p className="text-xs text-gray-500 mt-1">
@@ -809,7 +809,7 @@ export default function CourseDetailsPage() {
                   </p>
                 </div>
 
-                <div className="border border-gray-200 rounded-lg overflow-hidden">
+                <div className="border border-gray-200 rounded-lg overflow-hidden ">
                   {sections.map((section: any, sIdx: number) => (
                     <CurriculumSection
                       key={section.id ?? `section-${sIdx}`}
