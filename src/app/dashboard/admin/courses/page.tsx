@@ -228,7 +228,12 @@ function CoursesManagement() {
       setFormData((prev: any) => ({ ...prev, [name]: file }));
       return;
     }
-    const value = (target as any).value;
+    // For number inputs, coerce empty string -> "" and numeric strings -> Number
+    let value: any = (target as any).value;
+    if (target.type === "number") {
+      // preserve empty string so clearing the field works
+      value = value === "" ? "" : Number(value);
+    }
     setFormData((prev: any) => ({ ...prev, [name]: value }));
   };
 
@@ -274,7 +279,7 @@ function CoursesManagement() {
     try {
       // Helpers
       const toNumber = (v: any) =>
-        v === undefined || v === "" || v === null ? undefined : Number(v);
+        v === undefined || v === "" ? undefined : v === null ? null : Number(v);
 
       const toArray = (v: any) => {
         if (Array.isArray(v))
@@ -359,7 +364,7 @@ function CoursesManagement() {
     if (!selectedItem) return;
     try {
       const toNumber = (v: any) =>
-        v === undefined || v === "" || v === null ? undefined : Number(v);
+        v === undefined || v === "" ? undefined : v === null ? null : Number(v);
 
       const toArray = (v: any) => {
         if (Array.isArray(v))

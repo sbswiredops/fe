@@ -15,10 +15,17 @@ interface Props {
 }
 
 // Add this helper function above your component
-function getDiscountPrice(price: number, discountPercentage: number): number {
-  if (!price || !discountPercentage) return 0;
-  // If percentage is less than 1, treat as 1%
-  const percent = discountPercentage < 1 ? 1 : discountPercentage;
+function getDiscountPrice(
+  price: number,
+  discountPercentage: number | "" | undefined | null,
+): number | "" | null {
+  // If the discount percentage is explicitly empty/undefined, return empty
+  if (discountPercentage === "" || discountPercentage === undefined) return "";
+  // If it's explicitly null, return null to indicate intentional null
+  if (discountPercentage === null) return null;
+  const percent = Number(discountPercentage);
+  if (Number.isNaN(percent)) return "";
+  // treat 0 as 0% (no discount)
   return Math.round((price * (100 - percent)) / 100);
 }
 
@@ -47,13 +54,22 @@ export default function CoursesForm({
   // Auto-calculate discountPrice when price or discountPercentage changes
   React.useEffect(() => {
     const price = parseFloat(formData.price) || 0;
-    let discountPercentage = parseFloat(formData.discountPercentage) || 0;
-    if (discountPercentage < 1 && discountPercentage > 0)
-      discountPercentage = 1;
+    const raw = formData.discountPercentage;
+    // If the user cleared the discountPercentage input (empty string or undefined), keep discountPrice empty
+    if (raw === "" || raw === undefined) {
+      setFormData((prev: any) => ({ ...prev, discountPrice: "" }));
+      return;
+    }
+    // If discountPercentage is explicitly null, set discountPrice to null as well
+    if (raw === null) {
+      setFormData((prev: any) => ({ ...prev, discountPrice: null }));
+      return;
+    }
+    const discountPercentage = Number(raw);
     const discountPrice = getDiscountPrice(price, discountPercentage);
     setFormData((prev: any) => ({
       ...prev,
-      discountPrice: discountPrice || "",
+      discountPrice: discountPrice ?? "",
     }));
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [formData.price, formData.discountPercentage]);
