@@ -1,3 +1,4 @@
+/* eslint-disable @next/next/no-img-element */
 "use client";
 
 import React, { useState } from "react";
@@ -604,16 +605,43 @@ function EmployeesManagement() {
                   {
                     key: "status",
                     header: "Status",
-                    render: (t: any) => (
-                      <span
-                        className={`inline-flex px-2 py-1 text-xs font-medium rounded-full ${getStatusColor(
-                          t.status,
-                        )}`}
-                      >
-                        {(t.status || "").toString().charAt(0).toUpperCase() +
-                          (t.status || "").toString().slice(1)}
-                      </span>
-                    ),
+                    render: (t: any) =>
+                      // show a small colored dot + readable status text
+                      (() => {
+                        const raw = t.status;
+                        const isActive =
+                          raw === true ||
+                          raw === "active" ||
+                          raw === 1 ||
+                          raw === "1";
+                        const label = isActive
+                          ? "Active"
+                          : raw === false ||
+                              raw === "inactive" ||
+                              raw === 0 ||
+                              raw === "0"
+                            ? "Inactive"
+                            : String(raw || "")
+                                .toString()
+                                .charAt(0)
+                                .toUpperCase() +
+                              String(raw || "")
+                                .toString()
+                                .slice(1);
+                        const dotClass = isActive
+                          ? "bg-green-600"
+                          : "bg-red-600";
+                        return (
+                          <span className="inline-flex items-center gap-2">
+                            <span
+                              className={`w-2 h-2 rounded-full ${dotClass}`}
+                            />
+                            <span className="text-sm text-gray-900 min-w-[64px] inline-block">
+                              {label}
+                            </span>
+                          </span>
+                        );
+                      })(),
                   },
                   {
                     key: "actions",
