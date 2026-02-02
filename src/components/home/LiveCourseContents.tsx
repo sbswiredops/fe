@@ -191,6 +191,7 @@ export default function LiveCourseContents() {
         </div>
 
         {/* Stats Section */}
+        {/*
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 mb-16">
           {stats.map((stat, index) => (
             <div
@@ -201,7 +202,6 @@ export default function LiveCourseContents() {
                 animation: "fadeInUp 0.6s ease-out forwards",
               }}
             >
-              {/* Icon (use card gradient on icon instead of a colored tile) */}
               <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl shadow-lg mb-4 text-white group-hover:scale-110 transition-transform duration-300 bg-transparent">
                 {React.isValidElement(stat.icon)
                   ? React.cloneElement(
@@ -215,25 +215,23 @@ export default function LiveCourseContents() {
                   : stat.icon}
               </div>
 
-              {/* Value */}
               <div
                 className={`text-4xl font-bold bg-gradient-to-r ${stat.color} bg-clip-text text-transparent mb-2`}
               >
                 {stat.value}
               </div>
 
-              {/* Label */}
               <h3 className="text-lg font-semibold text-gray-900 mb-2">
                 {t(`liveCourseContents.stats.${stat.key}.label`)}
               </h3>
 
-              {/* Hover Effect */}
               <div
                 className={`absolute inset-0 bg-gradient-to-br ${stat.color} rounded-3xl opacity-0 group-hover:opacity-5 transition-opacity duration-500`}
               ></div>
             </div>
           ))}
         </div>
+        */}
 
         {/* CTA Section */}
         <div className="relative">

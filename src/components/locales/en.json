@@ -114,7 +114,12 @@
     "support": "Support",
     "contactUs": "Contact Us",
     "followUs": "Follow Us",
-    "copyright": "© 2024 Shekhabo. All rights reserved."
+    "copyright": "© 2024 Shekhabo. All rights reserved.",
+    "learn": "Learn",
+    "contact": "Contact",
+    "refundPolicy": "Refund Policy",
+    "address": "House 468, Road 31, Mohakhali DOHS, Dhaka - 1206",
+    "registration": "TRAD/DNCC/028948/2025 | TIN 158155909036"
   },
   "auth": {
     "loginTitle": "Welcome Back",
@@ -174,18 +179,18 @@
   },
   "about": {
     "title": "About Shekhabo",
-    "subtitle": "Shekhabo is an EdTech platform for job seekers and graduates who want more than just theory. We connect you with top industry experts who teach you the skills, hacks, and strategies that companies actually look for. Our promise is simple: Learn what you missed. Master what you need. Step confidently into your career.",
+    "subtitle": "Shekhabo is an edtech platform for job seekers and fresh graduates. We connect you with industry experts who teach you the skills, hacks, and strategies that companies actually look for. Our promise is simple; Learn what you missed, master what you need. Step confidently into your career",
     "ourStory": {
       "title": "Our Story",
-      "intro": "When you truly understand your work, you succeed faster, feel more confident, and build a career you can be proud of. This is the transformation we enable through our platform.",
-      "rippleEffect": "Our approach creates a ripple effect of positive change:",
+      "intro": "We noticed a gap: too many graduates have the degree, but lack the practical grasp of how the industry actually works. We believe that when you replace confusion with clarity, confidence follows naturally. Shekhabo was built to bridge that gap—helping you move from \"just getting by\" to mastering your craft and building a career you love. ",
+      "rippleEffect": "Keeping that in mind, our goals include:",
       "forLearners": {
         "title": "For Learners",
-        "description": "Genuine confidence and competence that comes from truly mastering skills rather than just memorizing theory. Faster career progression and job satisfaction."
+        "description": "To build genuine confidence by mastering practical skills instead of just memorizing theory, paving the way for faster career progression and job satisfaction"
       },
       "forEmployers": {
         "title": "For Employers",
-        "description": "Job-ready professionals who can contribute immediately, reducing training time and costs while increasing overall productivity."
+        "description": "To deliver job-ready professionals who can contribute from day one, reducing training costs and significantly boosting overall productivity"
       },
       "forSociety": {
         "title": "For Society",
@@ -198,11 +203,11 @@
     },
     "mission": {
       "title": "Our Mission",
-      "description": "We're not here to replace universities. We're here to complete what they started — to make sure people don't just pass courses, but master them. We bridge the gap between education and employment by focusing on what learners actually need in their specific careers."
+      "description": "We’re not here to replace universities. We’re here to complete what they started– to make sure people don’t just pass and walk out with a degree into the fray of the world. We want to make sure they thrive in the workplace We bridge the current gap between education and employment by focusing on what skills are valued in the industry, and building people up to be capable."
     },
     "vision": {
       "title": "Our Vision",
-      "description": "A world where every graduate feels confident and prepared for their career. Where the transition from education to employment is seamless, and where people can build careers they can be truly proud of through genuine understanding and mastery of their field."
+      "description": "A world where every graduate feels confident and prepared for their careers. Where the transition from education to employment is seamless, and where people can build careers they can truly be proud of through genuine understanding and mastery of their field."
     },
     "different": {
       "title": "How We're Different",
@@ -222,6 +227,94 @@
       "noOneLeft": {
         "title": "No One Left Behind",
         "description": "Our step-by-step guidance ensures every learner understands before moving on, building confidence with each step."
+      }
+    },
+    "failureManagement": {
+      "title": "Failure management – Turning Setbacks into Comebacks",
+      "subtitle": "At Shekhabo, we know that failure happens and that's okay. Whether you don't pass an assessment, struggle with a topic, or fail to land a job, our team is here to put you back on track.",
+      "cards": {
+        "personalReview": {
+          "title": "Personal Review",
+          "description": "Our team analyzes your challenges with you to identify improvement areas."
+        },
+        "extraSupport": {
+          "title": "Extra Support",
+          "description": "We add short modules, targeted courses, or workshops to cover weak spots."
+        },
+        "customRoadmap": {
+          "title": "Custom Roadmap",
+          "description": "Get a step-by-step recovery plan designed for your specific situation."
+        },
+        "mentorship": {
+          "title": "1-on-1 Mentorship",
+          "description": "Access personalized guidance from experts to rebuild confidence."
+        },
+        "mindsetMotivation": {
+          "title": "Mindset & Motivation",
+          "description": "We remind you:",
+          "emphasis": "failure is feedback, not the end."
+        }
+      }
+    },
+    "industryWorkshops": {
+      "title": "Industry-Specific Workshops",
+      "subtitle": "Every industry has unique hiring practices and hidden requirements. Our workshops prepare you with insider knowledge and tips.",
+      "items": {
+        "unilever": {
+          "title": "Unilever Workshop",
+          "description": "How to pass FMCG case competitions, aptitude tests and leadership rounds.",
+          "meta": "Live Sessions • University Seminars"
+        },
+        "batb": {
+          "title": "BATB Workshop",
+          "description": "Insights from ex-employees on cracking MTO roles at British American Tobacco Bangladesh.",
+          "meta": "Webinars • Mini Bootcamps"
+        },
+        "banking": {
+          "title": "Banking & Finance Bootcamp",
+          "description": "Training on aptitude, group discussions, and mock interviews for banking sector.",
+          "meta": "Online Sessions • Mock Tests"
+        },
+        "it": {
+          "title": "IT Industry Prep",
+          "description": "Coding tests, portfolio reviews, and system design interviews for tech careers.",
+          "meta": "Live Coding • Portfolio Review"
+        },
+        "engineering": {
+          "title": "Engineering Career Pathways",
+          "description": "Guidance for Civil, Mechanical, Electrical & Architecture students.",
+          "meta": "Field-Specific Training"
+        }
+      }
+    },
+    "whyChooseUs": {
+      "title": "Why Choose Us",
+      "cards": {
+        "structuredRoadmaps": {
+          "title": "Structured Roadmaps",
+          "description": "Clear guidelines and step-by-step career planning."
+        },
+        "industrySpecificHacks": {
+          "title": "Industry-Specific Hacks",
+          "description": "Land jobs faster with insider knowledge and strategies."
+        },
+        "completeCareerJourney": {
+          "title": "Complete Career Journey",
+          "description": "From applying → Onboarding → Thriving in the role → switching jobs respectfully."
+        },
+        "prospectManagerSupport": {
+          "title": "Prospect Manager Support",
+          "description": "Personalized mentorship throughout your journey."
+        },
+        "industryBuiltCourses": {
+          "title": "Industry-Built Courses",
+          "description": "Courses built",
+          "emphasis": "with the industry, for the industry."
+        },
+        "noOneLeftBehind": {
+          "title": "No One Left Behind",
+          "description": "Our step-by-step guidance ensures every learner understands before moving on, building confidence with each step."
+        }
       }
     },
     "values": {
@@ -322,6 +415,48 @@
         "title": "Engineering (EEE, ME, Arch, Civil)",
         "description": "Practical skill training and project guidance for various engineering disciplines."
       }
+    },
+    "industriesCareerPaths": {
+      "title": "Industries & Career Paths We Cover",
+      "items": {
+        "bcsPrep": {
+          "title": "BCS Preparation"
+        },
+        "multinationals": {
+          "title": "Multinational Companies"
+        },
+        "mtoBanking": {
+          "title": "MTO & Banking"
+        },
+        "bpoPrep": {
+          "title": "BPO Job Preparation"
+        },
+        "itSoftware": {
+          "title": "IT & Software"
+        },
+        "engineering": {
+          "title": "Engineering"
+        },
+        "careerGuidelines": {
+          "title": "Career Guidelines"
+        },
+        "industryWorkshops": {
+          "title": "Industry Workshops"
+        }
+      }
+    },
+    "promise": {
+      "title": "The Shekhabo Promise",
+      "description1": {
+        "text": "We don't just train you; we",
+        "bold": "walk with you",
+        "end": "until you succeed."
+      },
+      "description2": {
+        "text": "With expert instructors, personalized support, and a proven structure, Shekhabo.com is where your",
+        "bold": "learning truly turns into earning."
+      },
+      "noOneLeftBehind": "No one is left behind."
     },
     "cta": {
       "title": "Shekhabo Ltd.",
