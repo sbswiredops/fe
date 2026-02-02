@@ -33,34 +33,59 @@ export default function RecordedCoursesSection() {
   useEffect(() => {
     const fetchCourses = async () => {
       setLoading(true);
-      const type = "Recorded";
+      // Try a few type casings because backend expects lowercase 'recorded'
+      const typeCandidates = ["recorded", "Recorded", "RECORDED"];
       const svc = new CourseService(); // use class instance
-      const res = await svc.getCoursesByType(type, {
-        page: 1,
-        limit: 8,
-        sortBy: "createdAt",
-        sortOrder: "DESC", // changed to uppercase as API requires ASC|DESC
-      });
+      let res: any = null;
+      for (const t of typeCandidates) {
+        // request with pagination/sort
+        res = await svc.getCoursesByType(t, {
+          page: 1,
+          limit: 8,
+          sortBy: "createdAt",
+          sortOrder: "DESC",
+        });
+        // accept either array responses or { courses: [] } shapes
+        if (
+          res &&
+          res.success &&
+          ((Array.isArray(res.data) && res.data.length > 0) ||
+            (res.data &&
+              Array.isArray(res.data.courses) &&
+              res.data.courses.length > 0))
+        ) {
+          break;
+        }
+      }
 
-      if (res.success && res.data && Array.isArray(res.data.courses)) {
-        setCourses(
-          res.data.courses.map((course: any) => ({
-            id: course.id ?? course._id ?? "",
-            title: course.title,
-            description: course.description,
-            instructor: course.instructor?.name || course.instructorId || "",
-            instructorId: course.instructorId,
-            duration: course.duration,
-            price: Number(course.price),
-            rating: Number(course.rating),
-            enrolledStudents: course.enrollmentCount ?? 0,
-            thumbnail: course.thumbnail ?? null,
-            type: "Recorded",
-            isRecorded: true,
-            category: course.category?.name || course.category || "General",
-            createdAt: course.createdAt || "",
-          }))
-        );
+      if (res && res.success) {
+        const rawCourses = Array.isArray(res.data)
+          ? res.data
+          : Array.isArray(res.data?.courses)
+            ? res.data.courses
+            : [];
+        if (Array.isArray(rawCourses) && rawCourses.length > 0) {
+          setCourses(
+            rawCourses.map((course: any) => ({
+              id: course.id ?? course._id ?? "",
+              title: course.title,
+              description: course.description,
+              instructor: course.instructor?.name || course.instructorId || "",
+              instructorId: course.instructorId,
+              duration: course.duration,
+              price: Number(course.price),
+              rating: Number(course.rating),
+              enrolledStudents: course.enrollmentCount ?? 0,
+              thumbnail: course.thumbnail ?? null,
+              type: "Recorded",
+              isRecorded: true,
+              category: course.category?.name || course.category || "General",
+              createdAt: course.createdAt || "",
+            })),
+          );
+        } else {
+          setCourses([]);
+        }
       } else {
         setCourses([]);
       }
@@ -71,7 +96,7 @@ export default function RecordedCoursesSection() {
 
   // Removed StarRating, using CourseCard instead
 
-  // Only show the latest 5 recorded courses
+  // Only show the latest 4 recorded courses in the slider
   const displayedCourses = courses.slice(0, 4);
 
   return (
@@ -99,7 +124,7 @@ export default function RecordedCoursesSection() {
         ) : (
           <div className="relative">
             <CardSlider
-              items={courses.map((course) => ({
+              items={displayedCourses.map((course) => ({
                 ...course,
                 // ensure duration is a string for the slider/card
                 duration:
@@ -127,9 +152,13 @@ export default function RecordedCoursesSection() {
                   0,
                 // Fix: instructor should be an object, not a string
                 instructor:
-                  typeof course.instructor === "object" && course.instructor !== null
+                  typeof course.instructor === "object" &&
+                  course.instructor !== null
                     ? {
-                        id: (course.instructor as any).id ?? course.instructorId ?? "",
+                        id:
+                          (course.instructor as any).id ??
+                          course.instructorId ??
+                          "",
                         name: (course.instructor as any)?.name ?? "",
                         firstName: (course.instructor as any)?.firstName,
                         lastName: (course.instructor as any)?.lastName,
@@ -138,44 +167,50 @@ export default function RecordedCoursesSection() {
                       }
                     : {
                         id: course.instructorId ?? "",
-                        name: typeof course.instructor === "string" ? course.instructor : "",
+                        name:
+                          typeof course.instructor === "string"
+                            ? course.instructor
+                            : "",
                       },
               }))}
               title={t("recordedCourses.title")}
-              categories={
-                courses
-                  .map((c) => {
-                    if (typeof c.category === "object" && c.category !== null) {
-                      // Ensure the object has an id and name
-                      return {
-                        id: (c.category as any).id ?? (typeof c.category === "object" && (c.category as any).name ? (c.category as any).name.toLowerCase().replace(/\s+/g, "-") : "general"),
-                        name: (c.category as any).name ?? String(c.category),
-                        description: (c.category as any).description ?? "",
-                        categories_avatar: (c.category as any).categories_avatar ?? null,
-                        icon: (c.category as any).icon ?? undefined,
-                        isActive: (c.category as any).isActive ?? undefined,
-                        createdAt: (c.category as any).createdAt ?? undefined,
-                        updatedAt: (c.category as any).updatedAt ?? undefined,
-                      };
-                    } else {
-                      // Fallback for string category
-                      const name = c.category || "General";
-                      return {
-                        id: name.toLowerCase().replace(/\s+/g, "-"),
-                        name,
-                        description: "",
-                        categories_avatar: null,
-                      };
-                    }
-                  })
-                  .filter(
-                    (cat, idx, arr) =>
-                      cat &&
-                      arr.findIndex(
-                        (c) => c.id === cat.id
-                      ) === idx
-                  )
-              }
+              categories={courses
+                .map((c) => {
+                  if (typeof c.category === "object" && c.category !== null) {
+                    // Ensure the object has an id and name
+                    return {
+                      id:
+                        (c.category as any).id ??
+                        (typeof c.category === "object" &&
+                        (c.category as any).name
+                          ? (c.category as any).name
+                              .toLowerCase()
+                              .replace(/\s+/g, "-")
+                          : "general"),
+                      name: (c.category as any).name ?? String(c.category),
+                      description: (c.category as any).description ?? "",
+                      categories_avatar:
+                        (c.category as any).categories_avatar ?? null,
+                      icon: (c.category as any).icon ?? undefined,
+                      isActive: (c.category as any).isActive ?? undefined,
+                      createdAt: (c.category as any).createdAt ?? undefined,
+                      updatedAt: (c.category as any).updatedAt ?? undefined,
+                    };
+                  } else {
+                    // Fallback for string category
+                    const name = c.category || "General";
+                    return {
+                      id: name.toLowerCase().replace(/\s+/g, "-"),
+                      name,
+                      description: "",
+                      categories_avatar: null,
+                    };
+                  }
+                })
+                .filter(
+                  (cat, idx, arr) =>
+                    cat && arr.findIndex((c) => c.id === cat.id) === idx,
+                )}
               className="mb-4 md:mb-8"
               renderItem={(course) => (
                 <div className="px-2 md:px-3 w-full">
