@@ -14,8 +14,14 @@ interface User {
   id: string;
   name: string;
   email: string;
-  status: "active" | "inactive";
-  joinDate: string;
+  status?: "active" | "inactive";
+  // normalized join date (from API createdAt)
+  joinDate?: string;
+  // normalized last update (from API updatedAt)
+  lastUpdate?: string;
+  // keep raw timestamps if needed
+  createdAt?: string;
+  updatedAt?: string;
   lastLogin?: string;
 }
 
@@ -45,7 +51,14 @@ function UsersManagement() {
           : Array.isArray((res as any)?.data)
           ? (res as any).data
           : [];
-        setUsers(data);
+
+        // normalize fields: joinDate from createdAt, lastUpdate from updatedAt
+        const normalized = (data as any[]).map((u) => ({
+          ...u,
+          joinDate: u.joinDate || u.createdAt || u.createdAt,
+          lastUpdate: u.lastUpdate || u.updatedAt || u.updatedAt,
+        }));
+        setUsers(normalized as User[]);
       } catch (error) {
         // Optionally handle error
         console.error(error);
@@ -211,20 +224,6 @@ function UsersManagement() {
                   ),
                 },
                 {
-                  key: "status",
-                  header: "Status",
-                  render: (user) => (
-                    <span
-                      className={`inline-flex px-2 py-1 text-xs font-medium rounded-full ${getStatusColor(
-                        user.status || "inactive"
-                      )}`}
-                    >
-                      {(user.status || "inactive").charAt(0).toUpperCase() +
-                        (user.status || "inactive").slice(1)}
-                    </span>
-                  ),
-                },
-                {
                   key: "joinDate",
                   header: "Join Date",
                   render: (user) => (
@@ -233,14 +232,17 @@ function UsersManagement() {
                     </span>
                   ),
                 },
+                
                 {
-                  key: "lastLogin",
-                  header: "Last Login",
+                  key: "lastUpdate",
+                  header: "Last Update",
                   render: (user) => (
                     <span className="text-sm text-gray-900">
-                      {user.lastLogin
-                        ? new Date(user.lastLogin).toLocaleDateString()
-                        : "Never"}
+                      {user.lastUpdate
+                        ? new Date(user.lastUpdate).toLocaleDateString()
+                        : user.updatedAt
+                        ? new Date(user.updatedAt).toLocaleDateString()
+                        : "-"}
                     </span>
                   ),
                 },
@@ -324,13 +326,10 @@ function UsersManagement() {
 
                 <div className="mt-3 space-y-2">
                   <div className="text-xs text-gray-600">
-                    Joined: {new Date(user.joinDate).toLocaleDateString()}
+                    Joined: {user.joinDate ? new Date(user.joinDate).toLocaleDateString() : user.createdAt ? new Date(user.createdAt).toLocaleDateString() : "-"}
                   </div>
                   <div className="text-xs text-gray-600">
-                    Last login:{" "}
-                    {user.lastLogin
-                      ? new Date(user.lastLogin).toLocaleDateString()
-                      : "Never"}
+                    Last updated: {user.lastUpdate ? new Date(user.lastUpdate).toLocaleDateString() : user.updatedAt ? new Date(user.updatedAt).toLocaleDateString() : "-"}
                   </div>
                 </div>
 
@@ -404,17 +403,23 @@ function UsersManagement() {
                       Join Date
                     </label>
                     <p className="text-sm text-gray-900">
-                      {new Date(selectedUser.joinDate).toLocaleDateString()}
+                      {selectedUser.joinDate
+                        ? new Date(selectedUser.joinDate).toLocaleDateString()
+                        : selectedUser.createdAt
+                        ? new Date(selectedUser.createdAt).toLocaleDateString()
+                        : "-"}
                     </p>
                   </div>
                   <div>
                     <label className="block text-sm font-medium text-gray-700">
-                      Last Login
+                      Last Update
                     </label>
                     <p className="text-sm text-gray-900">
-                      {selectedUser.lastLogin
-                        ? new Date(selectedUser.lastLogin).toLocaleDateString()
-                        : "Never"}
+                      {selectedUser.lastUpdate
+                        ? new Date(selectedUser.lastUpdate).toLocaleDateString()
+                        : selectedUser.updatedAt
+                        ? new Date(selectedUser.updatedAt).toLocaleDateString()
+                        : "-"}
                     </p>
                   </div>
                 </div>

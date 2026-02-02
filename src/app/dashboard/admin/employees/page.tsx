@@ -184,25 +184,6 @@ function EmployeesManagement() {
           />
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
-          <Input
-            label="Specialization"
-            name="specialization"
-            value={formData.specialization || ""}
-            onChange={handleInputChange}
-            placeholder="e.g., Web Development"
-            required
-          />
-          <Input
-            label="Experience"
-            name="experience"
-            value={formData.experience || ""}
-            onChange={handleInputChange}
-            placeholder="e.g., 5 years"
-            required
-          />
-        </div>
-
         <div className="mt-4">
           <label className="block text-sm font-medium text-gray-700 mb-1">
             Role
@@ -546,15 +527,7 @@ function EmployeesManagement() {
                       </div>
                     ),
                   },
-                  {
-                    key: "specialization",
-                    header: "Specialization",
-                    render: (t: any) => (
-                      <span className="text-sm text-gray-900">
-                        {t.specialization || "—"}
-                      </span>
-                    ),
-                  },
+
                   {
                     key: "experience",
                     header: "Experience",
@@ -573,15 +546,7 @@ function EmployeesManagement() {
                       </span>
                     ),
                   },
-                  {
-                    key: "studentsCount",
-                    header: "Students",
-                    render: (t: any) => (
-                      <span className="text-sm text-gray-900">
-                        {t.studentsCount ?? 0}
-                      </span>
-                    ),
-                  },
+
                   {
                     key: "rating",
                     header: "Rating",
@@ -602,43 +567,7 @@ function EmployeesManagement() {
                       </span>
                     ),
                   },
-                  {
-                    key: "status",
-                    header: "Status",
-                    className: "whitespace-normal max-w-[160px]",
-                    render: (t: any) => {
-                      const raw = t.status;
-                      const isActive = toBoolStatus(raw);
-                      const label = isActive
-                        ? "Active"
-                        : raw === false ||
-                            raw === "inactive" ||
-                            raw === 0 ||
-                            raw === "0"
-                          ? "Inactive"
-                          : String(raw || "")
-                              .toString()
-                              .charAt(0)
-                              .toUpperCase() +
-                            String(raw || "")
-                              .toString()
-                              .slice(1);
 
-                      const badgeClass = isActive
-                        ? "bg-green-100 text-green-800"
-                        : "bg-red-100 text-red-800";
-
-                      return (
-                        <span className="inline-flex items-center gap-2">
-                          <span
-                            className={`px-2 py-1 rounded-full text-xs font-medium ${badgeClass}`}
-                          >
-                            {label}
-                          </span>
-                        </span>
-                      );
-                    },
-                  },
                   {
                     key: "actions",
                     header: "Actions",
