@@ -587,7 +587,7 @@ export default function CourseDetailsPage() {
       <div className="min-h-screen bg-white">
         {/* HERO SECTION */}
         <section className="bg-gradient-to-b from-blue-50 to-white border-b border-gray-200">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 lg:py-16">
+          <div className="max-w-7xl mx-auto px-4 sm:px-10 lg:px-50 py-12 lg:py-16 lg:pl-12 lg:pr-[320px]">
             <div className="grid lg:grid-cols-3 gap-12 lg:gap-16 items-start">
               {/* MAIN CONTENT */}
               <div className="lg:col-span-2 space-y-8">
@@ -676,11 +676,11 @@ export default function CourseDetailsPage() {
               </div>
 
               {/* SIDEBAR - Pricing */}
-              <div className="lg:col-span-1 sticky top-24 space-y-6">
+              <div className="lg:col-span-1 sticky top-24 space-y-6 lg:fixed lg:right-[calc((100%-80rem)/2+2rem)] lg:w-[280px] z-50">
                 {/* Pricing Card (with Thumbnail on top) */}
                 <div className="bg-white border-2 border-gray-200 rounded-lg overflow-hidden">
                   {thumbnail && (
-                    <div className="w-full h-56 bg-gray-100 overflow-hidden">
+                    <div className="w-full h-44 bg-gray-100 overflow-hidden">
                       <img
                         src={thumbnail}
                         alt={title}
@@ -689,7 +689,7 @@ export default function CourseDetailsPage() {
                     </div>
                   )}
 
-                  <div className="p-6 space-y-5">
+                  <div className="p-4 space-y-4">
                     {discountPrice && price && discountPrice < price && (
                       <div className="bg-red-100 border border-red-200 text-red-800 text-sm font-bold py-2 px-3 rounded-lg text-center">
                         🔥 {discountPercentage}% OFF
@@ -701,7 +701,7 @@ export default function CourseDetailsPage() {
                         Course Price
                       </p>
                       <div className="flex items-baseline gap-2">
-                        <span className="text-4xl font-bold text-blue-600">
+                        <span className="text-3xl font-bold text-blue-600">
                           ৳
                           {discountPrice && price && discountPrice < price
                             ? discountPrice
@@ -720,7 +720,7 @@ export default function CourseDetailsPage() {
 
                     <Button
                       onClick={handleEnrollClick}
-                      className="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-4 rounded-lg transition-all"
+                      className="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-3 text-sm rounded-lg transition-all"
                     >
                       <Zap className="w-4 h-4 mr-2 inline" />
                       Enroll Now
@@ -795,7 +795,7 @@ export default function CourseDetailsPage() {
         {/* Curriculum section below */}
         {Array.isArray(sections) && sections.length > 0 && (
           <section className="bg-white border-b border-gray-200">
-            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 lg:py-16">
+            <div className="max-w-7xl mx-auto px-4 sm:px-10 lg:px-50 py-12 lg:py-16 lg:pl-12 lg:pr-[320px]">
               <div className="space-y-6">
                 <div>
                   <h2 className="text-3xl font-bold text-gray-900 mb-2">
@@ -840,7 +840,7 @@ export default function CourseDetailsPage() {
         {/* REQUIREMENTS & OUTCOMES */}
         {(requirements?.length > 0 || learningOutcomes?.length > 0) && (
           <section className="bg-gray-50 border-b border-gray-200">
-            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 lg:py-16">
+            <div className="max-w-7xl mx-auto px-4 sm:px-10 lg:px-50 py-12 lg:py-16 lg:pl-12 lg:pr-[320px]">
               <div className="grid md:grid-cols-2 gap-12">
                 {requirements?.length > 0 && (
                   <div>
@@ -887,7 +887,7 @@ export default function CourseDetailsPage() {
         {/* SKILLS/TAGS */}
         {tags?.length > 0 && (
           <section className="bg-white border-b border-gray-200">
-            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 lg:py-16">
+            <div className="max-w-7xl mx-auto px-4 sm:px-10 lg:px-50 py-12 lg:py-16 lg:pl-12 lg:pr-[320px]">
               <h3 className="text-2xl font-bold text-gray-900 mb-6">
                 Skills you'll master
               </h3>
