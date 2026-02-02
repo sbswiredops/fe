@@ -639,16 +639,16 @@ export default function CourseDetailsPage() {
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-6 pt-6 border-t border-gray-200 items-start">
                   {/* Teacher */}
                   <div className="flex items-center gap-4 bg-gradient-to-r from-blue-50 to-purple-50 rounded-xl p-4 border border-blue-100">
-                    <div className="w-14 h-14 rounded-full bg-gradient-to-br from-blue-400 to-purple-500 flex items-center justify-center text-white font-bold text-lg shadow-md">
+                    <div className="w-14 h-14 rounded-full bg-gradient-to-br from-blue-400 to-purple-500 flex items-center justify-center text-white font-bold text-lg">
                       {instructor?.name?.charAt(0) || "?"}
                     </div>
                     <div>
-                      <p className="text-xs text-gray-600 uppercase tracking-wide font-semibold">Instructor</p>
+                      <p className="text-sm text-gray-600">Instructor</p>
                       <p className="text-md font-bold text-gray-900">
                         {instructor?.name || "Unknown Instructor"}
                       </p>
                       {instructor?.bio && (
-                        <p className="text-xs text-gray-600 mt-1 line-clamp-2">
+                        <p className="text-xs text-gray-600 mt-1">
                           {instructor.bio}
                         </p>
                       )}
@@ -837,53 +837,21 @@ export default function CourseDetailsPage() {
           </section>
         )}
 
-        {/* LEARNING OUTCOMES SECTION - What you'll learn */}
-        {learningOutcomes?.length > 0 && (
-          <section className="bg-white border-b border-gray-200">
-            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 lg:py-16">
-              <h2 className="text-3xl font-bold text-gray-900 mb-2">
-                {t("courseDetails.whatYouWillLearn") || "কী কী শিখবেন এ কোর্স থেকে?"}
-              </h2>
-              <p className="text-gray-600 mb-10">
-                Master essential skills with our comprehensive curriculum
-              </p>
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {learningOutcomes.map((outcome: string, idx: number) => (
-                  <div
-                    key={outcome ?? `outcome-${idx}`}
-                    className="p-6 bg-gradient-to-br from-blue-50 to-blue-100/50 rounded-lg border border-blue-200 hover:shadow-lg transition-shadow"
-                  >
-                    <div className="flex items-start gap-4">
-                      <div className="w-12 h-12 rounded-lg bg-blue-600 flex items-center justify-center text-white flex-shrink-0 mt-0.5">
-                        <CheckCircle className="w-6 h-6" />
-                      </div>
-                      <p className="text-gray-800 font-medium">{outcome}</p>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
-          </section>
-        )}
-
-        {/* REQUIREMENTS & PREREQUISITES SECTION */}
+        {/* REQUIREMENTS & OUTCOMES */}
         {(requirements?.length > 0 || learningOutcomes?.length > 0) && (
           <section className="bg-gray-50 border-b border-gray-200">
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 lg:py-16">
               <div className="grid md:grid-cols-2 gap-12">
                 {requirements?.length > 0 && (
                   <div>
-                    <h3 className="text-2xl font-bold text-gray-900 mb-2">
-                      {t("courseDetails.requirements") || "Prerequisites"}
+                    <h3 className="text-2xl font-bold text-gray-900 mb-6">
+                      Requirements
                     </h3>
-                    <p className="text-gray-600 mb-6">
-                      What you should know before starting
-                    </p>
                     <ul className="space-y-3">
                       {requirements.map((req: string, idx: number) => (
                         <li
                           key={req ?? `req-${idx}`}
-                          className="flex gap-3 items-start p-3 bg-white rounded-lg"
+                          className="flex gap-3 items-start"
                         >
                           <CheckCircle className="w-5 h-5 text-blue-600 flex-shrink-0 mt-0.5" />
                           <span className="text-gray-700">{req}</span>
@@ -895,41 +863,19 @@ export default function CourseDetailsPage() {
 
                 {learningOutcomes?.length > 0 && (
                   <div>
-                    <h3 className="text-2xl font-bold text-gray-900 mb-2">
-                      {t("courseDetails.benefits") || "Benefits You'll Gain"}
+                    <h3 className="text-2xl font-bold text-gray-900 mb-6">
+                      What you'll learn
                     </h3>
-                    <p className="text-gray-600 mb-6">
-                      Advantages of taking this course
-                    </p>
                     <ul className="space-y-3">
-                      <li className="flex gap-3 items-start p-3 bg-white rounded-lg">
-                        <Award className="w-5 h-5 text-green-600 flex-shrink-0 mt-0.5" />
-                        <div>
-                          <p className="font-semibold text-gray-900">Professional Certificate</p>
-                          <p className="text-sm text-gray-600">Upon completion</p>
-                        </div>
-                      </li>
-                      <li className="flex gap-3 items-start p-3 bg-white rounded-lg">
-                        <GraduationCap className="w-5 h-5 text-green-600 flex-shrink-0 mt-0.5" />
-                        <div>
-                          <p className="font-semibold text-gray-900">Lifetime Access</p>
-                          <p className="text-sm text-gray-600">Learn at your pace</p>
-                        </div>
-                      </li>
-                      <li className="flex gap-3 items-start p-3 bg-white rounded-lg">
-                        <TrendingUp className="w-5 h-5 text-green-600 flex-shrink-0 mt-0.5" />
-                        <div>
-                          <p className="font-semibold text-gray-900">Career Growth</p>
-                          <p className="text-sm text-gray-600">Industry-expert content</p>
-                        </div>
-                      </li>
-                      <li className="flex gap-3 items-start p-3 bg-white rounded-lg">
-                        <Headphones className="w-5 h-5 text-green-600 flex-shrink-0 mt-0.5" />
-                        <div>
-                          <p className="font-semibold text-gray-900">24/7 Support</p>
-                          <p className="text-sm text-gray-600">Always here to help</p>
-                        </div>
-                      </li>
+                      {learningOutcomes.map((outcome: string, idx: number) => (
+                        <li
+                          key={outcome ?? `outcome-${idx}`}
+                          className="flex gap-3 items-start"
+                        >
+                          <CheckCircle className="w-5 h-5 text-green-600 flex-shrink-0 mt-0.5" />
+                          <span className="text-gray-700">{outcome}</span>
+                        </li>
+                      ))}
                     </ul>
                   </div>
                 )}
@@ -942,17 +888,14 @@ export default function CourseDetailsPage() {
         {tags?.length > 0 && (
           <section className="bg-white border-b border-gray-200">
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 lg:py-16">
-              <h3 className="text-2xl font-bold text-gray-900 mb-2">
-                {t("courseDetails.skillsYouWillMaster") || "Skills you'll master"}
+              <h3 className="text-2xl font-bold text-gray-900 mb-6">
+                Skills you'll master
               </h3>
-              <p className="text-gray-600 mb-8">
-                Practical skills applicable to your career
-              </p>
               <div className="flex flex-wrap gap-3">
                 {tags.map((tag: string, idx: number) => (
                   <span
                     key={tag ?? `tag-${idx}`}
-                    className="px-4 py-2.5 bg-gradient-to-r from-blue-100 to-blue-50 text-blue-700 rounded-lg text-sm font-semibold border border-blue-200 hover:shadow-md transition-shadow"
+                    className="px-4 py-2 bg-blue-100 text-blue-700 rounded-lg text-sm font-semibold"
                   >
                     {tag}
                   </span>
@@ -961,224 +904,9 @@ export default function CourseDetailsPage() {
             </div>
           </section>
         )}
-
-        {/* COURSE GOALS / CAREER PATHS SECTION */}
-        <section className="bg-gray-50 border-b border-gray-200">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 lg:py-16">
-            <h2 className="text-3xl font-bold text-gray-900 mb-2">
-              {t("courseDetails.courseGoals") || "কোর্সটি যে উদ্দেশ্যে করবেন"}
-            </h2>
-            <p className="text-gray-600 mb-10">
-              Explore potential career paths and goals after completion
-            </p>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-              {[
-                { title: "Professional Development", icon: TrendingUp, desc: "Advance your skills and expertise" },
-                { title: "Freelancing", icon: Globe, desc: "Start or expand freelance career" },
-                { title: "Career Switch", icon: Target, desc: "Move into a new industry" },
-                { title: "Business Growth", icon: BarChart3, desc: "Boost your business presence" },
-              ].map((goal, idx) => {
-                const Icon = goal.icon;
-                return (
-                  <div
-                    key={idx}
-                    className="p-6 bg-white rounded-xl border border-gray-200 hover:border-blue-300 hover:shadow-lg transition-all"
-                  >
-                    <div className="w-12 h-12 rounded-lg bg-blue-100 flex items-center justify-center mb-4">
-                      <Icon className="w-6 h-6 text-blue-600" />
-                    </div>
-                    <h3 className="font-bold text-gray-900 mb-2">{goal.title}</h3>
-                    <p className="text-sm text-gray-600">{goal.desc}</p>
-                  </div>
-                );
-              })}
-            </div>
-          </div>
-        </section>
-
-        {/* COURSE HIGHLIGHTS / KEY STATS */}
-        <section className="bg-white border-b border-gray-200">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 lg:py-16">
-            <h2 className="text-3xl font-bold text-gray-900 mb-10">
-              {t("courseDetails.courseHighlights") || "এই কোর্সের ভেতরে যা যা রয়েছে"}
-            </h2>
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
-              <div className="text-center p-6 bg-gradient-to-br from-blue-50 to-blue-100/50 rounded-xl border border-blue-200">
-                <div className="text-3xl font-bold text-blue-600 mb-2">{duration}+</div>
-                <p className="text-sm text-gray-600">
-                  {t("courseDetails.minutesOfContent") || "Hours of Content"}
-                </p>
-              </div>
-              <div className="text-center p-6 bg-gradient-to-br from-green-50 to-green-100/50 rounded-xl border border-green-200">
-                <div className="text-3xl font-bold text-green-600 mb-2">{sections?.length || 0}+</div>
-                <p className="text-sm text-gray-600">
-                  {t("courseDetails.modules") || "Modules"}
-                </p>
-              </div>
-              <div className="text-center p-6 bg-gradient-to-br from-purple-50 to-purple-100/50 rounded-xl border border-purple-200">
-                <div className="text-3xl font-bold text-purple-600 mb-2">
-                  {sections?.reduce((acc: number, s: any) => acc + (s.quizzes?.length || 0), 0) || 0}+
-                </div>
-                <p className="text-sm text-gray-600">
-                  {t("courseDetails.quizzes") || "Quizzes"}
-                </p>
-              </div>
-              <div className="text-center p-6 bg-gradient-to-br from-orange-50 to-orange-100/50 rounded-xl border border-orange-200">
-                <div className="text-3xl font-bold text-orange-600 mb-2">∞</div>
-                <p className="text-sm text-gray-600">
-                  {t("courseDetails.lifetimeAccess") || "Lifetime Access"}
-                </p>
-              </div>
-            </div>
-          </div>
-        </section>
       </div>
 
-        {/* INSTRUCTOR SECTION */}
-        {instructor && (
-          <section className="bg-gradient-to-r from-blue-50 to-purple-50 border-b border-gray-200">
-            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 lg:py-16">
-              <h2 className="text-3xl font-bold text-gray-900 mb-10">
-                {t("courseDetails.instructor") || "আপনি যার কাছ থেকে শিখবেন"}
-              </h2>
-              <div className="flex flex-col md:flex-row items-start gap-8">
-                <div className="flex-shrink-0">
-                  <div className="w-24 h-24 rounded-full bg-gradient-to-br from-blue-400 to-purple-500 flex items-center justify-center text-white font-bold text-4xl shadow-lg">
-                    {instructor.name?.charAt(0) || "?"}
-                  </div>
-                </div>
-                <div className="flex-1">
-                  <h3 className="text-2xl font-bold text-gray-900 mb-2">
-                    {instructor.name || "Unknown Instructor"}
-                  </h3>
-                  <p className="text-sm text-blue-600 font-semibold mb-4">
-                    Course Instructor at Shekhabo
-                  </p>
-                  <p className="text-gray-700 leading-relaxed">
-                    {instructor.bio ||
-                      "Expert instructor with years of experience in the field. Committed to delivering high-quality education and mentoring students to achieve their career goals."}
-                  </p>
-                  <div className="mt-6 flex gap-4">
-                    <div>
-                      <p className="text-2xl font-bold text-blue-600">{enrollmentCount || 0}+</p>
-                      <p className="text-sm text-gray-600">Students taught</p>
-                    </div>
-                    <div>
-                      <p className="text-2xl font-bold text-blue-600">{rating || 4.8}</p>
-                      <div className="flex items-center gap-1">
-                        <StarRating rating={rating} size="sm" />
-                        <p className="text-sm text-gray-600">({reviewCount || 0} reviews)</p>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </section>
-        )}
-
-        {/* TESTIMONIALS/REVIEWS SECTION */}
-        <section className="bg-white border-b border-gray-200">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 lg:py-16">
-            <h2 className="text-3xl font-bold text-gray-900 mb-2">
-              {t("courseDetails.testimonials") || "বহুব্রীহির শিক্ষার্থীরা যা বলছেন"}
-            </h2>
-            <p className="text-gray-600 mb-10">
-              See what our students have to say about this course
-            </p>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {[
-                {
-                  name: "Student Name",
-                  role: "Student",
-                  avatar: "S",
-                  rating: 5,
-                  text: "This course exceeded my expectations! The instructor explained everything clearly and the curriculum is comprehensive. Highly recommended!",
-                },
-                {
-                  name: "Professional",
-                  role: "Working Professional",
-                  avatar: "P",
-                  rating: 5,
-                  text: "Great investment for my career. The practical assignments and real-world examples made all the difference. I'm already using these skills at work!",
-                },
-                {
-                  name: "Freelancer",
-                  role: "Freelancer",
-                  avatar: "F",
-                  rating: 4.8,
-                  text: "Fantastic course! The lifetime access and certificate are great perks. I've already landed new projects thanks to what I learned here.",
-                },
-              ].map((review, idx) => (
-                <div
-                  key={idx}
-                  className="p-6 bg-gray-50 border border-gray-200 rounded-lg hover:shadow-lg transition-shadow"
-                >
-                  <div className="mb-4">
-                    <StarRating rating={review.rating} size="md" />
-                  </div>
-                  <p className="text-gray-700 mb-4 leading-relaxed">"{review.text}"</p>
-                  <div className="flex items-center gap-3 pt-4 border-t border-gray-200">
-                    <div className="w-10 h-10 rounded-full bg-blue-600 flex items-center justify-center text-white font-bold">
-                      {review.avatar}
-                    </div>
-                    <div>
-                      <p className="font-semibold text-gray-900">{review.name}</p>
-                      <p className="text-xs text-gray-600">{review.role}</p>
-                    </div>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-        </section>
-
-        {/* FAQ SECTION */}
-        <section className="bg-gray-50 border-b border-gray-200">
-          <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-12 lg:py-16">
-            <h2 className="text-3xl font-bold text-gray-900 mb-2">
-              {t("courseDetails.faq") || "সচরাচর প্রশ্নগুলোর উত্তর"}
-            </h2>
-            <p className="text-gray-600 mb-10">
-              Common questions about this course
-            </p>
-            <div className="space-y-4">
-              {[
-                {
-                  q: "Do I get lifetime access to the course?",
-                  a: "Yes! Once you enroll, you have lifetime access to all the course materials, including any future updates.",
-                },
-                {
-                  q: "Will I get a certificate after completion?",
-                  a: "Absolutely! Upon completing the course and passing the final quiz, you'll receive a professional certificate that you can add to your resume.",
-                },
-                {
-                  q: "Is this course suitable for beginners?",
-                  a: "Yes! This course is designed for learners at all levels. We start with the basics and progress to advanced topics.",
-                },
-                {
-                  q: "How long will it take to complete the course?",
-                  a: "The course duration depends on your pace. Most students complete it within the suggested timeframe, but you can learn at your own speed.",
-                },
-                {
-                  q: "Is there any support available during the course?",
-                  a: "Yes! We provide 24/7 support through our help desk. You can reach out with any questions or concerns.",
-                },
-              ].map((faq, idx) => (
-                <details
-                  key={idx}
-                  className="p-6 bg-white border border-gray-200 rounded-lg group cursor-pointer hover:border-blue-300 transition-colors"
-                >
-                  <summary className="flex items-center justify-between font-semibold text-gray-900 group-open:text-blue-600 transition-colors">
-                    {faq.q}
-                    <ChevronDown className="w-5 h-5 group-open:rotate-180 transition-transform" />
-                  </summary>
-                  <p className="mt-4 text-gray-600 leading-relaxed">{faq.a}</p>
-                </details>
-              ))}
-            </div>
-          </div>
-        </section>
+      {/* FLOATING CTA */}
       <FloatingCTA
         price={price}
         discountPrice={discountPrice}
