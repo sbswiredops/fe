@@ -171,6 +171,7 @@ function UsersManagement() {
                     {
                       users.filter((u) => {
                         const today = new Date();
+                        if (!u.joinDate) return false;
                         const joinDate = new Date(u.joinDate);
                         return (
                           joinDate.getDate() === today.getDate() &&
@@ -228,7 +229,11 @@ function UsersManagement() {
                   header: "Join Date",
                   render: (user) => (
                     <span className="text-sm text-gray-900">
-                      {new Date(user.joinDate).toLocaleDateString()}
+                      {user.joinDate
+                        ? new Date(user.joinDate).toLocaleDateString()
+                        : user.createdAt
+                          ? new Date(user.createdAt).toLocaleDateString()
+                          : "-"}
                     </span>
                   ),
                 },
