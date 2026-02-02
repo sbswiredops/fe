@@ -587,10 +587,10 @@ export default function CourseDetailsPage() {
       <div className="min-h-screen bg-white">
         {/* HERO SECTION */}
         <section className="bg-gradient-to-b from-blue-50 to-white border-b border-gray-200">
-          <div className="max-w-7xl mx-auto px-4 sm:px-10 lg:px-50 py-12 lg:py-16 lg:pl-12 lg:pr-[320px]">
-            <div className="grid lg:grid-cols-3 gap-12 lg:gap-16 items-start">
-              {/* MAIN CONTENT */}
-              <div className="lg:col-span-2 space-y-8">
+          <div className="max-w-7xl mx-auto px-4 sm:px-10 lg:px-12 lg:pr-[440px] py-12 lg:py-16">
+            <div className="space-y-8">
+              {/* LEFT CONTENT */}
+              <div className="space-y-8">
                 {/* Title & Badges */}
                 <div className="space-y-4">
                   <div className="flex items-center gap-2 flex-wrap">
@@ -675,116 +675,118 @@ export default function CourseDetailsPage() {
                 </div>
               </div>
 
-              {/* SIDEBAR - Pricing */}
-              <div className="lg:col-span-1 sticky top-24 space-y-6 lg:fixed lg:right-[calc((100%-80rem)/2+2rem)] lg:w-[280px] z-50">
-                {/* Pricing Card (with Thumbnail on top) */}
-                <div className="bg-white border-2 border-gray-200 rounded-lg overflow-hidden">
-                  {thumbnail && (
-                    <div className="w-full h-44 bg-gray-100 overflow-hidden">
-                      <img
-                        src={thumbnail}
-                        alt={title}
-                        className="w-full h-full object-cover"
-                      />
-                    </div>
-                  )}
-
-                  <div className="p-4 space-y-4">
-                    {discountPrice && price && discountPrice < price && (
-                      <div className="bg-red-100 border border-red-200 text-red-800 text-sm font-bold py-2 px-3 rounded-lg text-center">
-                        🔥 {discountPercentage}% OFF
+              {/* RIGHT SIDEBAR - Pricing Card (Fixed) */}
+              <div className="hidden lg:block fixed top-24 right-6 w-80 z-40">
+                <div className="space-y-6">
+                  {/* Pricing Card (with Thumbnail on top) */}
+                  <div className="bg-white border-2 border-gray-200 rounded-lg overflow-hidden">
+                    {thumbnail && (
+                      <div className="w-full h-44 bg-gray-100 overflow-hidden">
+                        <img
+                          src={thumbnail}
+                          alt={title}
+                          className="w-full h-full object-cover"
+                        />
                       </div>
                     )}
 
-                    <div className="space-y-2">
-                      <p className="text-xs uppercase tracking-widest text-gray-500 font-bold">
-                        Course Price
-                      </p>
-                      <div className="flex items-baseline gap-2">
-                        <span className="text-3xl font-bold text-blue-600">
-                          ৳
-                          {discountPrice && price && discountPrice < price
-                            ? discountPrice
-                            : price}
-                        </span>
-                        {discountPrice && price && discountPrice < price && (
-                          <span className="text-lg line-through text-gray-400">
-                            ৳{price}
+                    <div className="p-4 space-y-4">
+                      {discountPrice && price && discountPrice < price && (
+                        <div className="bg-red-100 border border-red-200 text-red-800 text-sm font-bold py-2 px-3 rounded-lg text-center">
+                          🔥 {discountPercentage}% OFF
+                        </div>
+                      )}
+
+                      <div className="space-y-2">
+                        <p className="text-xs uppercase tracking-widest text-gray-500 font-bold">
+                          Course Price
+                        </p>
+                        <div className="flex items-baseline gap-2">
+                          <span className="text-3xl font-bold text-blue-600">
+                            ৳
+                            {discountPrice && price && discountPrice < price
+                              ? discountPrice
+                              : price}
                           </span>
-                        )}
+                          {discountPrice && price && discountPrice < price && (
+                            <span className="text-lg line-through text-gray-400">
+                              ৳{price}
+                            </span>
+                          )}
+                        </div>
+                        <p className="text-xs text-gray-500">
+                          One-time payment • Lifetime access
+                        </p>
                       </div>
-                      <p className="text-xs text-gray-500">
-                        One-time payment • Lifetime access
-                      </p>
-                    </div>
 
-                    <Button
-                      onClick={handleEnrollClick}
-                      className="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-3 text-sm rounded-lg transition-all"
-                    >
-                      <Zap className="w-4 h-4 mr-2 inline" />
-                      Enroll Now
-                    </Button>
+                      <Button
+                        onClick={handleEnrollClick}
+                        className="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-3 text-sm rounded-lg transition-all"
+                      >
+                        <Zap className="w-4 h-4 mr-2 inline" />
+                        Enroll Now
+                      </Button>
 
-                    <div className="space-y-2 text-sm">
-                      <div className="flex items-center gap-2 text-gray-700">
-                        <CheckCircle className="w-5 h-5 text-green-600" />
-                        <span>Secure payment</span>
+                      <div className="space-y-2 text-sm">
+                        <div className="flex items-center gap-2 text-gray-700">
+                          <CheckCircle className="w-5 h-5 text-green-600" />
+                          <span>Secure payment</span>
+                        </div>
+                        <div className="flex items-center gap-2 text-gray-700">
+                          <Shield className="w-5 h-5 text-green-600" />
+                          <span>30-day money back</span>
+                        </div>
                       </div>
-                      <div className="flex items-center gap-2 text-gray-700">
-                        <Shield className="w-5 h-5 text-green-600" />
-                        <span>30-day money back</span>
-                      </div>
-                    </div>
 
-                    <div className="border-t border-gray-200 pt-5 space-y-4">
-                      <p className="text-xs uppercase tracking-widest text-gray-500 font-bold">
-                        What you get
-                      </p>
-                      <ul className="space-y-3">
-                        <li className="flex items-start gap-3">
-                          <PlayCircle className="w-4 h-4 text-blue-600 flex-shrink-0 mt-0.5" />
-                          <div>
-                            <p className="text-sm font-medium text-gray-900">
-                              {duration} minutes
-                            </p>
-                            <p className="text-xs text-gray-500">
-                              HD quality video
-                            </p>
-                          </div>
-                        </li>
-                        <li className="flex items-start gap-3">
-                          <GraduationCap className="w-4 h-4 text-blue-600 flex-shrink-0 mt-0.5" />
-                          <div>
-                            <p className="text-sm font-medium text-gray-900">
-                              Lifetime Access
-                            </p>
-                            <p className="text-xs text-gray-500">
-                              Learn at your pace
-                            </p>
-                          </div>
-                        </li>
-                        <li className="flex items-start gap-3">
-                          <Award className="w-4 h-4 text-blue-600 flex-shrink-0 mt-0.5" />
-                          <div>
-                            <p className="text-sm font-medium text-gray-900">
-                              Certificate
-                            </p>
-                            <p className="text-xs text-gray-500">
-                              Upon completion
-                            </p>
-                          </div>
-                        </li>
-                        <li className="flex items-start gap-3">
-                          <Headphones className="w-4 h-4 text-blue-600 flex-shrink-0 mt-0.5" />
-                          <div>
-                            <p className="text-sm font-medium text-gray-900">
-                              Support
-                            </p>
-                            <p className="text-xs text-gray-500">24/7 help</p>
-                          </div>
-                        </li>
-                      </ul>
+                      <div className="border-t border-gray-200 pt-5 space-y-4">
+                        <p className="text-xs uppercase tracking-widest text-gray-500 font-bold">
+                          What you get
+                        </p>
+                        <ul className="space-y-3">
+                          <li className="flex items-start gap-3">
+                            <PlayCircle className="w-4 h-4 text-blue-600 flex-shrink-0 mt-0.5" />
+                            <div>
+                              <p className="text-sm font-medium text-gray-900">
+                                {duration} minutes
+                              </p>
+                              <p className="text-xs text-gray-500">
+                                HD quality video
+                              </p>
+                            </div>
+                          </li>
+                          <li className="flex items-start gap-3">
+                            <GraduationCap className="w-4 h-4 text-blue-600 flex-shrink-0 mt-0.5" />
+                            <div>
+                              <p className="text-sm font-medium text-gray-900">
+                                Lifetime Access
+                              </p>
+                              <p className="text-xs text-gray-500">
+                                Learn at your pace
+                              </p>
+                            </div>
+                          </li>
+                          <li className="flex items-start gap-3">
+                            <Award className="w-4 h-4 text-blue-600 flex-shrink-0 mt-0.5" />
+                            <div>
+                              <p className="text-sm font-medium text-gray-900">
+                                Certificate
+                              </p>
+                              <p className="text-xs text-gray-500">
+                                Upon completion
+                              </p>
+                            </div>
+                          </li>
+                          <li className="flex items-start gap-3">
+                            <Headphones className="w-4 h-4 text-blue-600 flex-shrink-0 mt-0.5" />
+                            <div>
+                              <p className="text-sm font-medium text-gray-900">
+                                Support
+                              </p>
+                              <p className="text-xs text-gray-500">24/7 help</p>
+                            </div>
+                          </li>
+                        </ul>
+                      </div>
                     </div>
                   </div>
                 </div>
@@ -795,8 +797,8 @@ export default function CourseDetailsPage() {
         {/* Curriculum section below */}
         {Array.isArray(sections) && sections.length > 0 && (
           <section className="bg-white border-b border-gray-200">
-            <div className="max-w-7xl mx-auto px-4 sm:px-10 lg:px-50 py-12 lg:py-16 lg:pl-12 lg:pr-[320px]">
-              <div className="space-y-6">
+            <div className="max-w-7xl mx-auto px-4 sm:px-10 lg:px-12 py-12 lg:py-16">
+              <div className="space-y-6 max-w-4xl">
                 <div>
                   <h2 className="text-3xl font-bold text-gray-900 mb-2">
                     Course Curriculum
@@ -837,11 +839,10 @@ export default function CourseDetailsPage() {
           </section>
         )}
 
-        {/* REQUIREMENTS & OUTCOMES */}
         {(requirements?.length > 0 || learningOutcomes?.length > 0) && (
           <section className="bg-gray-50 border-b border-gray-200">
-            <div className="max-w-7xl mx-auto px-4 sm:px-10 lg:px-50 py-12 lg:py-16 lg:pl-12 lg:pr-[320px]">
-              <div className="grid md:grid-cols-2 gap-12">
+            <div className="max-w-7xl mx-auto px-4 sm:px-10 lg:px-12 py-12 lg:py-16">
+              <div className="grid md:grid-cols-2 gap-12 max-w-4xl">
                 {requirements?.length > 0 && (
                   <div>
                     <h3 className="text-2xl font-bold text-gray-900 mb-6">
@@ -887,19 +888,21 @@ export default function CourseDetailsPage() {
         {/* SKILLS/TAGS */}
         {tags?.length > 0 && (
           <section className="bg-white border-b border-gray-200">
-            <div className="max-w-7xl mx-auto px-4 sm:px-10 lg:px-50 py-12 lg:py-16 lg:pl-12 lg:pr-[320px]">
-              <h3 className="text-2xl font-bold text-gray-900 mb-6">
-                Skills you'll master
-              </h3>
-              <div className="flex flex-wrap gap-3">
-                {tags.map((tag: string, idx: number) => (
-                  <span
-                    key={tag ?? `tag-${idx}`}
-                    className="px-4 py-2 bg-blue-100 text-blue-700 rounded-lg text-sm font-semibold"
-                  >
-                    {tag}
-                  </span>
-                ))}
+            <div className="max-w-7xl mx-auto px-4 sm:px-10 lg:px-12 py-12 lg:py-16">
+              <div className="max-w-4xl">
+                <h3 className="text-2xl font-bold text-gray-900 mb-6">
+                  Skills you'll master
+                </h3>
+                <div className="flex flex-wrap gap-3">
+                  {tags.map((tag: string, idx: number) => (
+                    <span
+                      key={tag ?? `tag-${idx}`}
+                      className="px-4 py-2 bg-blue-100 text-blue-700 rounded-lg text-sm font-semibold"
+                    >
+                      {tag}
+                    </span>
+                  ))}
+                </div>
               </div>
             </div>
           </section>
