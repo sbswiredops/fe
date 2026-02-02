@@ -237,13 +237,13 @@ function CoursesClient() {
           <div className="rounded-2xl p-8 sm:p-10 text-center text-white">
             <h1 className="text-5xl  font-bold mb-4">
               {currentLanguage.code === "bn"
-                ? "বাংলা অনলাইন কোর্স"
+                ? "কোর্স"
                 : t("nav.courses")}
             </h1>
             <p className="text-lg opacity-95 max-w-2xl mx-auto">
               {currentLanguage.code === "bn"
-                ? "আপনার পছন্দের ক্যারিয়ার স্কিল শিখে নিন এবং দক্ষতা বাড়িয়ে ক্যারিয়ারে এগিয়ে যান।"
-                : "Browse top courses from expert instructors and advance your career."}
+                ? "ইন্ডাস্ট্রি এক্সপার্টদের সাথে তৈরি আমাদের টপ কোর্সগুলো ঘুরে দেখো"
+                : "Browse our top courses made in collaboration with Industry experts"}
             </p>
           </div>
         </div>
@@ -278,7 +278,7 @@ function CoursesClient() {
                     className="w-full pl-10 pr-4 py-3 text-gray-700 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#51356e] focus:border-transparent"
                     placeholder={
                       currentLanguage.code === "bn"
-                        ? "ক���র্স খুঁজুন"
+                        ? "কোর্স খুঁজুন"
                         : "Search courses"
                     }
                     value={query}
@@ -322,7 +322,7 @@ function CoursesClient() {
                   />
                   <span className="text-sm text-gray-700">
                     {currentLanguage.code === "bn"
-                      ? "শুধুমাত্র ফ্র�� কোর্স"
+                      ? "শুধুমাত্র ফ্রি কোর্সসমূহ"
                       : "Free courses only"}
                   </span>
                 </label>

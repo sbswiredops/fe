@@ -12,7 +12,7 @@
   "hero": {
     "title": "From Learning to Earning with",
     "subtitle": "Shekhabo",
-    "description": "Join thousands of professionals learning job-ready skills through expert-led courses and live interactive classes.",
+    "description": "Join thousands of motivated learners in acquiring real, industry specific and in-demand skills through our curated courses and live, interactive classes.",
     "ctaButton": "Start Learning",
     "watchDemo": "Explore Courses"
   },
@@ -30,6 +30,69 @@
     "recordedMasterclasses": "Recorded Masterclasses",
     "crashCourses": "Crash Courses",
     "liveCourseContents": "Live Course Contents"
+  },
+  "recordedCourses": {
+    "title": "Recorded Courses",
+    "subtitle": "Ready to learn? An array of premium recorded courses created by industry experts is up for grabs.",
+    "loading": "Loading...",
+    "empty": "No courses found.",
+    "viewAll": "View All Recorded Courses"
+  },
+  "liveCourseContents": {
+    "title": "Course Contents",
+    "subtitle": "We have a range of comprehensive features and benefits with our courses, each designed to guide to you to your peak potential",
+    "features": {
+      "dedicatedJobPlacementTeam": {
+        "title": "Dedicated job placement team",
+        "description": "Secure job opportunities in your field with personalised career guidance"
+      },
+      "expertCvReview": {
+        "title": "Expert CV Review",
+        "description": "Find out what exactly it is about a CV that attracts recruiters and fix yours"
+      },
+      "liveSupport18Hours": {
+        "title": "Live support",
+        "description": "Get on-demand support during your course journey, 18 hours a day. Applicable for specific courses"
+      },
+      "proBatchCvJobSupport": {
+        "title": "Pro-Batch Special",
+        "description": "Exclusive CV preparation and job placement support for pro-batch students with premium benefits"
+      },
+      "selfAssessmentTests": {
+        "title": "Assessments and Feedback",
+        "description": "Regular assessments to track your progress and identify areas for improvement"
+      },
+      "supportClassesPerDay": {
+        "title": "Support Classes",
+        "description": "Additional support classes to ensure you master every concept with tailored guidance"
+      }
+    },
+    "stats": {
+      "jobPlacement": {
+        "label": "Job Placements"
+      },
+      "learner": {
+        "label": "Learners"
+
+      },
+      "courseCompletionRate": {
+        "label": "Course Completion Rate"
+      },
+      "courses": {
+        "label": "Courses"
+        
+      }
+    },
+    "cta": {
+      "title": "Why choose us?",
+      "description": "Our courses provide an interactive, well supported learning environment with industry focused approach, strong job placement assurance,  and comprehensive assessment tools. We introduce innovative approaches that equip you to confidently pursue your dream jobs. Join thousands of successful learners who have transformed their careers through our programs",
+      "highlights": {
+        "industryExperts": "Sessions with Industry Experts",
+        "cvReviews": "Personalized CV Reviews",
+        "jobSupport": "Job Placement Support",
+        "support247": "24/7 Support"
+      }
+    }
   },
   "liveClasses": {
     "title": "Upcoming Live Classes",

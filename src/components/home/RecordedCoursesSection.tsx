@@ -80,21 +80,21 @@ export default function RecordedCoursesSection() {
         {/* Header with responsive spacing and font sizes */}
         <div className="text-center mb-8 md:mb-12">
           <h2 className="text-2xl md:text-3xl lg:text-4xl font-bold text-gray-900 mb-3 md:mb-4">
-            Recorded Courses
+            {t("recordedCourses.title")}
           </h2>
           <p className="text-base md:text-lg lg:text-xl text-gray-600 max-w-2xl mx-auto px-4">
-            Access premium recorded courses and sessions
+            {t("recordedCourses.subtitle")}
           </p>
         </div>
 
         {/* Courses Slider with responsive handling */}
         {loading ? (
           <div className="text-center py-8 md:py-12 text-base md:text-lg text-gray-500">
-            Loading...
+            {t("recordedCourses.loading")}
           </div>
         ) : courses.length === 0 ? (
           <div className="text-center py-8 md:py-12 text-base md:text-lg text-gray-500">
-            No courses found.
+            {t("recordedCourses.empty")}
           </div>
         ) : (
           <div className="relative">
@@ -141,7 +141,7 @@ export default function RecordedCoursesSection() {
                         name: typeof course.instructor === "string" ? course.instructor : "",
                       },
               }))}
-              title={t("Recorded Courses") || "Recorded Courses"}
+              title={t("recordedCourses.title")}
               categories={
                 courses
                   .map((c) => {
@@ -211,7 +211,7 @@ export default function RecordedCoursesSection() {
               }}
             >
               <span className="flex items-center justify-center">
-                View All Recorded Courses
+                {t("recordedCourses.viewAll")}
                 <svg
                   className="ml-2 w-4 h-4 md:w-5 md:h-5"
                   fill="none"

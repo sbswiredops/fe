@@ -18,8 +18,7 @@ import {
 
 interface LiveCourseFeature {
   id: string;
-  title: string;
-  description: string;
+  key: string;
   icon: React.ReactElement<any, any>;
   color: string;
   bgGradient: string;
@@ -28,20 +27,17 @@ interface LiveCourseFeature {
 
 interface LiveCourseStats {
   id: string;
-  label: string;
+  key: string;
   value: string;
   color: string;
   icon: React.ReactElement<any, any>;
-  description: string;
   textColor?: string; // added
 }
 
 const features: LiveCourseFeature[] = [
   {
     id: "1",
-    title: "Dedicated job placement team",
-    description:
-      "Our dedicated team helps you secure job opportunities in your field with personalized career guidance",
+    key: "dedicatedJobPlacementTeam",
     icon: <Users />, // removed inline color class
     color: "",
     bgGradient: "from-blue-50 to-cyan-50",
@@ -49,9 +45,7 @@ const features: LiveCourseFeature[] = [
   },
   {
     id: "2",
-    title: "Expert CV Review",
-    description:
-      "Professional CV expert review for better job prospects and interview preparation",
+    key: "expertCvReview",
     icon: <FileText />,
     color: "",
     bgGradient: "from-green-50 to-emerald-50",
@@ -59,9 +53,7 @@ const features: LiveCourseFeature[] = [
   },
   {
     id: "3",
-    title: "18 hours live support for specific courses",
-    description:
-      "Get dedicated live support for 18 hours during your course journey with instant problem solving",
+    key: "liveSupport18Hours",
     icon: <Clock />,
     color: "",
     bgGradient: "from-purple-50 to-pink-50",
@@ -69,9 +61,7 @@ const features: LiveCourseFeature[] = [
   },
   {
     id: "4",
-    title: "Pro Batch Special CV and Job Support",
-    description:
-      "Exclusive CV preparation and job placement support for Pro Batch students with premium benefits",
+    key: "proBatchCvJobSupport",
     icon: <Briefcase />,
     color: "",
     bgGradient: "from-indigo-50 to-blue-50",
@@ -79,9 +69,7 @@ const features: LiveCourseFeature[] = [
   },
   {
     id: "5",
-    title: "Opportunity to assess yourself in tests",
-    description:
-      "Regular assessments to track your progress and identify improvement areas with detailed feedback",
+    key: "selfAssessmentTests",
     icon: <BarChart3 />,
     color: "",
     bgGradient: "from-orange-50 to-red-50",
@@ -89,9 +77,7 @@ const features: LiveCourseFeature[] = [
   },
   {
     id: "6",
-    title: "Up to 3 support classes per day for specific courses",
-    description:
-      "Additional support classes to ensure you master every concept with personalized attention",
+    key: "supportClassesPerDay",
     icon: <BookOpen />,
     color: "",
     bgGradient: "from-pink-50 to-rose-50",
@@ -102,37 +88,33 @@ const features: LiveCourseFeature[] = [
 const stats: LiveCourseStats[] = [
   {
     id: "1",
-    label: "Job Placement",
+    key: "jobPlacement",
     value: "150+",
     color: "from-green-500 to-emerald-600",
-    description: "Students successfully placed",
     icon: <Briefcase />,
     textColor: "text-green-500",
   },
   {
     id: "2",
-    label: "Learner",
+    key: "learner",
     value: "2996+",
     color: "from-blue-500 to-indigo-600",
-    description: "Active learners worldwide",
     icon: <UsersIcon />,
     textColor: "text-blue-500",
   },
   {
     id: "3",
-    label: "Course Completion Rate",
+    key: "courseCompletionRate",
     value: "83%",
     color: "from-orange-500 to-red-600",
-    description: "Students complete courses",
     icon: <CheckCircle2 />,
     textColor: "text-orange-500",
   },
   {
     id: "4",
-    label: "Courses",
+    key: "courses",
     value: "7+",
     color: "from-yellow-500 to-orange-600",
-    description: "Active courses",
     icon: <PlaySquare />,
     textColor: "text-yellow-500",
   },
@@ -151,11 +133,10 @@ export default function LiveCourseContents() {
             <Zap className="w-10 h-10 text-blue-600" />
           </div>
           <h2 className="text-3xl lg:text-4xl font-bold bg-gradient-to-r from-gray-900 via-blue-800 to-purple-800 bg-clip-text text-transparent mb-6">
-            Course Contents
+            {t("liveCourseContents.title")}
           </h2>
           <p className="text-xl text-gray-600 max-w-3xl mx-auto leading-relaxed">
-            Comprehensive features and benefits that come with our courses for
-            your success
+            {t("liveCourseContents.subtitle")}
           </p>
         </div>
 
@@ -194,10 +175,10 @@ export default function LiveCourseContents() {
 
                 {/* Content */}
                 <h3 className="text-xl font-bold text-gray-900 mb-4 group-hover:text-gray-800 transition-colors">
-                  {feature.title}
+                  {t(`liveCourseContents.features.${feature.key}.title`)}
                 </h3>
                 <p className="text-gray-600 leading-relaxed group-hover:text-gray-700 transition-colors">
-                  {feature.description}
+                  {t(`liveCourseContents.features.${feature.key}.description`)}
                 </p>
               </div>
 
@@ -243,11 +224,8 @@ export default function LiveCourseContents() {
 
               {/* Label */}
               <h3 className="text-lg font-semibold text-gray-900 mb-2">
-                {stat.label}
+                {t(`liveCourseContents.stats.${stat.key}.label`)}
               </h3>
-
-              {/* Description */}
-              <p className="text-sm text-gray-600">{stat.description}</p>
 
               {/* Hover Effect */}
               <div
@@ -272,29 +250,28 @@ export default function LiveCourseContents() {
 
             <div className="relative z-10">
               <h3 className="text-3xl lg:text-4xl font-bold text-white mb-6">
-                Why Choose Us for Our Courses?
+                {t("liveCourseContents.cta.title")}
               </h3>
               <p className="text-xl text-white/90 max-w-4xl mx-auto leading-relaxed mb-8">
-                Our courses provide an interactive learning environment with
-                dedicated support, job placement assistance, and comprehensive
-                assessment tools. Join thousands of successful learners who have
-                transformed their careers through our programs.
+                {t("liveCourseContents.cta.description")}
               </p>
 
               {/* Features List */}
               <div className="flex flex-wrap justify-center gap-6 text-white/90">
                 {[
-                  "Sessions with Industry Experts",
-                  "Personalized CV Reviews",
-                  "Job Placement Support",
-                  "24/7 Support",
-                ].map((item, index) => (
+                  "industryExperts",
+                  "cvReviews",
+                  "jobSupport",
+                  "support247",
+                ].map((itemKey, index) => (
                   <div
                     key={index}
                     className="flex items-center bg-white/10 backdrop-blur-sm rounded-full px-6 py-3 border border-white/20"
                   >
                     <Check className="w-5 h-5 text-green-300 mr-3" />
-                    <span className="font-medium">{item}</span>
+                    <span className="font-medium">
+                      {t(`liveCourseContents.cta.highlights.${itemKey}`)}
+                    </span>
                   </div>
                 ))}
               </div>
