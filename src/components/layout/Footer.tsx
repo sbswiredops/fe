@@ -152,7 +152,7 @@ export default function Footer() {
                   aria-hidden="true"
                 />
                 <span className="text-gray-200">
-                  House 364, Road 27, Mohakhali DOHS, Dhaka - 1206
+                  House 468, Road 31, Mohakhali DOHS, Dhaka - 1206
                 </span>
               </li>
             </ul>
