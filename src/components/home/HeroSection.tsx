@@ -112,6 +112,7 @@ export default function HeroSection() {
             </div>
 
             {/* Stats */}
+            {/*
             <div className="grid grid-cols-3 gap-4 pt-8 border-t border-gray-200">
               <div className="text-center">
                 <div
@@ -140,11 +141,11 @@ export default function HeroSection() {
                 >
                   <Counter end={100} duration={2000} suffix="+" />
                 </div>
-                <div className="text-sm text-gray-600">
-                  {t("featuredCourses.instructors")}
+                <div className="text-sm text-gray-600">                  {t("featuredCourses.instructors")}
                 </div>
               </div>
             </div>
+            */}
           </div>
           <div className="relative flex justify-center  lg:justify-end items-center">
             <div className="absolute inset-0 "></div>

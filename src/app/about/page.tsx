@@ -143,62 +143,57 @@ function AboutContent() {
       <section className="failure-management-section py-16 px-4 sm:px-10 lg:px-50 bg-gray-50 ">
         <div className="container mx-auto px-4">
           <h2 className="text-4xl md:text-5xl font-bold text-center text-black mb-6">
-            Failure Management – Turning Setbacks into Comebacks
+            {t("about.failureManagement.title")}
           </h2>
           <p className="text-center text-lg md:text-xl text-gray-700 mb-10 max-w-3xl mx-auto">
-            At Shekhabo, we know that failure happens and that's okay. Whether
-            you don't pass an assessment, struggle with a topic, or fail to land
-            a job, our team is here to put you back on track.
+            {t("about.failureManagement.subtitle")}
           </p>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-8 max-w-6xl mx-auto">
             <div className="bg-white rounded-2xl shadow-md p-8 flex flex-col items-center transition-transform duration-300 hover:scale-105 hover:shadow-xl">
               <Map className="text-blue-600 w-8 h-8 mb-4" />
               <h3 className="text-xl text-black font-bold text-center mb-2">
-                Personal Review
+                {t("about.failureManagement.cards.personalReview.title")}
               </h3>
               <p className="text-base text-center text-gray-700">
-                Our team analyzes your challenges with you to identify
-                improvement areas.
+                {t("about.failureManagement.cards.personalReview.description")}
               </p>
             </div>
             <div className="bg-white rounded-2xl shadow-md p-8 flex flex-col items-center transition-transform duration-300 hover:scale-105 hover:shadow-xl">
               <Bolt className="text-pink-500 w-8 h-8 mb-4" />
               <h3 className="text-xl font-bold text-black text-center mb-2">
-                Extra Support
+                {t("about.failureManagement.cards.extraSupport.title")}
               </h3>
               <p className="text-base text-center text-gray-700">
-                We add short modules, targeted courses, or workshops to cover
-                weak spots.
+                {t("about.failureManagement.cards.extraSupport.description")}
               </p>
             </div>
             <div className="bg-white rounded-2xl shadow-md p-8 flex flex-col items-center transition-transform duration-300 hover:scale-105 hover:shadow-xl">
               <TrendingUp className="text-green-500 w-8 h-8 mb-4" />
               <h3 className="text-xl font-bold text-black text-center mb-2">
-                Custom Roadmap
+                {t("about.failureManagement.cards.customRoadmap.title")}
               </h3>
               <p className="text-base text-center text-gray-700">
-                Get a step-by-step recovery plan designed for your specific
-                situation.
+                {t("about.failureManagement.cards.customRoadmap.description")}
               </p>
             </div>
             <div className="bg-white rounded-2xl shadow-md p-8 flex flex-col items-center transition-transform duration-300 hover:scale-105 hover:shadow-xl">
               <UserCheck className="text-orange-500 w-8 h-8 mb-4" />
               <h3 className="text-xl font-bold text-black text-center mb-2">
-                1-to-1 Mentorship
+                {t("about.failureManagement.cards.mentorship.title")}
               </h3>
               <p className="text-base text-center text-gray-700">
-                Access personalized guidance from experts to rebuild confidence.
+                {t("about.failureManagement.cards.mentorship.description")}
               </p>
             </div>
             <div className="bg-white rounded-2xl shadow-md p-8 flex flex-col items-center transition-transform duration-300 hover:scale-105 hover:shadow-xl">
               <BarChart3 className="text-violet-500 w-8 h-8 mb-4" />
               <h3 className="text-xl font-bold text-black text-center mb-2">
-                Mindset & Motivation
+                {t("about.failureManagement.cards.mindsetMotivation.title")}
               </h3>
               <p className="text-base text-center text-gray-700">
-                We remind you:{" "}
+                {t("about.failureManagement.cards.mindsetMotivation.description")} {" "}
                 <span className="font-bold text-gray-900">
-                  failure is feedback, not the end.
+                  {t("about.failureManagement.cards.mindsetMotivation.emphasis")}
                 </span>
               </p>
             </div>
@@ -209,77 +204,70 @@ function AboutContent() {
       <section className="industry-workshops-section py-16 px-4 sm:px-10 lg:px-50">
         <div className="container mx-auto px-4">
           <h2 className="text-4xl font-bold text-center text-black mb-6">
-            Industry-Specific Workshops
+            {t("about.industryWorkshops.title")}
           </h2>
           <p className="text-center text-lg text-gray-700 mb-12 max-w-4xl mx-auto">
-            Every industry has unique hiring practices and hidden requirements.
-            Our workshops prepare you with insider knowledge, practical tests,
-            and direct guidance.
+            {t("about.industryWorkshops.subtitle")}
           </p>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 max-w-6xl mx-auto">
             <div className="bg-white rounded-2xl shadow-md p-8 flex flex-col mb-4 transition-transform duration-300 hover:scale-105 hover:shadow-xl">
               <Building2 className="text-indigo-500 w-8 h-8 mb-4" />
               <h3 className="text-2xl font-bold text-black mb-2">
-                Unilever Workshop
+                {t("about.industryWorkshops.items.unilever.title")}
               </h3>
               <p className="text-gray-700 mb-4">
-                How to pass FMCG case competitions, aptitude tests, and
-                leadership rounds.
+                {t("about.industryWorkshops.items.unilever.description")}
               </p>
               <span className="italic text-gray-500 text-sm">
-                Live Sessions • University Seminars
+                {t("about.industryWorkshops.items.unilever.meta")}
               </span>
             </div>
             <div className="bg-white rounded-2xl shadow-md p-8 flex flex-col mb-4 transition-transform duration-300 hover:scale-105 hover:shadow-xl">
               <Bolt className="text-pink-800 w-8 h-8 mb-4" />
               <h3 className="text-2xl font-bold text-black mb-2">
-                BATB Workshop
+                {t("about.industryWorkshops.items.batb.title")}
               </h3>
               <p className="text-gray-700 mb-4">
-                Insights from ex-employees on cracking MTO roles at British
-                American Tobacco Bangladesh.
+                {t("about.industryWorkshops.items.batb.description")}
               </p>
               <span className="italic text-gray-500 text-sm">
-                Webinars • Mini Bootcamps
+                {t("about.industryWorkshops.items.batb.meta")}
               </span>
             </div>
             <div className="bg-white rounded-2xl shadow-md p-8 flex flex-col mb-4 transition-transform duration-300 hover:scale-105 hover:shadow-xl">
               <Banknote className="text-green-500 w-8 h-8 mb-4" />
               <h3 className="text-2xl font-bold text-black mb-2">
-                Banking & Finance Bootcamp
+                {t("about.industryWorkshops.items.banking.title")}
               </h3>
               <p className="text-gray-700 mb-4">
-                Training on aptitude, group discussions, and mock interviews for
-                banking sector.
+                {t("about.industryWorkshops.items.banking.description")}
               </p>
               <span className="italic text-gray-500 text-sm">
-                Online Sessions • Mock Tests
+                {t("about.industryWorkshops.items.banking.meta")}
               </span>
             </div>
             <div className="bg-white rounded-2xl shadow-md p-8 flex flex-col mb-4 transition-transform duration-300 hover:scale-105 hover:shadow-xl">
               <Laptop className="text-orange-500 w-8 h-8 mb-4" />
               <h3 className="text-2xl font-bold text-black mb-2">
-                IT Industry Prep
+                {t("about.industryWorkshops.items.it.title")}
               </h3>
               <p className="text-gray-700 mb-4">
-                Coding tests, portfolio reviews, and system design interviews
-                for tech careers.
+                {t("about.industryWorkshops.items.it.description")}
               </p>
               <span className="italic text-gray-500 text-sm">
-                Live Coding • Portfolio Review
+                {t("about.industryWorkshops.items.it.meta")}
               </span>
             </div>
             <div className="bg-white rounded-2xl shadow-md p-8 flex flex-col mb-4 transition-transform duration-300 hover:scale-105 hover:shadow-xl">
               <Ruler className="text-purple-500 w-8 h-8 mb-4" />
               <h3 className="text-2xl font-bold text-black mb-2">
-                Engineering Career Pathways
+                {t("about.industryWorkshops.items.engineering.title")}
               </h3>
               <p className="text-gray-700 mb-4">
-                Guidance for Civil, Mechanical, Electrical & Architecture
-                students.
+                {t("about.industryWorkshops.items.engineering.description")}
               </p>
               <span className="italic text-gray-500 text-sm">
-                Field-Specific Training
+                {t("about.industryWorkshops.items.engineering.meta")}
               </span>
             </div>
           </div>
@@ -289,64 +277,64 @@ function AboutContent() {
       <section className="why-choose-us-section py-16 px-4 sm:px-10 lg:px-50 bg-gray-50">
         <div className="container mx-auto px-4">
           <h2 className="text-4xl font-bold text-center text-black mb-10">
-            Why Choose Us
+            {t("about.whyChooseUs.title")}
           </h2>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 max-w-6xl mx-auto">
             <div className="bg-white rounded-2xl shadow-md p-8 flex flex-col items-center transition-transform duration-300 hover:scale-105 hover:shadow-xl">
               <Map className="text-blue-600 w-8 h-8 mb-4" />
               <h3 className="text-xl font-bold text-black text-center mb-2">
-                Structured Roadmaps
+                {t("about.whyChooseUs.cards.structuredRoadmaps.title")}
               </h3>
               <p className="text-base text-center text-gray-700">
-                Clear guidelines and step-by-step career planning.
+                {t("about.whyChooseUs.cards.structuredRoadmaps.description")}
               </p>
             </div>
             <div className="bg-white rounded-2xl shadow-md p-8 flex flex-col items-center transition-transform duration-300 hover:scale-105 hover:shadow-xl">
               <Bolt className="text-pink-500 w-8 h-8 mb-4" />
               <h3 className="text-xl font-bold text-black text-center mb-2">
-                Industry-Specific Hacks
+                {t("about.whyChooseUs.cards.industrySpecificHacks.title")}
               </h3>
               <p className="text-base text-center text-gray-700">
-                Land jobs faster with insider knowledge and strategies.
+                {t("about.whyChooseUs.cards.industrySpecificHacks.description")}
               </p>
             </div>
             <div className="bg-white rounded-2xl shadow-md p-8 flex flex-col items-center transition-transform duration-300 hover:scale-105 hover:shadow-xl">
               <TrendingUp className="text-green-500 w-8 h-8 mb-4" />
               <h3 className="text-xl font-bold text-black text-center mb-2">
-                Complete Career Journey
+                {t("about.whyChooseUs.cards.completeCareerJourney.title")}
               </h3>
               <p className="text-base text-center text-gray-700">
-                From applying → thriving in the role → switching jobs
-                respectfully.
+                {t("about.whyChooseUs.cards.completeCareerJourney.description")}
               </p>
             </div>
             <div className="bg-white rounded-2xl shadow-md p-8 flex flex-col items-center transition-transform duration-300 hover:scale-105 hover:shadow-xl">
               <UserCheck className="text-orange-500 w-8 h-8 mb-4" />
               <h3 className="text-xl font-bold text-black text-center mb-2">
-                Prospect Manager Support
+                {t("about.whyChooseUs.cards.prospectManagerSupport.title")}
               </h3>
               <p className="text-base text-center text-gray-700">
-                Personalized mentorship throughout your journey.
+                {t("about.whyChooseUs.cards.prospectManagerSupport.description")}
               </p>
             </div>
             <div className="bg-white rounded-2xl shadow-md p-8 flex flex-col items-center transition-transform duration-300 hover:scale-105 hover:shadow-xl">
               <Factory className="text-violet-500 w-8 h-8 mb-4" />
               <h3 className="text-xl font-bold text-black text-center mb-2">
-                Industry-Built Courses
+                {t("about.whyChooseUs.cards.industryBuiltCourses.title")}
               </h3>
               <p className="text-base text-center text-gray-700">
-                Courses built{" "}
-                <span className="font-bold">with industry, for industry.</span>
+                {t("about.whyChooseUs.cards.industryBuiltCourses.description")} {" "}
+                <span className="font-bold">
+                  {t("about.whyChooseUs.cards.industryBuiltCourses.emphasis")}
+                </span>
               </p>
             </div>
             <div className="bg-white rounded-2xl shadow-md p-8 flex flex-col items-center transition-transform duration-300 hover:scale-105 hover:shadow-xl">
               <Users className="text-blue-500 w-8 h-8 mb-4" />
               <h3 className="text-xl font-bold text-black text-center mb-2">
-                No One Left Behind
+                {t("about.whyChooseUs.cards.noOneLeftBehind.title")}
               </h3>
               <p className="text-base text-center text-gray-700">
-                Our step-by-step guidance ensures every learner understands
-                before moving on, building confidence with each step.
+                {t("about.whyChooseUs.cards.noOneLeftBehind.description")}
               </p>
             </div>
           </div>
@@ -356,55 +344,55 @@ function AboutContent() {
       <section className="industries-career-section py-16 px-4 sm:px-10 lg:px-50">
         <div className="container mx-auto px-4">
           <h2 className="text-4xl font-bold text-center text-black mb-10">
-            Industries & Career Paths We Cover
+            {t("about.industriesCareerPaths.title")}
           </h2>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8 max-w-6xl mx-auto">
             <div className="bg-white rounded-2xl shadow-md p-8 flex flex-col items-center transition-transform duration-300 hover:scale-105 hover:shadow-xl">
               <GraduationCap className="text-indigo-500 w-8 h-8 mb-4" />
               <h3 className="text-xl font-bold text-black text-center mb-2">
-                BCS Preparation
+                {t("about.industriesCareerPaths.items.bcsPrep.title")}
               </h3>
             </div>
             <div className="bg-white rounded-2xl shadow-md p-8 flex flex-col items-center transition-transform duration-300 hover:scale-105 hover:shadow-xl">
               <Building2 className="text-indigo-500 w-8 h-8 mb-4" />
               <h3 className="text-xl font-bold text-black text-center mb-2">
-                Multinational Companies
+                {t("about.industriesCareerPaths.items.multinationals.title")}
               </h3>
             </div>
             <div className="bg-white rounded-2xl shadow-md p-8 flex flex-col items-center transition-transform duration-300 hover:scale-105 hover:shadow-xl">
               <Banknote className="text-indigo-500 w-8 h-8 mb-4" />
               <h3 className="text-xl font-bold text-black text-center mb-2">
-                MTO & Banking
+                {t("about.industriesCareerPaths.items.mtoBanking.title")}
               </h3>
             </div>
             <div className="bg-white rounded-2xl shadow-md p-8 flex flex-col items-center transition-transform duration-300 hover:scale-105 hover:shadow-xl">
               <Phone className="text-indigo-500 w-8 h-8 mb-4" />
               <h3 className="text-xl font-bold text-black text-center mb-2">
-                BPO Job Preparation
+                {t("about.industriesCareerPaths.items.bpoPrep.title")}
               </h3>
             </div>
             <div className="bg-white rounded-2xl shadow-md p-8 flex flex-col items-center transition-transform duration-300 hover:scale-105 hover:shadow-xl">
               <Laptop className="text-indigo-500 w-8 h-8 mb-4" />
               <h3 className="text-xl font-bold text-black text-center mb-2">
-                IT & Software
+                {t("about.industriesCareerPaths.items.itSoftware.title")}
               </h3>
             </div>
             <div className="bg-white rounded-2xl shadow-md p-8 flex flex-col items-center transition-transform duration-300 hover:scale-105 hover:shadow-xl">
               <Ruler className="text-indigo-500 w-8 h-8 mb-4" />
               <h3 className="text-xl font-bold text-black text-center mb-2">
-                Engineering
+                {t("about.industriesCareerPaths.items.engineering.title")}
               </h3>
             </div>
             <div className="bg-white rounded-2xl shadow-md p-8 flex flex-col items-center transition-transform duration-300 hover:scale-105 hover:shadow-xl">
               <BarChart3 className="text-indigo-500 w-8 h-8 mb-4" />
               <h3 className="text-xl font-bold text-black text-center mb-2">
-                Career Guidelines
+                {t("about.industriesCareerPaths.items.careerGuidelines.title")}
               </h3>
             </div>
             <div className="bg-white rounded-2xl shadow-md p-8 flex flex-col items-center transition-transform duration-300 hover:scale-105 hover:shadow-xl">
               <Factory className="text-indigo-500 w-8 h-8 mb-4" />
               <h3 className="text-xl font-bold text-black text-center mb-2">
-                Industry Workshops
+                {t("about.industriesCareerPaths.items.industryWorkshops.title")}
               </h3>
             </div>
           </div>
@@ -422,24 +410,23 @@ function AboutContent() {
             }}
           >
             <h2 className="cta-title text-3xl md:text-4xl font-bold text-white mb-6">
-              The Shekhabo Promise
+              {t("about.promise.title")}
             </h2>
             <p className="text-xl text-white mb-2">
-              We don't just train you; we{" "}
-              <span className="font-bold">walk with you</span> until you
-              succeed.
+              {t("about.promise.description1.text")} {" "}
+              <span className="font-bold">{t("about.promise.description1.bold")}</span>{" "}
+              {t("about.promise.description1.end")}
             </p>
             <p className="text-xl text-white mb-2">
-              With expert instructors, personalized support, and a proven
-              structure, Shekhabo.com is where your{" "}
+              {t("about.promise.description2.text")} {" "}
               <span className="font-bold">
-                learning truly turns into earning.
+                {t("about.promise.description2.bold")}
               </span>
             </p>
             <div className="mt-8 flex items-center justify-center">
               <UserCheck className="text-white w-8 h-8 mr-2" />
               <span className="text-2xl font-bold text-white">
-                No learner is left behind.
+                {t("about.promise.noOneLeftBehind")}
               </span>
             </div>
           </div>

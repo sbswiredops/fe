@@ -24,11 +24,11 @@ export default function Footer() {
   ];
 
   const learnLinks = [
-    { name: t("footer.support"), href: "/support" },
     { name: t("footer.contactUs"), href: "/contact" },
+    { name: t("footer.support"), href: "/support" },
     { name: t("footer.privacyPolicy"), href: "/privacy" },
     { name: t("footer.termsOfService"), href: "/terms" },
-    { name: "Refund Policy", href: "/refund" },
+    { name: t("footer.refundPolicy"), href: "/refund" },
   ];
 
   const socialLinks = [
@@ -111,7 +111,7 @@ export default function Footer() {
 
           {/* Column: Learn */}
           <div>
-            <h3 className="mb-4 text-lg font-semibold text-gray-100">Learn</h3>
+            <h3 className="mb-4 text-lg font-semibold text-gray-100">{t("footer.learn")}</h3>
             <ul className="space-y-2">
               {learnLinks.map((link) => (
                 <li key={link.name}>
@@ -129,7 +129,7 @@ export default function Footer() {
           {/* Column: Contact (replaces More from Shekhabo) */}
           <div>
             <h3 className="mb-4 text-lg font-semibold text-gray-100">
-              Contact
+              {t("footer.contact")}
             </h3>
             <ul className="space-y-3">
               <li className="flex items-start gap-3">
@@ -152,7 +152,7 @@ export default function Footer() {
                   aria-hidden="true"
                 />
                 <span className="text-gray-200">
-                  House 468, Road 31, Mohakhali DOHS, Dhaka - 1206
+                  {t("footer.address")}
                 </span>
               </li>
             </ul>
