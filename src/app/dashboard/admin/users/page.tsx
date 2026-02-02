@@ -45,12 +45,12 @@ function UsersManagement() {
         const data = Array.isArray(res)
           ? res
           : Array.isArray((res as any)?.data?.users)
-          ? (res as any).data.users
-          : Array.isArray((res as any)?.users)
-          ? (res as any).users
-          : Array.isArray((res as any)?.data)
-          ? (res as any).data
-          : [];
+            ? (res as any).data.users
+            : Array.isArray((res as any)?.users)
+              ? (res as any).users
+              : Array.isArray((res as any)?.data)
+                ? (res as any).data
+                : [];
 
         // normalize fields: joinDate from createdAt, lastUpdate from updatedAt
         const normalized = (data as any[]).map((u) => ({
@@ -232,7 +232,7 @@ function UsersManagement() {
                     </span>
                   ),
                 },
-                
+
                 {
                   key: "lastUpdate",
                   header: "Last Update",
@@ -241,8 +241,8 @@ function UsersManagement() {
                       {user.lastUpdate
                         ? new Date(user.lastUpdate).toLocaleDateString()
                         : user.updatedAt
-                        ? new Date(user.updatedAt).toLocaleDateString()
-                        : "-"}
+                          ? new Date(user.updatedAt).toLocaleDateString()
+                          : "-"}
                     </span>
                   ),
                 },
@@ -315,7 +315,7 @@ function UsersManagement() {
                   <div className="flex-shrink-0">
                     <span
                       className={`inline-flex px-2 py-1 text-[10px] font-medium rounded-full ${getStatusColor(
-                        user.status || "inactive"
+                        user.status || "inactive",
                       )}`}
                     >
                       {(user.status || "inactive").charAt(0).toUpperCase() +
@@ -326,10 +326,20 @@ function UsersManagement() {
 
                 <div className="mt-3 space-y-2">
                   <div className="text-xs text-gray-600">
-                    Joined: {user.joinDate ? new Date(user.joinDate).toLocaleDateString() : user.createdAt ? new Date(user.createdAt).toLocaleDateString() : "-"}
+                    Joined:{" "}
+                    {user.joinDate
+                      ? new Date(user.joinDate).toLocaleDateString()
+                      : user.createdAt
+                        ? new Date(user.createdAt).toLocaleDateString()
+                        : "-"}
                   </div>
                   <div className="text-xs text-gray-600">
-                    Last updated: {user.lastUpdate ? new Date(user.lastUpdate).toLocaleDateString() : user.updatedAt ? new Date(user.updatedAt).toLocaleDateString() : "-"}
+                    Last updated:{" "}
+                    {user.lastUpdate
+                      ? new Date(user.lastUpdate).toLocaleDateString()
+                      : user.updatedAt
+                        ? new Date(user.updatedAt).toLocaleDateString()
+                        : "-"}
                   </div>
                 </div>
 
@@ -389,7 +399,7 @@ function UsersManagement() {
                     </label>
                     <span
                       className={`inline-flex px-2 py-1 text-xs font-medium rounded-full ${getStatusColor(
-                        selectedUser.status || "inactive"
+                        selectedUser.status || "inactive",
                       )}`}
                     >
                       {(selectedUser.status || "inactive")
@@ -406,8 +416,10 @@ function UsersManagement() {
                       {selectedUser.joinDate
                         ? new Date(selectedUser.joinDate).toLocaleDateString()
                         : selectedUser.createdAt
-                        ? new Date(selectedUser.createdAt).toLocaleDateString()
-                        : "-"}
+                          ? new Date(
+                              selectedUser.createdAt,
+                            ).toLocaleDateString()
+                          : "-"}
                     </p>
                   </div>
                   <div>
@@ -418,8 +430,10 @@ function UsersManagement() {
                       {selectedUser.lastUpdate
                         ? new Date(selectedUser.lastUpdate).toLocaleDateString()
                         : selectedUser.updatedAt
-                        ? new Date(selectedUser.updatedAt).toLocaleDateString()
-                        : "-"}
+                          ? new Date(
+                              selectedUser.updatedAt,
+                            ).toLocaleDateString()
+                          : "-"}
                     </p>
                   </div>
                 </div>
