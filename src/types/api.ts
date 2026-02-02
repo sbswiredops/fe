@@ -87,8 +87,9 @@ export interface UserProfile {
 export interface CreateUserRequest {
   firstName: string;
   lastName: string;
-
+  bio?: string;
   email: string;
+  avatar?: string | File;
   password: string;
   phone?: string;
   specialization?: string;
@@ -100,6 +101,8 @@ export interface CreateUserRequest {
 export interface UpdateUserRequest {
   firstName?: string;
   lastName?: string;
+  bio?: string;
+  avatar?: string | File;
   specialization?: string;
   experience?: string;
   email?: string;

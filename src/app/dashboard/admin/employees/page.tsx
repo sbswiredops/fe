@@ -17,8 +17,10 @@ interface Teacher {
   firstName: string;
   lastName: string;
   email: string;
+  avatar?: string;
   specialization?: string;
   experience?: string;
+  bio?: string;
   coursesCount?: number;
   studentsCount?: number;
   rating?: number;
@@ -57,10 +59,10 @@ function EmployeesManagement() {
         const res = await userService.listRoles();
         const raw = Array.isArray(res)
           ? res
-          : (res as any)?.data ??
+          : ((res as any)?.data ??
             (res as any)?.roles ??
             (res as any)?.data?.roles ??
-            [];
+            []);
         const names = (Array.isArray(raw) ? raw : [])
           .map((r: any) => r?.name ?? r?.role ?? r?.id ?? r)
           .map((s: any) => String(s))
@@ -77,11 +79,14 @@ function EmployeesManagement() {
 
   const defaultTeacherRole = React.useMemo(
     () => (roles.includes("teacher") ? "teacher" : roles[0] || ""),
-    [roles]
+    [roles],
   );
 
   // Form data state
   const [formData, setFormData] = useState<any>({});
+  const [previewAvatarUrl, setPreviewAvatarUrl] = useState<
+    string | undefined
+  >();
 
   // Search and filter states (for teachers)
   const [searchTerm, setSearchTerm] = useState("");
@@ -91,7 +96,7 @@ function EmployeesManagement() {
   const handleInputChange = (
     e: React.ChangeEvent<
       HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement
-    >
+    >,
   ) => {
     const { name, value } = e.target;
     setFormData((prev: any) => ({ ...prev, [name]: value }));
@@ -122,7 +127,43 @@ function EmployeesManagement() {
             required
           />
         </div>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+
+        <div className="mt-4">
+          <label className="block text-sm font-medium text-gray-700 mb-1">
+            Bio
+          </label>
+          <textarea
+            name="bio"
+            value={formData.bio || ""}
+            onChange={handleInputChange}
+            placeholder="Short bio for the teacher"
+            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-900"
+            rows={3}
+          />
+        </div>
+
+        <div className="mt-4">
+          <label className="block text-sm font-medium text-gray-700 mb-1">
+            Avatar
+          </label>
+          <input
+            type="file"
+            accept="image/*"
+            onChange={(e) => handleFileChange(e)}
+            className="w-full"
+          />
+          {previewAvatarUrl && (
+            <div className="mt-2">
+              <img
+                src={previewAvatarUrl}
+                alt="avatar-preview"
+                className="w-20 h-20 rounded-full object-cover"
+              />
+            </div>
+          )}
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
           <Input
             label="Email Address"
             name="email"
@@ -141,7 +182,8 @@ function EmployeesManagement() {
             required
           />
         </div>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
           <Input
             label="Specialization"
             name="specialization"
@@ -159,7 +201,8 @@ function EmployeesManagement() {
             required
           />
         </div>
-        <div>
+
+        <div className="mt-4">
           <label className="block text-sm font-medium text-gray-700 mb-1">
             Role
           </label>
@@ -180,7 +223,8 @@ function EmployeesManagement() {
             ))}
           </select>
         </div>
-        <div>
+
+        <div className="mt-4">
           <label className="block text-sm font-medium text-gray-700 mb-1">
             Status
           </label>
@@ -203,10 +247,36 @@ function EmployeesManagement() {
     );
   };
 
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    // Store the File object; we'll send as FormData when submitting
+    setFormData((prev: any) => ({ ...prev, avatar: file }));
+  };
+
+  // Maintain a preview URL for avatar (works for File objects and data/remote URLs)
+  React.useEffect(() => {
+    let objUrl: string | undefined;
+    const avatar = formData?.avatar;
+    if (!avatar) {
+      setPreviewAvatarUrl(undefined);
+      return;
+    }
+    if (avatar instanceof File) {
+      objUrl = URL.createObjectURL(avatar);
+      setPreviewAvatarUrl(objUrl);
+      return () => {
+        if (objUrl) URL.revokeObjectURL(objUrl);
+      };
+    }
+    setPreviewAvatarUrl(String(avatar));
+    return () => {};
+  }, [formData?.avatar]);
+
   const handleAdd = async () => {
     try {
       const password = Math.random().toString(36).slice(-12) + "A!1";
-      const res = await userService.createAdminInstructor({
+      const payload: any = {
         firstName: formData.firstName,
         lastName: formData.lastName,
         email: formData.email,
@@ -216,7 +286,33 @@ function EmployeesManagement() {
         phone: formData.phone,
         role: formData.role || defaultTeacherRole || "teacher",
         status: formData.status || "active",
-      });
+        bio: formData.bio,
+        avatar: formData.avatar,
+      };
+
+      // Prepare body: send JSON when no file, otherwise FormData with individual fields
+      let bodyToSend: any = payload;
+      if (payload.avatar instanceof File) {
+        const fd = new FormData();
+        const dataCopy: any = { ...payload, avatar: undefined };
+        Object.keys(dataCopy).forEach(
+          (k) => dataCopy[k] === undefined && delete dataCopy[k],
+        );
+        Object.entries(dataCopy).forEach(([k, v]) => {
+          if (v === undefined || v === null) return;
+          if (Array.isArray(v) || typeof v === "object")
+            fd.append(k, JSON.stringify(v));
+          else fd.append(k, String(v));
+        });
+        fd.append("avatar", payload.avatar);
+        bodyToSend = fd;
+      } else {
+        Object.keys(bodyToSend).forEach(
+          (k) => bodyToSend[k] === undefined && delete bodyToSend[k],
+        );
+      }
+
+      const res = await userService.createAdminInstructor(bodyToSend);
       if (res.success) {
         showToast("Teacher created", "success");
         setRefreshTick((x) => x + 1);
@@ -234,7 +330,7 @@ function EmployeesManagement() {
   const handleEdit = async () => {
     if (!selectedItem) return;
     try {
-      const res = await userService.update(selectedItem.id, {
+      const payload: any = {
         firstName: formData.firstName,
         lastName: formData.lastName,
         email: formData.email,
@@ -243,7 +339,32 @@ function EmployeesManagement() {
         experience: formData.experience,
         status: formData.status,
         role: formData.role || "teacher",
-      });
+        bio: formData.bio,
+        avatar: formData.avatar,
+      };
+
+      let bodyToSend: any = payload;
+      if (payload.avatar instanceof File) {
+        const fd = new FormData();
+        const dataCopy: any = { ...payload, avatar: undefined };
+        Object.keys(dataCopy).forEach(
+          (k) => dataCopy[k] === undefined && delete dataCopy[k],
+        );
+        Object.entries(dataCopy).forEach(([k, v]) => {
+          if (v === undefined || v === null) return;
+          if (Array.isArray(v) || typeof v === "object")
+            fd.append(k, JSON.stringify(v));
+          else fd.append(k, String(v));
+        });
+        fd.append("avatar", payload.avatar);
+        bodyToSend = fd;
+      } else {
+        Object.keys(bodyToSend).forEach(
+          (k) => bodyToSend[k] === undefined && delete bodyToSend[k],
+        );
+      }
+
+      const res = await userService.update(selectedItem.id, bodyToSend);
       if (res.success) {
         showToast("Teacher updated", "success");
         setRefreshTick((x) => x + 1);
@@ -398,11 +519,21 @@ function EmployeesManagement() {
                     header: "Teacher",
                     render: (teacher: Teacher) => (
                       <div className="flex items-center">
-                        <div className="w-10 h-10 bg-[#51356e] rounded-full flex items-center justify-center">
-                          <span className="text-white font-medium text-sm">
-                            {teacher.name.charAt(0).toUpperCase()}
-                          </span>
-                        </div>
+                        {teacher.avatar ? (
+                          <div className="w-10 h-10 rounded-full overflow-hidden">
+                            <img
+                              src={teacher.avatar}
+                              alt={teacher.name}
+                              className="w-10 h-10 object-cover"
+                            />
+                          </div>
+                        ) : (
+                          <div className="w-10 h-10 bg-[#51356e] rounded-full flex items-center justify-center">
+                            <span className="text-white font-medium text-sm">
+                              {teacher.name.charAt(0).toUpperCase()}
+                            </span>
+                          </div>
+                        )}
                         <div className="ml-4">
                           <div className="text-sm font-medium text-gray-900">
                             {teacher.name}
@@ -476,7 +607,7 @@ function EmployeesManagement() {
                     render: (t: any) => (
                       <span
                         className={`inline-flex px-2 py-1 text-xs font-medium rounded-full ${getStatusColor(
-                          t.status
+                          t.status,
                         )}`}
                       >
                         {(t.status || "").toString().charAt(0).toUpperCase() +
@@ -535,22 +666,22 @@ function EmployeesManagement() {
                   const users = Array.isArray(res)
                     ? res
                     : Array.isArray((res as any)?.data?.users)
-                    ? (res as any).data.users
-                    : Array.isArray((res as any)?.users)
-                    ? (res as any).users
-                    : Array.isArray((res as any)?.data)
-                    ? (res as any).data
-                    : [];
+                      ? (res as any).data.users
+                      : Array.isArray((res as any)?.users)
+                        ? (res as any).users
+                        : Array.isArray((res as any)?.data)
+                          ? (res as any).data
+                          : [];
 
                   const total = Array.isArray(res)
                     ? res.length
                     : typeof (res as any)?.data?.total === "number"
-                    ? (res as any).data.total
-                    : typeof (res as any)?.meta?.total === "number"
-                    ? (res as any).meta.total
-                    : typeof (res as any)?.total === "number"
-                    ? (res as any).total
-                    : users.length;
+                      ? (res as any).data.total
+                      : typeof (res as any)?.meta?.total === "number"
+                        ? (res as any).meta.total
+                        : typeof (res as any)?.total === "number"
+                          ? (res as any).total
+                          : users.length;
 
                   return { rows: users, total };
                 }}
@@ -607,11 +738,21 @@ function EmployeesManagement() {
           {selectedItem && (
             <div className="space-y-4">
               <div className="flex items-center space-x-4 pb-4 border-b border-gray-200">
-                <div className="w-16 h-16 bg-blue-600 rounded-full flex items-center justify-center">
-                  <span className="text-white font-medium text-xl">
-                    {selectedItem.name.charAt(0).toUpperCase()}
-                  </span>
-                </div>
+                {selectedItem.avatar ? (
+                  <div className="w-16 h-16 rounded-full overflow-hidden">
+                    <img
+                      src={selectedItem.avatar}
+                      alt={selectedItem.name}
+                      className="w-16 h-16 object-cover"
+                    />
+                  </div>
+                ) : (
+                  <div className="w-16 h-16 bg-blue-600 rounded-full flex items-center justify-center">
+                    <span className="text-white font-medium text-xl">
+                      {selectedItem.name.charAt(0).toUpperCase()}
+                    </span>
+                  </div>
+                )}
                 <div>
                   <h3 className="text-lg font-medium text-gray-900">
                     {selectedItem.name}
