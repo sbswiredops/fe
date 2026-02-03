@@ -9,8 +9,8 @@ import Button from "@/components/ui/Button";
 import { useLanguage } from "@/components/contexts/LanguageContext";
 import { Course } from "@/components/types";
 
-// Extend Course type to include enrolledStudents if not present
-type ExtendedCourse = Course & { enrolledStudents: number };
+// Extend Course type to include enrolledStudents and optional sku if not present
+type ExtendedCourse = Course & { enrolledStudents: number; sku?: string };
 import { useSearchParams } from "next/navigation";
 import { courseService } from "@/services/courseService";
 import { categoryService } from "@/services/categoryService";
@@ -82,6 +82,7 @@ function CoursesClient() {
 
       return {
         id: c.id,
+        sku: c.sku ?? c.id,
         title: c.title,
         description: c.description,
         instructor: instructorName,
