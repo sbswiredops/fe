@@ -27,9 +27,11 @@ export function StarRating({ rating }: { rating: number }) {
 export default function CourseCard({ course }: { course: Course }) {
   const { t } = useLanguage();
 
+  const courseSlug = (course as any).sku ?? course.id;
+
   return (
     <Link
-      href={`/courses/${course.id}`}
+      href={`/courses/${courseSlug}`}
       className="block group focus:outline-none"
     >
       <div className="flex-shrink-0 w-full sm:w-[330px] bg-white rounded-xl border border-gray-200 transition-transform duration-300 hover:scale-105 hover:shadow-xl hover:z-10 relative will-change-transform cursor-pointer">

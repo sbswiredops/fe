@@ -68,6 +68,7 @@ export default function RecordedCoursesSection() {
           setCourses(
             rawCourses.map((course: any) => ({
               id: course.id ?? course._id ?? "",
+              sku: course.sku ?? course.id ?? course._id ?? "",
               title: course.title,
               description: course.description,
               instructor: course.instructor?.name || course.instructorId || "",

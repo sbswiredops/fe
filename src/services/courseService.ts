@@ -62,6 +62,14 @@ export class CourseService {
     return response;
   }
 
+  // Get course by SKU
+  async getCourseBySku(sku: string): Promise<ApiResponse<Course>> {
+    console.log('[CourseService] getCourseBySku called with sku:', sku);
+    const response = await this.client.get<Course>(API_CONFIG.ENDPOINTS.COURSE_BY_SKU(sku));
+    console.log('[CourseService] getCourseBySku response:', response);
+    return response;
+  }
+
   async createCourse(courseData: CreateCourseRequest | FormData): Promise<ApiResponse<Course>> {
     if (typeof FormData !== "undefined" && courseData instanceof FormData) {
       return this.client.post<Course>(API_CONFIG.ENDPOINTS.COURSES, courseData);

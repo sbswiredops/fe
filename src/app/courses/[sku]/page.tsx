@@ -1,8 +1,6 @@
 /* eslint-disable @next/next/no-img-element */
 "use client";
 
-export const runtime = "edge";
-
 import React, { useEffect, useState, useRef } from "react";
 import Link from "next/link";
 import Button from "@/components/ui/Button";
@@ -142,7 +140,7 @@ const YouTubePlayer = ({
 
   const getYouTubeId = (url: string) => {
     const match = url.match(
-      /(?:youtube\.com\/(?:[^\/]+\/.+\/|(?:v|e(?:mbed)?)\/|.*[?&]v=)|youtu\.be\/)([^"&?\/\s]{11})/,
+      /(?:youtube\.com\/(?:[^\/]+\/.+\/.+\/|(?:v|e(?:mbed)?)\/|.*[?&]v=)|youtu\.be\/)([^"&?\/\s]{11})/,
     );
     return match ? match[1] : null;
   };
@@ -396,7 +394,7 @@ const userService = new UserService();
 const courseService = new CourseService();
 
 export default function CourseDetailsPage() {
-  const { id } = useParams();
+  const { sku } = useParams();
   const { user, isLoading: authLoading } = useAuth();
   const router = useRouter();
   const { t } = useLanguage();
@@ -424,7 +422,7 @@ export default function CourseDetailsPage() {
       try {
         setLoadingCourse(true);
 
-        const res = await courseService.getCourseById(String(id));
+        const res = await courseService.getCourseBySku(String(sku));
 
         if (!ignore && res?.success && res?.data) {
           const course = res.data;
@@ -501,18 +499,18 @@ export default function CourseDetailsPage() {
     return () => {
       ignore = true;
     };
-  }, [id]);
+  }, [sku]);
 
   useEffect(() => {
     if (authLoading || !fetchedCourse || !user) return;
 
-    const enrolledCourse = getEnrolledCourse(String(id));
+    const enrolledCourse = getEnrolledCourse(String(fetchedCourse.id));
 
     if (enrolledCourse) {
       setIsEnrolled(true);
-      router.push(`/dashboard/student/learn/${id}`);
+      router.push(`/dashboard/student/learn/${fetchedCourse.id}`);
     }
-  }, [id, user, fetchedCourse, authLoading, getEnrolledCourse, router]);
+  }, [sku, user, fetchedCourse, authLoading, getEnrolledCourse, router]);
 
   if (loadingCourse || authLoading) {
     return (
@@ -536,10 +534,10 @@ export default function CourseDetailsPage() {
 
   const handleEnrollClick = () => {
     if (!user) {
-      router.push(`/login?next=/courses/${id}`);
+      router.push(`/login?next=/courses/${sku}`);
       return;
     }
-    router.push(`/enroll?courseId=${id}`);
+    router.push(`/enroll?courseId=${fetchedCourse?.id ?? sku}`);
   };
 
   const toggleSection = (idx: number) => {

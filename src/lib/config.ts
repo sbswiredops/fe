@@ -41,6 +41,7 @@ export const API_CONFIG = {
     COURSES: '/courses',
     COURSES_FEATURED: '/courses/featured',
     COURSE_BY_ID: (id: string) => `/courses/${id}`,
+    COURSE_BY_SKU: (sku: string) => `/courses/sku/${sku}`,
     COURSE_ENROLL: (id: string) => `/courses/${id}/enroll`,
     COURSE_UPLOAD_THUMBNAIL: (id: string) => `/courses/${id}/upload-thumbnail`,
     COURSE_LESSONS: (id: string) => `/courses/${id}/lessons`,
@@ -124,6 +125,14 @@ export const API_CONFIG = {
     COURSE_FAQ_BY_ID: (faqId: string) => `/courses/faqs/${faqId}`, // GET: Get FAQ by ID
     COURSE_UPDATE_FAQ: (faqId: string) => `/courses/faqs/${faqId}`, // PATCH: Update FAQ
     COURSE_DELETE_FAQ: (faqId: string) => `/courses/faqs/${faqId}`, // DELETE: Delete FAQ
+
+    // Contact
+    CONTACTS: '/contact', // POST: Create contact message, GET: List contact messages (admin)
+    CONTACT_BY_ID: (id: string) => `/contact/${id}`, // GET: Get contact by ID (admin)
+    CONTACT_UPDATE: (id: string) => `/contact/${id}`, // PATCH: Update contact (admin)
+    CONTACT_DELETE: (id: string) => `/contact/${id}`, // DELETE: Delete contact (admin)
+    CONTACT_MARK_READ: (id: string) => `/contact/${id}/mark-read`, // POST: Mark contact as read (admin)
+    CONTACT_ARCHIVE: (id: string) => `/contact/${id}/archive`, // POST: Archive contact (admin)
   },
   PAGINATION: {
     DEFAULT_PAGE_SIZE: 10,

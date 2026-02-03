@@ -4,6 +4,8 @@ import MainLayout from "@/components/layout/MainLayout";
 import { useLanguage } from "@/components/contexts/LanguageContext";
 import { useState } from "react";
 import { MapPin, Phone, Mail, Clock } from "lucide-react";
+import contactService from "@/services/contactService";
+import useToast from "@/components/hoock/toast";
 
 function ContactContent() {
   const { t } = useLanguage();
@@ -14,15 +16,40 @@ function ContactContent() {
     subject: "",
     message: "",
   });
+  const [loading, setLoading] = useState(false);
+  const { showToast } = useToast();
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    // Handle form submission
-    console.log("Form submitted:", formData);
+    setLoading(true);
+    try {
+      const payload = { ...formData };
+      const res = await contactService.createContact(payload);
+      if (res?.success) {
+        showToast(
+          t("contact.form.success") || "Message sent successfully",
+          "success",
+        );
+        setFormData({
+          name: "",
+          email: "",
+          phone: "",
+          subject: "",
+          message: "",
+        });
+      } else {
+        showToast(res?.message || "Failed to send message", "error");
+      }
+    } catch (err: any) {
+      console.error("Contact submit error", err);
+      showToast(err?.message || "An error occurred", "error");
+    } finally {
+      setLoading(false);
+    }
   };
 
   const handleChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
   ) => {
     setFormData({
       ...formData,
@@ -146,8 +173,11 @@ function ContactContent() {
                 <button
                   type="submit"
                   className="w-full bg-[#51356e] hover:bg-[#412a4f] text-white font-bold py-3 px-6 rounded-lg transition-colors duration-300"
+                  disabled={loading}
                 >
-                  {t("contact.form.send")}
+                  {loading
+                    ? t("contact.form.sending") || "Sending..."
+                    : t("contact.form.send")}
                 </button>
               </form>
             </div>

@@ -116,18 +116,18 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
       "finance_accountant",
       "content_creator",
     ],
-    []
+    [],
   );
   const TEACHER_ROLES = useMemo(() => ["teacher", "instructor"], []);
 
   const normalizeRole = (role: any) =>
-    String(typeof role === "string" ? role : role?.name ?? "")
+    String(typeof role === "string" ? role : (role?.name ?? ""))
       .trim()
       .toLowerCase()
       .replace(/[\s-]+/g, "_");
 
   const getRoleGroup = (
-    role: any
+    role: any,
   ): "admin" | "teacher" | "student" | "other" => {
     const r = normalizeRole(role);
     if (!r) return "other";
@@ -156,7 +156,7 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
       String(displayName || "U")
         .trim()?.[0]
         ?.toUpperCase() || "U",
-    [displayName]
+    [displayName],
   );
 
   const navigationItems = useMemo(() => {
@@ -166,10 +166,10 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
       roleGroup === "admin"
         ? "/dashboard/admin"
         : roleGroup === "teacher"
-        ? "/dashboard/teacher"
-        : roleGroup === "student"
-        ? "/dashboard/student"
-        : "/dashboard";
+          ? "/dashboard/teacher"
+          : roleGroup === "student"
+            ? "/dashboard/student"
+            : "/dashboard";
 
     const commonItems = [{ name: "Dashboard", href: basePath, icon: Home }];
 
@@ -187,6 +187,11 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
           },
           { name: "Payments", href: `${basePath}/payments`, icon: CreditCard },
           { name: "Reports", href: `${basePath}/reports`, icon: BarChart3 },
+          {
+            name: "Contacts",
+            href: `${basePath}/contact`,
+            icon: MessageSquare,
+          },
           { name: "Settings", href: `${basePath}/settings`, icon: Settings },
         ];
       case "teacher":
