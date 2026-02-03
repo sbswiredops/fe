@@ -44,7 +44,7 @@ import {
   BarChart3,
   Medal,
 } from "lucide-react";
- export const runtime = 'edge';
+export const runtime = "edge";
 const useCounter = (end: number, duration: number = 2000) => {
   const [count, setCount] = useState(0);
   const [isVisible, setIsVisible] = useState(false);
@@ -637,9 +637,19 @@ export default function CourseDetailsPage() {
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-6 pt-6 border-t border-gray-200 items-start">
                   {/* Teacher */}
                   <div className="flex items-center gap-4 bg-gradient-to-r from-blue-50 to-purple-50 rounded-xl p-4 border border-blue-100">
-                    <div className="w-14 h-14 rounded-full bg-gradient-to-br from-blue-400 to-purple-500 flex items-center justify-center text-white font-bold text-lg">
-                      {instructor?.name?.charAt(0) || "?"}
-                    </div>
+                    {instructor?.avatar ? (
+                      <div className="w-14 h-14 rounded-full overflow-hidden bg-gray-200 flex-shrink-0">
+                        <img
+                          src={instructor.avatar}
+                          alt={instructor?.name || "Instructor"}
+                          className="w-full h-full object-cover"
+                        />
+                      </div>
+                    ) : (
+                      <div className="w-14 h-14 rounded-full bg-gradient-to-br from-blue-400 to-purple-500 flex items-center justify-center text-white font-bold text-lg flex-shrink-0">
+                        {instructor?.name?.charAt(0) || "?"}
+                      </div>
+                    )}
                     <div>
                       <p className="text-sm text-gray-600">Instructor</p>
                       <p className="text-md font-bold text-gray-900">

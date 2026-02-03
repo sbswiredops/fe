@@ -57,13 +57,19 @@ function CoursesClient() {
   useEffect(() => {
     let ignore = false;
     const mapApiCourseToUi = (c: any): CourseWithType => {
-      const instructorName =
-        c?.instructor?.name ||
-        [c?.instructor?.firstName, c?.instructor?.lastName]
-          .filter(Boolean)
-          .join(" ") ||
-        c?.instructorId ||
-        "Instructor";
+      const instructorObj =
+        c?.instructor && typeof c.instructor === "object"
+          ? c.instructor
+          : {
+              id: c?.instructorId || "",
+              name:
+                c?.instructor?.name ||
+                [c?.instructor?.firstName, c?.instructor?.lastName]
+                  .filter(Boolean)
+                  .join(" ") ||
+                c?.instructorId ||
+                "Instructor",
+            };
       const categoryName =
         c?.category?.name || (c as any)?.category || "General";
       const created = c?.createdAt ? new Date(c.createdAt) : new Date();
@@ -85,7 +91,7 @@ function CoursesClient() {
         sku: c.sku ?? c.id,
         title: c.title,
         description: c.description,
-        instructor: instructorName,
+        instructor: instructorObj,
         instructorId: c.instructorId || (c?.instructor?.id ?? ""),
         price: Number(c.price ?? 0),
         duration: durationStr || "",

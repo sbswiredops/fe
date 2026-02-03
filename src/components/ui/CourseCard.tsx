@@ -1,6 +1,5 @@
 /* eslint-disable @next/next/no-img-element */
 import Link from "next/link";
-import Button from "@/components/ui/Button";
 import { useLanguage } from "../contexts/LanguageContext";
 import { Course } from "../types";
 
@@ -26,16 +25,17 @@ export function StarRating({ rating }: { rating: number }) {
 
 export default function CourseCard({ course }: { course: Course }) {
   const { t } = useLanguage();
-
   const courseSlug = (course as any).sku ?? course.id;
+  const instructor = (course as any)?.instructor;
+  const avatarUrl = instructor?.avatar || null;
 
   return (
     <Link
       href={`/courses/${courseSlug}`}
       className="block group focus:outline-none"
     >
-      <div className="flex-shrink-0 w-full sm:w-[330px] bg-white rounded-xl border border-gray-200 transition-transform duration-300 hover:scale-105 hover:shadow-xl hover:z-10 relative will-change-transform cursor-pointer">
-        {/* Course Thumbnail */}
+      <div className="w-full sm:w-[330px] bg-white rounded-xl border border-gray-200 transition-transform duration-300 hover:scale-105 hover:shadow-xl cursor-pointer">
+        {/* Thumbnail */}
         <div className="relative h-50 rounded-t-xl overflow-hidden bg-gray-50">
           {(course as any)?.thumbnail ? (
             <img
@@ -44,7 +44,7 @@ export default function CourseCard({ course }: { course: Course }) {
               className="w-full h-full object-cover"
               loading="lazy"
               onError={(e) => {
-                (e.target as HTMLImageElement).style.display = "none";
+                e.currentTarget.src = "/course-fallback.png";
               }}
             />
           ) : (
@@ -66,53 +66,63 @@ export default function CourseCard({ course }: { course: Course }) {
           )}
         </div>
 
-        {/* Course Content */}
+        {/* Content */}
         <div className="p-5 flex flex-col justify-between h-[280px]">
           <div>
-            {/* Category Badge */}
+            {/* Category */}
             <span className="inline-block mb-2 px-3 py-1 bg-gray-100 text-gray-700 text-xs rounded font-medium">
-              {course.category ? String(course.category) : "Web Development"}
+              {(course as any)?.category?.name || "Web Development"}
             </span>
-            <h3 className="text-lg font-bold text-gray-900 mb-2 line-clamp-2 group-hover:text-blue-700 transition-colors">
+
+            {/* Title */}
+            <h3 className="text-lg font-bold text-gray-900 mb-2 line-clamp-2 group-hover:text-blue-700">
               {course.title}
             </h3>
 
+            {/* Instructor */}
             <div className="flex items-center mb-3">
-              {typeof (course as any)?.instructor === "object" &&
-              (course as any)?.instructor?.avatar ? (
-                <img
-                  src={(course as any).instructor.avatar}
-                  alt={(course as any)?.instructor?.name || "Instructor avatar"}
-                  className="w-8 h-8 rounded-full mr-3 object-cover"
-                  onError={(e) => {
-                    (e.target as HTMLImageElement).style.display = "none";
-                  }}
-                />
+              {avatarUrl ? (
+                <div className="w-8 h-8 rounded-full overflow-hidden mr-3 flex-shrink-0 bg-gray-200">
+                  <img
+                    src={avatarUrl}
+                    alt={instructor?.name || "Instructor"}
+                    className="w-full h-full object-cover"
+                  />
+                </div>
               ) : (
-                <div className="w-8 h-8 bg-gray-300 rounded-full mr-3" />
+                <div className="w-8 h-8 mr-3 rounded-full bg-blue-600 text-white flex items-center justify-center text-xs font-semibold flex-shrink-0">
+                  {instructor?.name
+                    ? instructor.name
+                        .split(" ")
+                        .map((n: string) => n[0])
+                        .join("")
+                        .slice(0, 2)
+                        .toUpperCase()
+                    : "IN"}
+                </div>
               )}
-              <div>
-                <p className="text-sm font-semibold text-gray-900">
-                  {typeof (course as any)?.instructor === "string"
-                    ? (course as any).instructor
-                    : (course as any)?.instructor?.name ||
-                      (course as any)?.instructorId ||
-                      "Instructor"}
+
+              <div className="flex-1 min-w-0">
+                <p className="text-sm font-semibold text-gray-900 truncate">
+                  {instructor?.name || "Instructor"}
                 </p>
-                <p className="text-xs text-gray-500">{course.duration}</p>
               </div>
             </div>
+
+            {/* Rating + Students */}
             <div className="flex items-center justify-between mb-3">
               <StarRating rating={Number(course.rating) || 0} />
               <span className="text-sm text-gray-500">
-                {((course as any).enrolledStudents ?? 0).toLocaleString()}{" "}
+                {(course.enrollmentCount ?? 0).toLocaleString()}{" "}
                 {t("featuredCourses.students")}
               </span>
             </div>
           </div>
-          {/* Divider */}
+
           <hr className="my-1 border-gray-200" />
-          <div className="flex items-center justify-between ">
+
+          {/* Price */}
+          <div className="flex items-center justify-between">
             <div className="text-2xl font-bold text-blue-700">
               ৳{course.price}
             </div>
