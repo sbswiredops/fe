@@ -78,7 +78,19 @@ export default function CourseCard({ course }: { course: Course }) {
             </h3>
 
             <div className="flex items-center mb-3">
-              <div className="w-8 h-8 bg-gray-300 rounded-full mr-3"></div>
+              {typeof (course as any)?.instructor === "object" &&
+              (course as any)?.instructor?.avatar ? (
+                <img
+                  src={(course as any).instructor.avatar}
+                  alt={(course as any)?.instructor?.name || "Instructor avatar"}
+                  className="w-8 h-8 rounded-full mr-3 object-cover"
+                  onError={(e) => {
+                    (e.target as HTMLImageElement).style.display = "none";
+                  }}
+                />
+              ) : (
+                <div className="w-8 h-8 bg-gray-300 rounded-full mr-3" />
+              )}
               <div>
                 <p className="text-sm font-semibold text-gray-900">
                   {typeof (course as any)?.instructor === "string"
