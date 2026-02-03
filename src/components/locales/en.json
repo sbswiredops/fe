@@ -73,14 +73,12 @@
       },
       "learner": {
         "label": "Learners"
-
       },
       "courseCompletionRate": {
         "label": "Course Completion Rate"
       },
       "courses": {
         "label": "Courses"
-        
       }
     },
     "cta": {
