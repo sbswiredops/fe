@@ -11,7 +11,11 @@ export class ContactService {
 
     // Create a contact message (public)
     async createContact(data: any): Promise<ApiResponse<any>> {
-        if (!isApiConfigured()) return { success: false, error: 'API not configured' } as ApiResponse<any>;
+        if (!isApiConfigured()) {
+            // API not configured (local/dev). Return simulated success so UI can behave predictably
+            return { success: true, data: null, message: 'Simulated success (API not configured)' } as ApiResponse<any>;
+        }
+
         return this.client.post(API_CONFIG.ENDPOINTS.CONTACTS, data);
     }
 

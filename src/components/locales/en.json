@@ -474,6 +474,7 @@
       "phone": "Mobile Number",
       "subject": "Subject",
       "message": "Message",
+      "success": "Message sent successfully",
       "send": "Send Message"
     },
     "info": {
