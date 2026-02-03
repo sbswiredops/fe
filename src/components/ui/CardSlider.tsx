@@ -28,9 +28,10 @@ export default function CardSlider({
     return items.filter((it) => {
       // Handle category comparison - support both string and object categories
       if (category !== "all") {
-        const itemCategory = typeof it.category === "object" && it.category !== null
-          ? it.category.id || it.category.name
-          : it.category;
+        const itemCategory =
+          typeof it.category === "object" && it.category !== null
+            ? it.category.id || it.category.name
+            : it.category;
         if (itemCategory !== category) return false;
       }
       if (!q) return true;
@@ -38,7 +39,7 @@ export default function CardSlider({
       const instructorName =
         typeof it.instructor === "string"
           ? it.instructor
-          : it.instructor?.name ?? "";
+          : (it.instructor?.name ?? "");
       return (
         it.title.toLowerCase().includes(q) ||
         it.description.toLowerCase().includes(q) ||
@@ -188,7 +189,9 @@ export default function CardSlider({
                   value={typeof c === "object" && c !== null ? c.id : c}
                   className="text-gray-900"
                 >
-                  {typeof c === "object" && c !== null && "name" in c ? c.name : String(c)}
+                  {typeof c === "object" && c !== null && "name" in c
+                    ? c.name
+                    : String(c)}
                 </option>
               ))}
             </select>
