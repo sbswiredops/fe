@@ -43,7 +43,7 @@ function CoursesClient() {
   const [showFreeOnly, setShowFreeOnly] = useState(false);
   const [sortBy, setSortBy] = useState("popularity");
   const [selectedType, setSelectedType] = useState<CourseType | "all">(() =>
-    normalizeType(searchParams.get("type"))
+    normalizeType(searchParams.get("type")),
   );
   const [courses, setCourses] = useState<CourseWithType[]>([]);
   const [categoriesState, setCategoriesState] = useState<string[]>([]);
@@ -71,8 +71,8 @@ function CoursesClient() {
         typeof c?.totalDuration === "string" && c?.totalDuration
           ? c.totalDuration
           : typeof c?.duration === "number"
-          ? `${c.duration} min`
-          : String(c?.duration || "");
+            ? `${c.duration} min`
+            : String(c?.duration || "");
       const courseTypeRaw = (c?.courseType || "").toString().toLowerCase();
       let type: CourseType = CourseType.RECORDED;
       if (courseTypeRaw.includes("free")) type = CourseType.FREE_LIVE;
@@ -171,7 +171,7 @@ function CoursesClient() {
         result.sort(
           (a, b) =>
             new Date(b.createdAt ?? 0).getTime() -
-            new Date(a.createdAt ?? 0).getTime()
+            new Date(a.createdAt ?? 0).getTime(),
         );
         break;
       default:
@@ -183,7 +183,7 @@ function CoursesClient() {
 
   const toggleCategory = (cat: string) => {
     setSelectedCategories((prev) =>
-      prev.includes(cat) ? prev.filter((c) => c !== cat) : [...prev, cat]
+      prev.includes(cat) ? prev.filter((c) => c !== cat) : [...prev, cat],
     );
   };
 
@@ -237,9 +237,7 @@ function CoursesClient() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
           <div className="rounded-2xl p-8 sm:p-10 text-center text-white">
             <h1 className="text-5xl  font-bold mb-4">
-              {currentLanguage.code === "bn"
-                ? "কোর্স"
-                : t("nav.courses")}
+              {currentLanguage.code === "bn" ? "কোর্স" : t("nav.courses")}
             </h1>
             <p className="text-lg opacity-95 max-w-2xl mx-auto">
               {currentLanguage.code === "bn"
