@@ -311,6 +311,8 @@ function CoursesManagement() {
         instructorId: formData.instructorId
           ? String(formData.instructorId)
           : undefined,
+        // include SKU when present
+        sku: formData.sku ? String(formData.sku) : undefined,
         price: toNumber(formData.price) ?? 0,
         duration: toNumber(formData.duration) ?? 0,
         level: formData.level
@@ -383,6 +385,8 @@ function CoursesManagement() {
         shortDescription: formData.shortDescription || undefined,
         categoryId: formData.categoryId || undefined,
         instructorId: formData.instructorId || undefined,
+        // include SKU when editing
+        sku: formData.sku || undefined,
         price:
           toNumber(formData.price) !== undefined
             ? toNumber(formData.price)

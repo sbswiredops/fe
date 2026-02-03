@@ -36,6 +36,29 @@ export default function CoursesForm({
   categories,
   instructors,
 }: Props) {
+  // Track whether the SKU was manually edited by the user.
+  const [skuManuallyEdited, setSkuManuallyEdited] = React.useState(false);
+  // Helper to convert title -> sku (slug)
+  const slugify = (str: string) =>
+    String(str)
+      .toLowerCase()
+      .trim()
+      .replace(/[^a-z0-9\s-_.]/g, "") // allow alnum, spaces, dash, underscore, dot
+      .replace(/\s+/g, "-")
+      .replace(/-+/g, "-")
+      .slice(0, 100);
+
+  // Auto-populate `sku` from title when sku is empty
+  React.useEffect(() => {
+    const title = formData.title || "";
+    // Only auto-generate SKU when user hasn't manually edited it.
+    if (title && !skuManuallyEdited) {
+      const generated = slugify(title);
+      setFormData((prev: any) => ({ ...prev, sku: generated }));
+    }
+    // run when title or manual-edit flag changes
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [formData.title, skuManuallyEdited]);
   const categoryList = React.useMemo(() => {
     if (Array.isArray(categories)) return categories;
     if (categories && Array.isArray((categories as any).items))
@@ -83,6 +106,18 @@ export default function CoursesForm({
         onChange={onChange}
         placeholder="Enter course title"
         required
+      />
+
+      <Input
+        label="SKU"
+        name="sku"
+        value={formData.sku || ""}
+        onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
+          const v = e.target.value;
+          setFormData((p: any) => ({ ...p, sku: v }));
+          setSkuManuallyEdited(v !== "");
+        }}
+        placeholder="Auto generated from title (editable)"
       />
 
       <div>
