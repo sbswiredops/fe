@@ -26,7 +26,13 @@ export default function CardSlider({
   const filtered = useMemo(() => {
     const q = search.trim().toLowerCase();
     return items.filter((it) => {
-      if (category !== "all" && it.category !== category) return false;
+      // Handle category comparison - support both string and object categories
+      if (category !== "all") {
+        const itemCategory = typeof it.category === "object" && it.category !== null
+          ? it.category.id || it.category.name
+          : it.category;
+        if (itemCategory !== category) return false;
+      }
       if (!q) return true;
       // Normalize instructor to a string (supports both string or object with a `name` field)
       const instructorName =
