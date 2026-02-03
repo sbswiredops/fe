@@ -44,7 +44,7 @@ import {
   BarChart3,
   Medal,
 } from "lucide-react";
-
+ export const runtime = 'edge';
 const useCounter = (end: number, duration: number = 2000) => {
   const [count, setCount] = useState(0);
   const [isVisible, setIsVisible] = useState(false);
