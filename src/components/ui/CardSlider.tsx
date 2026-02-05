@@ -53,7 +53,7 @@ export default function CardSlider({
   // Auto-move logic (moved below filtered declaration)
 
   useEffect(() => {
-    if (isHovered || filtered.length <= visibleSlides) return;
+    if (isHovered || filtered.length <= 1) return;
     const el = containerRef.current;
     if (!el) return;
     const interval = setInterval(() => {
@@ -71,7 +71,7 @@ export default function CardSlider({
         const distance = childWidth + gap;
         el.scrollTo({ left: el.scrollLeft + distance, behavior: "smooth" });
       }
-    }, 3500);
+    }, 2500);
     return () => clearInterval(interval);
   }, [filtered, visibleSlides, isHovered]);
 
@@ -92,7 +92,8 @@ export default function CardSlider({
     const childWidth = child
       ? child.getBoundingClientRect().width
       : el.clientWidth / visibleSlides;
-    const distance = childWidth * visibleSlides + gap * (visibleSlides - 1);
+    // Scroll by 1 card at a time
+    const distance = childWidth + gap;
     const target =
       direction === "left"
         ? el.scrollLeft - distance

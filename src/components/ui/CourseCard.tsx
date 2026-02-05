@@ -131,9 +131,32 @@ export default function CourseCard({ course }: { course: Course }) {
 
           {/* Price */}
           <div className="flex items-center justify-between">
-            <div className="text-2xl font-bold text-blue-700">
-              ৳{course.price}
-            </div>
+            {(() => {
+              const discountPrice = (course as any).discountPrice;
+              const price = course.price;
+
+              const hasDiscount =
+                discountPrice != null &&
+                price != null &&
+                Number(discountPrice) > 0 &&
+                Number(discountPrice) < Number(price);
+
+              return (
+                <div className="flex items-baseline gap-2">
+                  <div className="text-2xl font-bold text-blue-700">
+                    ৳
+                    {hasDiscount
+                      ? Number(discountPrice).toFixed(0)
+                      : Number(price).toFixed(0)}
+                  </div>
+                  {hasDiscount && (
+                    <div className="text-sm line-through text-gray-400">
+                      ৳{Number(price).toFixed(0)}
+                    </div>
+                  )}
+                </div>
+              );
+            })()}
           </div>
         </div>
       </div>

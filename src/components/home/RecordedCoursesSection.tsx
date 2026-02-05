@@ -16,6 +16,7 @@ interface RecordedCourse {
   instructorId: string;
   duration: string | number;
   price: number;
+  discountPrice?: number;
   rating: number | string;
   enrolledStudents: number;
   thumbnail: string | null;
@@ -78,6 +79,9 @@ export default function RecordedCoursesSection() {
               instructorId: course.instructorId,
               duration: course.duration,
               price: Number(course.price),
+              discountPrice: course.discountPrice
+                ? Number(course.discountPrice)
+                : undefined,
               rating: Number(course.rating),
               enrolledStudents: course.enrollmentCount ?? 0,
               enrollmentCount: course.enrollmentCount ?? 0,
