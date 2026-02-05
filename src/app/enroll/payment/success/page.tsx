@@ -3,7 +3,7 @@
 import React, { useEffect, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { CheckCircle, Loader2 } from "lucide-react";
+import { CheckCircle, Loader2, AlertCircle } from "lucide-react";
 import MainLayout from "@/components/layout/MainLayout";
 import Button from "@/components/ui/Button";
 import { useAuth } from "@/components/contexts/AuthContext";
@@ -105,7 +105,7 @@ export default function PaymentSuccessPage() {
             ) : error ? (
               <div className="space-y-4">
                 <div className="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto">
-                  <span className="text-3xl">⚠️</span>
+                  <AlertCircle className="w-10 h-10 text-red-600" />
                 </div>
                 <h2 className="text-2xl font-bold text-gray-900">
                   Verification Error
@@ -132,7 +132,7 @@ export default function PaymentSuccessPage() {
                 {/* Success Message */}
                 <div>
                   <h1 className="text-3xl font-bold text-gray-900 mb-2">
-                    Payment Successful! 🎉
+                    Payment Successful!
                   </h1>
                   <p className="text-gray-600">
                     Your enrollment has been confirmed
