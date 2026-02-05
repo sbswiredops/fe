@@ -234,6 +234,7 @@ const FloatingCTA = ({
           className="flex-1 max-w-[200px] font-semibold text-white rounded-lg py-3 bg-blue-600 hover:bg-blue-700"
           onClick={onClick}
         >
+          <Zap className="w-4 h-4 mr-1 inline" />
           {enrollLabel}
         </Button>
       </div>
@@ -508,9 +509,8 @@ export default function CourseDetailsPage() {
 
     if (enrolledCourse) {
       setIsEnrolled(true);
-      router.push(`/dashboard/student/learn/${fetchedCourse.id}`);
     }
-  }, [sku, user, fetchedCourse, authLoading, getEnrolledCourse, router]);
+  }, [sku, user, fetchedCourse, authLoading, getEnrolledCourse]);
 
   if (loadingCourse || authLoading) {
     return (
@@ -537,6 +537,14 @@ export default function CourseDetailsPage() {
       router.push(`/login?next=/courses/${sku}`);
       return;
     }
+
+    // Check if already enrolled directly from context
+    const enrolledCourse = getEnrolledCourse(String(fetchedCourse.id));
+    if (enrolledCourse) {
+      router.push(`/dashboard/student/learn/${fetchedCourse.id}`);
+      return;
+    }
+
     router.push(`/enroll?courseId=${fetchedCourse?.id ?? sku}`);
   };
 
@@ -730,8 +738,17 @@ export default function CourseDetailsPage() {
                       onClick={handleEnrollClick}
                       className="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-4 rounded-lg transition-all"
                     >
-                      <Zap className="w-4 h-4 mr-2 inline" />
-                      Enroll Now
+                      {isEnrolled ? (
+                        <>
+                          <GraduationCap className="w-4 h-4 mr-2 inline" />
+                          Continue Learning
+                        </>
+                      ) : (
+                        <>
+                          <Zap className="w-4 h-4 mr-2 inline" />
+                          Enroll Now
+                        </>
+                      )}
                     </Button>
 
                     <div className="space-y-2 text-sm">

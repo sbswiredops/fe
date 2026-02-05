@@ -44,26 +44,30 @@ export default function CourseCard({ course }: { course: Course }) {
               className="w-full h-full object-cover"
               loading="lazy"
               onError={(e) => {
-                e.currentTarget.src = "/course-fallback.png";
+                e.currentTarget.style.display = "none";
+                const fallback = e.currentTarget
+                  .nextElementSibling as HTMLElement;
+                if (fallback) fallback.style.display = "flex";
               }}
             />
-          ) : (
-            <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-blue-100 to-indigo-200">
-              <svg
-                className="w-16 h-16 text-blue-500 opacity-50"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={1}
-                  d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"
-                />
-              </svg>
-            </div>
-          )}
+          ) : null}
+          <div
+            className={`w-full h-full flex items-center justify-center bg-gradient-to-br from-blue-100 to-indigo-200 ${(course as any)?.thumbnail ? "hidden" : ""}`}
+          >
+            <svg
+              className="w-16 h-16 text-blue-500 opacity-50"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={1}
+                d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"
+              />
+            </svg>
+          </div>
         </div>
 
         {/* Content */}
