@@ -133,6 +133,21 @@ export const API_CONFIG = {
     CONTACT_DELETE: (id: string) => `/contact/${id}`, // DELETE: Delete contact (admin)
     CONTACT_MARK_READ: (id: string) => `/contact/${id}/mark-read`, // POST: Mark contact as read (admin)
     CONTACT_ARCHIVE: (id: string) => `/contact/${id}/archive`, // POST: Archive contact (admin)
+
+    // Payments
+    PAYMENT_CREATE_INTENT: '/payments/intent', // POST: Create payment intent
+    PAYMENT_CONFIRM: '/payments/confirm', // POST: Confirm payment
+    PAYMENT_HISTORY: '/payments/history', // GET: Get payment history
+    PAYMENT_BY_ID: (id: string) => `/payments/${id}`, // GET: Get payment by ID
+    PAYMENT_BY_TRANSACTION_ID: (transactionId: string) => `/payments/transaction/${transactionId}`, // GET: Get payment by transaction ID
+    PAYMENT_WEBHOOK: '/payments/webhook', // POST: Stripe webhook endpoint
+
+    // SSLCommerz Payment Gateway
+    PAYMENT_SSLCOMMERZ_INIT: '/payments/sslcommerz/init', // POST: Initialize SSLCommerz payment
+    PAYMENT_SSLCOMMERZ_SUCCESS: '/payments/sslcommerz/success', // POST: SSLCommerz success callback
+    PAYMENT_SSLCOMMERZ_FAIL: '/payments/sslcommerz/fail', // POST: SSLCommerz fail callback
+    PAYMENT_SSLCOMMERZ_CANCEL: '/payments/sslcommerz/cancel', // POST: SSLCommerz cancel callback
+    PAYMENT_SSLCOMMERZ_IPN: '/payments/sslcommerz/ipn', // POST: SSLCommerz IPN (Instant Payment Notification)
   },
   PAGINATION: {
     DEFAULT_PAGE_SIZE: 10,

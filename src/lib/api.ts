@@ -229,11 +229,17 @@ export class ApiClient {
       try {
         const data = await response.json();
         if (!response.ok) {
-          throw new Error(data?.message || data?.error || `HTTP ${response.status}: ${response.statusText}`);
+          // Extract message from various possible error response structures
+          const message = data?.message || data?.error || data?.detail || `HTTP ${response.status}: ${response.statusText}`;
+          throw new Error(message);
         }
         return data;
       } catch (err) {
         if (!response.ok) {
+          // If err is already our custom error with message, rethrow it
+          if (err instanceof Error && err.message !== 'Failed to parse response JSON') {
+            throw err;
+          }
           throw new Error(`HTTP ${response.status}: ${response.statusText}`);
         }
         throw new Error('Failed to parse response JSON');

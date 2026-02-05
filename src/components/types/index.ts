@@ -59,6 +59,8 @@ export interface Course {
   tags?: string[];
   requirements?: string[];
   learningOutcomes?: string[];
+  discountPercentage?: number;
+  discountPrice?: number;
   // Add other fields as needed
 }
 

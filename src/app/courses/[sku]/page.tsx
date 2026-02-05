@@ -395,7 +395,8 @@ const userService = new UserService();
 const courseService = new CourseService();
 
 export default function CourseDetailsPage() {
-  const { sku } = useParams();
+  const params = useParams();
+  const sku = String(params?.sku || "");
   const { user, isLoading: authLoading } = useAuth();
   const router = useRouter();
   const { t } = useLanguage();
@@ -545,7 +546,8 @@ export default function CourseDetailsPage() {
       return;
     }
 
-    router.push(`/enroll?courseId=${fetchedCourse?.id ?? sku}`);
+    // Pass only SKU for clean, user-friendly URL
+    router.push(`/enroll?courseSku=${sku}`);
   };
 
   const toggleSection = (idx: number) => {
