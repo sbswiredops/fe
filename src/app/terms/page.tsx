@@ -356,7 +356,7 @@ function TermsContent() {
                       </p>
                       <div className="mt-3 text-gray-700">
                         <p>
-                          <strong>Email:</strong> teamshekhabo@gmail.com
+                          <strong>Email:</strong> contact@shekhabo.com
                         </p>
                         <p>
                           <strong>Subject Line:</strong> DMCA Notice - Copyright
