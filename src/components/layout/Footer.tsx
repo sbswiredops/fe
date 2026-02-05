@@ -139,7 +139,7 @@ export default function Footer() {
                   aria-hidden="true"
                 />
                 <a
-                  href="mailto:teamshekhabo@gmail.com"
+                  href="mailto:contact@shekhabo.com"
                   className="text-gray-200 hover:text-[#F8F9FA] transition-colors"
                 >
                   contact@shekhabo.com
