@@ -78,6 +78,34 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
     }
   }, [isLoading, isAuthenticated, authFromStorage, router, hasCheckedAuth]);
 
+  // Role-based access control - prevent users from accessing wrong dashboards
+  useEffect(() => {
+    if (!user || !pathname) return;
+
+    const roleGroup = getRoleGroup(user.role);
+
+    // Define allowed paths for each role
+    const isAdminPath = pathname.startsWith("/dashboard/admin");
+    const isTeacherPath = pathname.startsWith("/dashboard/teacher");
+    const isStudentPath = pathname.startsWith("/dashboard/student");
+
+    // Check if user is trying to access a dashboard they shouldn't
+    if (roleGroup === "admin" && (isTeacherPath || isStudentPath)) {
+      router.replace("/dashboard/admin");
+      return;
+    }
+
+    if (roleGroup === "teacher" && (isAdminPath || isStudentPath)) {
+      router.replace("/dashboard/teacher");
+      return;
+    }
+
+    if (roleGroup === "student" && (isAdminPath || isTeacherPath)) {
+      router.replace("/dashboard/student");
+      return;
+    }
+  }, [user, pathname, router]);
+
   useEffect(() => {
     setIsSidebarOpen(false);
     setIsLanguageDropdownOpen(false);
