@@ -64,39 +64,39 @@ export default function PaymentCancelPage() {
 
   return (
     <MainLayout>
-      <div className="min-h-screen bg-gradient-to-br from-yellow-50 to-orange-50 flex items-center justify-center p-4">
-        <div className="max-w-md w-full">
-          <div className="bg-white rounded-2xl shadow-xl p-8 text-center">
-            <div className="space-y-6">
+      <div className="bg-gradient-to-br from-yellow-50 to-orange-50 w-full py-12 lg:min-h-screen lg:flex lg:items-center lg:justify-center">
+        <div className="max-w-md mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="bg-white rounded-xl shadow-lg overflow-hidden max-w-sm mx-auto p-4 text-center">
+            <div className="space-y-3">
               {/* Cancel Icon */}
-              <div className="w-20 h-20 bg-yellow-100 rounded-full flex items-center justify-center mx-auto">
-                <AlertCircle className="w-12 h-12 text-yellow-600" />
+              <div className="w-12 h-12 bg-yellow-100 rounded-full flex items-center justify-center mx-auto">
+                <AlertCircle className="w-8 h-8 text-yellow-600" />
               </div>
 
               {/* Cancel Message */}
               <div>
-                <h1 className="text-3xl font-bold text-gray-900 mb-2">
+                <h1 className="text-xl font-bold text-gray-900 mb-1">
                   Payment Cancelled
                 </h1>
-                <p className="text-gray-600">
+                <p className="text-xs text-gray-600">
                   You have cancelled the payment process
                 </p>
               </div>
 
               {/* Payment Details */}
               {paymentDetails && paymentDetails.amount && (
-                <div className="bg-yellow-50 rounded-lg p-4 space-y-2 text-left border border-yellow-200">
-                  <p className="text-sm font-medium text-gray-900 mb-2">
+                <div className="bg-yellow-50 rounded-lg p-2.5 space-y-1 text-left border border-yellow-200">
+                  <p className="text-xs font-medium text-gray-900 mb-1.5">
                     Cancelled Transaction Details:
                   </p>
-                  <div className="flex justify-between text-sm">
+                  <div className="flex justify-between text-xs">
                     <span className="text-gray-600">Amount:</span>
                     <span className="font-medium text-gray-900">
                       {paymentDetails.currency} {paymentDetails.amount}
                     </span>
                   </div>
                   {paymentDetails.tranId && (
-                    <div className="flex justify-between text-sm">
+                    <div className="flex justify-between text-xs">
                       <span className="text-gray-600">Transaction ID:</span>
                       <span className="font-medium text-gray-900">
                         {paymentDetails.tranId}
@@ -107,38 +107,32 @@ export default function PaymentCancelPage() {
               )}
 
               {/* Information Box */}
-              <div className="bg-gray-50 rounded-lg p-4 text-left">
-                <p className="text-sm text-gray-700 mb-2">
+              <div className="bg-gray-50 rounded-lg p-2.5 text-left">
+                <p className="text-xs text-gray-700 mb-1.5">
                   <strong>What happened?</strong>
                 </p>
-                <p className="text-sm text-gray-600">
+                <p className="text-xs text-gray-600">
                   You cancelled the payment before it was completed. No charges
                   have been made to your account.
                 </p>
               </div>
 
               {/* Action Buttons */}
-              <div className="space-y-3 pt-4">
-                <Button
-                  className="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3"
-                  onClick={() => router.back()}
-                >
-                  Try Again
-                </Button>
-                <Link href="/courses">
-                  <Button variant="outline" className="w-full py-3">
+              <div className="flex flex-col gap-2 pt-1">
+                <Link href="/courses" className="w-full">
+                  <Button variant="outline" size="md" className="w-full">
                     Browse Courses
                   </Button>
                 </Link>
-                <Link href="/dashboard/student">
-                  <Button variant="outline" className="w-full py-3">
+                <Link href="/dashboard/student" className="w-full">
+                  <Button variant="outline" size="md" className="w-full">
                     Go to Dashboard
                   </Button>
                 </Link>
               </div>
 
               {/* Help Text */}
-              <div className="pt-4 space-y-2">
+              <div className="pt-1 space-y-0.5">
                 <p className="text-xs text-gray-500">
                   Need help? Contact our support team
                 </p>
