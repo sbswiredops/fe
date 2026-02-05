@@ -142,7 +142,7 @@ export default function Footer() {
                   href="mailto:teamshekhabo@gmail.com"
                   className="text-gray-200 hover:text-[#F8F9FA] transition-colors"
                 >
-                  teamshekhabo@gmail.com
+                  contact@shekhabo.com
                 </a>
               </li>
               <li className="flex items-start gap-3">

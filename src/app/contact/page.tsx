@@ -237,7 +237,7 @@ function ContactContent() {
                       <h4 className="font-semibold text-gray-800">
                         {t("contact.info.email")}
                       </h4>
-                      <p className="text-gray-600">teamshekhabo@gmail.com</p>
+                      <p className="text-gray-600">contact@shekhabo.com</p>
                     </div>
                   </div>
 

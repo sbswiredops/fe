@@ -175,13 +175,7 @@ export default function PaymentSuccessPage() {
                       Go to Dashboard
                     </Button>
                   </Link>
-                </div>
-
-                {/* Additional Info */}
-                <p className="text-xs text-gray-500 pt-4">
-                  A confirmation email has been sent to your registered email
-                  address
-                </p>
+                </div>                
               </div>
             )}
           </div>
