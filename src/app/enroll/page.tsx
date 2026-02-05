@@ -1,4 +1,4 @@
-  "use client";
+"use client";
 
 import React, { useEffect, useMemo, useState } from "react";
 import Image from "next/image";
@@ -26,7 +26,11 @@ export default function EnrollPage() {
   }, []);
 
   const { user } = useAuth();
-  const { courses: enrolledCourses, setCourses, getById } = useEnrolledCourses();
+  const {
+    courses: enrolledCourses,
+    setCourses,
+    getById,
+  } = useEnrolledCourses();
 
   const [course, setCourse] = useState<Course | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
@@ -57,15 +61,15 @@ export default function EnrollPage() {
             typeof c?.category === "object" && c?.category?.name
               ? c.category.name
               : typeof c?.category === "string"
-              ? c.category
-              : "General";
+                ? c.category
+                : "General";
           const created = c?.createdAt ? new Date(c.createdAt) : new Date();
           const durationStr =
             typeof c?.totalDuration === "string" && c?.totalDuration
               ? c.totalDuration
               : typeof c?.duration === "number"
-              ? `${c.duration} min`
-              : String(c?.duration || "");
+                ? `${c.duration} min`
+                : String(c?.duration || "");
 
           const mapped: Course = {
             id: String(c.id),
@@ -78,7 +82,7 @@ export default function EnrollPage() {
             instructorId: String(c.instructorId || c?.instructor?.id || ""),
             price: Number(c.price ?? 0),
             duration: durationStr,
-            thumbnail: c.thumbnail || "/placeholder-course.jpg",
+            thumbnail: c.thumbnail || "",
             category: String(categoryName),
             enrollmentCount: Number(c.enrollmentCount ?? 0),
             rating: Number(c.rating ?? 0),
@@ -135,7 +139,7 @@ export default function EnrollPage() {
         res = await svc.enroll(uid, course.id);
       } else {
         throw new Error(
-          "Enrollment method not found on UserService. Please implement enrollInCourse(userId, courseId)."
+          "Enrollment method not found on UserService. Please implement enrollInCourse(userId, courseId).",
         );
       }
 
@@ -153,7 +157,9 @@ export default function EnrollPage() {
         throw new Error(msg);
       }
 
-      const has = enrolledCourses.some((c: any) => String(c.id) === String(course.id));
+      const has = enrolledCourses.some(
+        (c: any) => String(c.id) === String(course.id),
+      );
       if (!has) {
         setCourses([...enrolledCourses, course] as any);
       }
@@ -203,20 +209,40 @@ export default function EnrollPage() {
               <div className="enroll-card bg-white p-6 sm:p-8">
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-6 items-start">
                   <div className="relative">
-                    <Image
-                      src={course.thumbnail ?? "/placeholder-course.jpg"}
-                      alt={course.title}
-                      className="course-thumbnail w-full"
-                      width={800}
-                      height={450}
-                      priority
-                    />
+                    {course.thumbnail &&
+                    course.thumbnail !== "/placeholder-course.jpg" ? (
+                      <Image
+                        src={course.thumbnail}
+                        alt={course.title}
+                        className="course-thumbnail w-full rounded-lg"
+                        width={800}
+                        height={450}
+                        priority
+                      />
+                    ) : (
+                      <div className="w-full aspect-video rounded-lg bg-gradient-to-br from-blue-100 via-purple-100 to-indigo-100 flex items-center justify-center">
+                        <svg
+                          className="w-20 h-20 text-blue-400 opacity-50"
+                          fill="none"
+                          stroke="currentColor"
+                          viewBox="0 0 24 24"
+                        >
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth={1.5}
+                            d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"
+                          />
+                        </svg>
+                      </div>
+                    )}
                     <div className="absolute top-3 left-3 price-badge">
                       {typeof course.category === "string"
                         ? course.category
-                        : typeof course.category === "object" && (course.category as any)?.name
-                        ? (course.category as any).name
-                        : ""}
+                        : typeof course.category === "object" &&
+                            (course.category as any)?.name
+                          ? (course.category as any).name
+                          : ""}
                     </div>
                   </div>
 
@@ -224,13 +250,15 @@ export default function EnrollPage() {
                     <div className="mt-4 flex items-center gap-3">
                       <div className="text-sm text-gray-500">Instructor</div>
                       <div className="text-sm font-semibold text-gray-900">
-                        {typeof course.instructor === "object" && course.instructor.name
+                        {typeof course.instructor === "object" &&
+                        course.instructor.name
                           ? course.instructor.name
                           : String(course.instructor)}
                       </div>
                     </div>
                     <div className="mt-3 text-sm text-gray-600">
-                      {Number(course.enrollmentCount ?? 0)} students • {course.rating}⭐
+                      {Number(course.enrollmentCount ?? 0)} students •{" "}
+                      {course.rating}⭐
                     </div>
 
                     <div className="flex items-start justify-between mt-4">
@@ -302,8 +330,8 @@ export default function EnrollPage() {
                         {enrolling
                           ? "Enrolling..."
                           : alreadyEnrolled
-                          ? "Continue Course"
-                          : "Confirm Enrollment"}
+                            ? "Continue Course"
+                            : "Confirm Enrollment"}
                       </Button>
 
                       <Button
