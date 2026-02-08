@@ -300,49 +300,68 @@ function AccordionItem({
         </svg>
       </div>
       {/* Lessons & Quizzes */}
-      {isOpen && (
-        <div className="bg-white px-8 pb-4 pt-2 rounded-b-xl">
-          {/* Lessons */}
-          {Array.isArray(section.lessons) &&
-            section.lessons.length > 0 &&
-            section.lessons.map((lesson: Lesson, lessonIdx: number) => (
-              <div
-                key={lesson.id || lessonIdx}
-                className="flex items-center py-2 border-b last:border-b-0"
+      <div
+        className={`overflow-hidden transition-all duration-300 ${isOpen ? "max-h-[2000px] opacity-100" : "max-h-0 opacity-0"}`}
+      >
+        {/* Lessons */}
+        {Array.isArray(section.lessons) && section.lessons.length > 0 && (
+          <ul className="divide-y divide-gray-50 bg-white">
+            {section.lessons.map((lesson: Lesson, lIdx: number) => (
+              <li
+                key={lesson.id ?? `lesson-${index}-${lIdx}`}
+                className="flex items-center px-8 py-3 hover:bg-blue-50/50 transition-all duration-200"
               >
-                <Video className="w-5 h-5 text-blue-500 mr-3" />
-                <div className="flex-1 text-gray-800 font-medium">
-                  {lesson.title}
-                </div>
-                {lesson.duration && (
-                  <div className="text-xs text-gray-500 mr-2">
-                    {lesson.duration} min
+                <div className="flex items-center gap-3 flex-1">
+                  <div className="w-7 h-7 rounded-md bg-blue-100 flex items-center justify-center">
+                    <Video className="w-4 h-4 text-blue-600" />
                   </div>
-                )}
-                <Lock className="w-4 h-4 text-gray-400" />
-              </div>
+                  <span className="text-sm font-medium text-gray-800">
+                    {lesson.title}
+                  </span>
+                </div>
+                <div className="flex items-center gap-2">
+                  {lesson.duration && (
+                    <span className="text-xs text-gray-500">
+                      {lesson.duration} min
+                    </span>
+                  )}
+                  <Lock className="w-4 h-4 text-gray-300" />
+                </div>
+              </li>
             ))}
-          {/* Quizzes */}
-          {Array.isArray(section.quizzes) &&
-            section.quizzes.length > 0 &&
-            section.quizzes.map((quiz: any, quizIdx: number) => (
-              <div
-                key={quiz.id || quizIdx}
-                className="flex items-center py-2 border-b last:border-b-0"
+          </ul>
+        )}
+
+        {/* Quizzes */}
+        {Array.isArray(section.quizzes) && section.quizzes.length > 0 && (
+          <ul className="divide-y divide-gray-50 bg-purple-50/30">
+            {section.quizzes.map((quiz: any, qIdx: number) => (
+              <li
+                key={quiz.id ?? `quiz-${index}-${qIdx}`}
+                className="flex items-center px-8 py-3 hover:bg-purple-100/50 transition-all duration-200"
               >
-                <HelpCircle className="w-5 h-5 text-purple-500 mr-3" />
-                <div className="flex-1 text-gray-800 font-medium">
-                  {quiz.title || "Quiz"}
+                <div className="flex items-center gap-3 flex-1">
+                  <div className="w-7 h-7 rounded-md bg-purple-100 flex items-center justify-center">
+                    <HelpCircle className="w-4 h-4 text-purple-600" />
+                  </div>
+                  <div>
+                    <span className="font-medium text-gray-800 text-sm">
+                      {quiz.title || "Quiz"}
+                    </span>
+                    <p className="text-xs text-gray-500 mt-0.5">
+                      {quiz.questionCount} questions • {quiz.totalMarks} marks
+                      {quiz.duration ? ` • ${quiz.duration} min` : ""}
+                    </p>
+                  </div>
                 </div>
-                <div className="text-xs text-gray-500 mr-2">
-                  {quiz.questionCount} questions • {quiz.totalMarks} marks
-                  {quiz.duration ? ` • ${quiz.duration} min` : ""}
+                <div className="flex items-center gap-2">
+                  <Lock className="w-4 h-4 text-gray-300" />
                 </div>
-                <Lock className="w-4 h-4 text-gray-400" />
-              </div>
+              </li>
             ))}
-        </div>
-      )}
+          </ul>
+        )}
+      </div>
     </div>
   );
 }
