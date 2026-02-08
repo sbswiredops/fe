@@ -1,12 +1,14 @@
 /* eslint-disable @next/next/no-img-element */
 "use client";
 
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useEffect, useMemo, useState, useRef } from "react";
 import Link from "next/link";
 import Button from "@/components/ui/Button";
+import { StarRating } from "@/components/ui/CourseCard";
 import { useLanguage } from "../contexts/LanguageContext";
 import { courseService } from "@/services/courseService";
 import { Course } from "@/components/types";
+import { ChevronLeft, ChevronRight } from "lucide-react";
 
 type ExtendedCourse = Course & { enrolledStudents: number; sku?: string };
 
@@ -21,6 +23,10 @@ export default function RecordedCoursesSection() {
   const [courses, setCourses] = useState<ExtendedCourse[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [currentIndex, setCurrentIndex] = useState(0);
+  const [isAutoPlaying, setIsAutoPlaying] = useState(true);
+  const autoPlayRef = useRef<NodeJS.Timeout | null>(null);
+  const containerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     let ignore = false;
@@ -79,13 +85,12 @@ export default function RecordedCoursesSection() {
       try {
         setLoading(true);
         setError(null);
-        // Try a few type casings because backend expects lowercase 'recorded'
         const typeCandidates = ["recorded", "Recorded", "RECORDED"];
         let res: any = null;
         for (const t of typeCandidates) {
           res = await courseService.getCoursesByType(t, {
             page: 1,
-            limit: 8,
+            limit: 12,
             sortBy: "createdAt",
             sortOrder: "DESC",
           });
@@ -131,8 +136,50 @@ export default function RecordedCoursesSection() {
     };
   }, []);
 
-  // Only show the latest 4 recorded courses
-  const displayedCourses = useMemo(() => courses.slice(0, 4), [courses]);
+  // Auto-slide functionality
+  useEffect(() => {
+    if (isAutoPlaying && courses.length > 0) {
+      autoPlayRef.current = setInterval(() => {
+        setCurrentIndex((prev) => (prev + 1) % Math.ceil(courses.length / 4));
+      }, 4000); // Change every 4 seconds
+    }
+
+    return () => {
+      if (autoPlayRef.current) {
+        clearInterval(autoPlayRef.current);
+      }
+    };
+  }, [isAutoPlaying, courses.length]);
+
+  const displayedCourses = useMemo(() => courses, [courses]);
+
+  // Calculate visible courses for current slide
+  const visibleCourses = displayedCourses.slice(
+    currentIndex * 4,
+    currentIndex * 4 + 4,
+  );
+
+  const nextSlide = () => {
+    setCurrentIndex((prev) =>
+      prev >= Math.ceil(courses.length / 4) - 1 ? 0 : prev + 1,
+    );
+    setIsAutoPlaying(false);
+    setTimeout(() => setIsAutoPlaying(true), 5000);
+  };
+
+  const prevSlide = () => {
+    setCurrentIndex((prev) =>
+      prev === 0 ? Math.ceil(courses.length / 4) - 1 : prev - 1,
+    );
+    setIsAutoPlaying(false);
+    setTimeout(() => setIsAutoPlaying(true), 5000);
+  };
+
+  const goToSlide = (index: number) => {
+    setCurrentIndex(index);
+    setIsAutoPlaying(false);
+    setTimeout(() => setIsAutoPlaying(true), 5000);
+  };
 
   return (
     <section className="pt-16 pb-8 bg-white">
@@ -161,43 +208,198 @@ export default function RecordedCoursesSection() {
         )}
 
         {!loading && !error && displayedCourses.length > 0 && (
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-            {displayedCourses.map((course) => (
-              <div
-                key={course.id}
-                className="max-w-sm rounded overflow-hidden shadow-lg bg-white border border-gray-100"
+          <div className="relative">
+            {/* Desktop Navigation Buttons */}
+            <div className="hidden md:block">
+              <button
+                onClick={prevSlide}
+                className="absolute left-0 top-1/2 -translate-y-1/2 -translate-x-12 z-10 bg-white p-3 rounded-full shadow-lg hover:bg-gray-100 transition-colors"
+                aria-label="Previous slide"
               >
-                <img
-                  className="w-full h-48 object-cover"
-                  src={course.thumbnail || "/placeholder-course.jpg"}
-                  alt={course.title || "Course thumbnail"}
-                />
-                <div className="px-6 py-4">
-                  <div className="font-bold text-xl mb-2 text-gray-900">
-                    {course.title}
+                <ChevronLeft className="w-6 h-6 text-gray-700" />
+              </button>
+              <button
+                onClick={nextSlide}
+                className="absolute right-0 top-1/2 -translate-y-1/2 translate-x-12 z-10 bg-white p-3 rounded-full shadow-lg hover:bg-gray-100 transition-colors"
+                aria-label="Next slide"
+              >
+                <ChevronRight className="w-6 h-6 text-gray-700" />
+              </button>
+            </div>
+
+            {/* Courses Grid */}
+            <div
+              ref={containerRef}
+              className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 transition-all duration-500 ease-in-out"
+            >
+              {visibleCourses.map((course) => (
+                <Link
+                  key={course.id}
+                  href={`/courses/${course.sku ?? course.id}`}
+                  className="block group focus:outline-none"
+                  style={{ WebkitTapHighlightColor: "transparent" }}
+                >
+                  <div className="w-full bg-white rounded-xl border border-gray-200 transition-transform duration-300 hover:scale-105 hover:shadow-xl cursor-pointer overflow-hidden">
+                    <div className="relative h-50 overflow-hidden bg-gray-50">
+                      {course.thumbnail ? (
+                        <img
+                          className="w-full h-full object-cover"
+                          src={course.thumbnail}
+                          alt={course.title || "Course thumbnail"}
+                          loading="lazy"
+                          onError={(e) => {
+                            e.currentTarget.style.display = "none";
+                            const fallback = e.currentTarget
+                              .nextElementSibling as HTMLElement;
+                            if (fallback) fallback.style.display = "flex";
+                          }}
+                        />
+                      ) : null}
+                      <div
+                        className={`w-full h-full items-center justify-center bg-gradient-to-br from-blue-100 to-indigo-200 ${
+                          course.thumbnail ? "hidden" : "flex"
+                        }`}
+                      >
+                        <svg
+                          className="w-16 h-16 text-blue-500 opacity-50"
+                          fill="none"
+                          stroke="currentColor"
+                          viewBox="0 0 24 24"
+                        >
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth={1}
+                            d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"
+                          />
+                        </svg>
+                      </div>
+                    </div>
+
+                    <div className="p-5 flex flex-col justify-between h-[280px]">
+                      <div>
+                        <span className="inline-block mb-2 px-3 py-1 bg-gray-100 text-gray-700 text-xs rounded font-medium">
+                          {typeof course.category === "string"
+                            ? course.category
+                            : (course.category as any)?.name || "General"}
+                        </span>
+
+                        <h3 className="text-lg font-bold text-gray-900 mb-2 line-clamp-2 group-hover:text-blue-700">
+                          {course.title}
+                        </h3>
+
+                        {(() => {
+                          const instructor = course.instructor as any;
+                          const avatarUrl = instructor?.avatar || null;
+                          const initials = instructor?.name
+                            ? instructor.name
+                                .split(" ")
+                                .map((n: string) => n[0])
+                                .join("")
+                                .slice(0, 2)
+                                .toUpperCase()
+                            : "IN";
+
+                          return (
+                            <div className="flex items-center mb-3">
+                              {avatarUrl ? (
+                                <div className="w-8 h-8 rounded-full overflow-hidden mr-3 flex-shrink-0 bg-gray-200">
+                                  <img
+                                    src={avatarUrl}
+                                    alt={instructor?.name || "Instructor"}
+                                    className="w-full h-full object-cover"
+                                  />
+                                </div>
+                              ) : (
+                                <div className="w-8 h-8 mr-3 rounded-full bg-blue-600 text-white flex items-center justify-center text-xs font-semibold flex-shrink-0">
+                                  {initials}
+                                </div>
+                              )}
+
+                              <div className="flex-1 min-w-0">
+                                <p className="text-sm font-semibold text-gray-900 truncate">
+                                  {instructor?.name || "Instructor"}
+                                </p>
+                              </div>
+                            </div>
+                          );
+                        })()}
+
+                        <div className="flex items-center justify-between mb-3">
+                          <StarRating rating={Number(course.rating) || 0} />
+                          <span className="text-sm text-gray-500">
+                            {(course.enrolledStudents ?? 0).toLocaleString()}{" "}
+                            {t("featuredCourses.students")}
+                          </span>
+                        </div>
+                      </div>
+
+                      <hr className="my-1 border-gray-200" />
+
+                      <div className="flex items-center justify-between">
+                        {(() => {
+                          const discountPrice = (course as any).discountPrice;
+                          const price = course.price;
+                          const hasDiscount =
+                            discountPrice != null &&
+                            price != null &&
+                            Number(discountPrice) > 0 &&
+                            Number(discountPrice) < Number(price);
+
+                          return (
+                            <div className="flex items-baseline gap-2">
+                              <div className="text-2xl font-bold text-blue-700">
+                                ৳
+                                {hasDiscount
+                                  ? Number(discountPrice).toFixed(0)
+                                  : Number(price).toFixed(0)}
+                              </div>
+                              {hasDiscount && (
+                                <div className="text-sm line-through text-gray-400">
+                                  ৳{Number(price).toFixed(0)}
+                                </div>
+                              )}
+                            </div>
+                          );
+                        })()}
+                      </div>
+                    </div>
                   </div>
-                  <p className="text-gray-700 text-base line-clamp-3">
-                    {course.description || "No description available."}
-                  </p>
-                </div>
-                <div className="px-6 pt-4 pb-2">
-                  <span className="inline-block bg-gray-200 rounded-full px-3 py-1 text-sm font-semibold text-gray-700 mr-2 mb-2">
-                    {typeof course.category === "string"
-                      ? course.category
-                      : (course.category as any)?.name || "General"}
-                  </span>
-                  <span className="inline-block bg-gray-200 rounded-full px-3 py-1 text-sm font-semibold text-gray-700 mr-2 mb-2">
-                    {course.duration || "Self-paced"}
-                  </span>
-                  <span className="inline-block bg-gray-200 rounded-full px-3 py-1 text-sm font-semibold text-gray-700 mr-2 mb-2">
-                    {Number(course.price) > 0 ? `$${course.price}` : "Free"}
-                  </span>
-                </div>
+                </Link>
+              ))}
+            </div>
+
+            {/* Dots Indicator */}
+            {courses.length > 4 && (
+              <div className="flex justify-center items-center space-x-2 mt-8">
+                {Array.from({
+                  length: Math.ceil(courses.length / 4),
+                }).map((_, index) => (
+                  <button
+                    key={index}
+                    onClick={() => goToSlide(index)}
+                    className={`w-3 h-3 rounded-full transition-all duration-300 ${
+                      index === currentIndex
+                        ? "bg-primary scale-125"
+                        : "bg-gray-300 hover:bg-gray-400"
+                    }`}
+                    aria-label={`Go to slide ${index + 1}`}
+                  />
+                ))}
               </div>
-            ))}
+            )}
+
+            {/* Mobile Auto-slide Indicator */}
+            <div className="md:hidden flex items-center justify-center mt-6">
+              <div className="flex items-center space-x-2">
+                <div className="w-3 h-3 rounded-full bg-primary animate-pulse"></div>
+                <span className="text-sm text-gray-600">Auto-sliding</span>
+              </div>
+            </div>
           </div>
         )}
 
+        {/* View All Button */}
         <div className="text-center mt-12">
           <Link href={{ pathname: "/courses", query: { type: "recorded" } }}>
             <Button
