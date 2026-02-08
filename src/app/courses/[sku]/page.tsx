@@ -131,12 +131,14 @@ const YouTubePlayer = ({
   videoUrl,
   watchLabel,
   invalidLabel,
+  autoPlay = true,
 }: {
   videoUrl: string;
   watchLabel: string;
   invalidLabel: string;
+  autoPlay?: boolean;
 }) => {
-  const [isPlaying, setIsPlaying] = useState(false);
+  const [isPlaying, setIsPlaying] = useState(autoPlay);
 
   const getYouTubeId = (url: string) => {
     const match = url.match(
@@ -179,7 +181,7 @@ const YouTubePlayer = ({
         </div>
       ) : (
         <iframe
-          src={`https://www.youtube.com/embed/${videoId}?autoplay=1`}
+          src={`https://www.youtube.com/embed/${videoId}?autoplay=1&mute=1&playsinline=1`}
           title="Course Introduction Video"
           className="w-full h-full"
           allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"

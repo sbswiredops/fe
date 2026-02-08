@@ -390,12 +390,7 @@ export default function RecordedCoursesSection() {
             )}
 
             {/* Mobile Auto-slide Indicator */}
-            <div className="md:hidden flex items-center justify-center mt-6">
-              <div className="flex items-center space-x-2">
-                <div className="w-3 h-3 rounded-full bg-primary animate-pulse"></div>
-                <span className="text-sm text-gray-600">Auto-sliding</span>
-              </div>
-            </div>
+         
           </div>
         )}
 
