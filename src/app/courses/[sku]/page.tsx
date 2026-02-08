@@ -649,10 +649,10 @@ export default function CourseDetailsPage() {
                 {/* Instructor / Duration / Modules */}
                 <div className="pt-6 border-t border-gray-200">
                   <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                    <div className="lg:col-span-1 rounded-2xl border border-blue-100 bg-gradient-to-br from-blue-50 via-white to-purple-50 p-5 shadow-sm hover:shadow-md transition-shadow">
+                    <div className="lg:col-span-1 rounded-2xl border border-blue-100 bg-gradient-to-br from-blue-50 via-white to-purple-50 p-6 sm:p-7 shadow-sm hover:shadow-md transition-shadow">
                       <div className="flex items-center gap-4">
                         {instructor?.avatar ? (
-                          <div className="w-14 h-14 rounded-full overflow-hidden bg-gray-200 flex-shrink-0 ring-2 ring-white">
+                          <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-full overflow-hidden bg-gray-200 flex-shrink-0 ring-2 ring-white">
                             <img
                               src={instructor.avatar}
                               alt={instructor?.name || "Instructor"}
@@ -660,20 +660,20 @@ export default function CourseDetailsPage() {
                             />
                           </div>
                         ) : (
-                          <div className="w-14 h-14 rounded-full bg-gradient-to-br from-blue-500 to-purple-500 flex items-center justify-center text-white font-bold text-lg flex-shrink-0 ring-2 ring-white">
+                          <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-full bg-gradient-to-br from-blue-500 to-purple-500 flex items-center justify-center text-white font-bold text-xl sm:text-2xl flex-shrink-0 ring-2 ring-white">
                             {instructor?.name?.charAt(0) || "?"}
                           </div>
                         )}
                         <div>
-                          <div className="flex items-center gap-2 text-xs text-blue-700 font-semibold uppercase tracking-wider">
+                          <div className="flex items-center gap-2 text-sm text-blue-700 font-semibold uppercase tracking-wider">
                             <Users className="w-4 h-4" />
                             Instructor
                           </div>
-                          <p className="text-base font-bold text-gray-900 mt-1">
+                          <p className="text-lg sm:text-xl font-bold text-gray-900 mt-1">
                             {instructor?.name || "Unknown Instructor"}
                           </p>
                           {instructor?.bio && (
-                            <p className="text-xs text-gray-600 mt-1 line-clamp-3">
+                            <p className="text-sm text-gray-600 mt-2 leading-relaxed line-clamp-4">
                               {instructor.bio}
                             </p>
                           )}
