@@ -687,5 +687,84 @@
     },
     "loading": "Loading course details...",
     "featured": "Featured"
+  },
+
+  "adminSettings": {
+    "title": "Admin Settings",
+    "subtitle": "Manage roles, permissions, and system settings for your platform.",
+    "tabs": {
+      "roles": "Roles Management",
+      "permissions": "Permissions",
+      "system": "System Settings"
+    }
+  },
+  "permissionsManagement": {
+  "title": "Permissions Management",
+  "description": "View and manage permissions for different roles in your platform."
+},
+  "rolesManagement": {
+    "name": "Name",
+    "description": "Description",
+    "permissions": "Permissions",
+    "users": "Users",
+    "type": "Type",
+    "actions": "Actions",
+    "searchPlaceholder": "Search roles...",
+    "createNewRole": "Create New Role",
+    "noRolesFound": "No roles found",
+    "countSuffix": "",
+    "system": "System",
+    "custom": "Custom",
+    "cannotEditSystemRole": "System roles cannot be edited",
+    "edit": "Edit",
+    "cannotDeleteSystemRole": "System roles cannot be deleted",
+    "cannotDeleteRoleWithUsers": "This role has users and cannot be deleted",
+    "delete": "Delete",
+    "cancel": "Cancel",
+    "deleteRole": "Delete Role",
+    "deleteRoleMessage": "Are you sure you want to delete the role \"{{name}}\"? This action cannot be undone.",
+    "deleteSuccess": "Role deleted successfully",
+    "deleteError": "Failed to delete role",
+    "loadError": "Failed to load roles",
+    "error": "Error",
+    "success": "Success"
+  },
+  "systemSettings": {
+    "title": "System Settings",
+    "comingSoon": "This feature is coming soon"
+  },
+  "editRoleModal": {
+    "title": "Edit Role",
+    "systemRoleWarning": "Warning: This is a system role. Some changes may be restricted.",
+    "descriptionLabel": "Description",
+    "descriptionPlaceholder": "Enter role description",
+    "selectPermissionsLabel": "Select Permissions",
+    "deselectAll": "Deselect All",
+    "selectAll": "Select All",
+    "selected": "Selected",
+    "permissions": "Permissions",
+    "cancel": "Cancel",
+    "update": "Update",
+    "loadPermissionsError": "Failed to load permissions",
+    "updateSuccess": "Role updated successfully",
+    "updateError": "Failed to update role"
+  },
+  "createRoleModal": {
+    "title": "Create New Role",
+    "nameLabel": "Role Name",
+    "namePlaceholder": "Enter new role name",
+    "nameHint": "Name must be unique and meaningful",
+    "descriptionLabel": "Description",
+    "descriptionPlaceholder": "Enter role description",
+    "selectPermissionsLabel": "Select Permissions",
+    "deselectAll": "Deselect All",
+    "selectAll": "Select All",
+    "selected": "Selected",
+    "permissions": "Permissions",
+    "cancel": "Cancel",
+    "create": "Create",
+    "loadPermissionsError": "Failed to load permissions",
+    "createSuccess": "Role created successfully",
+    "createError": "Failed to create role"
   }
 }
