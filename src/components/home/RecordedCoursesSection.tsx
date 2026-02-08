@@ -4,7 +4,6 @@ import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import Button from "@/components/ui/Button";
 import CourseCard from "@/components/ui/CourseCard";
-import CardSlider from "@/components/ui/CardSlider";
 import { useLanguage } from "../contexts/LanguageContext";
 import { courseService } from "@/services/courseService";
 
@@ -104,7 +103,7 @@ export default function RecordedCoursesSection() {
 
   // Removed StarRating, using CourseCard instead
 
-  // Only show the latest 4 recorded courses in the slider
+  // Only show the latest 4 recorded courses
   const displayedCourses = courses.slice(0, 4);
 
   return (
@@ -130,101 +129,55 @@ export default function RecordedCoursesSection() {
             {t("recordedCourses.empty")}
           </div>
         ) : (
-          <div className="relative slider-container">
-            <CardSlider
-              items={displayedCourses.map((course) => ({
-                ...course,
-                duration:
-                  typeof course.duration === "string"
-                    ? course.duration
-                    : String(course.duration),
-                thumbnail: course.thumbnail ?? "",
-                rating:
-                  typeof course.rating === "number"
-                    ? course.rating
-                    : Number(course.rating),
-                createdAt:
-                  typeof course.createdAt === "string"
-                    ? new Date(course.createdAt)
-                    : course.createdAt,
-                sections: (course as any).sections ?? [],
-                courseIntroVideo: (course as any).courseIntroVideo ?? null,
-                enrollmentCount:
-                  (course as any).enrollmentCount ??
-                  (course as any).enrolledStudents ??
-                  0,
-                instructor:
-                  typeof course.instructor === "object" &&
-                  course.instructor !== null
-                    ? {
-                        id:
-                          (course.instructor as any).id ??
-                          course.instructorId ??
-                          "",
-                        name: (course.instructor as any)?.name ?? "",
-                        firstName: (course.instructor as any)?.firstName,
-                        lastName: (course.instructor as any)?.lastName,
-                        avatar: (course.instructor as any)?.avatar,
-                        bio: (course.instructor as any)?.bio,
-                      }
-                    : {
-                        id: course.instructorId ?? "",
-                        name:
-                          typeof course.instructor === "string"
-                            ? course.instructor
-                            : "",
-                      },
-              }))}
-              title={t("recordedCourses.title")}
-              categories={courses
-                .map((c) => {
-                  if (typeof c.category === "object" && c.category !== null) {
-                    return {
-                      id:
-                        (c.category as any).id ??
-                        (typeof c.category === "object" &&
-                        (c.category as any).name
-                          ? (c.category as any).name
-                              .toLowerCase()
-                              .replace(/\s+/g, "-")
-                          : "general"),
-                      name: (c.category as any).name ?? String(c.category),
-                      description: (c.category as any).description ?? "",
-                      categories_avatar:
-                        (c.category as any).categories_avatar ?? null,
-                      icon: (c.category as any).icon ?? undefined,
-                      isActive: (c.category as any).isActive ?? undefined,
-                      createdAt: (c.category as any).createdAt ?? undefined,
-                      updatedAt: (c.category as any).updatedAt ?? undefined,
-                    };
-                  } else {
-                    const name = c.category || "General";
-                    return {
-                      id: name.toLowerCase().replace(/\s+/g, "-"),
-                      name,
-                      description: "",
-                      categories_avatar: null,
-                    };
-                  }
-                })
-                .filter(
-                  (cat, idx, arr) =>
-                    cat && arr.findIndex((c) => c.id === cat.id) === idx,
-                )}
-              className="mb-4 md:mb-8"
-              renderItem={(course) => (
-                <div className="px-2 md:px-3 w-full">
-                  <CourseCard course={course} />
-                </div>
-              )}
-            />
-            {/* Fix: Add touch-action style for mobile scroll */}
-            <style jsx>{`
-              .slider-container {
-                touch-action: pan-x;
-                pointer-events: auto;
-              }
-            `}</style>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+            {displayedCourses.map((course) => (
+              <CourseCard
+                key={course.id}
+                course={{
+                  ...course,
+                  duration:
+                    typeof course.duration === "string"
+                      ? course.duration
+                      : String(course.duration),
+                  thumbnail: course.thumbnail ?? "",
+                  rating:
+                    typeof course.rating === "number"
+                      ? course.rating
+                      : Number(course.rating),
+                  createdAt:
+                    typeof course.createdAt === "string"
+                      ? new Date(course.createdAt)
+                      : course.createdAt,
+                  sections: (course as any).sections ?? [],
+                  courseIntroVideo: (course as any).courseIntroVideo ?? null,
+                  enrollmentCount:
+                    (course as any).enrollmentCount ??
+                    (course as any).enrolledStudents ??
+                    0,
+                  instructor:
+                    typeof course.instructor === "object" &&
+                    course.instructor !== null
+                      ? {
+                          id:
+                            (course.instructor as any).id ??
+                            course.instructorId ??
+                            "",
+                          name: (course.instructor as any)?.name ?? "",
+                          firstName: (course.instructor as any)?.firstName,
+                          lastName: (course.instructor as any)?.lastName,
+                          avatar: (course.instructor as any)?.avatar,
+                          bio: (course.instructor as any)?.bio,
+                        }
+                      : {
+                          id: course.instructorId ?? "",
+                          name:
+                            typeof course.instructor === "string"
+                              ? course.instructor
+                              : "",
+                        },
+                }}
+              />
+            ))}
           </div>
         )}
 
