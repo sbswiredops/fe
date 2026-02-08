@@ -49,6 +49,26 @@ html {
   overflow-x: hidden;
 }
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 /* Prevent horizontal scrolling on all elements */
 * {
   max-width: 100%;
@@ -221,6 +241,8 @@ html {
 .slider-container {
   scroll-behavior: smooth;
   -webkit-overflow-scrolling: touch;
+  touch-action: pan-x;
+  overscroll-behavior-x: contain;
 }
 
 .slider-container::-webkit-scrollbar {
