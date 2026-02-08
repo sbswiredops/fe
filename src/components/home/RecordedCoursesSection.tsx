@@ -1,9 +1,9 @@
+/* eslint-disable @next/next/no-img-element */
 "use client";
 
 import React, { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import Button from "@/components/ui/Button";
-import CourseCard from "@/components/ui/CourseCard";
 import { useLanguage } from "../contexts/LanguageContext";
 import { courseService } from "@/services/courseService";
 import { Course } from "@/components/types";
@@ -163,7 +163,37 @@ export default function RecordedCoursesSection() {
         {!loading && !error && displayedCourses.length > 0 && (
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
             {displayedCourses.map((course) => (
-              <CourseCard key={course.id} course={course} />
+              <div
+                key={course.id}
+                className="max-w-sm rounded overflow-hidden shadow-lg bg-white border border-gray-100"
+              >
+                <img
+                  className="w-full h-48 object-cover"
+                  src={course.thumbnail || "/placeholder-course.jpg"}
+                  alt={course.title || "Course thumbnail"}
+                />
+                <div className="px-6 py-4">
+                  <div className="font-bold text-xl mb-2 text-gray-900">
+                    {course.title}
+                  </div>
+                  <p className="text-gray-700 text-base line-clamp-3">
+                    {course.description || "No description available."}
+                  </p>
+                </div>
+                <div className="px-6 pt-4 pb-2">
+                  <span className="inline-block bg-gray-200 rounded-full px-3 py-1 text-sm font-semibold text-gray-700 mr-2 mb-2">
+                    {typeof course.category === "string"
+                      ? course.category
+                      : (course.category as any)?.name || "General"}
+                  </span>
+                  <span className="inline-block bg-gray-200 rounded-full px-3 py-1 text-sm font-semibold text-gray-700 mr-2 mb-2">
+                    {course.duration || "Self-paced"}
+                  </span>
+                  <span className="inline-block bg-gray-200 rounded-full px-3 py-1 text-sm font-semibold text-gray-700 mr-2 mb-2">
+                    {Number(course.price) > 0 ? `$${course.price}` : "Free"}
+                  </span>
+                </div>
+              </div>
             ))}
           </div>
         )}
