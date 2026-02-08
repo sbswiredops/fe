@@ -1,110 +1,138 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import Button from "@/components/ui/Button";
 import CourseCard from "@/components/ui/CourseCard";
 import { useLanguage } from "../contexts/LanguageContext";
 import { courseService } from "@/services/courseService";
+import { Course } from "@/components/types";
 
-interface RecordedCourse {
-  id: string;
-  title: string;
-  description: string;
-  instructor: string;
-  instructorId: string;
-  duration: string | number;
-  price: number;
-  discountPrice?: number;
-  rating: number | string;
-  enrolledStudents: number;
-  thumbnail: string | null;
-  type: string;
-  isRecorded?: boolean;
-  category: string;
-  createdAt: string; // or Date, depending on your model
+type ExtendedCourse = Course & { enrolledStudents: number; sku?: string };
+
+enum CourseType {
+  RECORDED = "Recorded",
+  FREE_LIVE = "Free Live",
+  UPCOMING_LIVE = "Upcoming Live",
 }
 
 export default function RecordedCoursesSection() {
   const { t } = useLanguage();
-  const [courses, setCourses] = useState<RecordedCourse[]>([]);
+  const [courses, setCourses] = useState<ExtendedCourse[]>([]);
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    const fetchCourses = async () => {
-      setLoading(true);
-      // Try a few type casings because backend expects lowercase 'recorded'
-      const typeCandidates = ["recorded", "Recorded", "RECORDED"];
-      let res: any = null;
-      for (const t of typeCandidates) {
-        // request with pagination/sort
-        res = await courseService.getCoursesByType(t, {
-          page: 1,
-          limit: 8,
-          sortBy: "createdAt",
-          sortOrder: "DESC",
-        });
-        // accept either array responses or { courses: [] } shapes
-        if (
-          res &&
-          res.success &&
-          ((Array.isArray(res.data) && res.data.length > 0) ||
-            (res.data &&
-              Array.isArray(res.data.courses) &&
-              res.data.courses.length > 0))
-        ) {
-          break;
-        }
-      }
+    let ignore = false;
 
-      if (res && res.success) {
-        const rawCourses = Array.isArray(res.data)
-          ? res.data
-          : Array.isArray(res.data?.courses)
-            ? res.data.courses
-            : [];
-        if (Array.isArray(rawCourses) && rawCourses.length > 0) {
-          setCourses(
-            rawCourses.map((course: any) => ({
-              id: course.id ?? course._id ?? "",
-              sku: course.sku ?? course.id ?? course._id ?? "",
-              title: course.title,
-              description: course.description,
-              instructor: course.instructor || {
-                id: course.instructorId,
-                name: course.instructorName || "Instructor",
-              },
-              instructorId: course.instructorId,
-              duration: course.duration,
-              price: Number(course.price),
-              discountPrice: course.discountPrice
-                ? Number(course.discountPrice)
-                : undefined,
-              rating: Number(course.rating),
-              enrolledStudents: course.enrollmentCount ?? 0,
-              enrollmentCount: course.enrollmentCount ?? 0,
-              thumbnail: course.thumbnail ?? null,
-              type: "Recorded",
-              isRecorded: true,
-              category: course.category,
-              createdAt: course.createdAt || "",
-            })),
-          );
-        } else {
+    const mapApiCourseToUi = (c: any): ExtendedCourse => {
+      const instructorObj =
+        c?.instructor && typeof c.instructor === "object"
+          ? c.instructor
+          : {
+              id: c?.instructorId || "",
+              name:
+                c?.instructor?.name ||
+                [c?.instructor?.firstName, c?.instructor?.lastName]
+                  .filter(Boolean)
+                  .join(" ") ||
+                c?.instructorId ||
+                "Instructor",
+            };
+      const categoryName = c?.category?.name || c?.category || "General";
+      const created = c?.createdAt ? new Date(c.createdAt) : new Date();
+      const durationStr =
+        typeof c?.totalDuration === "string" && c?.totalDuration
+          ? c.totalDuration
+          : typeof c?.duration === "number"
+            ? `${c.duration} min`
+            : String(c?.duration || "");
+      const courseTypeRaw = (c?.courseType || "").toString().toLowerCase();
+      let type: CourseType = CourseType.RECORDED;
+      if (courseTypeRaw.includes("free")) type = CourseType.FREE_LIVE;
+      else if (courseTypeRaw.includes("upcoming"))
+        type = CourseType.UPCOMING_LIVE;
+      else if (courseTypeRaw.includes("live")) type = CourseType.UPCOMING_LIVE;
+
+      return {
+        id: c.id,
+        sku: c.sku ?? c.id,
+        title: c.title,
+        description: c.description,
+        instructor: instructorObj,
+        instructorId: c.instructorId || (c?.instructor?.id ?? ""),
+        price: Number(c.price ?? 0),
+        duration: durationStr || "",
+        thumbnail: c.thumbnail || "/placeholder-course.jpg",
+        category: categoryName,
+        enrolledStudents: Number(c.enrollmentCount ?? 0),
+        rating: Number(c.rating ?? 0),
+        createdAt: created,
+        sections: c.sections ?? [],
+        courseIntroVideo: c.courseIntroVideo ?? "",
+        enrollmentCount: c.enrollmentCount ?? 0,
+        type,
+      } as ExtendedCourse;
+    };
+
+    const fetchCourses = async () => {
+      try {
+        setLoading(true);
+        setError(null);
+        // Try a few type casings because backend expects lowercase 'recorded'
+        const typeCandidates = ["recorded", "Recorded", "RECORDED"];
+        let res: any = null;
+        for (const t of typeCandidates) {
+          res = await courseService.getCoursesByType(t, {
+            page: 1,
+            limit: 8,
+            sortBy: "createdAt",
+            sortOrder: "DESC",
+          });
+          if (
+            res &&
+            res.success &&
+            ((Array.isArray(res.data) && res.data.length > 0) ||
+              (res.data &&
+                Array.isArray(res.data.courses) &&
+                res.data.courses.length > 0))
+          ) {
+            break;
+          }
+        }
+
+        if (!ignore && res && res.success) {
+          const rawCourses = Array.isArray(res.data)
+            ? res.data
+            : Array.isArray(res.data?.courses)
+              ? res.data.courses
+              : [];
+          if (Array.isArray(rawCourses) && rawCourses.length > 0) {
+            setCourses(rawCourses.map(mapApiCourseToUi));
+          } else {
+            setCourses([]);
+          }
+        } else if (!ignore) {
           setCourses([]);
         }
-      } else {
-        setCourses([]);
+      } catch (e: any) {
+        if (!ignore) {
+          setError(e?.message || "Failed to load courses");
+          setCourses([]);
+        }
+      } finally {
+        if (!ignore) setLoading(false);
       }
-      setLoading(false);
     };
+
     fetchCourses();
+    return () => {
+      ignore = true;
+    };
   }, []);
 
-  // Removed StarRating, using CourseCard instead
-
   // Only show the latest 4 recorded courses
-  const displayedCourses = courses.slice(0, 4);
+  const displayedCourses = useMemo(() => courses.slice(0, 4), [courses]);
 
   return (
     <section className="py-8 md:py-16 bg-white">
@@ -119,10 +147,14 @@ export default function RecordedCoursesSection() {
           </p>
         </div>
 
-        {/* Courses Slider with responsive handling */}
+        {/* Courses grid */}
         {loading ? (
           <div className="text-center py-8 md:py-12 text-base md:text-lg text-gray-500">
             {t("recordedCourses.loading")}
+          </div>
+        ) : error ? (
+          <div className="text-center py-8 md:py-12 text-base md:text-lg text-gray-500">
+            {error}
           </div>
         ) : courses.length === 0 ? (
           <div className="text-center py-8 md:py-12 text-base md:text-lg text-gray-500">
@@ -131,52 +163,7 @@ export default function RecordedCoursesSection() {
         ) : (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
             {displayedCourses.map((course) => (
-              <CourseCard
-                key={course.id}
-                course={{
-                  ...course,
-                  duration:
-                    typeof course.duration === "string"
-                      ? course.duration
-                      : String(course.duration),
-                  thumbnail: course.thumbnail ?? "",
-                  rating:
-                    typeof course.rating === "number"
-                      ? course.rating
-                      : Number(course.rating),
-                  createdAt:
-                    typeof course.createdAt === "string"
-                      ? new Date(course.createdAt)
-                      : course.createdAt,
-                  sections: (course as any).sections ?? [],
-                  courseIntroVideo: (course as any).courseIntroVideo ?? null,
-                  enrollmentCount:
-                    (course as any).enrollmentCount ??
-                    (course as any).enrolledStudents ??
-                    0,
-                  instructor:
-                    typeof course.instructor === "object" &&
-                    course.instructor !== null
-                      ? {
-                          id:
-                            (course.instructor as any).id ??
-                            course.instructorId ??
-                            "",
-                          name: (course.instructor as any)?.name ?? "",
-                          firstName: (course.instructor as any)?.firstName,
-                          lastName: (course.instructor as any)?.lastName,
-                          avatar: (course.instructor as any)?.avatar,
-                          bio: (course.instructor as any)?.bio,
-                        }
-                      : {
-                          id: course.instructorId ?? "",
-                          name:
-                            typeof course.instructor === "string"
-                              ? course.instructor
-                              : "",
-                        },
-                }}
-              />
+              <CourseCard key={course.id} course={course} />
             ))}
           </div>
         )}
