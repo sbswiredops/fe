@@ -7,7 +7,7 @@ import { UserService } from "@/services/userService";
 import { useAuth } from "@/components/contexts/AuthContext";
 import { useEnrolledCourses } from "@/components/contexts/EnrolledCoursesContext";
 import { Course, Section, Lesson } from "@/types/api";
-import { Video, FileText } from "lucide-react";
+import { Lock, FileText, Video, HelpCircle } from "lucide-react";
 
 const userService = new UserService();
 export const runtime = "edge";
@@ -25,12 +25,12 @@ function CourseHeader({ course }: { course: CourseDetail }): JSX.Element {
   let firstSectionId: string | null = null;
   if (Array.isArray(course.sections) && course.sections.length > 0) {
     const sortedSections = [...course.sections].sort(
-      (a: any, b: any) => (a.orderIndex || 0) - (b.orderIndex || 0)
+      (a: any, b: any) => (a.orderIndex || 0) - (b.orderIndex || 0),
     );
     for (const section of sortedSections) {
       if (Array.isArray(section.lessons) && section.lessons.length > 0) {
         const sortedLessons = [...section.lessons].sort(
-          (a: any, b: any) => (a.orderIndex || 0) - (b.orderIndex || 0)
+          (a: any, b: any) => (a.orderIndex || 0) - (b.orderIndex || 0),
         );
         firstLessonId = sortedLessons[0]?.id;
         firstSectionId = section.id;
@@ -42,7 +42,7 @@ function CourseHeader({ course }: { course: CourseDetail }): JSX.Element {
   const handleStartLearning = () => {
     if (firstLessonId && firstSectionId && course.id) {
       router.push(
-        `/dashboard/student/learn/lesson/${firstLessonId}?courseId=${course.id}&sectionId=${firstSectionId}`
+        `/dashboard/student/learn/lesson/${firstLessonId}?courseId=${course.id}&sectionId=${firstSectionId}`,
       );
     }
   };
@@ -84,7 +84,7 @@ function CourseInfoSection({
     ? course.sections.reduce(
         (sum: number, section: any) =>
           sum + (Array.isArray(section.lessons) ? section.lessons.length : 0),
-        0
+        0,
       )
     : 0;
 
@@ -104,13 +104,13 @@ function LessonItem({
 
   const handleOpenLesson = () => {
     router.push(
-      `/dashboard/student/learn/lesson/${lesson.id}?courseId=${courseId}&sectionId=${section.id}`
+      `/dashboard/student/learn/lesson/${lesson.id}?courseId=${courseId}&sectionId=${section.id}`,
     );
   };
 
   const handleOpenResource = () => {
     router.push(
-      `/dashboard/student/learn/lesson/${lesson.id}?courseId=${courseId}&sectionId=${section.id}&tab=resource`
+      `/dashboard/student/learn/lesson/${lesson.id}?courseId=${courseId}&sectionId=${section.id}&tab=resource`,
     );
   };
 
@@ -184,7 +184,7 @@ function QuizItem({
 
   const handleOpenQuiz = () => {
     router.push(
-      `/dashboard/student/learn/quiz/${quiz.id}?courseId=${courseId}&sectionId=${section.id}`
+      `/dashboard/student/learn/quiz/${quiz.id}?courseId=${courseId}&sectionId=${section.id}`,
     );
   };
 
@@ -231,6 +231,22 @@ function QuizItem({
   );
 }
 
+function getSectionSummary(section: Section) {
+  const lessonCount = Array.isArray(section.lessons)
+    ? section.lessons.length
+    : 0;
+  const quizCount = Array.isArray(section.quizzes) ? section.quizzes.length : 0;
+  const lessonDurations =
+    section.lessons?.map((l) => Number(l.duration) || 0) || [];
+  const quizDurations =
+    section.quizzes?.map((q) => Number(q.duration) || 0) || [];
+  const totalDuration = [...lessonDurations, ...quizDurations].reduce(
+    (a, b) => a + b,
+    0,
+  );
+  return { lessonCount, quizCount, totalDuration };
+}
+
 function AccordionItem({
   section,
   isOpen,
@@ -244,21 +260,33 @@ function AccordionItem({
   index: number;
   courseId: string;
 }): JSX.Element {
+  const { lessonCount, quizCount, totalDuration } = getSectionSummary(section);
+
   return (
-    <div className="border-b border-gray-200 last:border-b-0">
-      <button
+    <div className="bg-[#fafbfc] rounded-xl mb-3 shadow-sm border border-[#f3f4f6]">
+      <div
+        className="flex items-center px-5 py-4 cursor-pointer"
         onClick={onToggle}
-        className={`w-full flex items-center justify-between px-3 py-2 text-left hover:bg-gray-50 transition-colors
-          ${isOpen ? "bg-gray-100" : "bg-white"}`}
-        style={{ minHeight: 40 }}
       >
-        <span className="font-medium text-gray-900 text-xl truncate">
-          {section.title || "Untitled Section"}
-        </span>
+        {/* Number Icon */}
+        <div className="w-10 h-10 flex items-center justify-center bg-blue-600 text-white rounded-lg font-bold text-xl mr-4">
+          {index + 1}
+        </div>
+        {/* Title & Summary */}
+        <div className="flex-1">
+          <div className="font-bold text-lg text-gray-900">
+            {section.title || `Module ${index + 1}`}
+          </div>
+          <div className="text-sm text-gray-500 mt-1">
+            {lessonCount} lesson{lessonCount !== 1 ? "s" : ""}
+            {quizCount > 0 &&
+              ` • ${quizCount} quiz${quizCount !== 1 ? "zes" : ""}`}
+            {totalDuration > 0 && ` • ${totalDuration} min`}
+          </div>
+        </div>
+        {/* Expand Icon */}
         <svg
-          className={`w-4 h-4 text-gray-400 transition-transform duration-200 ${
-            isOpen ? "rotate-180" : ""
-          }`}
+          className={`w-5 h-5 text-gray-400 ml-2 transition-transform ${isOpen ? "rotate-180" : ""}`}
           fill="none"
           stroke="currentColor"
           viewBox="0 0 24 24"
@@ -270,21 +298,50 @@ function AccordionItem({
             d="M19 9l-7 7-7-7"
           />
         </svg>
-      </button>
+      </div>
+      {/* Lessons & Quizzes */}
       {isOpen && (
-        <div className="px-3 py-2 bg-white ">
-          {Array.isArray(section.lessons) && section.lessons.length > 0 ? (
+        <div className="bg-white px-8 pb-4 pt-2 rounded-b-xl">
+          {/* Lessons */}
+          {Array.isArray(section.lessons) &&
+            section.lessons.length > 0 &&
             section.lessons.map((lesson: Lesson, lessonIdx: number) => (
-              <LessonItem
+              <div
                 key={lesson.id || lessonIdx}
-                lesson={lesson}
-                section={section}
-                courseId={courseId}
-              />
-            ))
-          ) : (
-            <div className="text-xl text-gray-400 py-1 pl-4">No lessons</div>
-          )}
+                className="flex items-center py-2 border-b last:border-b-0"
+              >
+                <Video className="w-5 h-5 text-blue-500 mr-3" />
+                <div className="flex-1 text-gray-800 font-medium">
+                  {lesson.title}
+                </div>
+                {lesson.duration && (
+                  <div className="text-xs text-gray-500 mr-2">
+                    {lesson.duration} min
+                  </div>
+                )}
+                <Lock className="w-4 h-4 text-gray-400" />
+              </div>
+            ))}
+          {/* Quizzes */}
+          {Array.isArray(section.quizzes) &&
+            section.quizzes.length > 0 &&
+            section.quizzes.map((quiz: any, quizIdx: number) => (
+              <div
+                key={quiz.id || quizIdx}
+                className="flex items-center py-2 border-b last:border-b-0"
+              >
+                <HelpCircle className="w-5 h-5 text-purple-500 mr-3" />
+                <div className="flex-1 text-gray-800 font-medium">
+                  {quiz.title || "Quiz"}
+                </div>
+                {/* Quiz summary: questions, marks, duration */}
+                <div className="text-xs text-gray-500 mr-2">
+                  {quiz.questionCount} questions • {quiz.totalMarks} marks •{" "}
+                  {quiz.duration} min
+                </div>
+                <Lock className="w-4 h-4 text-gray-400" />
+              </div>
+            ))}
         </div>
       )}
     </div>
@@ -299,10 +356,10 @@ function CourseContents({
   courseId: string;
 }): JSX.Element {
   const sortedSections = [...sections].sort(
-    (a: Section, b: Section) => (a.orderIndex || 0) - (b.orderIndex || 0)
+    (a: Section, b: Section) => (a.orderIndex || 0) - (b.orderIndex || 0),
   );
   const [openSections, setOpenSections] = useState<Set<string>>(
-    new Set([sortedSections[0]?.id])
+    new Set([sortedSections[0]?.id]),
   );
 
   const toggleSection = (sectionId: string) => {
@@ -316,24 +373,17 @@ function CourseContents({
   };
 
   return (
-    <div className="bg-white rounded-lg border border-gray-200 overflow-hidden">
-      <div className="px-4 py-3 border-b border-gray-200 bg-gray-50">
-        <h2 className="text-2xl font-semibold  text-gray-900">
-          Course Curriculum
-        </h2>
-      </div>
-      <div>
-        {sortedSections.map((section: Section, index: number) => (
-          <AccordionItem
-            key={section.id}
-            section={section}
-            isOpen={openSections.has(section.id)}
-            onToggle={() => toggleSection(section.id)}
-            index={index}
-            courseId={courseId}
-          />
-        ))}
-      </div>
+    <div className="bg-transparent rounded-lg">
+      {sortedSections.map((section: Section, index: number) => (
+        <AccordionItem
+          key={section.id}
+          section={section}
+          isOpen={openSections.has(section.id)}
+          onToggle={() => toggleSection(section.id)}
+          index={index}
+          courseId={courseId}
+        />
+      ))}
     </div>
   );
 }
@@ -382,7 +432,7 @@ export default function Page(): JSX.Element {
         if (Array.isArray(coursesList) && coursesList.length > 0) {
           const found = coursesList.find(
             (c: any) =>
-              c && typeof c === "object" && String(c.id) === String(id)
+              c && typeof c === "object" && String(c.id) === String(id),
           );
 
           if (!ignore && found && typeof found === "object" && found.id) {
@@ -421,7 +471,7 @@ export default function Page(): JSX.Element {
   const searchParams = useSearchParams();
   const initialTab = searchParams?.get("tab") ?? null;
   const [viewMode, setViewMode] = useState<"video" | "pdf" | "quiz">(
-    initialTab === "resource" ? "pdf" : "video"
+    initialTab === "resource" ? "pdf" : "video",
   );
 
   return (

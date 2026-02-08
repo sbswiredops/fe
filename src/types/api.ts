@@ -369,6 +369,8 @@ export interface Quiz {
   // --- New fields for final quiz logic ---
   isFinalQuiz?: boolean;
   hasAttemptedFinalQuiz?: boolean;
+  duration?: number; // <-- Add this line
+
 }
 
 
