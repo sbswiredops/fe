@@ -135,51 +135,50 @@ export default function RecordedCoursesSection() {
   const displayedCourses = useMemo(() => courses.slice(0, 4), [courses]);
 
   return (
-    <section className="py-8 md:py-16 bg-white">
+    <section className="pt-16 pb-8 bg-white">
       <div className="max-w-7xl mx-auto px-4 sm:px-10 lg:px-50">
-        {/* Header with responsive spacing and font sizes */}
-        <div className="text-center mb-8 md:mb-12">
-          <h2 className="text-2xl md:text-3xl lg:text-4xl font-bold text-gray-900 mb-3 md:mb-4">
+        <div className="text-center mb-12">
+          <h2 className="text-3xl lg:text-4xl font-bold text-gray-900 mb-4">
             {t("recordedCourses.title")}
           </h2>
-          <p className="text-base md:text-lg lg:text-xl text-gray-600 max-w-2xl mx-auto px-4">
+          <p className="text-xl text-gray-600 max-w-2xl mx-auto">
             {t("recordedCourses.subtitle")}
           </p>
         </div>
 
-        {/* Courses grid */}
-        {loading ? (
-          <div className="text-center py-8 md:py-12 text-base md:text-lg text-gray-500">
-            {t("recordedCourses.loading")}
+        {loading && (
+          <div className="text-center text-gray-500 py-8">Loading...</div>
+        )}
+
+        {!loading && error && (
+          <div className="text-center text-red-600 py-8">{error}</div>
+        )}
+
+        {!loading && !error && displayedCourses.length === 0 && (
+          <div className="text-center text-gray-500 py-8">
+            No recorded courses available.
           </div>
-        ) : error ? (
-          <div className="text-center py-8 md:py-12 text-base md:text-lg text-gray-500">
-            {error}
-          </div>
-        ) : courses.length === 0 ? (
-          <div className="text-center py-8 md:py-12 text-base md:text-lg text-gray-500">
-            {t("recordedCourses.empty")}
-          </div>
-        ) : (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+        )}
+
+        {!loading && !error && displayedCourses.length > 0 && (
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
             {displayedCourses.map((course) => (
               <CourseCard key={course.id} course={course} />
             ))}
           </div>
         )}
 
-        {/* View All Courses button with responsive design */}
-        <div className="text-center mt-8 md:mt-12">
+        <div className="text-center mt-12">
           <Link href={{ pathname: "/courses", query: { type: "recorded" } }}>
             <Button
               variant="outline"
               size="lg"
-              className="w-full sm:w-auto btn-hover px-6 py-3 text-sm md:text-base"
+              className="btn-hover"
               style={{
                 borderColor: "var(--color-text-primary)",
                 color: "var(--color-text-primary)",
                 backgroundColor: "rgba(80, 53, 110, 0.05)",
-                transition: "all 0.2s ease-in-out",
+                transition: "background 0.2s, color 0.2s",
               }}
               onMouseEnter={(e) => {
                 e.currentTarget.style.backgroundColor =
@@ -192,22 +191,20 @@ export default function RecordedCoursesSection() {
                 e.currentTarget.style.color = "var(--color-text-primary)";
               }}
             >
-              <span className="flex items-center justify-center">
-                {t("recordedCourses.viewAll")}
-                <svg
-                  className="ml-2 w-4 h-4 md:w-5 md:h-5"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M13 7l5 5m0 0l-5 5m5-5H6"
-                  />
-                </svg>
-              </span>
+              View All Courses
+              <svg
+                className="ml-2 w-5 h-5"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M13 7l5 5m0 0l-5 5m5-5H6"
+                />
+              </svg>
             </Button>
           </Link>
         </div>
