@@ -644,52 +644,76 @@ export default function CourseDetailsPage() {
                   </p>
                 )}
 
-                {/* Teacher / Minutes / Modules Row */}
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-6 pt-6 border-t border-gray-200 items-start">
-                  {/* Teacher */}
-                  <div className="flex items-center gap-4 bg-gradient-to-r from-blue-50 to-purple-50 rounded-xl p-4 border border-blue-100">
-                    {instructor?.avatar ? (
-                      <div className="w-14 h-14 rounded-full overflow-hidden bg-gray-200 flex-shrink-0">
-                        <img
-                          src={instructor.avatar}
-                          alt={instructor?.name || "Instructor"}
-                          className="w-full h-full object-cover"
-                        />
+                {/* Instructor / Duration / Modules */}
+                <div className="pt-6 border-t border-gray-200">
+                  <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                    <div className="lg:col-span-1 rounded-2xl border border-blue-100 bg-gradient-to-br from-blue-50 via-white to-purple-50 p-5 shadow-sm hover:shadow-md transition-shadow">
+                      <div className="flex items-center gap-4">
+                        {instructor?.avatar ? (
+                          <div className="w-14 h-14 rounded-full overflow-hidden bg-gray-200 flex-shrink-0 ring-2 ring-white">
+                            <img
+                              src={instructor.avatar}
+                              alt={instructor?.name || "Instructor"}
+                              className="w-full h-full object-cover"
+                            />
+                          </div>
+                        ) : (
+                          <div className="w-14 h-14 rounded-full bg-gradient-to-br from-blue-500 to-purple-500 flex items-center justify-center text-white font-bold text-lg flex-shrink-0 ring-2 ring-white">
+                            {instructor?.name?.charAt(0) || "?"}
+                          </div>
+                        )}
+                        <div>
+                          <div className="flex items-center gap-2 text-xs text-blue-700 font-semibold uppercase tracking-wider">
+                            <Users className="w-4 h-4" />
+                            Instructor
+                          </div>
+                          <p className="text-base font-bold text-gray-900 mt-1">
+                            {instructor?.name || "Unknown Instructor"}
+                          </p>
+                          {instructor?.bio && (
+                            <p className="text-xs text-gray-600 mt-1 line-clamp-3">
+                              {instructor.bio}
+                            </p>
+                          )}
+                        </div>
                       </div>
-                    ) : (
-                      <div className="w-14 h-14 rounded-full bg-gradient-to-br from-blue-400 to-purple-500 flex items-center justify-center text-white font-bold text-lg flex-shrink-0">
-                        {instructor?.name?.charAt(0) || "?"}
+                    </div>
+
+                    <div className="rounded-2xl border border-gray-200 bg-white p-5 shadow-sm hover:shadow-md transition-shadow">
+                      <div className="flex items-center justify-between">
+                        <div>
+                          <div className="text-xs text-gray-500 font-semibold uppercase tracking-wider">
+                            Total Duration
+                          </div>
+                          <div className="text-3xl font-bold text-green-600 mt-2">
+                            {duration}
+                          </div>
+                          <p className="text-sm text-gray-600 mt-1">
+                            {t("courseDetails.curriculum.min")}
+                          </p>
+                        </div>
+                        <div className="w-11 h-11 rounded-xl bg-green-100 text-green-700 flex items-center justify-center">
+                          <Clock className="w-5 h-5" />
+                        </div>
                       </div>
-                    )}
-                    <div>
-                      <p className="text-sm text-gray-600">Instructor</p>
-                      <p className="text-md font-bold text-gray-900">
-                        {instructor?.name || "Unknown Instructor"}
-                      </p>
-                      {instructor?.bio && (
-                        <p className="text-xs text-gray-600 mt-1">
-                          {instructor.bio}
-                        </p>
-                      )}
                     </div>
-                  </div>
 
-                  {/* Minutes */}
-                  <div className="space-y-1 flex flex-col justify-center">
-                    <div className="text-3xl font-bold text-green-500">
-                      {duration}
+                    <div className="rounded-2xl border border-gray-200 bg-white p-5 shadow-sm hover:shadow-md transition-shadow">
+                      <div className="flex items-center justify-between">
+                        <div>
+                          <div className="text-xs text-gray-500 font-semibold uppercase tracking-wider">
+                            Course Modules
+                          </div>
+                          <div className="text-3xl font-bold text-gray-900 mt-2">
+                            {sections?.length || 0}
+                          </div>
+                          <p className="text-sm text-gray-600 mt-1">Modules</p>
+                        </div>
+                        <div className="w-11 h-11 rounded-xl bg-blue-100 text-blue-700 flex items-center justify-center">
+                          <BookOpen className="w-5 h-5" />
+                        </div>
+                      </div>
                     </div>
-                    <p className="text-sm text-gray-600">
-                      {t("courseDetails.curriculum.min")}
-                    </p>
-                  </div>
-
-                  {/* Modules */}
-                  <div className="space-y-1 flex flex-col justify-center">
-                    <div className="text-3xl font-bold text-gray-900">
-                      {sections?.length || 0}
-                    </div>
-                    <p className="text-sm text-gray-600">Modules</p>
                   </div>
                 </div>
               </div>
@@ -934,28 +958,29 @@ export default function CourseDetailsPage() {
         )}
 
         {/* FAQ SECTION */}
-        {Array.isArray(fetchedCourse?.faqs) && fetchedCourse.faqs.length > 0 && (
-          <section className="bg-gray-50 border-b border-gray-200">
-            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 lg:py-16">
-              <h3 className="text-2xl font-bold text-gray-900 mb-6">
-                Frequently Asked Questions
-              </h3>
-              <div className="space-y-4">
-                {fetchedCourse.faqs.map((faq: any) => (
-                  <div
-                    key={faq.id}
-                    className="border border-gray-200 rounded-lg p-4 bg-white"
-                  >
-                    <p className="font-semibold text-gray-900">
-                      {faq.question}
-                    </p>
-                    <p className="text-gray-700 mt-2">{faq.answer}</p>
-                  </div>
-                ))}
+        {Array.isArray(fetchedCourse?.faqs) &&
+          fetchedCourse.faqs.length > 0 && (
+            <section className="bg-gray-50 border-b border-gray-200">
+              <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 lg:py-16">
+                <h3 className="text-2xl font-bold text-gray-900 mb-6">
+                  Frequently Asked Questions
+                </h3>
+                <div className="space-y-4">
+                  {fetchedCourse.faqs.map((faq: any) => (
+                    <div
+                      key={faq.id}
+                      className="border border-gray-200 rounded-lg p-4 bg-white"
+                    >
+                      <p className="font-semibold text-gray-900">
+                        {faq.question}
+                      </p>
+                      <p className="text-gray-700 mt-2">{faq.answer}</p>
+                    </div>
+                  ))}
+                </div>
               </div>
-            </div>
-          </section>
-        )}
+            </section>
+          )}
       </div>
 
       {/* FLOATING CTA */}
