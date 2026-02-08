@@ -61,7 +61,18 @@ export interface Course {
   learningOutcomes?: string[];
   discountPercentage?: number;
   discountPrice?: number;
+    faqs?: Faq[]; // <-- Add this line
+
   // Add other fields as needed
+}
+export interface Faq {
+  id: string;
+  question: string;
+  answer: string;
+  sortOrder?: number;
+  courseId?: string;
+  createdAt?: string;
+  updatedAt?: string;
 }
 
 export interface LiveClass {

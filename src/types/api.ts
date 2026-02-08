@@ -164,6 +164,7 @@ export interface Course {
   requirements?: string[];
   learningOutcomes?: string[];
   whatYouWillLearn?: string[];
+  faqs?: Faq[]; // <-- Add this line
   createdAt: string;
   updatedAt: string;
   sections?: Section[];
@@ -532,4 +533,14 @@ export interface ValidationError {
   field: string;
   message: string;
   value?: any;
+}
+
+export interface Faq {
+  id: string;
+  question: string;
+  answer: string;
+  sortOrder?: number;
+  courseId?: string;
+  createdAt?: string;
+  updatedAt?: string;
 }

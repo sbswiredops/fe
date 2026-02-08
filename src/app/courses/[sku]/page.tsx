@@ -588,6 +588,7 @@ export default function CourseDetailsPage() {
     tags,
     requirements,
     learningOutcomes,
+    faqs,
   } = fetchedCourse as any;
 
   return (
@@ -926,6 +927,30 @@ export default function CourseDetailsPage() {
                   >
                     {tag}
                   </span>
+                ))}
+              </div>
+            </div>
+          </section>
+        )}
+
+        {/* FAQ SECTION */}
+        {Array.isArray(fetchedCourse?.faqs) && fetchedCourse.faqs.length > 0 && (
+          <section className="bg-gray-50 border-b border-gray-200">
+            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 lg:py-16">
+              <h3 className="text-2xl font-bold text-gray-900 mb-6">
+                Frequently Asked Questions
+              </h3>
+              <div className="space-y-4">
+                {fetchedCourse.faqs.map((faq: any) => (
+                  <div
+                    key={faq.id}
+                    className="border border-gray-200 rounded-lg p-4 bg-white"
+                  >
+                    <p className="font-semibold text-gray-900">
+                      {faq.question}
+                    </p>
+                    <p className="text-gray-700 mt-2">{faq.answer}</p>
+                  </div>
                 ))}
               </div>
             </div>
