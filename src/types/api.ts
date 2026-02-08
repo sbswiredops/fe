@@ -51,10 +51,12 @@ export interface User {
     zipCode?: string;
   };
   clgInfo?: {
-    name?: string;
-    address?: string;
-    degree?: string;
-    year?: string;
+    collegeName?: string;
+    department?: string;
+    session?: string;
+    rollNumber?: string;
+    registrationNumber?: string;
+    passingYear?: number;
   };
 }
 

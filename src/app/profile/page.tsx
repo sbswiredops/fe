@@ -19,7 +19,7 @@ const ADMIN_ROLES = [
 ];
 const TEACHER_ROLES = ["teacher", "instructor"];
 const normalizeRole = (role: any) =>
-  String(typeof role === "string" ? role : role?.name ?? "")
+  String(typeof role === "string" ? role : (role?.name ?? ""))
     .trim()
     .toLowerCase()
     .replace(/[\s-]+/g, "_");
@@ -73,10 +73,12 @@ function ProfileSettings() {
         },
       },
       clgInfo: u?.clgInfo || {
-        name: "",
-        address: "",
-        degree: "",
-        year: "",
+        collegeName: "",
+        department: "",
+        session: "",
+        rollNumber: "",
+        registrationNumber: "",
+        passingYear: "",
       },
     } as UpdateUserRequest & { clgInfo?: any };
   }, [user]);
@@ -84,10 +86,76 @@ function ProfileSettings() {
   const [form, setForm] = useState<any>(initial);
   const [saving, setSaving] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [loadedFromApi, setLoadedFromApi] = useState(false);
 
   useEffect(() => {
     setForm(initial);
   }, [initial]);
+
+  useEffect(() => {
+    if (!user?.id || loadedFromApi) return;
+    const loadUserById = async () => {
+      try {
+        const res = await userService.getById(user.id);
+        if (res?.success && res.data) {
+          const u = res.data as User;
+          const primaryAddress = Array.isArray((u as any).addresses)
+            ? (u as any).addresses[0]
+            : undefined;
+          const primaryClgInfo = Array.isArray((u as any).collegeInfos)
+            ? (u as any).collegeInfos[0]
+            : undefined;
+          setForm((prev: any) => ({
+            ...prev,
+            firstName: u?.firstName || "",
+            lastName: u?.lastName || "",
+            email: u?.email || "",
+            phone: u?.phone || "",
+            specialization: u?.specialization || "",
+            experience: u?.experience || "",
+            profile: {
+              ...prev?.profile,
+              bio: u?.profile?.bio || "",
+              dateOfBirth: u?.profile?.dateOfBirth || "",
+              address: {
+                street:
+                  primaryAddress?.street || u?.profile?.address?.street || "",
+                city: primaryAddress?.city || u?.profile?.address?.city || "",
+                state:
+                  primaryAddress?.state || u?.profile?.address?.state || "",
+                country:
+                  primaryAddress?.country || u?.profile?.address?.country || "",
+                zipCode:
+                  primaryAddress?.postalCode ||
+                  primaryAddress?.zipcode ||
+                  u?.profile?.address?.zipCode ||
+                  "",
+              },
+              socialLinks: {
+                linkedin: u?.profile?.socialLinks?.linkedin || "",
+                twitter: u?.profile?.socialLinks?.twitter || "",
+                github: u?.profile?.socialLinks?.github || "",
+                website: u?.profile?.socialLinks?.website || "",
+              },
+            },
+            clgInfo: primaryClgInfo ||
+              u?.clgInfo ||
+              prev?.clgInfo || {
+                collegeName: "",
+                department: "",
+                session: "",
+                rollNumber: "",
+                registrationNumber: "",
+                passingYear: "",
+              },
+          }));
+        }
+      } finally {
+        setLoadedFromApi(true);
+      }
+    };
+    loadUserById();
+  }, [user?.id, loadedFromApi]);
 
   useEffect(() => {
     if (!user) {
@@ -169,14 +237,45 @@ function ProfileSettings() {
 
       // Student: update address and college info
       if (roleGroup === "student") {
+        const pruneUndefined = (obj: Record<string, unknown>) =>
+          Object.fromEntries(
+            Object.entries(obj).filter(
+              ([, v]) => v !== undefined && v !== null,
+            ),
+          );
         // Address
-        const addressPayload = pruneEmpty(form.profile?.address);
+        const rawAddress = form.profile?.address || {};
+        const addressPayload = pruneUndefined({
+          userId: user.id,
+          street: rawAddress.street,
+          city: rawAddress.city,
+          state:
+            rawAddress.state !== undefined && rawAddress.state !== null
+              ? String(rawAddress.state)
+              : "",
+          country: rawAddress.country,
+          postalCode: rawAddress.zipCode,
+        });
         if (addressPayload) {
           await userService.createAddress(user.id, addressPayload);
         }
         // College Info
         if (form.clgInfo && Object.values(form.clgInfo).some((v) => v)) {
-          await userService.createClgInfo(user.id, pruneEmpty(form.clgInfo));
+          const clgPayload = pruneEmpty({
+            userId: user.id,
+            collegeName: form.clgInfo?.collegeName,
+            department: form.clgInfo?.department,
+            session: form.clgInfo?.session,
+            rollNumber: form.clgInfo?.rollNumber,
+            registrationNumber: form.clgInfo?.registrationNumber,
+            passingYear:
+              form.clgInfo?.passingYear !== "" &&
+              form.clgInfo?.passingYear !== undefined &&
+              form.clgInfo?.passingYear !== null
+                ? Number(form.clgInfo?.passingYear)
+                : undefined,
+          });
+          await userService.createClgInfo(user.id, clgPayload);
         }
       }
 
@@ -325,30 +424,44 @@ function ProfileSettings() {
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <Input
                     label="College Name"
-                    value={form.clgInfo?.name || ""}
+                    value={form.clgInfo?.collegeName || ""}
                     onChange={(e) =>
-                      updateField("clgInfo.name", e.target.value)
+                      updateField("clgInfo.collegeName", e.target.value)
                     }
                   />
                   <Input
-                    label="College Address"
-                    value={form.clgInfo?.address || ""}
+                    label="Department"
+                    value={form.clgInfo?.department || ""}
                     onChange={(e) =>
-                      updateField("clgInfo.address", e.target.value)
+                      updateField("clgInfo.department", e.target.value)
                     }
                   />
                   <Input
-                    label="Degree"
-                    value={form.clgInfo?.degree || ""}
+                    label="Session"
+                    value={form.clgInfo?.session || ""}
                     onChange={(e) =>
-                      updateField("clgInfo.degree", e.target.value)
+                      updateField("clgInfo.session", e.target.value)
                     }
                   />
                   <Input
-                    label="Year"
-                    value={form.clgInfo?.year || ""}
+                    label="Roll Number"
+                    value={form.clgInfo?.rollNumber || ""}
                     onChange={(e) =>
-                      updateField("clgInfo.year", e.target.value)
+                      updateField("clgInfo.rollNumber", e.target.value)
+                    }
+                  />
+                  <Input
+                    label="Registration Number"
+                    value={form.clgInfo?.registrationNumber || ""}
+                    onChange={(e) =>
+                      updateField("clgInfo.registrationNumber", e.target.value)
+                    }
+                  />
+                  <Input
+                    label="Passing Year"
+                    value={form.clgInfo?.passingYear || ""}
+                    onChange={(e) =>
+                      updateField("clgInfo.passingYear", e.target.value)
                     }
                   />
                 </div>
@@ -366,7 +479,7 @@ function ProfileSettings() {
                     onChange={(e) =>
                       updateField(
                         "profile.socialLinks.linkedin",
-                        e.target.value
+                        e.target.value,
                       )
                     }
                   />
