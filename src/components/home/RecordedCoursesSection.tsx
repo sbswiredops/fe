@@ -6,7 +6,7 @@ import Button from "@/components/ui/Button";
 import CourseCard from "@/components/ui/CourseCard";
 import CardSlider from "@/components/ui/CardSlider";
 import { useLanguage } from "../contexts/LanguageContext";
-import { CourseService } from "@/services/courseService"; // changed
+import { courseService } from "@/services/courseService";
 
 interface RecordedCourse {
   id: string;
@@ -36,11 +36,10 @@ export default function RecordedCoursesSection() {
       setLoading(true);
       // Try a few type casings because backend expects lowercase 'recorded'
       const typeCandidates = ["recorded", "Recorded", "RECORDED"];
-      const svc = new CourseService(); // use class instance
       let res: any = null;
       for (const t of typeCandidates) {
         // request with pagination/sort
-        res = await svc.getCoursesByType(t, {
+        res = await courseService.getCoursesByType(t, {
           page: 1,
           limit: 8,
           sortBy: "createdAt",
@@ -131,7 +130,7 @@ export default function RecordedCoursesSection() {
             {t("recordedCourses.empty")}
           </div>
         ) : (
-          <div className="relative">
+          <div className="relative slider-container">
             <CardSlider
               items={displayedCourses.map((course) => ({
                 ...course,
