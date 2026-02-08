@@ -135,31 +135,25 @@ export default function RecordedCoursesSection() {
             <CardSlider
               items={displayedCourses.map((course) => ({
                 ...course,
-                // ensure duration is a string for the slider/card
                 duration:
                   typeof course.duration === "string"
                     ? course.duration
                     : String(course.duration),
-                // thumbnail must be a string
                 thumbnail: course.thumbnail ?? "",
-                // rating must be a number
                 rating:
                   typeof course.rating === "number"
                     ? course.rating
                     : Number(course.rating),
-                // CardSlider / Course expects createdAt as a Date in many components
                 createdAt:
                   typeof course.createdAt === "string"
                     ? new Date(course.createdAt)
                     : course.createdAt,
-                // add missing Course properties with safe defaults so the mapped object matches the Course type
                 sections: (course as any).sections ?? [],
                 courseIntroVideo: (course as any).courseIntroVideo ?? null,
                 enrollmentCount:
                   (course as any).enrollmentCount ??
                   (course as any).enrolledStudents ??
                   0,
-                // Fix: instructor should be an object, not a string
                 instructor:
                   typeof course.instructor === "object" &&
                   course.instructor !== null
@@ -186,7 +180,6 @@ export default function RecordedCoursesSection() {
               categories={courses
                 .map((c) => {
                   if (typeof c.category === "object" && c.category !== null) {
-                    // Ensure the object has an id and name
                     return {
                       id:
                         (c.category as any).id ??
@@ -206,7 +199,6 @@ export default function RecordedCoursesSection() {
                       updatedAt: (c.category as any).updatedAt ?? undefined,
                     };
                   } else {
-                    // Fallback for string category
                     const name = c.category || "General";
                     return {
                       id: name.toLowerCase().replace(/\s+/g, "-"),
@@ -227,6 +219,13 @@ export default function RecordedCoursesSection() {
                 </div>
               )}
             />
+            {/* Fix: Add touch-action style for mobile scroll */}
+            <style jsx>{`
+              .slider-container {
+                touch-action: pan-x;
+                pointer-events: auto;
+              }
+            `}</style>
           </div>
         )}
 
