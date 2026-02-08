@@ -334,10 +334,9 @@ function AccordionItem({
                 <div className="flex-1 text-gray-800 font-medium">
                   {quiz.title || "Quiz"}
                 </div>
-                {/* Quiz summary: questions, marks, duration */}
                 <div className="text-xs text-gray-500 mr-2">
-                  {quiz.questionCount} questions • {quiz.totalMarks} marks •{" "}
-                  {quiz.duration} min
+                  {quiz.questionCount} questions • {quiz.totalMarks} marks
+                  {quiz.duration ? ` • ${quiz.duration} min` : ""}
                 </div>
                 <Lock className="w-4 h-4 text-gray-400" />
               </div>
