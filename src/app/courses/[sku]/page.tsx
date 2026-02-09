@@ -282,7 +282,7 @@ const CurriculumSection = ({
         className="w-full px-6 py-4 flex items-center justify-between bg-gray-50 hover:bg-[#51356e]/10 transition-all duration-200 group"
       >
         <div className="flex items-center gap-4">
-          <div className="w-9 h-9 rounded-full bg-[#51356e] flex items-center justify-center text-white font-bold text-sm shadow-sm group-hover:shadow-md transition-shadow">
+          <div className="flex-none aspect-square w-9 md:w-10 lg:w-11 rounded-full bg-[#51356e] flex items-center justify-center text-white font-bold text-sm md:text-base lg:text-lg leading-none select-none shadow-sm group-hover:shadow-md transition-shadow">
             {sIdx + 1}
           </div>
           <div className="text-left">
@@ -994,7 +994,7 @@ export default function CourseDetailsPage() {
         price={price}
         discountPrice={discountPrice}
         onClick={handleEnrollClick}
-        enrollLabel="Enroll"
+        enrollLabel="Enroll Now"
       />
 
       {/* MODALS */}
