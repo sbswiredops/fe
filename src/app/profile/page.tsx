@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
 import DashboardLayout from "@/components/layout/DashboardLayout";
 import ProtectedRoute from "@/components/auth/ProtectedRoute";
 import Input from "@/components/ui/Input";
@@ -17,8 +17,6 @@ type CollegeInfo = {
   collegeName: string;
   department: string;
   session: string;
-  rollNumber: string;
-  registrationNumber: string;
   passingYear: string | number;
 };
 
@@ -90,8 +88,6 @@ function ProfileSettings() {
           collegeName: c.collegeName || "",
           department: c.department || "",
           session: c.session || "",
-          rollNumber: c.rollNumber || "",
-          registrationNumber: c.registrationNumber || "",
           passingYear: c.passingYear || "",
         })),
       );
@@ -101,8 +97,6 @@ function ProfileSettings() {
         collegeName: u.clgInfo.collegeName || "",
         department: u.clgInfo.department || "",
         session: u.clgInfo.session || "",
-        rollNumber: u.clgInfo.rollNumber || "",
-        registrationNumber: u.clgInfo.registrationNumber || "",
         passingYear: u.clgInfo.passingYear || "",
       });
     }
@@ -137,6 +131,8 @@ function ProfileSettings() {
   const [avatarPreview, setAvatarPreview] = useState<string>(
     typeof initial.avatar === "string" ? initial.avatar : "",
   );
+  const fileInputRef = useRef<HTMLInputElement | null>(null);
+  const [avatarFileName, setAvatarFileName] = useState<string>("");
 
   useEffect(() => {
     setForm(initial);
@@ -266,8 +262,6 @@ function ProfileSettings() {
             collegeName: clg.collegeName,
             department: clg.department,
             session: clg.session,
-            rollNumber: clg.rollNumber,
-            registrationNumber: clg.registrationNumber,
             passingYear:
               clg.passingYear !== "" &&
               clg.passingYear !== undefined &&
@@ -293,6 +287,7 @@ function ProfileSettings() {
   const showTeacherFields = roleGroup === "teacher";
   const showStudentFields = roleGroup === "student";
   const showAdminFields = roleGroup === "admin";
+  const MAX_ALLOWED = 2;
 
   // Tab content renderers
   const renderProfileTab = () => (
@@ -315,21 +310,46 @@ function ProfileSettings() {
             Avatar
           </label>
           <input
+            ref={fileInputRef}
             type="file"
             accept="image/*"
-            onChange={(e) => handleAvatarChange(e.target.files?.[0] || null)}
-            className="block text-sm text-gray-700"
+            onChange={(e) => {
+              const f = e.target.files?.[0] || null;
+              handleAvatarChange(f);
+              setAvatarFileName(f ? f.name : "");
+            }}
+            className="hidden"
           />
-          {avatarPreview && (
+          <div className="flex items-center gap-3">
             <Button
               type="button"
-              variant="ghost"
+              variant="secondary"
               size="sm"
-              onClick={handleAvatarRemove}
+              onClick={() => fileInputRef.current?.click()}
             >
-              Remove
+              Choose File
             </Button>
-          )}
+            <div className="text-sm text-gray-600">
+              {avatarFileName
+                ? avatarFileName
+                : avatarPreview
+                  ? ""
+                  : "No file chosen"}
+            </div>
+            {avatarPreview && (
+              <Button
+                type="button"
+                variant="danger"
+                size="sm"
+                onClick={handleAvatarRemove}
+              >
+                Remove
+              </Button>
+            )}
+          </div>
+          <p className="text-xs text-gray-500 mt-1">
+            Recommended: 200×200px, JPG/PNG, max 2MB
+          </p>
         </div>
       </div>
       <h2 className="text-lg font-semibold text-gray-900 mb-4">
@@ -445,6 +465,15 @@ function ProfileSettings() {
   }, [form, showStudentFields]);
 
   const handleAddAddress = () => {
+    const currentCount = Array.isArray(form.profile?.addresses)
+      ? form.profile.addresses.length
+      : form.profile?.address
+        ? 1
+        : 0;
+    if (currentCount >= MAX_ALLOWED) {
+      showToast(`Maximum ${MAX_ALLOWED} addresses allowed`, "error");
+      return;
+    }
     setForm((prev: any) => {
       const prevAddresses = Array.isArray(prev.profile?.addresses)
         ? prev.profile.addresses
@@ -469,11 +498,13 @@ function ProfileSettings() {
       ...prev,
       avatar: file || "",
     }));
+    setAvatarFileName(file ? file.name : "");
   };
 
   const handleAvatarRemove = () => {
     handleAvatarChange(null);
     setAvatarPreview("");
+    setAvatarFileName("");
   };
 
   const handleCreateAddress = async (idx: number) => {
@@ -529,6 +560,7 @@ function ProfileSettings() {
       if (addressId) {
         await userService.updateAddress(user.id, addressId, addressPayload);
         showToast(`Address ${idx + 1} updated successfully`, "success");
+        await getCurrentUser();
       } else {
         await handleCreateAddress(idx);
       }
@@ -658,7 +690,12 @@ function ProfileSettings() {
             </div>
           </div>
         ))}
-        <Button type="button" variant="secondary" onClick={handleAddAddress}>
+        <Button
+          type="button"
+          variant="secondary"
+          onClick={handleAddAddress}
+          disabled={addresses.length >= MAX_ALLOWED}
+        >
           Add Address
         </Button>
       </section>
@@ -674,6 +711,15 @@ function ProfileSettings() {
   }, [form, showStudentFields]);
 
   const handleAddClgInfo = () => {
+    const currentCount = Array.isArray(form.clgInfos)
+      ? form.clgInfos.length
+      : form.clgInfo
+        ? 1
+        : 0;
+    if (currentCount >= MAX_ALLOWED) {
+      showToast(`Maximum ${MAX_ALLOWED} college infos allowed`, "error");
+      return;
+    }
     setForm((prev: any) => {
       const prevClgInfos = Array.isArray(prev.clgInfos)
         ? prev.clgInfos
@@ -688,8 +734,6 @@ function ProfileSettings() {
             collegeName: "",
             department: "",
             session: "",
-            rollNumber: "",
-            registrationNumber: "",
             passingYear: "",
           },
         ],
@@ -704,8 +748,6 @@ function ProfileSettings() {
       collegeName: clg.collegeName,
       department: clg.department,
       session: clg.session,
-      rollNumber: clg.rollNumber,
-      registrationNumber: clg.registrationNumber,
       passingYear:
         clg.passingYear !== "" &&
         clg.passingYear !== undefined &&
@@ -777,8 +819,6 @@ function ProfileSettings() {
       collegeName: clg.collegeName,
       department: clg.department,
       session: clg.session,
-      rollNumber: clg.rollNumber,
-      registrationNumber: clg.registrationNumber,
       passingYear:
         clg.passingYear !== "" &&
         clg.passingYear !== undefined &&
@@ -791,6 +831,7 @@ function ProfileSettings() {
       if (clgId) {
         await userService.updateClgInfo(user.id, clgId, clgPayload);
         showToast(`College Info ${idx + 1} updated successfully`, "success");
+        await getCurrentUser();
       } else {
         await handleCreateClgInfo(idx);
       }
@@ -823,12 +864,12 @@ function ProfileSettings() {
     showStudentFields && (
       <section className="bg-white rounded-lg shadow-lg border border-gray-200 p-6">
         <h2 className="text-lg font-semibold text-gray-900 mb-4">
-          College Info
+          University / College Info
         </h2>
         {clgInfos.map((clg, idx) => (
           <div key={idx} className="mb-6">
             <div className="mb-2 font-semibold text-gray-800 flex items-center justify-between">
-              <span>College Info {idx + 1}</span>
+              <span>University / College {idx + 1}</span>
               <div className="flex gap-2">
                 {(clg as any)?.id || (clg as any)?._id ? (
                   <Button
@@ -861,7 +902,7 @@ function ProfileSettings() {
             </div>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <Input
-                label="College Name"
+                label="University / College"
                 value={clg.collegeName || ""}
                 onChange={(e) =>
                   handleClgInfoChange(idx, "collegeName", e.target.value)
@@ -882,20 +923,6 @@ function ProfileSettings() {
                 }
               />
               <Input
-                label="Roll Number"
-                value={clg.rollNumber || ""}
-                onChange={(e) =>
-                  handleClgInfoChange(idx, "rollNumber", e.target.value)
-                }
-              />
-              <Input
-                label="Registration Number"
-                value={clg.registrationNumber || ""}
-                onChange={(e) =>
-                  handleClgInfoChange(idx, "registrationNumber", e.target.value)
-                }
-              />
-              <Input
                 label="Passing Year"
                 value={clg.passingYear || ""}
                 onChange={(e) =>
@@ -905,7 +932,12 @@ function ProfileSettings() {
             </div>
           </div>
         ))}
-        <Button type="button" variant="secondary" onClick={handleAddClgInfo}>
+        <Button
+          type="button"
+          variant="secondary"
+          onClick={handleAddClgInfo}
+          disabled={clgInfos.length >= MAX_ALLOWED}
+        >
           Add College Info
         </Button>
       </section>
@@ -916,9 +948,6 @@ function ProfileSettings() {
       <ToastContainer position="top-right" newestOnTop />
       <div className="mb-8">
         <h1 className="text-2xl font-bold text-gray-900">Profile Settings</h1>
-        <p className="text-gray-600 mt-1">
-          Your role: <span className="font-medium capitalize">{roleGroup}</span>
-        </p>
       </div>
       <form onSubmit={handleSubmit} className="space-y-8">
         <div className="mb-6">
