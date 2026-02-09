@@ -1,3 +1,10 @@
+// Address type for user addresses
+export interface UserAddress {
+  city: string;
+  state: string;
+  country: string;
+  zipCode?: string;
+}
 import { apiClient } from '@/lib/api';
 import { API_CONFIG } from '@/lib/config';
 import {
@@ -195,6 +202,14 @@ export class UserService {
   }
   async updateClgInfo(id: string, clgInfoId: string, payload: any, options?: { signal?: AbortSignal }) {
     return apiClient.patch<any>(this.endpoints.USER_UPDATE_CLG_INFO(id, clgInfoId), payload, options);
+  }
+
+  async deleteAddress(id: string, addressId: string, options?: { signal?: AbortSignal }) {
+    return apiClient.delete<any>(this.endpoints.USER_DELETE_ADDRESS(id, addressId), options);
+  }
+
+  async deleteClgInfo(id: string, clgInfoId: string, options?: { signal?: AbortSignal }) {
+    return apiClient.delete<any>(this.endpoints.USER_DELETE_CLG_INFO(id, clgInfoId), options);
   }
 }
 
