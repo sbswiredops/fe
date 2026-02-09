@@ -918,7 +918,7 @@ export default function CourseDetailsPage() {
                 {learningOutcomes?.length > 0 && (
                   <div>
                     <h3 className="text-2xl font-bold text-gray-900 mb-6">
-                      What you'll learn
+                      Course for
                     </h3>
                     <ul className="space-y-3">
                       {learningOutcomes.map((outcome: string, idx: number) => (

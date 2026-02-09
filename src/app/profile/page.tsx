@@ -434,7 +434,7 @@ function ProfileSettings() {
                 Bio
               </label>
               <textarea
-                className="w-full px-3 sm:px-4 py-2 sm:py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#51356e] focus:border-[#51356e] transition-colors text-gray-900 placeholder:text-gray-400 resize-vertical"
+                className="w-full px-3 sm:px-4 py-2 sm:py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#51356e]/20 focus:border-[#51356e] transition-colors text-gray-900 placeholder:text-gray-400 resize-vertical"
                 rows={5}
                 placeholder="Write a brief bio about yourself..."
                 value={form.profile?.bio || ""}

@@ -187,6 +187,12 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
     [displayName],
   );
 
+  const avatarUrl = useMemo(() => {
+    if (!user) return null;
+    const asAny: any = user as any;
+    return asAny?.avatar || asAny?.profileImage || null;
+  }, [user]);
+
   const navigationItems = useMemo(() => {
     if (!user) return [];
     const roleGroup = getRoleGroup(user.role);
@@ -332,8 +338,23 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
                 showSidebarDetails ? "space-x-3" : "justify-center"
               }`}
             >
-              <div className="w-10 h-10 bg-blue-600 rounded-full flex items-center justify-center">
-                <span className="text-white font-medium">{displayInitial}</span>
+              <div className="w-10 h-10 rounded-full overflow-hidden flex items-center justify-center">
+                {avatarUrl ? (
+                  <Image
+                    src={avatarUrl}
+                    alt={displayName || "User avatar"}
+                    width={40}
+                    height={40}
+                    className="w-full h-full object-cover"
+                    unoptimized
+                  />
+                ) : (
+                  <div className="w-full h-full bg-blue-600 flex items-center justify-center">
+                    <span className="text-white font-medium">
+                      {displayInitial}
+                    </span>
+                  </div>
+                )}
               </div>
               {showSidebarDetails && (
                 <div className="flex-1 min-w-0">
@@ -440,10 +461,23 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
                 aria-haspopup="menu"
                 aria-expanded={isUserDropdownOpen}
               >
-                <div className="w-8 h-8 bg-blue-600 rounded-full flex items-center justify-center">
-                  <span className="text-white font-medium text-sm">
-                    {displayInitial}
-                  </span>
+                <div className="w-8 h-8 rounded-full overflow-hidden flex items-center justify-center">
+                  {avatarUrl ? (
+                    <Image
+                      src={avatarUrl}
+                      alt={displayName || "User avatar"}
+                      width={32}
+                      height={32}
+                      className="w-full h-full object-cover"
+                      unoptimized
+                    />
+                  ) : (
+                    <div className="w-full h-full bg-blue-600 flex items-center justify-center">
+                      <span className="text-white font-medium text-sm">
+                        {displayInitial}
+                      </span>
+                    </div>
+                  )}
                 </div>
                 <ChevronDown
                   className={`w-4 h-4 transition-transform ${

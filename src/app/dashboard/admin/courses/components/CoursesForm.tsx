@@ -418,7 +418,7 @@ export default function CoursesForm({
         </div>
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-1">
-            Learning Outcomes (comma separated)
+           Course for (comma separated)
           </label>
           <textarea
             name="learningOutcomes"
@@ -428,18 +428,7 @@ export default function CoursesForm({
             className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#51356e] text-gray-900"
           />
         </div>
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">
-            Course for (comma separated)
-          </label>
-          <textarea
-            name="courseFor"
-            rows={2}
-            value={formData.courseFor || ""}
-            onChange={onChange}
-            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#51356e] text-gray-900"
-          />
-        </div>
+        {/* 'Course for' field removed per request */}
       </div>
     </>
   );

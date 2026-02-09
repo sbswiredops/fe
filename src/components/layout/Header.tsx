@@ -2,6 +2,7 @@
 "use client";
 
 import React, { useState } from "react";
+import Image from "next/image";
 import Link from "next/link";
 import Button from "@/components/ui/Button";
 import { useLanguage } from "../contexts/LanguageContext";
@@ -18,7 +19,7 @@ export default function Header() {
   const [isUserDropdownOpen, setIsUserDropdownOpen] = useState(false);
   const [isAuthDrawerOpen, setIsAuthDrawerOpen] = useState(false);
   const [authDrawerMode, setAuthDrawerMode] = useState<"login" | "register">(
-    "login"
+    "login",
   );
 
   const navigation = [
@@ -39,11 +40,14 @@ export default function Header() {
       typeof u?.role === "string"
         ? u.role
         : typeof u?.role?.name === "string"
-        ? u.role.name
-        : "";
+          ? u.role.name
+          : "";
     return primary || secondary || roleStr || "";
   })();
   const displayInitial = displayName ? displayName[0].toUpperCase() : "";
+
+  const avatarUrl =
+    (user as any)?.avatar || (user as any)?.profileImage || null;
 
   // Role-based dashboard redirect handler
   const handleDashboardRedirect = async (e?: React.MouseEvent) => {
@@ -177,10 +181,23 @@ export default function Header() {
                     onClick={() => setIsUserDropdownOpen(!isUserDropdownOpen)}
                     className="flex items-center space-x-2 text-gray-700 hover:text-blue-600 transition-colors"
                   >
-                    <div className="w-8 h-8 bg-blue-600 rounded-full flex items-center justify-center">
-                      <span className="text-white font-medium text-sm">
-                        {displayInitial}
-                      </span>
+                    <div className="w-8 h-8 rounded-full overflow-hidden flex items-center justify-center">
+                      {avatarUrl ? (
+                        <Image
+                          src={avatarUrl}
+                          alt={displayName || "User avatar"}
+                          width={32}
+                          height={32}
+                          className="w-full h-full object-cover"
+                          unoptimized
+                        />
+                      ) : (
+                        <div className="w-full h-full bg-blue-600 flex items-center justify-center">
+                          <span className="text-white font-medium text-sm">
+                            {displayInitial}
+                          </span>
+                        </div>
+                      )}
                     </div>
                     <span className="font-medium">{displayName || "User"}</span>
                     <svg
@@ -202,13 +219,19 @@ export default function Header() {
 
                   {isUserDropdownOpen && (
                     <div className="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg border border-gray-200 py-1 z-50">
-                      <a
-                        href="/dashboard"
-                        className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
-                        onClick={handleDashboardRedirect}
-                      >
-                        {t("nav.dashboard")}
-                      </a>
+                      <div className="px-3 py-2">
+                        <Button
+                          variant="primary"
+                          size="sm"
+                          className="w-full text-left"
+                          onClick={() => {
+                            setIsUserDropdownOpen(false);
+                            handleDashboardRedirect();
+                          }}
+                        >
+                          {t("nav.dashboard")}
+                        </Button>
+                      </div>
                       <Link
                         href="/profile"
                         className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
@@ -298,10 +321,23 @@ export default function Header() {
                 {user ? (
                   <>
                     <div className="flex items-center space-x-3 px-3 py-2">
-                      <div className="w-8 h-8 bg-blue-600 rounded-full flex items-center justify-center">
-                        <span className="text-white font-medium text-sm">
-                          {displayInitial}
-                        </span>
+                      <div className="w-8 h-8 rounded-full overflow-hidden flex items-center justify-center">
+                        {avatarUrl ? (
+                          <Image
+                            src={avatarUrl}
+                            alt={displayName || "User avatar"}
+                            width={32}
+                            height={32}
+                            className="w-full h-full object-cover"
+                            unoptimized
+                          />
+                        ) : (
+                          <div className="w-full h-full bg-blue-600 flex items-center justify-center">
+                            <span className="text-white font-medium text-sm">
+                              {displayInitial}
+                            </span>
+                          </div>
+                        )}
                       </div>
                       <span className="font-medium text-gray-900">
                         {displayName || "User"}
@@ -312,7 +348,7 @@ export default function Header() {
                       onClick={() => setIsMenuOpen(false)}
                     >
                       <Button
-                        variant="ghost"
+                        variant="primary"
                         size="sm"
                         className="w-full"
                         onClick={handleDashboardRedirect}

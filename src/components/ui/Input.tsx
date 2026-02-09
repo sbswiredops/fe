@@ -29,12 +29,11 @@ export default function Input({
     typeof rawValue === "number" && Number.isNaN(rawValue) ? "" : rawValue;
 
   const inputClasses = `
-    w-full px-3 py-2 border rounded-lg
-    focus:outline-none focus:ring-2 focus:ring-[#51356e] focus:border-[#51356e]
-    hover:border-[#51356e]
+    w-full px-3 py-2 border border-gray-300 rounded-lg
+    focus:outline-none focus:ring-2 focus:ring-[#51356e]/20 focus:border-[#51356e]
     transition-colors
     text-gray-900 font-medium placeholder:text-gray-400 placeholder:font-normal
-    ${error ? "border-red-500" : "border-gray-300"}
+    ${error ? "border-red-500" : ""}
     ${isPasswordField ? "pr-10" : ""}
     ${className}
   `;
