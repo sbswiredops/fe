@@ -415,6 +415,7 @@ export default function CourseDetailsPage() {
   const [expandedSections, setExpandedSections] = useState<Set<number>>(
     new Set([0]),
   );
+  const [openFaqs, setOpenFaqs] = useState<Set<string | number>>(new Set());
   const [isWishlisted, setIsWishlisted] = useState(false);
   const enrollmentCounter = useCounter(
     Number(fetchedCourse?.enrollmentCount) || 0,
@@ -972,17 +973,43 @@ export default function CourseDetailsPage() {
                   Frequently Asked Questions
                 </h3>
                 <div className="space-y-4">
-                  {fetchedCourse.faqs.map((faq: any) => (
-                    <div
-                      key={faq.id}
-                      className="border border-gray-200 rounded-lg p-4 bg-white"
-                    >
-                      <p className="font-semibold text-gray-900">
-                        {faq.question}
-                      </p>
-                      <p className="text-gray-700 mt-2">{faq.answer}</p>
-                    </div>
-                  ))}
+                  {fetchedCourse.faqs.map((faq: any, idx: number) => {
+                    const id = faq.id ?? idx;
+                    const isOpen = openFaqs.has(id);
+                    return (
+                      <div
+                        key={id}
+                        className="border border-gray-200 rounded-lg bg-white overflow-hidden"
+                      >
+                        <button
+                          type="button"
+                          onClick={() =>
+                            setOpenFaqs((prev) => {
+                              const next = new Set(prev);
+                              if (next.has(id)) next.delete(id);
+                              else next.add(id);
+                              return next;
+                            })
+                          }
+                          aria-expanded={isOpen}
+                          className="w-full text-left p-4 flex items-center justify-between gap-4"
+                        >
+                          <span className="font-semibold text-gray-900">
+                            {faq.question}
+                          </span>
+                          <ChevronDown
+                            className={`w-5 h-5 text-gray-600 transition-transform duration-200 ${isOpen ? "rotate-180" : ""}`}
+                          />
+                        </button>
+
+                        <div
+                          className={`px-4 pb-4 text-gray-700 transition-all duration-200 ${isOpen ? "block" : "hidden"}`}
+                        >
+                          <p className="mt-0.5">{faq.answer}</p>
+                        </div>
+                      </div>
+                    );
+                  })}
                 </div>
               </div>
             </section>
