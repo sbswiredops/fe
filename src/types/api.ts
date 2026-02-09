@@ -40,6 +40,7 @@ export interface User {
   joinDate: string;
   lastLogin?: string;
   profileImage?: string;
+  bio?: string;
 
   permissions?: Permission[];
   profile?: UserProfile;
