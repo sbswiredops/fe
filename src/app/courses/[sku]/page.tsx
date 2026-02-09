@@ -596,9 +596,9 @@ export default function CourseDetailsPage() {
 
   return (
     <MainLayout>
-      <div className="min-h-screen bg-white">
+      <div className="min-h-screen bg-white px-25">
         {/* HERO SECTION */}
-        <section className="bg-gradient-to-b from-blue-50 to-white border-b border-gray-200">
+        <section className=" border-gray-200">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 lg:py-16">
             <div className="grid lg:grid-cols-3 gap-12 lg:gap-16 items-start">
               {/* MAIN CONTENT */}
@@ -728,7 +728,7 @@ export default function CourseDetailsPage() {
               {/* SIDEBAR - Pricing */}
               <div className="lg:col-span-1 sticky top-24 space-y-6">
                 {/* Pricing Card (with Thumbnail on top) */}
-                <div className="bg-white border-2 border-gray-200 rounded-lg overflow-hidden">
+                <div className="bg-white border-2 border-gray-200 rounded-lg overflow-hidden w-84 mx-auto">
                   {thumbnail && (
                     <div className="w-full h-56 bg-gray-100 flex items-center justify-center overflow-hidden">
                       <img
@@ -896,7 +896,26 @@ export default function CourseDetailsPage() {
             </div>
           </section>
         )}
-
+        {/* SKILLS/TAGS */}
+        {tags?.length > 0 && (
+          <section className="bg-white border-b border-gray-200">
+            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 lg:py-16">
+              <h3 className="text-2xl font-bold text-gray-900 mb-6">
+                Skills you'll master
+              </h3>
+              <div className="flex flex-wrap gap-3">
+                {tags.map((tag: string, idx: number) => (
+                  <span
+                    key={tag ?? `tag-${idx}`}
+                    className="px-4 py-2 bg-[#d8c2ef] text-[#51356e] rounded-lg text-sm font-semibold"
+                  >
+                    {tag}
+                  </span>
+                ))}
+              </div>
+            </div>
+          </section>
+        )}
         {/* REQUIREMENTS & OUTCOMES */}
         {(requirements?.length > 0 || learningOutcomes?.length > 0) && (
           <section className="bg-gray-50 border-b border-gray-200">
@@ -939,27 +958,6 @@ export default function CourseDetailsPage() {
                     </ul>
                   </div>
                 )}
-              </div>
-            </div>
-          </section>
-        )}
-
-        {/* SKILLS/TAGS */}
-        {tags?.length > 0 && (
-          <section className="bg-white border-b border-gray-200">
-            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 lg:py-16">
-              <h3 className="text-2xl font-bold text-gray-900 mb-6">
-                Skills you'll master
-              </h3>
-              <div className="flex flex-wrap gap-3">
-                {tags.map((tag: string, idx: number) => (
-                  <span
-                    key={tag ?? `tag-${idx}`}
-                    className="px-4 py-2 bg-[#d8c2ef] text-[#51356e] rounded-lg text-sm font-semibold"
-                  >
-                    {tag}
-                  </span>
-                ))}
               </div>
             </div>
           </section>
