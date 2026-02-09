@@ -12,6 +12,8 @@ import type { UpdateUserRequest, User } from "@/types/api";
 import type { UserAddress } from "@/services/userService";
 
 type CollegeInfo = {
+  id?: string;
+  _id?: string;
   collegeName: string;
   department: string;
   session: string;
@@ -62,6 +64,7 @@ function ProfileSettings() {
     let addresses: UserAddress[] = [];
     if (Array.isArray((u as any)?.addresses)) {
       addresses = (u as any).addresses.map((a: any) => ({
+        id: a.id || a._id,
         city: a.city || "",
         state: a.state || "",
         country: a.country || "",
@@ -70,6 +73,7 @@ function ProfileSettings() {
     } else if (u?.profile?.address) {
       addresses = [
         {
+          id: (u.profile.address as any)?.id || (u.profile.address as any)?._id,
           city: u.profile.address.city || "",
           state: u.profile.address.state || "",
           country: u.profile.address.country || "",
@@ -82,6 +86,7 @@ function ProfileSettings() {
     if (Array.isArray((u as any)?.collegeInfos)) {
       clgInfos.push(
         ...(u as any).collegeInfos.map((c: any) => ({
+          id: c.id || c._id,
           collegeName: c.collegeName || "",
           department: c.department || "",
           session: c.session || "",
@@ -92,6 +97,7 @@ function ProfileSettings() {
       );
     } else if (u?.clgInfo) {
       clgInfos.push({
+        id: (u.clgInfo as any)?.id || (u.clgInfo as any)?._id,
         collegeName: u.clgInfo.collegeName || "",
         department: u.clgInfo.department || "",
         session: u.clgInfo.session || "",
@@ -106,6 +112,7 @@ function ProfileSettings() {
       lastName: u?.lastName || "",
       email: u?.email || "",
       phone: u?.phone || "",
+      avatar: (u as any)?.avatar || (u as any)?.profileImage || "",
       specialization: u?.specialization || "",
       experience: u?.experience || "",
       profile: {
@@ -126,92 +133,30 @@ function ProfileSettings() {
   const [form, setForm] = useState<any>(initial);
   const [saving, setSaving] = useState(false);
   const [loading, setLoading] = useState(false);
-  const [loadedFromApi, setLoadedFromApi] = useState(false);
+  const [activeTab, setActiveTab] = useState("profile");
+  const [avatarPreview, setAvatarPreview] = useState<string>(
+    typeof initial.avatar === "string" ? initial.avatar : "",
+  );
 
   useEffect(() => {
     setForm(initial);
+    if (typeof initial.avatar === "string") setAvatarPreview(initial.avatar);
   }, [initial]);
 
   useEffect(() => {
-    if (!user?.id || loadedFromApi) return;
-    const loadUserById = async () => {
-      try {
-        const res = await userService.getById(user.id);
-        if (res?.success && res.data) {
-          const u = res.data as User;
-          // Map addresses
-          let addresses: UserAddress[] = [];
-          if (Array.isArray((u as any).addresses)) {
-            addresses = (u as any).addresses.map((a: any) => ({
-              city: a.city || "",
-              state: a.state || "",
-              country: a.country || "",
-              zipCode: a.zipcode || a.postalCode || a.zipCode || "",
-            }));
-          } else if (u?.profile?.address) {
-            addresses = [
-              {
-                city: u.profile.address.city || "",
-                state: u.profile.address.state || "",
-                country: u.profile.address.country || "",
-                zipCode: u.profile.address.zipCode || "",
-              },
-            ];
-          }
+    if (!form?.avatar) return;
+    if (typeof form.avatar === "string") {
+      setAvatarPreview(form.avatar);
+      return;
+    }
+    if (form.avatar instanceof File) {
+      const url = URL.createObjectURL(form.avatar);
+      setAvatarPreview(url);
+      return () => URL.revokeObjectURL(url);
+    }
+  }, [form?.avatar]);
 
-          // Map collegeInfos
-          let clgInfos: CollegeInfo[] = [];
-          if (Array.isArray((u as any).collegeInfos)) {
-            clgInfos = (u as any).collegeInfos.map((c: any) => ({
-              collegeName: c.collegeName || "",
-              department: c.department || "",
-              session: c.session || "",
-              rollNumber: c.rollNumber || "",
-              registrationNumber: c.registrationNumber || "",
-              passingYear: c.passingYear || "",
-            }));
-          } else if (u?.clgInfo) {
-            clgInfos = [
-              {
-                collegeName: u.clgInfo.collegeName || "",
-                department: u.clgInfo.department || "",
-                session: u.clgInfo.session || "",
-                rollNumber: u.clgInfo.rollNumber || "",
-                registrationNumber: u.clgInfo.registrationNumber || "",
-                passingYear: u.clgInfo.passingYear || "",
-              },
-            ];
-          }
-
-          setForm((prev: any) => ({
-            ...prev,
-            firstName: u?.firstName || "",
-            lastName: u?.lastName || "",
-            email: u?.email || "",
-            phone: u?.phone || "",
-            specialization: u?.specialization || "",
-            experience: u?.experience || "",
-            profile: {
-              ...prev?.profile,
-              bio: u?.profile?.bio || "",
-              dateOfBirth: u?.profile?.dateOfBirth || "",
-              addresses,
-              socialLinks: {
-                linkedin: u?.profile?.socialLinks?.linkedin || "",
-                twitter: u?.profile?.socialLinks?.twitter || "",
-                github: u?.profile?.socialLinks?.github || "",
-                website: u?.profile?.socialLinks?.website || "",
-              },
-            },
-            clgInfos,
-          }));
-        }
-      } finally {
-        setLoadedFromApi(true);
-      }
-    };
-    loadUserById();
-  }, [user?.id, loadedFromApi]);
+  // Data already available from /auth/me via context; no need to refetch by ID
 
   useEffect(() => {
     if (!user) {
@@ -244,6 +189,7 @@ function ProfileSettings() {
 
   const pruneEmpty = (obj: any) => {
     if (obj === null || obj === undefined) return undefined;
+    if (obj instanceof File) return obj;
     if (typeof obj !== "object") return obj === "" ? undefined : obj;
     const out: any = Array.isArray(obj) ? [] : {};
     Object.entries(obj).forEach(([k, v]) => {
@@ -255,6 +201,7 @@ function ProfileSettings() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (activeTab !== "profile") return;
     if (!user?.id) return;
     try {
       setSaving(true);
@@ -264,12 +211,13 @@ function ProfileSettings() {
         lastName: form.lastName?.trim(),
         email: form.email?.trim(),
         phone: form.phone?.trim(),
+        bio: form.profile?.bio?.trim(),
+        avatar: form.avatar,
       };
       if (roleGroup === "teacher") {
         payload.specialization = form.specialization?.trim();
         payload.experience = form.experience?.trim();
         payload.profile = {
-          bio: form.profile?.bio?.trim(),
           socialLinks: {
             linkedin: form.profile?.socialLinks?.linkedin?.trim(),
             twitter: form.profile?.socialLinks?.twitter?.trim(),
@@ -278,16 +226,9 @@ function ProfileSettings() {
           },
         };
       }
-      if (roleGroup === "student") {
-        payload.profile = {
-          bio: form.profile?.bio?.trim(),
-          dateOfBirth: form.profile?.dateOfBirth?.trim(),
-        };
-      }
+      // student DOB field removed from form; do not include dateOfBirth in payload
       if (roleGroup === "admin") {
-        if (form.profile?.bio) {
-          payload.profile = { bio: form.profile?.bio?.trim() };
-        }
+        // admin: no profile payload for bio; bio is top-level
       }
       await userService.update(user.id, pruneEmpty(payload));
 
@@ -304,8 +245,9 @@ function ProfileSettings() {
           ? form.profile.addresses
           : [];
         for (const addr of addresses) {
+          const hasId = (addr as any)?.id || (addr as any)?._id;
+          if (hasId) continue; // existing address handled via per-item update
           const addressPayload = pruneUndefined({
-            userId: user.id,
             city: addr.city,
             state: addr.state,
             country: addr.country,
@@ -318,8 +260,9 @@ function ProfileSettings() {
         // College Infos
         const clgInfos = Array.isArray(form.clgInfos) ? form.clgInfos : [];
         for (const clg of clgInfos) {
+          const hasId = (clg as any)?.id || (clg as any)?._id;
+          if (hasId) continue; // existing record updated individually
           const clgPayload = pruneEmpty({
-            userId: user.id,
             collegeName: clg.collegeName,
             department: clg.department,
             session: clg.session,
@@ -351,12 +294,44 @@ function ProfileSettings() {
   const showStudentFields = roleGroup === "student";
   const showAdminFields = roleGroup === "admin";
 
-  // Tab system state
-  const [activeTab, setActiveTab] = useState("profile");
-
   // Tab content renderers
   const renderProfileTab = () => (
     <section className="bg-white rounded-lg shadow-lg border border-gray-200 p-6">
+      <div className="flex items-center gap-4 mb-6">
+        <div className="w-20 h-20 rounded-full bg-gray-100 border border-gray-200 overflow-hidden flex items-center justify-center">
+          {avatarPreview ? (
+            // eslint-disable-next-line @next/next/no-img-element
+            <img
+              src={avatarPreview}
+              alt="Avatar preview"
+              className="w-full h-full object-cover"
+            />
+          ) : (
+            <span className="text-sm text-gray-500">No avatar</span>
+          )}
+        </div>
+        <div className="space-y-2">
+          <label className="block text-sm font-medium text-gray-700">
+            Avatar
+          </label>
+          <input
+            type="file"
+            accept="image/*"
+            onChange={(e) => handleAvatarChange(e.target.files?.[0] || null)}
+            className="block text-sm text-gray-700"
+          />
+          {avatarPreview && (
+            <Button
+              type="button"
+              variant="ghost"
+              size="sm"
+              onClick={handleAvatarRemove}
+            >
+              Remove
+            </Button>
+          )}
+        </div>
+      </div>
       <h2 className="text-lg font-semibold text-gray-900 mb-4">
         Basic Information
       </h2>
@@ -416,16 +391,7 @@ function ProfileSettings() {
                 onChange={(e) => updateField("profile.bio", e.target.value)}
               />
             </div>
-            {showStudentFields && (
-              <Input
-                label="Date of Birth"
-                value={form.profile?.dateOfBirth || ""}
-                onChange={(e) =>
-                  updateField("profile.dateOfBirth", e.target.value)
-                }
-                placeholder="YYYY-MM-DD"
-              />
-            )}
+            {/* Date of Birth field removed */}
           </div>
           {showTeacherFields && (
             <>
@@ -498,6 +464,36 @@ function ProfileSettings() {
     });
   };
 
+  const handleAvatarChange = (file?: File | null) => {
+    setForm((prev: any) => ({
+      ...prev,
+      avatar: file || "",
+    }));
+  };
+
+  const handleAvatarRemove = () => {
+    handleAvatarChange(null);
+    setAvatarPreview("");
+  };
+
+  const handleCreateAddress = async (idx: number) => {
+    if (!user?.id) return;
+    const addr = addresses[idx];
+    const addressPayload = {
+      city: addr.city,
+      state: addr.state,
+      country: addr.country,
+      postalCode: addr.zipCode,
+    };
+    try {
+      await userService.createAddress(user.id, addressPayload);
+      showToast(`Address ${idx + 1} created successfully`, "success");
+      await getCurrentUser();
+    } catch (err: any) {
+      showToast(err?.message || `Failed to create address ${idx + 1}`, "error");
+    }
+  };
+
   const handleAddressChange = (idx: number, field: string, value: string) => {
     setForm((prev: any) => {
       const prevAddresses = Array.isArray(prev.profile?.addresses)
@@ -523,7 +519,6 @@ function ProfileSettings() {
     if (!user?.id) return;
     const addr = addresses[idx];
     const addressPayload = {
-      userId: user.id,
       city: addr.city,
       state: addr.state,
       country: addr.country,
@@ -535,8 +530,7 @@ function ProfileSettings() {
         await userService.updateAddress(user.id, addressId, addressPayload);
         showToast(`Address ${idx + 1} updated successfully`, "success");
       } else {
-        await userService.createAddress(user.id, addressPayload);
-        showToast(`Address ${idx + 1} created successfully`, "success");
+        await handleCreateAddress(idx);
       }
     } catch (err: any) {
       showToast(err?.message || `Failed to update address ${idx + 1}`, "error");
@@ -644,13 +638,23 @@ function ProfileSettings() {
               />
             </div>
             <div className="mt-2 flex justify-end">
-              <Button
-                type="button"
-                variant="primary"
-                onClick={() => handleUpdateAddress(idx)}
-              >
-                Update Address
-              </Button>
+              {(address as any)?.id || (address as any)?._id ? (
+                <Button
+                  type="button"
+                  variant="primary"
+                  onClick={() => handleUpdateAddress(idx)}
+                >
+                  Update Address
+                </Button>
+              ) : (
+                <Button
+                  type="button"
+                  variant="primary"
+                  onClick={() => handleCreateAddress(idx)}
+                >
+                  Submit Address
+                </Button>
+              )}
             </div>
           </div>
         ))}
@@ -691,6 +695,34 @@ function ProfileSettings() {
         ],
       };
     });
+  };
+
+  const handleCreateClgInfo = async (idx: number) => {
+    if (!user?.id) return;
+    const clg = clgInfos[idx];
+    const clgPayload = {
+      collegeName: clg.collegeName,
+      department: clg.department,
+      session: clg.session,
+      rollNumber: clg.rollNumber,
+      registrationNumber: clg.registrationNumber,
+      passingYear:
+        clg.passingYear !== "" &&
+        clg.passingYear !== undefined &&
+        clg.passingYear !== null
+          ? Number(clg.passingYear)
+          : undefined,
+    };
+    try {
+      await userService.createClgInfo(user.id, clgPayload);
+      showToast(`College Info ${idx + 1} created successfully`, "success");
+      await getCurrentUser();
+    } catch (err: any) {
+      showToast(
+        err?.message || `Failed to create college info ${idx + 1}`,
+        "error",
+      );
+    }
   };
 
   // Delete a single college info entry
@@ -742,7 +774,6 @@ function ProfileSettings() {
     if (!user?.id) return;
     const clg = clgInfos[idx];
     const clgPayload = {
-      userId: user.id,
       collegeName: clg.collegeName,
       department: clg.department,
       session: clg.session,
@@ -761,8 +792,7 @@ function ProfileSettings() {
         await userService.updateClgInfo(user.id, clgId, clgPayload);
         showToast(`College Info ${idx + 1} updated successfully`, "success");
       } else {
-        await userService.createClgInfo(user.id, clgPayload);
-        showToast(`College Info ${idx + 1} created successfully`, "success");
+        await handleCreateClgInfo(idx);
       }
     } catch (err: any) {
       showToast(
@@ -800,14 +830,25 @@ function ProfileSettings() {
             <div className="mb-2 font-semibold text-gray-800 flex items-center justify-between">
               <span>College Info {idx + 1}</span>
               <div className="flex gap-2">
-                <Button
-                  type="button"
-                  variant="primary"
-                  size="sm"
-                  onClick={() => handleUpdateClgInfo(idx)}
-                >
-                  Update
-                </Button>
+                {(clg as any)?.id || (clg as any)?._id ? (
+                  <Button
+                    type="button"
+                    variant="primary"
+                    size="sm"
+                    onClick={() => handleUpdateClgInfo(idx)}
+                  >
+                    Update
+                  </Button>
+                ) : (
+                  <Button
+                    type="button"
+                    variant="primary"
+                    size="sm"
+                    onClick={() => handleCreateClgInfo(idx)}
+                  >
+                    Submit
+                  </Button>
+                )}
                 <Button
                   type="button"
                   variant="danger"
@@ -914,24 +955,26 @@ function ProfileSettings() {
           {activeTab === "address" && renderAddressTab()}
           {activeTab === "college" && renderCollegeTab()}
         </div>
-        <div className="flex items-center justify-end gap-3">
-          <Button
-            type="button"
-            variant="ghost"
-            onClick={() => setForm(initial)}
-            disabled={saving || loading}
-          >
-            Cancel
-          </Button>
-          <Button
-            type="submit"
-            variant="primary"
-            loading={saving}
-            disabled={loading}
-          >
-            Save Changes
-          </Button>
-        </div>
+        {activeTab === "profile" && (
+          <div className="flex items-center justify-end gap-3">
+            <Button
+              type="button"
+              variant="ghost"
+              onClick={() => setForm(initial)}
+              disabled={saving || loading}
+            >
+              Cancel
+            </Button>
+            <Button
+              type="submit"
+              variant="primary"
+              loading={saving}
+              disabled={loading}
+            >
+              Save Changes
+            </Button>
+          </div>
+        )}
       </form>
     </div>
   );
