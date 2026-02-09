@@ -596,7 +596,7 @@ export default function CourseDetailsPage() {
 
   return (
     <MainLayout>
-      <div className="min-h-screen bg-white px-25">
+      <div className="min-h-screen bg-white px-4 sm:px-6 lg:px-8 overflow-x-hidden">
         {/* HERO SECTION */}
         <section className=" border-gray-200">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 lg:py-16">
@@ -728,7 +728,7 @@ export default function CourseDetailsPage() {
               {/* SIDEBAR - Pricing */}
               <div className="lg:col-span-1 sticky top-24 space-y-6">
                 {/* Pricing Card (with Thumbnail on top) */}
-                <div className="bg-white border-2 border-gray-200 rounded-lg overflow-hidden w-84 mx-auto">
+                <div className="bg-white border-2 border-gray-200 rounded-lg overflow-hidden w-full sm:w-80 mx-auto">
                   {thumbnail && (
                     <div className="w-full h-56 bg-gray-100 flex items-center justify-center overflow-hidden">
                       <img
