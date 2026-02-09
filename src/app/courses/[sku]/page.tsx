@@ -318,9 +318,9 @@ const CurriculumSection = ({
                 key={lesson.id ?? `lesson-${sIdx}-${lIdx}`}
                 className="flex items-center px-6 py-3 hover:bg-blue-50/50 transition-all duration-200"
               >
-                <div className="flex items-center gap-3 flex-1">
+                <div className="flex items-center gap-3 flex-1 min-w-0">
                   <div
-                    className={`w-7 h-7 rounded-md flex items-center justify-center text-sm ${lesson.video ? "bg-blue-100 text-blue-600" : "bg-purple-100 text-purple-600"}`}
+                    className={`flex-none w-7 h-7 rounded-md flex items-center justify-center text-sm ${lesson.video ? "bg-blue-100 text-blue-600" : "bg-purple-100 text-purple-600"}`}
                   >
                     {lesson.video ? (
                       <PlayCircle className="w-4 h-4" />
@@ -328,9 +328,11 @@ const CurriculumSection = ({
                       <FileText className="w-4 h-4" />
                     )}
                   </div>
-                  <span className="text-sm font-medium text-gray-800">
-                    {lesson.title}
-                  </span>
+                  <div className="min-w-0">
+                    <div className="text-sm font-medium text-gray-800 break-words leading-tight">
+                      {lesson.title}
+                    </div>
+                  </div>
                 </div>
                 <div className="flex items-center gap-2">
                   {lesson.duration && (
@@ -358,14 +360,14 @@ const CurriculumSection = ({
                 key={quiz.id ?? `quiz-${sIdx}-${qIdx}`}
                 className="flex items-center px-6 py-3 hover:bg-purple-100/50 transition-all duration-200"
               >
-                <div className="flex items-center gap-3 flex-1">
-                  <div className="w-7 h-7 rounded-md bg-purple-100 flex items-center justify-center">
+                <div className="flex items-center gap-3 flex-1 min-w-0">
+                  <div className="flex-none w-7 h-7 rounded-md bg-purple-100 flex items-center justify-center">
                     <Award className="w-4 h-4 text-purple-600" />
                   </div>
-                  <div>
-                    <span className="font-medium text-gray-800 text-sm">
+                  <div className="min-w-0">
+                    <div className="font-medium text-gray-800 text-sm break-words leading-tight">
                       {quiz.title}
-                    </span>
+                    </div>
                     <p className="text-xs text-gray-500 mt-0.5">
                       {quiz.totalQuestions} {labels.questions} •{" "}
                       {quiz.totalMarks} {labels.marks} • {quiz.totalTime}{" "}
