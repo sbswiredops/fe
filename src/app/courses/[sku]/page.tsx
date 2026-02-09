@@ -233,7 +233,8 @@ const FloatingCTA = ({
         </div>
         <Button
           size="lg"
-          className="flex-1 max-w-[200px] font-semibold text-white rounded-lg py-3 bg-blue-600 hover:bg-blue-700"
+          variant="primary"
+          className="flex-1 max-w-[200px] font-semibold rounded-lg py-3"
           onClick={onClick}
         >
           <Zap className="w-4 h-4 mr-1 inline" />
@@ -278,14 +279,14 @@ const CurriculumSection = ({
     <div className="border-b border-gray-100 last:border-b-0">
       <button
         onClick={onToggle}
-        className="w-full px-6 py-4 flex items-center justify-between bg-gray-50 hover:bg-blue-50 transition-all duration-200 group"
+        className="w-full px-6 py-4 flex items-center justify-between bg-gray-50 hover:bg-[#51356e]/10 transition-all duration-200 group"
       >
         <div className="flex items-center gap-4">
-          <div className="w-9 h-9 rounded-lg bg-blue-600 flex items-center justify-center text-white font-bold text-sm shadow-sm group-hover:shadow-md transition-shadow">
+          <div className="w-9 h-9 rounded-full bg-[#51356e] flex items-center justify-center text-white font-bold text-sm shadow-sm group-hover:shadow-md transition-shadow">
             {sIdx + 1}
           </div>
           <div className="text-left">
-            <h3 className="font-semibold text-gray-900 group-hover:text-blue-600 transition-colors text-base">
+            <h3 className="font-semibold text-gray-900 group-hover:text-[#51356e] transition-colors text-base">
               {section.title || `${labels.module} ${sIdx + 1}`}
             </h3>
             <p className="text-xs text-gray-500 mt-1">
@@ -302,7 +303,7 @@ const CurriculumSection = ({
             </span>
           )}
           <ChevronDown
-            className={`w-5 h-5 text-gray-600 group-hover:text-blue-600 transition-all duration-300 ${isExpanded ? "rotate-180" : ""}`}
+            className={`w-5 h-5 text-gray-600 group-hover:text-[#51356e] transition-all duration-300 ${isExpanded ? "rotate-180" : ""}`}
           />
         </div>
       </button>
@@ -605,9 +606,17 @@ export default function CourseDetailsPage() {
                 {/* Title & Badges */}
                 <div className="space-y-4">
                   <div className="flex items-center gap-2 flex-wrap">
+                    <div className="flex items-center px-3 py-1 gap-2 bg-[#51356e] text-white text-xs font-bold rounded-full uppercase tracking-wide">
+                      <Link
+                        href="/courses"
+                        className="font-medium hover:underline"
+                      >
+                        Courses
+                      </Link>
+                    </div>
                     {category && (
-                      <span className="inline-block px-3 py-1 bg-blue-100 text-blue-700 text-xs font-bold rounded-full uppercase tracking-wide">
-                        {category.name || "Course"}
+                      <span className="inline-block px-3 py-1 bg-[#51356e] text-white text-xs font-bold rounded-full uppercase tracking-wide">
+                        {category || "Course"}
                       </span>
                     )}
                     {isFeatured && (
@@ -616,11 +625,7 @@ export default function CourseDetailsPage() {
                         Featured
                       </span>
                     )}
-                    {level && (
-                      <span className="inline-block px-3 py-1 bg-gray-100 text-gray-700 text-xs font-bold rounded-full  tracking-wide capitalize">
-                        {level}
-                      </span>
-                    )}
+                    {/* level hidden: showing category name instead */}
                   </div>
                   <h1 className="text-4xl md:text-5xl font-bold text-gray-900 leading-tight">
                     {title}
@@ -665,11 +670,11 @@ export default function CourseDetailsPage() {
                           </div>
                         )}
                         <div>
-                          <div className="flex items-center gap-2 text-sm text-blue-700 font-semibold uppercase tracking-wider">
+                          <div className="flex items-center gap-2 text-sm text-[#8e67b6] font-semibold uppercase tracking-wider">
                             <Users className="w-4 h-4" />
                             Instructor
                           </div>
-                          <p className="text-lg sm:text-xl font-bold text-gray-900 mt-1">
+                          <p className="text-lg sm:text-xl font-bold text-[#51356e] mt-1">
                             {instructor?.name || "Unknown Instructor"}
                           </p>
                           {instructor?.bio && (
@@ -687,14 +692,14 @@ export default function CourseDetailsPage() {
                           <div className="text-xs text-gray-500 font-semibold uppercase tracking-wider">
                             Total Duration
                           </div>
-                          <div className="text-3xl font-bold text-green-600 mt-2">
+                          <div className="text-3xl font-bold text-[#8e67b6] mt-2">
                             {duration}
                           </div>
                           <p className="text-sm text-gray-600 mt-1">
                             {t("courseDetails.curriculum.min")}
                           </p>
                         </div>
-                        <div className="w-11 h-11 rounded-xl bg-green-100 text-green-700 flex items-center justify-center">
+                        <div className="w-11 h-11 rounded-xl bg-[#51356e]  flex items-center justify-center">
                           <Clock className="w-5 h-5" />
                         </div>
                       </div>
@@ -706,12 +711,12 @@ export default function CourseDetailsPage() {
                           <div className="text-xs text-gray-500 font-semibold uppercase tracking-wider">
                             Course Modules
                           </div>
-                          <div className="text-3xl font-bold text-gray-900 mt-2">
+                          <div className="text-3xl font-bold text-[#8e67b6] mt-2">
                             {sections?.length || 0}
                           </div>
                           <p className="text-sm text-gray-600 mt-1">Modules</p>
                         </div>
-                        <div className="w-11 h-11 rounded-xl bg-blue-100 text-blue-700 flex items-center justify-center">
+                        <div className="w-11 h-11 rounded-xl bg-[#51356e]  flex items-center justify-center">
                           <BookOpen className="w-5 h-5" />
                         </div>
                       </div>
@@ -725,11 +730,11 @@ export default function CourseDetailsPage() {
                 {/* Pricing Card (with Thumbnail on top) */}
                 <div className="bg-white border-2 border-gray-200 rounded-lg overflow-hidden">
                   {thumbnail && (
-                    <div className="w-full h-56 bg-gray-100 overflow-hidden">
+                    <div className="w-full h-56 bg-gray-100 flex items-center justify-center overflow-hidden">
                       <img
                         src={thumbnail}
                         alt={title}
-                        className="w-full h-full object-cover"
+                        className="max-w-full max-h-full object-contain object-center"
                       />
                     </div>
                   )}
@@ -746,7 +751,7 @@ export default function CourseDetailsPage() {
                         Course Price
                       </p>
                       <div className="flex items-baseline gap-2">
-                        <span className="text-4xl font-bold text-blue-600">
+                        <span className="text-4xl font-bold text-[#51356e]">
                           ৳
                           {discountPrice && price && discountPrice < price
                             ? discountPrice
@@ -764,8 +769,9 @@ export default function CourseDetailsPage() {
                     </div>
 
                     <Button
+                      variant="primary"
+                      className="w-full font-bold py-3 px-4 transition-all"
                       onClick={handleEnrollClick}
-                      className="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-4 rounded-lg transition-all"
                     >
                       {isEnrolled ? (
                         <>
@@ -797,7 +803,7 @@ export default function CourseDetailsPage() {
                       </p>
                       <ul className="space-y-3">
                         <li className="flex items-start gap-3">
-                          <PlayCircle className="w-4 h-4 text-blue-600 flex-shrink-0 mt-0.5" />
+                          <PlayCircle className="w-4 h-4 text-[#51356e] flex-shrink-0 mt-0.5" />
                           <div>
                             <p className="text-sm font-medium text-gray-900">
                               {duration} minutes
@@ -808,7 +814,7 @@ export default function CourseDetailsPage() {
                           </div>
                         </li>
                         <li className="flex items-start gap-3">
-                          <GraduationCap className="w-4 h-4 text-blue-600 flex-shrink-0 mt-0.5" />
+                          <GraduationCap className="w-4 h-4 text-[#51356e] flex-shrink-0 mt-0.5" />
                           <div>
                             <p className="text-sm font-medium text-gray-900">
                               Lifetime Access
@@ -819,7 +825,7 @@ export default function CourseDetailsPage() {
                           </div>
                         </li>
                         <li className="flex items-start gap-3">
-                          <Award className="w-4 h-4 text-blue-600 flex-shrink-0 mt-0.5" />
+                          <Award className="w-4 h-4 text-[#51356e] flex-shrink-0 mt-0.5" />
                           <div>
                             <p className="text-sm font-medium text-gray-900">
                               Certificate
@@ -830,7 +836,7 @@ export default function CourseDetailsPage() {
                           </div>
                         </li>
                         <li className="flex items-start gap-3">
-                          <Headphones className="w-4 h-4 text-blue-600 flex-shrink-0 mt-0.5" />
+                          <Headphones className="w-4 h-4 text-[#51356e] flex-shrink-0 mt-0.5" />
                           <div>
                             <p className="text-sm font-medium text-gray-900">
                               Support
@@ -907,7 +913,7 @@ export default function CourseDetailsPage() {
                           key={req ?? `req-${idx}`}
                           className="flex gap-3 items-start"
                         >
-                          <CheckCircle className="w-5 h-5 text-blue-600 flex-shrink-0 mt-0.5" />
+                          <CheckCircle className="w-5 h-5 text-[#8e67b6] flex-shrink-0 mt-0.5" />
                           <span className="text-gray-700">{req}</span>
                         </li>
                       ))}
@@ -918,7 +924,7 @@ export default function CourseDetailsPage() {
                 {learningOutcomes?.length > 0 && (
                   <div>
                     <h3 className="text-2xl font-bold text-gray-900 mb-6">
-                      Course for
+                      Who This Course Is For{" "}
                     </h3>
                     <ul className="space-y-3">
                       {learningOutcomes.map((outcome: string, idx: number) => (
@@ -926,7 +932,7 @@ export default function CourseDetailsPage() {
                           key={outcome ?? `outcome-${idx}`}
                           className="flex gap-3 items-start"
                         >
-                          <CheckCircle className="w-5 h-5 text-green-600 flex-shrink-0 mt-0.5" />
+                          <CheckCircle className="w-5 h-5 text-[#8e67b6] flex-shrink-0 mt-0.5" />
                           <span className="text-gray-700">{outcome}</span>
                         </li>
                       ))}
@@ -949,7 +955,7 @@ export default function CourseDetailsPage() {
                 {tags.map((tag: string, idx: number) => (
                   <span
                     key={tag ?? `tag-${idx}`}
-                    className="px-4 py-2 bg-blue-100 text-blue-700 rounded-lg text-sm font-semibold"
+                    className="px-4 py-2 bg-[#d8c2ef] text-[#51356e] rounded-lg text-sm font-semibold"
                   >
                     {tag}
                   </span>
