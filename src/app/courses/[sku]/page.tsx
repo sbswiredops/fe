@@ -875,7 +875,7 @@ export default function CourseDetailsPage() {
                 </div>
 
                 {tags?.length > 0 && (
-                  <div className="bg-white border border-gray-200 rounded-lg p-5 shadow-sm">
+                  <div className="bg-white border border-gray-200 rounded-lg p-5 shadow-sm w-full sm:w-80 mx-auto">
                     <h3 className="text-lg font-bold text-gray-900 mb-4">
                       Skills you'll master
                     </h3>
