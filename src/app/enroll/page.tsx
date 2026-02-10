@@ -280,14 +280,14 @@ export default function EnrollPage() {
         throw new Error("Email is required for payment");
       }
 
-      if (finalAmount <= 0) {
+      if (basePrice <= 0) {
         throw new Error("Invalid course price");
       }
 
       // Initialize SSLCommerz payment (include promoCode so backend can validate/apply)
       const paymentResponse = await paymentService.initSSLCommerzPayment({
         courseId: course.id,
-        amount: finalAmount,
+        amount: basePrice,
         currency: "BDT",
         customerName:
           user.firstName && user.lastName
