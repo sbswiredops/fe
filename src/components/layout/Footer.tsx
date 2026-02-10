@@ -44,7 +44,7 @@ export default function Footer() {
     },
     {
       name: "YouTube",
-      href: "https://www.youtube.com/@Shekhabo",
+      href: "https://www.youtube.com/@Shekhaboltd",
       icon: Youtube,
     },
     {
