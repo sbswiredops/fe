@@ -255,6 +255,11 @@ export default function RecordedCoursesSection() {
                           }}
                         />
                       ) : null}
+                      <span className="absolute left-3 bottom-3 inline-block px-3 py-1 bg-[#efe6fb] text-[#51356e] text-xs rounded font-semibold shadow-sm">
+                        {typeof course.category === "string"
+                          ? course.category
+                          : (course.category as any)?.name || "General"}
+                      </span>
                       <div
                         className={`w-full h-full items-center justify-center bg-gradient-to-br from-blue-100 to-indigo-200 ${
                           course.thumbnail ? "hidden" : "flex"
@@ -278,12 +283,6 @@ export default function RecordedCoursesSection() {
 
                     <div className="p-5 flex flex-col justify-between h-[280px]">
                       <div>
-                        <span className="inline-block mb-2 px-3 py-1 bg-[#efe6fb] text-[#51356e] text-xs rounded font-semibold">
-                          {typeof course.category === "string"
-                            ? course.category
-                            : (course.category as any)?.name || "General"}
-                        </span>
-
                         <h3 className="text-lg font-bold text-gray-900 mb-2 line-clamp-2 group-hover:text-[#51356e]">
                           {course.title}
                         </h3>
