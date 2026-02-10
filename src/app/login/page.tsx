@@ -43,6 +43,7 @@ function LoginPageContent() {
         isOpen={isDrawerOpen}
         onClose={handleAuthDrawerClose}
         initialMode={mode}
+        lockOpen
       />
     </div>
   );

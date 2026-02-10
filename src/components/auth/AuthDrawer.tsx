@@ -14,6 +14,7 @@ interface AuthDrawerProps {
   isOpen: boolean;
   onClose: () => void;
   initialMode?: "login" | "register";
+  lockOpen?: boolean;
 }
 
 type AuthStep =
@@ -28,6 +29,7 @@ export default function AuthDrawer({
   isOpen,
   onClose,
   initialMode = "login",
+  lockOpen = false,
 }: AuthDrawerProps) {
   const { t } = useLanguage();
   const {
@@ -73,7 +75,8 @@ export default function AuthDrawer({
   const [isVisible, setIsVisible] = useState(false);
   const [showConfirmClose, setShowConfirmClose] = useState(false);
   const hasErrors = Object.values(errors).some(Boolean);
-  const isCloseBlocked = hasErrors || isLoading;
+  const isCloseBlocked = lockOpen || hasErrors || isLoading;
+  const shouldForceOpen = lockOpen || hasErrors;
 
   // Handle animation timing
   useEffect(() => {
@@ -81,6 +84,12 @@ export default function AuthDrawer({
       setIsVisible(true);
     }
   }, [isOpen]);
+
+  useEffect(() => {
+    if (shouldForceOpen) {
+      setIsVisible(true);
+    }
+  }, [shouldForceOpen]);
 
   // Listen for forced logout (session replaced / refresh failed)
   useEffect(() => {
@@ -508,11 +517,11 @@ export default function AuthDrawer({
       confirmNewPassword: "",
     });
     setTimeout(() => {
-      onClose();
+      if (!isCloseBlocked) onClose();
     }, 300);
   };
 
-  if (!isOpen && !isVisible) return null;
+  if (!isOpen && !isVisible && !shouldForceOpen) return null;
 
   return (
     <div
