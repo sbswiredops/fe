@@ -239,7 +239,7 @@ export default function RecordedCoursesSection() {
                   className="block group focus:outline-none"
                   style={{ WebkitTapHighlightColor: "transparent" }}
                 >
-                  <div className="w-full bg-white rounded-xl border border-gray-200 transition-transform duration-300 hover:scale-105 hover:shadow-xl cursor-pointer overflow-hidden">
+                  <div className="w-full bg-white rounded-xl border border-[#e6dcf4] transition-transform duration-300 hover:scale-105 hover:shadow-xl cursor-pointer overflow-hidden">
                     <div className="relative h-50 overflow-hidden bg-gray-50">
                       {course.thumbnail ? (
                         <img
@@ -278,13 +278,13 @@ export default function RecordedCoursesSection() {
 
                     <div className="p-5 flex flex-col justify-between h-[280px]">
                       <div>
-                        <span className="inline-block mb-2 px-3 py-1 bg-gray-100 text-gray-700 text-xs rounded font-medium">
+                        <span className="inline-block mb-2 px-3 py-1 bg-[#efe6fb] text-[#51356e] text-xs rounded font-semibold">
                           {typeof course.category === "string"
                             ? course.category
                             : (course.category as any)?.name || "General"}
                         </span>
 
-                        <h3 className="text-lg font-bold text-gray-900 mb-2 line-clamp-2 group-hover:text-blue-700">
+                        <h3 className="text-lg font-bold text-gray-900 mb-2 line-clamp-2 group-hover:text-[#51356e]">
                           {course.title}
                         </h3>
 
@@ -311,7 +311,7 @@ export default function RecordedCoursesSection() {
                                   />
                                 </div>
                               ) : (
-                                <div className="w-8 h-8 mr-3 rounded-full bg-blue-600 text-white flex items-center justify-center text-xs font-semibold flex-shrink-0">
+                                <div className="w-8 h-8 mr-3 rounded-full bg-[#51356e] text-white flex items-center justify-center text-xs font-semibold flex-shrink-0">
                                   {initials}
                                 </div>
                               )}
@@ -348,7 +348,7 @@ export default function RecordedCoursesSection() {
 
                           return (
                             <div className="flex items-baseline gap-2">
-                              <div className="text-2xl font-bold text-blue-700">
+                              <div className="text-2xl font-bold text-[#51356e]">
                                 ৳
                                 {hasDiscount
                                   ? Number(discountPrice).toFixed(0)
