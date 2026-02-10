@@ -239,11 +239,11 @@ export default function RecordedCoursesSection() {
                   className="block group focus:outline-none"
                   style={{ WebkitTapHighlightColor: "transparent" }}
                 >
-                  <div className="w-full bg-white rounded-xl border border-[#e6dcf4] transition-transform duration-300 hover:scale-105 hover:shadow-xl cursor-pointer overflow-hidden">
+                  <div className="mx-auto w-72 max-w-[280px] bg-white rounded-xl border border-[#e6dcf4] transition-transform duration-300 hover:scale-105 hover:shadow-xl cursor-pointer overflow-hidden">
                     <div className="relative h-48 overflow-hidden bg-gray-50">
                       {course.thumbnail ? (
                         <img
-                          className="w-full h-full object-cover object-center"
+                          className="w-full h-full object-contain object-top bg-white"
                           src={course.thumbnail}
                           alt={course.title || "Course thumbnail"}
                           loading="lazy"
@@ -254,14 +254,8 @@ export default function RecordedCoursesSection() {
                             if (fallback) fallback.style.display = "flex";
                           }}
                         />
-
-                        
                       ) : null}
-                      <span className="absolute left-3 bottom-3 inline-block px-3 py-1 bg-[#efe6fb] text-[#51356e] text-xs rounded font-semibold shadow-sm">
-                        {typeof course.category === "string"
-                          ? course.category
-                          : (course.category as any)?.name || "General"}
-                      </span>
+
                       <div
                         className={`w-full h-full items-center justify-center bg-gradient-to-br from-blue-100 to-indigo-200 ${
                           course.thumbnail ? "hidden" : "flex"
@@ -285,6 +279,13 @@ export default function RecordedCoursesSection() {
 
                     <div className="p-5 flex flex-col justify-between h-[280px]">
                       <div>
+                        <div className="mb-2">
+                          <span className="inline-block px-3 py-1 bg-[#efe6fb] text-[#51356e] text-xs rounded font-semibold shadow-sm">
+                            {typeof course.category === "string"
+                              ? course.category
+                              : (course.category as any)?.name || "General"}
+                          </span>
+                        </div>
                         <h3 className="text-lg font-bold text-gray-900 mb-2 line-clamp-2 group-hover:text-[#51356e]">
                           {course.title}
                         </h3>
@@ -328,10 +329,6 @@ export default function RecordedCoursesSection() {
 
                         <div className="flex items-center justify-between mb-3">
                           <StarRating rating={Number(course.rating) || 0} />
-                          <span className="text-sm text-gray-500">
-                            {(course.enrolledStudents ?? 0).toLocaleString()}{" "}
-                            {t("featuredCourses.students")}
-                          </span>
                         </div>
                       </div>
 
@@ -391,7 +388,6 @@ export default function RecordedCoursesSection() {
             )}
 
             {/* Mobile Auto-slide Indicator */}
-         
           </div>
         )}
 

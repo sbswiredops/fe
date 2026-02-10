@@ -444,11 +444,11 @@ function CoursesClient() {
                     className="block group focus:outline-none"
                     style={{ WebkitTapHighlightColor: "transparent" }}
                   >
-                    <div className="w-full bg-white rounded-xl border border-[#e6dcf4] transition-transform duration-300 hover:scale-105 hover:shadow-xl cursor-pointer overflow-hidden">
+                    <div className="mx-auto w-72 max-w-[280px] bg-white rounded-xl border border-[#e6dcf4] transition-transform duration-300 hover:scale-105 hover:shadow-xl cursor-pointer overflow-hidden">
                       <div className="relative h-48 overflow-hidden bg-gray-50">
                         {(course as any)?.thumbnail ? (
                           <img
-                            className="w-full h-full object-cover object-center"
+                            className="w-full h-full object-contain object-top bg-white"
                             src={(course as any).thumbnail}
                             alt={course.title || "Course thumbnail"}
                             loading="lazy"
@@ -460,9 +460,6 @@ function CoursesClient() {
                             }}
                           />
                         ) : null}
-                        <span className="absolute left-3 bottom-3 inline-block px-3 py-1 bg-[#efe6fb] text-[#51356e] text-xs rounded font-semibold shadow-sm">
-                          {(course as any)?.category?.name || "General"}
-                        </span>
                         <div
                           className={`w-full h-full items-center justify-center bg-gradient-to-br from-blue-100 to-indigo-200 ${
                             (course as any)?.thumbnail ? "hidden" : "flex"
@@ -486,6 +483,13 @@ function CoursesClient() {
 
                       <div className="p-5 flex flex-col justify-between h-[280px]">
                         <div>
+                          {((course as any)?.category || "") && (
+                            <div className="mb-2">
+                              <span className="inline-block px-3 py-1 bg-[#efe6fb] text-[#51356e] text-xs rounded font-semibold shadow-sm">
+                                {(course as any)?.category || ""}
+                              </span>
+                            </div>
+                          )}
                           <h3 className="text-lg font-bold text-gray-900 mb-2 line-clamp-2 group-hover:text-[#51356e]">
                             {course.title}
                           </h3>
@@ -529,10 +533,6 @@ function CoursesClient() {
 
                           <div className="flex items-center justify-between mb-3">
                             <StarRating rating={Number(course.rating) || 0} />
-                            <span className="text-sm text-gray-500">
-                              {(course.enrollmentCount ?? 0).toLocaleString()}{" "}
-                              {t("featuredCourses.students")}
-                            </span>
                           </div>
                         </div>
 

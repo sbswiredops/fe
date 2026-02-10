@@ -57,6 +57,7 @@ export default function AuthDrawer({
   const [formData, setFormData] = useState({
     firstName: "",
     lastName: "",
+    phone: "",
     email: "",
     password: "",
     confirmPassword: "",
@@ -96,7 +97,7 @@ export default function AuthDrawer({
       return () =>
         window.removeEventListener(
           "auth:logout",
-          onForcedLogout as EventListener
+          onForcedLogout as EventListener,
         );
     }
   }, [showToast]);
@@ -107,6 +108,7 @@ export default function AuthDrawer({
       setFormData((prev) => ({
         firstName: "",
         lastName: "",
+        phone: prev.phone || "",
         email: prev.email || "",
         password: "",
         confirmPassword: "",
@@ -128,6 +130,7 @@ export default function AuthDrawer({
       setFormData({
         firstName: "",
         lastName: "",
+        phone: "",
         email: "",
         password: "",
         confirmPassword: "",
@@ -169,7 +172,7 @@ export default function AuthDrawer({
   }, [isOpen, onClose]);
 
   const handleChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
+    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>,
   ) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
@@ -249,6 +252,7 @@ export default function AuthDrawer({
     const newErrors: Record<string, string> = {};
     if (!formData.firstName) newErrors.firstName = "First name is required";
     if (!formData.lastName) newErrors.lastName = "Last name is required";
+    if (!formData.phone) newErrors.phone = "Phone number is required";
     if (!formData.email) newErrors.email = "Email is required";
     if (!formData.password) newErrors.password = "Password is required";
     if (formData.password.length < 6) {
@@ -264,6 +268,7 @@ export default function AuthDrawer({
       const response = await register({
         firstName: formData.firstName,
         lastName: formData.lastName,
+        phone: formData.phone,
         email: formData.email,
         password: formData.password,
       });
@@ -285,7 +290,7 @@ export default function AuthDrawer({
         setStep("otp-verification");
         showToast(
           "Registration successful! Please verify your email.",
-          "success"
+          "success",
         );
       } else {
         setErrors({ email: response.message || "Registration failed" });
@@ -329,7 +334,7 @@ export default function AuthDrawer({
       });
       showToast(
         error.message || "Invalid or expired OTP. Please try again.",
-        "error"
+        "error",
       );
     }
   };
@@ -366,14 +371,14 @@ export default function AuthDrawer({
 
     const success = await verifyPasswordOtp(
       formData.resetEmail,
-      formData.resetOtp
+      formData.resetOtp,
     );
     if (success) {
       setStep("reset-password");
       setErrors({});
       showToast(
         "OTP verified successfully! You can now reset your password.",
-        "success"
+        "success",
       );
     } else {
       setErrors({ resetOtp: "Invalid OTP. Please try again." });
@@ -401,12 +406,12 @@ export default function AuthDrawer({
     const success = await resetPassword(
       formData.resetEmail,
       formData.resetOtp,
-      formData.newPassword
+      formData.newPassword,
     );
     if (success) {
       showToast(
         "Password reset successfully! Please login with your new password.",
-        "success"
+        "success",
       );
       setStep("login");
     } else {
@@ -466,6 +471,7 @@ export default function AuthDrawer({
     const hasFormData =
       formData.firstName ||
       formData.lastName ||
+      formData.phone ||
       formData.email ||
       formData.password ||
       formData.confirmPassword ||
@@ -488,6 +494,7 @@ export default function AuthDrawer({
     setFormData({
       firstName: "",
       lastName: "",
+      phone: "",
       email: "",
       password: "",
       confirmPassword: "",
@@ -690,6 +697,17 @@ export default function AuthDrawer({
                 onChange={handleChange}
                 error={errors.lastName}
                 placeholder="Enter your last name"
+                required
+              />
+
+              <Input
+                label={t("Phone")}
+                name="phone"
+                type="tel"
+                value={formData.phone}
+                onChange={handleChange}
+                error={errors.phone}
+                placeholder="Enter your phone number"
                 required
               />
 
