@@ -563,10 +563,8 @@ function ProfileSettings() {
       return;
     }
 
-    setForm((prev: any) => ({
-      ...prev,
-      avatar: file,
-    }));
+    // show immediate preview; keep File in form so it's uploaded with Save (userService.update handles FormData)
+    setForm((prev: any) => ({ ...prev, avatar: file }));
     setAvatarFileName(file.name);
   };
 

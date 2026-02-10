@@ -237,6 +237,7 @@ export class UserService {
   async deleteClgInfo(id: string, clgInfoId: string, options?: { signal?: AbortSignal }) {
     return apiClient.delete<any>(this.endpoints.USER_DELETE_CLG_INFO(id, clgInfoId), options);
   }
+
 }
 
 export const userService = new UserService();
