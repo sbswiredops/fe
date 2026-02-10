@@ -72,6 +72,8 @@ export default function AuthDrawer({
   const [otpTimer, setOtpTimer] = useState(0);
   const [isVisible, setIsVisible] = useState(false);
   const [showConfirmClose, setShowConfirmClose] = useState(false);
+  const hasErrors = Object.values(errors).some(Boolean);
+  const isCloseBlocked = hasErrors || isLoading;
 
   // Handle animation timing
   useEffect(() => {
@@ -155,7 +157,7 @@ export default function AuthDrawer({
   // Close drawer on escape key
   useEffect(() => {
     const handleEscape = (e: KeyboardEvent) => {
-      if (e.key === "Escape") onClose();
+      if (e.key === "Escape") handleClose();
     };
 
     if (isOpen) {
@@ -237,7 +239,6 @@ export default function AuthDrawer({
       showToast("Login successful. ", "success");
       setTimeout(() => {
         router.replace(target);
-        handleClose();
       }, 2000);
     } catch (err: any) {
       const msg = String(err?.message || "Login failed");
@@ -468,6 +469,7 @@ export default function AuthDrawer({
 
   // Handle the close animation
   const handleClose = () => {
+    if (isCloseBlocked) return;
     const hasFormData =
       formData.firstName ||
       formData.lastName ||
@@ -489,6 +491,7 @@ export default function AuthDrawer({
   };
 
   const confirmClose = () => {
+    if (isCloseBlocked) return;
     setShowConfirmClose(false);
     setIsVisible(false);
     setFormData({
@@ -521,7 +524,7 @@ export default function AuthDrawer({
         className={`fixed inset-0 bg-black/20 backdrop-blur-sm transition-all duration-300 ease-out ${
           isVisible ? "opacity-100" : "opacity-0"
         }`}
-        onClick={handleClose}
+        onClick={isCloseBlocked ? undefined : handleClose}
       />
       <ToastContainer />
 
@@ -542,9 +545,14 @@ export default function AuthDrawer({
           </div>
           <button
             onClick={handleClose}
-            className="p-2 hover:bg-white/50 rounded-lg transition-all duration-200 hover:shadow-sm group"
+            className={`p-2 rounded-lg transition-all duration-200 group ${
+              isCloseBlocked
+                ? "opacity-50 cursor-not-allowed"
+                : "hover:bg-white/50 hover:shadow-sm"
+            }`}
             type="button"
             aria-label="Close"
+            disabled={isCloseBlocked}
           >
             <svg
               className="w-6 h-6 text-gray-600 group-hover:text-gray-800"
