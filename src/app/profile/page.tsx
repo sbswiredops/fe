@@ -6,6 +6,8 @@ import ProtectedRoute from "@/components/auth/ProtectedRoute";
 import Input from "@/components/ui/Input";
 import Button from "@/components/ui/Button";
 import useToast from "@/components/hoock/toast";
+import { validateImageFile } from "@/lib/api";
+import { API_CONFIG } from "@/lib/config";
 import { useAuth } from "@/components/contexts/AuthContext";
 import { userService } from "@/services/userService";
 import type { UpdateUserRequest, User } from "@/types/api";
@@ -208,6 +210,18 @@ function ProfileSettings() {
     if (activeTab !== "profile") return;
     if (!user?.id) return;
     try {
+      // Prevent submitting oversized avatar files
+      if (form?.avatar instanceof File) {
+        const maxSize = API_CONFIG?.UPLOAD?.MAX_FILE_SIZE || 10 * 1024 * 1024;
+        if (form.avatar.size > maxSize) {
+          showToast(
+            `Avatar too large. Maximum allowed is ${Math.round(maxSize / (1024 * 1024))}MB`,
+            "error",
+          );
+          return;
+        }
+      }
+
       setSaving(true);
       const payload: UpdateUserRequest = {
         firstName: form.firstName?.trim(),
@@ -329,7 +343,6 @@ function ProfileSettings() {
                 onChange={(e) => {
                   const f = e.target.files?.[0] || null;
                   handleAvatarChange(f);
-                  setAvatarFileName(f ? f.name : "");
                 }}
                 className="hidden"
               />
@@ -532,11 +545,27 @@ function ProfileSettings() {
   };
 
   const handleAvatarChange = (file?: File | null) => {
-    setForm((prev: any) => ({
-      ...prev,
-      avatar: file || "",
-    }));
-    setAvatarFileName(file ? file.name : "");
+    if (!file) {
+      setForm((prev: any) => ({ ...prev, avatar: "" }));
+      setAvatarFileName("");
+      return;
+    }
+
+    // Validate file type and size before setting
+    const ok = validateImageFile(file);
+    if (!ok) {
+      const maxSize = API_CONFIG?.UPLOAD?.MAX_FILE_SIZE || 5 * 1024 * 1024;
+      const maxMB = Math.round(maxSize / (1024 * 1024));
+      showToast(
+        `Invalid image. Use JPG/PNG/WebP and file size under ${maxMB}MB`,
+        "error",
+      );
+      return;
+    }
+
+    // show immediate preview; keep File in form so it's uploaded with Save (userService.update handles FormData)
+    setForm((prev: any) => ({ ...prev, avatar: file }));
+    setAvatarFileName(file.name);
   };
 
   const handleAvatarRemove = () => {
