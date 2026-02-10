@@ -1,9 +1,10 @@
+/* eslint-disable @next/next/no-img-element */
 /* eslint-disable react-hooks/exhaustive-deps */
 "use client";
 
 import React, { Suspense, useMemo, useState, useEffect } from "react";
 import Link from "next/link";
-import CourseCard from "@/components/ui/CourseCard";
+import { StarRating } from "@/components/ui/CourseCard";
 import MainLayout from "@/components/layout/MainLayout";
 import Button from "@/components/ui/Button";
 import { useLanguage } from "@/components/contexts/LanguageContext";
@@ -435,9 +436,139 @@ function CoursesClient() {
                 <p className="text-gray-500">Loading courses...</p>
               </div>
             ) : filtered.length > 0 ? (
-              <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-6">
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
                 {filtered.map((course) => (
-                  <CourseCard key={course.id} course={course} />
+                  <Link
+                    key={course.id}
+                    href={`/courses/${course.sku ?? course.id}`}
+                    className="block group focus:outline-none"
+                    style={{ WebkitTapHighlightColor: "transparent" }}
+                  >
+                    <div className="w-full bg-white rounded-xl border border-gray-200 transition-transform duration-300 hover:scale-105 hover:shadow-xl cursor-pointer overflow-hidden">
+                      <div className="relative h-50 overflow-hidden bg-gray-50">
+                        {(course as any)?.thumbnail ? (
+                          <img
+                            className="w-full h-full object-cover"
+                            src={(course as any).thumbnail}
+                            alt={course.title || "Course thumbnail"}
+                            loading="lazy"
+                            onError={(e) => {
+                              e.currentTarget.style.display = "none";
+                              const fallback = e.currentTarget
+                                .nextElementSibling as HTMLElement;
+                              if (fallback) fallback.style.display = "flex";
+                            }}
+                          />
+                        ) : null}
+                        <div
+                          className={`w-full h-full items-center justify-center bg-gradient-to-br from-blue-100 to-indigo-200 ${
+                            (course as any)?.thumbnail ? "hidden" : "flex"
+                          }`}
+                        >
+                          <svg
+                            className="w-16 h-16 text-blue-500 opacity-50"
+                            fill="none"
+                            stroke="currentColor"
+                            viewBox="0 0 24 24"
+                          >
+                            <path
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              strokeWidth={1}
+                              d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"
+                            />
+                          </svg>
+                        </div>
+                      </div>
+
+                      <div className="p-5 flex flex-col justify-between h-[280px]">
+                        <div>
+                          <span className="inline-block mb-2 px-3 py-1 bg-gray-100 text-gray-700 text-xs rounded font-medium">
+                            {(course as any)?.category?.name || "General"}
+                          </span>
+
+                          <h3 className="text-lg font-bold text-gray-900 mb-2 line-clamp-2 group-hover:text-blue-700">
+                            {course.title}
+                          </h3>
+
+                          {(() => {
+                            const instructor = (course as any)?.instructor;
+                            const avatarUrl = instructor?.avatar || null;
+                            const initials = instructor?.name
+                              ? instructor.name
+                                  .split(" ")
+                                  .map((n: string) => n[0])
+                                  .join("")
+                                  .slice(0, 2)
+                                  .toUpperCase()
+                              : "IN";
+
+                            return (
+                              <div className="flex items-center mb-3">
+                                {avatarUrl ? (
+                                  <div className="w-8 h-8 rounded-full overflow-hidden mr-3 flex-shrink-0 bg-gray-200">
+                                    <img
+                                      src={avatarUrl}
+                                      alt={instructor?.name || "Instructor"}
+                                      className="w-full h-full object-cover"
+                                    />
+                                  </div>
+                                ) : (
+                                  <div className="w-8 h-8 mr-3 rounded-full bg-blue-600 text-white flex items-center justify-center text-xs font-semibold flex-shrink-0">
+                                    {initials}
+                                  </div>
+                                )}
+
+                                <div className="flex-1 min-w-0">
+                                  <p className="text-sm font-semibold text-gray-900 truncate">
+                                    {instructor?.name || "Instructor"}
+                                  </p>
+                                </div>
+                              </div>
+                            );
+                          })()}
+
+                          <div className="flex items-center justify-between mb-3">
+                            <StarRating rating={Number(course.rating) || 0} />
+                            <span className="text-sm text-gray-500">
+                              {(course.enrollmentCount ?? 0).toLocaleString()}{" "}
+                              {t("featuredCourses.students")}
+                            </span>
+                          </div>
+                        </div>
+
+                        <hr className="my-1 border-gray-200" />
+
+                        <div className="flex items-center justify-between">
+                          {(() => {
+                            const discountPrice = (course as any).discountPrice;
+                            const price = course.price;
+                            const hasDiscount =
+                              discountPrice != null &&
+                              price != null &&
+                              Number(discountPrice) > 0 &&
+                              Number(discountPrice) < Number(price);
+
+                            return (
+                              <div className="flex items-baseline gap-2">
+                                <div className="text-2xl font-bold text-blue-700">
+                                  ৳
+                                  {hasDiscount
+                                    ? Number(discountPrice).toFixed(0)
+                                    : Number(price).toFixed(0)}
+                                </div>
+                                {hasDiscount && (
+                                  <div className="text-sm line-through text-gray-400">
+                                    ৳{Number(price).toFixed(0)}
+                                  </div>
+                                )}
+                              </div>
+                            );
+                          })()}
+                        </div>
+                      </div>
+                    </div>
+                  </Link>
                 ))}
               </div>
             ) : (

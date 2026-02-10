@@ -32,12 +32,12 @@ export default function CourseCard({ course }: { course: Course }) {
   return (
     <Link
       href={`/courses/${courseSlug}`}
-      className="block group focus:outline-none touch-auto"
-      style={{ WebkitTapHighlightColor: "transparent" }}
+      className="block group focus:outline-none"
+      style={{ WebkitTapHighlightColor: "transparent", touchAction: "pan-x" }}
     >
       <div
-        className="w-full sm:w-[330px] bg-white rounded-xl border border-gray-200 transition-transform duration-300 hover:scale-105 hover:shadow-xl cursor-pointer touch-pan-y"
-        style={{ touchAction: "pan-y" }}
+        className="w-full sm:w-[330px] bg-white rounded-xl border border-gray-200 transition-transform duration-300 hover:scale-105 hover:shadow-xl cursor-pointer"
+        style={{ touchAction: "pan-x pan-y" }}
       >
         {/* Thumbnail */}
         <div className="relative h-50 rounded-t-xl overflow-hidden bg-gray-50">

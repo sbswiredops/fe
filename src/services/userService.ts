@@ -1,3 +1,12 @@
+// Address type for user addresses
+export interface UserAddress {
+  id?: string;
+  _id?: string;
+  city: string;
+  state: string;
+  country: string;
+  zipCode?: string;
+}
 import { apiClient } from '@/lib/api';
 import { API_CONFIG } from '@/lib/config';
 import {
@@ -116,6 +125,30 @@ export class UserService {
     return apiClient.post<User>(this.endpoints.USERS_CREATE_ADMIN_INSTRUCTOR, payload, undefined, options);
   }
   async update(id: string, payload: UpdateUserRequest, options?: { signal?: AbortSignal }): Promise<ApiResponse<User>> {
+    const hasFile = (payload as any)?.avatar instanceof File;
+
+    if (hasFile) {
+      const form = new FormData();
+      const meta: Record<string, any> = {};
+      Object.entries(payload as any).forEach(([k, v]) => {
+        if (v === undefined || v === null) return;
+        if (v instanceof File) {
+          form.append(k, v);
+        } else {
+          meta[k] = v;
+        }
+      });
+      Object.entries(meta).forEach(([mk, mv]) => {
+        if (mv === undefined || mv === null) return;
+        if (typeof mv === 'object') {
+          form.append(mk, JSON.stringify(mv));
+        } else {
+          form.append(mk, String(mv));
+        }
+      });
+      return apiClient.patch<User>(this.endpoints.USER_BY_ID(id), form, options);
+    }
+
     return apiClient.patch<User>(this.endpoints.USER_BY_ID(id), payload, options);
   }
 
@@ -195,6 +228,14 @@ export class UserService {
   }
   async updateClgInfo(id: string, clgInfoId: string, payload: any, options?: { signal?: AbortSignal }) {
     return apiClient.patch<any>(this.endpoints.USER_UPDATE_CLG_INFO(id, clgInfoId), payload, options);
+  }
+
+  async deleteAddress(id: string, addressId: string, options?: { signal?: AbortSignal }) {
+    return apiClient.delete<any>(this.endpoints.USER_DELETE_ADDRESS(id, addressId), options);
+  }
+
+  async deleteClgInfo(id: string, clgInfoId: string, options?: { signal?: AbortSignal }) {
+    return apiClient.delete<any>(this.endpoints.USER_DELETE_CLG_INFO(id, clgInfoId), options);
   }
 }
 

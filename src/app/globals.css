@@ -19,11 +19,13 @@
   }
 }
 .custom-hover-bg:hover {
-    background-color: var(--color-text-primary) !important;
-    color: #fff !important;
+  background-color: var(--color-text-primary) !important;
+  color: #fff !important;
 }
 .btn-animate {
-  transition: transform 0.2s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  transition:
+    transform 0.2s cubic-bezier(0.4, 0, 0.2, 1),
+    box-shadow 0.2s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .btn-animate:hover {
@@ -33,7 +35,7 @@
 
 .btn-animate:active {
   transform: translateY(-1px) scale(0.98);
-  box-shadow: 0 4px 12px 0 rgba(81, 53, 110, 0.10);
+  box-shadow: 0 4px 12px 0 rgba(81, 53, 110, 0.1);
 }
 
 body {
@@ -67,7 +69,10 @@ html {
   }
 
   /* Ensure no element causes horizontal overflow */
-  body, html, #__next, [data-reactroot] {
+  body,
+  html,
+  #__next,
+  [data-reactroot] {
     width: 100%;
     overflow-x: hidden;
   }
@@ -82,10 +87,12 @@ html {
 }
 
 .hero-bg-gradient {
-  background: linear-gradient(135deg,
+  background: linear-gradient(
+    135deg,
     rgba(81, 53, 110, 0.08) 0%,
     rgba(142, 103, 182, 0.06) 50%,
-    rgba(99, 102, 241, 0.04) 100%);
+    rgba(99, 102, 241, 0.04) 100%
+  );
   border-radius: 20px;
 }
 
@@ -98,7 +105,9 @@ html {
   object-fit: cover;
   object-position: center;
   border-radius: 16px;
-  transition: transform 0.3s ease, filter 0.3s ease;
+  transition:
+    transform 0.3s ease,
+    filter 0.3s ease;
   box-shadow: 0 20px 40px rgba(81, 53, 110, 0.15);
 }
 
@@ -156,7 +165,8 @@ html {
 }
 
 @keyframes float {
-  0%, 100% {
+  0%,
+  100% {
     transform: translateY(0px) rotate(0deg);
   }
   33% {
@@ -221,6 +231,8 @@ html {
 .slider-container {
   scroll-behavior: smooth;
   -webkit-overflow-scrolling: touch;
+  touch-action: pan-x;
+  overscroll-behavior-x: contain;
 }
 
 .slider-container::-webkit-scrollbar {
@@ -233,7 +245,9 @@ html {
 }
 
 .card-shadow-hover {
-  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  transition:
+    transform 0.3s ease,
+    box-shadow 0.3s ease;
 }
 
 .card-shadow-hover:hover {
@@ -267,22 +281,62 @@ html {
 }
 
 /* Slider computed gaps and exact 4-up layout */
-.card-slider-section { --slider-gap: 1rem; }
+.card-slider-section {
+  --slider-gap: 1rem;
+}
 @media (min-width: 1024px) {
-  .card-slider-section { --slider-gap: 2rem; }
-  .slider-item-1of4 { flex: 0 0 calc((100% - var(--slider-gap) * 3) / 4); }
+  .card-slider-section {
+    --slider-gap: 2rem;
+  }
+  .slider-item-1of4 {
+    flex: 0 0 calc((100% - var(--slider-gap) * 3) / 4);
+  }
 }
 
 /* Enroll page styles */
-.enroll-card { border-radius: 12px; overflow: hidden; box-shadow: 0 12px 30px rgba(2,6,23,0.06); }
-.course-thumbnail { width: 100%; height: 160px; object-fit: cover; border-radius: 8px; }
-@media (min-width: 640px) { .course-thumbnail { height: 220px; } }
-.enroll-cta-primary { background: var(--color-text-primary); border: 1px solid var(--color-text-primary); color: #fff; }
-.enroll-cta-primary:disabled { opacity: 0.6; cursor: not-allowed; }
-.price-badge { background: linear-gradient(90deg, rgba(81,53,110,0.12), rgba(142,103,182,0.06)); padding: 6px 10px; border-radius: 9999px; font-weight:600; color: var(--color-text-primary); }
+.enroll-card {
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 12px 30px rgba(2, 6, 23, 0.06);
+}
+.course-thumbnail {
+  width: 100%;
+  height: 160px;
+  object-fit: cover;
+  border-radius: 8px;
+}
+@media (min-width: 640px) {
+  .course-thumbnail {
+    height: 220px;
+  }
+}
+.enroll-cta-primary {
+  background: var(--color-text-primary);
+  border: 1px solid var(--color-text-primary);
+  color: #fff;
+}
+.enroll-cta-primary:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+.price-badge {
+  background: linear-gradient(
+    90deg,
+    rgba(81, 53, 110, 0.12),
+    rgba(142, 103, 182, 0.06)
+  );
+  padding: 6px 10px;
+  border-radius: 9999px;
+  font-weight: 600;
+  color: var(--color-text-primary);
+}
 
 /* Enroll page background wrapper */
-.enroll-page-outer { background: #f7fafc; }
+.enroll-page-outer {
+  background: #f7fafc;
+}
 
 /* Ensure the main white card is crisp on dark headers */
-.enroll-page-outer .shadow-md { box-shadow: 0 18px 40px rgba(2,6,23,0.08); }
+.enroll-page-outer .shadow-md {
+  box-shadow: 0 18px 40px rgba(2, 6, 23, 0.08);
+}

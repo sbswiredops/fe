@@ -40,6 +40,7 @@ export interface User {
   joinDate: string;
   lastLogin?: string;
   profileImage?: string;
+  bio?: string;
 
   permissions?: Permission[];
   profile?: UserProfile;
@@ -51,10 +52,12 @@ export interface User {
     zipCode?: string;
   };
   clgInfo?: {
-    name?: string;
-    address?: string;
-    degree?: string;
-    year?: string;
+    collegeName?: string;
+    department?: string;
+    session?: string;
+    rollNumber?: string;
+    registrationNumber?: string;
+    passingYear?: number;
   };
 }
 
@@ -164,6 +167,7 @@ export interface Course {
   requirements?: string[];
   learningOutcomes?: string[];
   whatYouWillLearn?: string[];
+  faqs?: Faq[]; // <-- Add this line
   createdAt: string;
   updatedAt: string;
   sections?: Section[];
@@ -369,6 +373,8 @@ export interface Quiz {
   // --- New fields for final quiz logic ---
   isFinalQuiz?: boolean;
   hasAttemptedFinalQuiz?: boolean;
+  duration?: number; // <-- Add this line
+
 }
 
 
@@ -530,4 +536,14 @@ export interface ValidationError {
   field: string;
   message: string;
   value?: any;
+}
+
+export interface Faq {
+  id: string;
+  question: string;
+  answer: string;
+  sortOrder?: number;
+  courseId?: string;
+  createdAt?: string;
+  updatedAt?: string;
 }

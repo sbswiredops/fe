@@ -7,7 +7,7 @@ import { UserService } from "@/services/userService";
 import { useAuth } from "@/components/contexts/AuthContext";
 import { useEnrolledCourses } from "@/components/contexts/EnrolledCoursesContext";
 import { Course, Section, Lesson } from "@/types/api";
-import { Video, FileText } from "lucide-react";
+import { Lock, FileText, Video, HelpCircle } from "lucide-react";
 
 const userService = new UserService();
 export const runtime = "edge";
@@ -25,12 +25,12 @@ function CourseHeader({ course }: { course: CourseDetail }): JSX.Element {
   let firstSectionId: string | null = null;
   if (Array.isArray(course.sections) && course.sections.length > 0) {
     const sortedSections = [...course.sections].sort(
-      (a: any, b: any) => (a.orderIndex || 0) - (b.orderIndex || 0)
+      (a: any, b: any) => (a.orderIndex || 0) - (b.orderIndex || 0),
     );
     for (const section of sortedSections) {
       if (Array.isArray(section.lessons) && section.lessons.length > 0) {
         const sortedLessons = [...section.lessons].sort(
-          (a: any, b: any) => (a.orderIndex || 0) - (b.orderIndex || 0)
+          (a: any, b: any) => (a.orderIndex || 0) - (b.orderIndex || 0),
         );
         firstLessonId = sortedLessons[0]?.id;
         firstSectionId = section.id;
@@ -42,7 +42,7 @@ function CourseHeader({ course }: { course: CourseDetail }): JSX.Element {
   const handleStartLearning = () => {
     if (firstLessonId && firstSectionId && course.id) {
       router.push(
-        `/dashboard/student/learn/lesson/${firstLessonId}?courseId=${course.id}&sectionId=${firstSectionId}`
+        `/dashboard/student/learn/lesson/${firstLessonId}?courseId=${course.id}&sectionId=${firstSectionId}`,
       );
     }
   };
@@ -84,7 +84,7 @@ function CourseInfoSection({
     ? course.sections.reduce(
         (sum: number, section: any) =>
           sum + (Array.isArray(section.lessons) ? section.lessons.length : 0),
-        0
+        0,
       )
     : 0;
 
@@ -104,13 +104,13 @@ function LessonItem({
 
   const handleOpenLesson = () => {
     router.push(
-      `/dashboard/student/learn/lesson/${lesson.id}?courseId=${courseId}&sectionId=${section.id}`
+      `/dashboard/student/learn/lesson/${lesson.id}?courseId=${courseId}&sectionId=${section.id}`,
     );
   };
 
   const handleOpenResource = () => {
     router.push(
-      `/dashboard/student/learn/lesson/${lesson.id}?courseId=${courseId}&sectionId=${section.id}&tab=resource`
+      `/dashboard/student/learn/lesson/${lesson.id}?courseId=${courseId}&sectionId=${section.id}&tab=resource`,
     );
   };
 
@@ -184,7 +184,7 @@ function QuizItem({
 
   const handleOpenQuiz = () => {
     router.push(
-      `/dashboard/student/learn/quiz/${quiz.id}?courseId=${courseId}&sectionId=${section.id}`
+      `/dashboard/student/learn/quiz/${quiz.id}?courseId=${courseId}&sectionId=${section.id}`,
     );
   };
 
@@ -231,6 +231,22 @@ function QuizItem({
   );
 }
 
+function getSectionSummary(section: Section) {
+  const lessonCount = Array.isArray(section.lessons)
+    ? section.lessons.length
+    : 0;
+  const quizCount = Array.isArray(section.quizzes) ? section.quizzes.length : 0;
+  const lessonDurations =
+    section.lessons?.map((l) => Number(l.duration) || 0) || [];
+  const quizDurations =
+    section.quizzes?.map((q) => Number(q.duration) || 0) || [];
+  const totalDuration = [...lessonDurations, ...quizDurations].reduce(
+    (a, b) => a + b,
+    0,
+  );
+  return { lessonCount, quizCount, totalDuration };
+}
+
 function AccordionItem({
   section,
   isOpen,
@@ -244,21 +260,33 @@ function AccordionItem({
   index: number;
   courseId: string;
 }): JSX.Element {
+  const { lessonCount, quizCount, totalDuration } = getSectionSummary(section);
+
   return (
-    <div className="border-b border-gray-200 last:border-b-0">
-      <button
+    <div className="bg-[#fafbfc] rounded-xl mb-3 shadow-sm border border-[#f3f4f6]">
+      <div
+        className="flex items-center px-5 py-4 cursor-pointer"
         onClick={onToggle}
-        className={`w-full flex items-center justify-between px-3 py-2 text-left hover:bg-gray-50 transition-colors
-          ${isOpen ? "bg-gray-100" : "bg-white"}`}
-        style={{ minHeight: 40 }}
       >
-        <span className="font-medium text-gray-900 text-xl truncate">
-          {section.title || "Untitled Section"}
-        </span>
+        {/* Number Icon */}
+        <div className="w-10 h-10 flex items-center justify-center bg-blue-600 text-white rounded-lg font-bold text-xl mr-4">
+          {index + 1}
+        </div>
+        {/* Title & Summary */}
+        <div className="flex-1">
+          <div className="font-bold text-lg text-gray-900">
+            {section.title || `Module ${index + 1}`}
+          </div>
+          <div className="text-sm text-gray-500 mt-1">
+            {lessonCount} lesson{lessonCount !== 1 ? "s" : ""}
+            {quizCount > 0 &&
+              ` • ${quizCount} quiz${quizCount !== 1 ? "zes" : ""}`}
+            {totalDuration > 0 && ` • ${totalDuration} min`}
+          </div>
+        </div>
+        {/* Expand Icon */}
         <svg
-          className={`w-4 h-4 text-gray-400 transition-transform duration-200 ${
-            isOpen ? "rotate-180" : ""
-          }`}
+          className={`w-5 h-5 text-gray-400 ml-2 transition-transform ${isOpen ? "rotate-180" : ""}`}
           fill="none"
           stroke="currentColor"
           viewBox="0 0 24 24"
@@ -270,23 +298,70 @@ function AccordionItem({
             d="M19 9l-7 7-7-7"
           />
         </svg>
-      </button>
-      {isOpen && (
-        <div className="px-3 py-2 bg-white ">
-          {Array.isArray(section.lessons) && section.lessons.length > 0 ? (
-            section.lessons.map((lesson: Lesson, lessonIdx: number) => (
-              <LessonItem
-                key={lesson.id || lessonIdx}
-                lesson={lesson}
-                section={section}
-                courseId={courseId}
-              />
-            ))
-          ) : (
-            <div className="text-xl text-gray-400 py-1 pl-4">No lessons</div>
-          )}
-        </div>
-      )}
+      </div>
+      {/* Lessons & Quizzes */}
+      <div
+        className={`overflow-hidden transition-all duration-300 ${isOpen ? "max-h-[2000px] opacity-100" : "max-h-0 opacity-0"}`}
+      >
+        {/* Lessons */}
+        {Array.isArray(section.lessons) && section.lessons.length > 0 && (
+          <ul className="divide-y divide-gray-50 bg-white">
+            {section.lessons.map((lesson: Lesson, lIdx: number) => (
+              <li
+                key={lesson.id ?? `lesson-${index}-${lIdx}`}
+                className="flex items-center px-8 py-3 hover:bg-blue-50/50 transition-all duration-200"
+              >
+                <div className="flex items-center gap-3 flex-1">
+                  <div className="w-7 h-7 rounded-md bg-blue-100 flex items-center justify-center">
+                    <Video className="w-4 h-4 text-blue-600" />
+                  </div>
+                  <span className="text-sm font-medium text-gray-800">
+                    {lesson.title}
+                  </span>
+                </div>
+                <div className="flex items-center gap-2">
+                  {lesson.duration && (
+                    <span className="text-xs text-gray-500">
+                      {lesson.duration} min
+                    </span>
+                  )}
+                  <Lock className="w-4 h-4 text-gray-300" />
+                </div>
+              </li>
+            ))}
+          </ul>
+        )}
+
+        {/* Quizzes */}
+        {Array.isArray(section.quizzes) && section.quizzes.length > 0 && (
+          <ul className="divide-y divide-gray-50 bg-purple-50/30">
+            {section.quizzes.map((quiz: any, qIdx: number) => (
+              <li
+                key={quiz.id ?? `quiz-${index}-${qIdx}`}
+                className="flex items-center px-8 py-3 hover:bg-purple-100/50 transition-all duration-200"
+              >
+                <div className="flex items-center gap-3 flex-1">
+                  <div className="w-7 h-7 rounded-md bg-purple-100 flex items-center justify-center">
+                    <HelpCircle className="w-4 h-4 text-purple-600" />
+                  </div>
+                  <div>
+                    <span className="font-medium text-gray-800 text-sm">
+                      {quiz.title || "Quiz"}
+                    </span>
+                    <p className="text-xs text-gray-500 mt-0.5">
+                      {quiz.questionCount} questions • {quiz.totalMarks} marks
+                      {quiz.duration ? ` • ${quiz.duration} min` : ""}
+                    </p>
+                  </div>
+                </div>
+                <div className="flex items-center gap-2">
+                  <Lock className="w-4 h-4 text-gray-300" />
+                </div>
+              </li>
+            ))}
+          </ul>
+        )}
+      </div>
     </div>
   );
 }
@@ -299,10 +374,10 @@ function CourseContents({
   courseId: string;
 }): JSX.Element {
   const sortedSections = [...sections].sort(
-    (a: Section, b: Section) => (a.orderIndex || 0) - (b.orderIndex || 0)
+    (a: Section, b: Section) => (a.orderIndex || 0) - (b.orderIndex || 0),
   );
   const [openSections, setOpenSections] = useState<Set<string>>(
-    new Set([sortedSections[0]?.id])
+    new Set([sortedSections[0]?.id]),
   );
 
   const toggleSection = (sectionId: string) => {
@@ -316,24 +391,17 @@ function CourseContents({
   };
 
   return (
-    <div className="bg-white rounded-lg border border-gray-200 overflow-hidden">
-      <div className="px-4 py-3 border-b border-gray-200 bg-gray-50">
-        <h2 className="text-2xl font-semibold  text-gray-900">
-          Course Curriculum
-        </h2>
-      </div>
-      <div>
-        {sortedSections.map((section: Section, index: number) => (
-          <AccordionItem
-            key={section.id}
-            section={section}
-            isOpen={openSections.has(section.id)}
-            onToggle={() => toggleSection(section.id)}
-            index={index}
-            courseId={courseId}
-          />
-        ))}
-      </div>
+    <div className="bg-transparent rounded-lg">
+      {sortedSections.map((section: Section, index: number) => (
+        <AccordionItem
+          key={section.id}
+          section={section}
+          isOpen={openSections.has(section.id)}
+          onToggle={() => toggleSection(section.id)}
+          index={index}
+          courseId={courseId}
+        />
+      ))}
     </div>
   );
 }
@@ -382,7 +450,7 @@ export default function Page(): JSX.Element {
         if (Array.isArray(coursesList) && coursesList.length > 0) {
           const found = coursesList.find(
             (c: any) =>
-              c && typeof c === "object" && String(c.id) === String(id)
+              c && typeof c === "object" && String(c.id) === String(id),
           );
 
           if (!ignore && found && typeof found === "object" && found.id) {
@@ -421,7 +489,7 @@ export default function Page(): JSX.Element {
   const searchParams = useSearchParams();
   const initialTab = searchParams?.get("tab") ?? null;
   const [viewMode, setViewMode] = useState<"video" | "pdf" | "quiz">(
-    initialTab === "resource" ? "pdf" : "video"
+    initialTab === "resource" ? "pdf" : "video",
   );
 
   return (
