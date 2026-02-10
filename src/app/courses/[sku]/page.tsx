@@ -655,40 +655,40 @@ export default function CourseDetailsPage() {
                 )}
 
                 {/* Instructor / Duration / Modules */}
-                <div className="pt-6 border-t border-gray-200">
-                  <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                    <div className="lg:col-span-1 rounded-2xl border border-blue-100 bg-gradient-to-br from-blue-50 via-white to-purple-50 p-6 sm:p-7 shadow-sm hover:shadow-md transition-shadow">
-                      <div className="flex items-center gap-4">
-                        {instructor?.avatar ? (
-                          <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-full overflow-hidden bg-gray-200 flex-shrink-0 ring-2 ring-white">
-                            <img
-                              src={instructor.avatar}
-                              alt={instructor?.name || "Instructor"}
-                              className="w-full h-full object-cover"
-                            />
-                          </div>
-                        ) : (
-                          <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-full bg-gradient-to-br from-blue-500 to-purple-500 flex items-center justify-center text-white font-bold text-xl sm:text-2xl flex-shrink-0 ring-2 ring-white">
-                            {instructor?.name?.charAt(0) || "?"}
-                          </div>
-                        )}
-                        <div>
-                          <div className="flex items-center gap-2 text-sm text-[#8e67b6] font-semibold uppercase tracking-wider">
-                            <Users className="w-4 h-4" />
-                            Instructor
-                          </div>
-                          <p className="text-lg sm:text-xl font-bold text-[#51356e] mt-1">
-                            {instructor?.name || "Unknown Instructor"}
-                          </p>
-                          {instructor?.bio && (
-                            <p className="text-sm text-gray-600 mt-2 leading-relaxed line-clamp-4">
-                              {instructor.bio}
-                            </p>
-                          )}
+                <div className="pt-6 border-t border-gray-200 space-y-6">
+                  <div className="rounded-2xl border border-blue-100 bg-gradient-to-br from-blue-50 via-white to-purple-50 p-6 sm:p-7 shadow-sm hover:shadow-md transition-shadow">
+                    <div className="flex items-center gap-4">
+                      {instructor?.avatar ? (
+                        <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-full overflow-hidden bg-gray-200 flex-shrink-0 ring-2 ring-white">
+                          <img
+                            src={instructor.avatar}
+                            alt={instructor?.name || "Instructor"}
+                            className="w-full h-full object-cover"
+                          />
                         </div>
+                      ) : (
+                        <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-full bg-gradient-to-br from-blue-500 to-purple-500 flex items-center justify-center text-white font-bold text-xl sm:text-2xl flex-shrink-0 ring-2 ring-white">
+                          {instructor?.name?.charAt(0) || "?"}
+                        </div>
+                      )}
+                      <div>
+                        <div className="flex items-center gap-2 text-sm text-[#8e67b6] font-semibold uppercase tracking-wider">
+                          <Users className="w-4 h-4" />
+                          Instructor
+                        </div>
+                        <p className="text-lg sm:text-xl font-bold text-[#51356e] mt-1">
+                          {instructor?.name || "Unknown Instructor"}
+                        </p>
+                        {instructor?.bio && (
+                          <p className="text-sm text-gray-600 mt-2 leading-relaxed line-clamp-4">
+                            {instructor.bio}
+                          </p>
+                        )}
                       </div>
                     </div>
+                  </div>
 
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                     <div className="rounded-2xl border border-gray-200 bg-white p-5 shadow-sm hover:shadow-md transition-shadow">
                       <div className="flex items-center justify-between">
                         <div>
@@ -721,6 +721,28 @@ export default function CourseDetailsPage() {
                         </div>
                         <div className="w-11 h-11 rounded-xl bg-[#51356e]  flex items-center justify-center">
                           <BookOpen className="w-5 h-5" />
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="rounded-2xl border border-gray-200 bg-white p-5 shadow-sm hover:shadow-md transition-shadow">
+                      <div className="flex items-center justify-between">
+                        <div>
+                          <div className="text-xs text-gray-500 font-semibold uppercase tracking-wider">
+                            Rating
+                          </div>
+                          <div className="flex items-center gap-2 mt-2">
+                            <span className="text-3xl font-bold text-[#8e67b6]">
+                              {Number(rating || 0).toFixed(1)}
+                            </span>
+                            <StarRating rating={rating} size="sm" />
+                          </div>
+                          <p className="text-sm text-gray-600 mt-1">
+                            {reviewCount ? `${reviewCount} reviews` : "No reviews yet"}
+                          </p>
+                        </div>
+                        <div className="w-11 h-11 rounded-xl bg-[#51356e] flex items-center justify-center">
+                          <Star className="w-5 h-5" />
                         </div>
                       </div>
                     </div>
