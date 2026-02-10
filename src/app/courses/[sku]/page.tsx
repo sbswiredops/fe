@@ -873,6 +873,24 @@ export default function CourseDetailsPage() {
                     </div>
                   </div>
                 </div>
+
+                {tags?.length > 0 && (
+                  <div className="bg-white border border-gray-200 rounded-lg p-5 shadow-sm">
+                    <h3 className="text-lg font-bold text-gray-900 mb-4">
+                      Skills you'll master
+                    </h3>
+                    <div className="flex flex-wrap gap-2">
+                      {tags.map((tag: string, idx: number) => (
+                        <span
+                          key={tag ?? `tag-${idx}`}
+                          className="px-3 py-1.5 bg-[#d8c2ef] text-[#51356e] rounded-lg text-xs font-semibold"
+                        >
+                          {tag}
+                        </span>
+                      ))}
+                    </div>
+                  </div>
+                )}
               </div>
             </div>
           </div>
@@ -917,26 +935,6 @@ export default function CourseDetailsPage() {
                     />
                   ))}
                 </div>
-              </div>
-            </div>
-          </section>
-        )}
-        {/* SKILLS/TAGS */}
-        {tags?.length > 0 && (
-          <section className="bg-white border-b border-gray-200">
-            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 lg:py-16">
-              <h3 className="text-2xl font-bold text-gray-900 mb-6">
-                Skills you'll master
-              </h3>
-              <div className="flex flex-wrap gap-3">
-                {tags.map((tag: string, idx: number) => (
-                  <span
-                    key={tag ?? `tag-${idx}`}
-                    className="px-4 py-2 bg-[#d8c2ef] text-[#51356e] rounded-lg text-sm font-semibold"
-                  >
-                    {tag}
-                  </span>
-                ))}
               </div>
             </div>
           </section>
