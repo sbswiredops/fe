@@ -300,19 +300,15 @@ export default function EnrollPage() {
         promoCode: promoApplied?.code || undefined,
       });
 
-      // Check if payment initialization was successful
       if (paymentResponse.success && paymentResponse.data) {
-        // Check if the backend returned a failure (e.g., already enrolled or promo invalid)
         if (paymentResponse.data.success === false) {
           const msg =
             paymentResponse.data.message || "Payment initialization failed";
-          // if it's a promo-related error, surface it in the promo UI and clear persisted promo
           if (
             msg.toLowerCase().includes("promo") ||
             msg.toLowerCase().includes("invalid")
           ) {
             setPromoError(msg);
-            // remove persisted promo for this course to avoid stuck UI
             try {
               if (course?.id) {
                 sessionStorage.removeItem("promo_" + course.id);
