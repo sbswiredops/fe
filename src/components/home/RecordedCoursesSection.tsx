@@ -254,6 +254,8 @@ export default function RecordedCoursesSection() {
                             if (fallback) fallback.style.display = "flex";
                           }}
                         />
+
+                        
                       ) : null}
                       <span className="absolute left-3 bottom-3 inline-block px-3 py-1 bg-[#efe6fb] text-[#51356e] text-xs rounded font-semibold shadow-sm">
                         {typeof course.category === "string"
