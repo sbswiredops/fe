@@ -1,7 +1,15 @@
 import React from "react";
 
 interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
-  variant?: "primary" | "secondary" | "outline" | "ghost" | "danger" | "need" | "dangerOutline";
+  variant?:
+    | "primary"
+    | "secondary"
+    | "outline"
+    | "ghost"
+    | "danger"
+    | "need"
+    | "dangerOutline"
+    | "brandLight";
   size?: "sm" | "md" | "lg";
   loading?: boolean;
   children: React.ReactNode;
@@ -28,7 +36,10 @@ export default function Button({
     ghost: "text-gray-600 hover:bg-gray-100 focus:ring-gray-500",
     danger: "bg-red-600 text-white hover:bg-red-700 focus:ring-red-500",
     need: "border-2 border-[#51356e] text-[#51356e] hover:bg-[#51356e] hover:text-white focus:ring-[#51356e]",
-    dangerOutline:"border-2 border-red-600 text-red-600 hover:bg-red-600 hover:text-white focus:ring-red-500",
+    dangerOutline:
+      "border-2 border-red-600 text-red-600 hover:bg-red-600 hover:text-white focus:ring-red-500",
+    brandLight:
+      "border-2 border-[#cdb7e6] bg-[#cdb7e6] text-[#3b2456] hover:bg-[#b79ad9] hover:border-[#b79ad9] focus:ring-[#cdb7e6]",
   };
 
   const sizeClasses = {

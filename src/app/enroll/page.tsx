@@ -838,7 +838,7 @@ export default function EnrollPage() {
                   )}
 
                   <Button
-                    variant="outline"
+                    variant="brandLight"
                     className="w-full py-3"
                     onClick={() => router.back()}
                   >
