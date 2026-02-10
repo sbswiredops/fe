@@ -125,13 +125,33 @@ export default function EnrollPage() {
           // `returning_from_payment` in case `promo_to_clear` wasn't set.
           try {
             if (typeof window !== "undefined") {
+              // Always clear any persisted promo on load so reload starts clean.
+              try {
+                for (let i = 0; i < sessionStorage.length; i++) {
+                  const key = sessionStorage.key(i);
+                  if (!key) continue;
+                  if (key.startsWith("promo_")) {
+                    try {
+                      sessionStorage.removeItem(key);
+                    } catch (er) {}
+                  }
+                }
+              } catch (er) {}
+              const urlParams = new URLSearchParams(window.location.search);
+              const isPaymentReturn =
+                urlParams.has("tran_id") ||
+                urlParams.has("status") ||
+                urlParams.has("val_id") ||
+                urlParams.has("bank_tran_id");
               const promoToClear = sessionStorage.getItem("promo_to_clear");
+              const promoClearOnLoad =
+                sessionStorage.getItem("promo_clear_on_load") === "1";
               const returningFromPayment = sessionStorage.getItem(
                 "returning_from_payment",
               );
-              // If there's a returning flag, aggressively clear any persisted
+              // If there's a returning flag or payment callback params, aggressively clear
               // promo_* keys to avoid stale promo showing after payment.
-              if (returningFromPayment) {
+              if (returningFromPayment || isPaymentReturn || promoClearOnLoad) {
                 try {
                   for (let i = 0; i < sessionStorage.length; i++) {
                     const key = sessionStorage.key(i);
@@ -147,6 +167,9 @@ export default function EnrollPage() {
                   sessionStorage.removeItem("promo_to_clear");
                 } catch (er) {}
                 try {
+                  sessionStorage.removeItem("promo_clear_on_load");
+                } catch (er) {}
+                try {
                   sessionStorage.removeItem("returning_from_payment");
                 } catch (er) {}
                 try {
@@ -158,7 +181,9 @@ export default function EnrollPage() {
 
               const shouldClear =
                 promoToClear === "promo_" + mapped.id ||
-                returningFromPayment === String(mapped.id);
+                returningFromPayment === String(mapped.id) ||
+                isPaymentReturn ||
+                promoClearOnLoad;
 
               if (shouldClear) {
                 try {
@@ -172,6 +197,9 @@ export default function EnrollPage() {
                   sessionStorage.removeItem("promo_to_clear");
                 } catch (err) {}
                 try {
+                  sessionStorage.removeItem("promo_clear_on_load");
+                } catch (err) {}
+                try {
                   sessionStorage.removeItem("returning_from_payment");
                 } catch (err) {}
                 try {
@@ -183,18 +211,7 @@ export default function EnrollPage() {
             }
           } catch (err) {}
 
-          // restore promo if saved in sessionStorage for this course (only if not cleared)
-          try {
-            const saved =
-              typeof window !== "undefined" &&
-              sessionStorage.getItem("promo_" + mapped.id);
-            if (saved) {
-              const parsed = JSON.parse(saved as string);
-              if (parsed && parsed.code) setPromoApplied(parsed);
-            }
-          } catch (err) {
-            // ignore
-          }
+          // Do not restore promo from storage; keep reload state clean.
         }
       } catch (e: any) {
         setError(e?.message || "Failed to load course.");
@@ -321,6 +338,9 @@ export default function EnrollPage() {
             // store the promo session key so we can reliably clear it when the user returns
             try {
               sessionStorage.setItem("promo_to_clear", "promo_" + course.id);
+            } catch (err) {}
+            try {
+              sessionStorage.setItem("promo_clear_on_load", "1");
             } catch (err) {}
           }
         } catch (err) {}
@@ -611,12 +631,6 @@ export default function EnrollPage() {
                                             type: PromoType.FIXED,
                                           };
                                           setPromoApplied(appliedObj);
-                                          try {
-                                            sessionStorage.setItem(
-                                              "promo_" + course.id,
-                                              JSON.stringify(appliedObj),
-                                            );
-                                          } catch (err) {}
                                           setApplyingPromo(false);
                                           return;
                                         }
@@ -635,12 +649,6 @@ export default function EnrollPage() {
                                             type: PromoType.FIXED,
                                           };
                                           setPromoApplied(appliedObj);
-                                          try {
-                                            sessionStorage.setItem(
-                                              "promo_" + course.id,
-                                              JSON.stringify(appliedObj),
-                                            );
-                                          } catch (err) {}
                                           setApplyingPromo(false);
                                           return;
                                         }
@@ -668,13 +676,6 @@ export default function EnrollPage() {
                                           type: PromoType.FIXED,
                                         };
                                         setPromoApplied(appliedObj);
-                                        // persist promo across redirect
-                                        try {
-                                          sessionStorage.setItem(
-                                            "promo_" + course.id,
-                                            JSON.stringify(appliedObj),
-                                          );
-                                        } catch (err) {}
                                         setApplyingPromo(false);
                                         return;
                                       }
@@ -712,12 +713,6 @@ export default function EnrollPage() {
                                           type: promoType,
                                         };
                                         setPromoApplied(appliedObj);
-                                        try {
-                                          sessionStorage.setItem(
-                                            "promo_" + course.id,
-                                            JSON.stringify(appliedObj),
-                                          );
-                                        } catch (err) {}
                                       } else {
                                         setPromoError(
                                           data?.message ||
