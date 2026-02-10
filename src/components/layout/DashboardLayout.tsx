@@ -22,6 +22,7 @@ import {
   CreditCard,
   BarChart3,
   Settings,
+  Tag,
   GraduationCap,
   PieChart,
   DollarSign,
@@ -214,6 +215,7 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
           { name: "Users", href: `${basePath}/users`, icon: Users },
           { name: "Employees", href: `${basePath}/employees`, icon: Briefcase },
           { name: "Courses", href: `${basePath}/courses`, icon: BookOpen },
+          { name: "Promos", href: `${basePath}/promo`, icon: Tag },
           {
             name: "Live Classes",
             href: `${basePath}/live-classes`,

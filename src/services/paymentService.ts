@@ -80,6 +80,7 @@ export interface InitSSLCommerzRequest {
     customerPostcode?: string;
     productName?: string;
     productCategory?: string;
+    promoCode?: string;
 }
 
 export class PaymentService {

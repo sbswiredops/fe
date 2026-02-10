@@ -1,10 +1,11 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 "use client";
 
 import React, { useEffect, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { Clock } from "lucide-react";
+import { Clock, Tag } from "lucide-react";
 import MainLayout from "@/components/layout/MainLayout";
 import Button from "@/components/ui/Button";
 import ConfirmationModal from "@/components/ui/ConfirmationModal";
@@ -12,6 +13,7 @@ import { useAuth } from "@/components/contexts/AuthContext";
 import { useEnrolledCourses } from "@/components/contexts/EnrolledCoursesContext";
 import { courseService } from "@/services/courseService";
 import { paymentService } from "@/services/paymentService";
+import { promoService, PromoType } from "@/services/promoService";
 import type { Course } from "@/components/types";
 
 export default function EnrollPage() {
@@ -39,6 +41,15 @@ export default function EnrollPage() {
   const [loading, setLoading] = useState<boolean>(true);
   const [enrolling, setEnrolling] = useState<boolean>(false);
   const [error, setError] = useState<string>("");
+  const [promoCode, setPromoCode] = useState<string>("");
+  const [applyingPromo, setApplyingPromo] = useState<boolean>(false);
+  const [promoError, setPromoError] = useState<string>("");
+  const [promoApplied, setPromoApplied] = useState<{
+    code: string;
+    amount: number;
+    type: PromoType;
+  } | null>(null);
+  const [promoOpen, setPromoOpen] = useState<boolean>(false);
   const [agreedToTerms, setAgreedToTerms] = useState<boolean>(false);
   const [showAlreadyEnrolledModal, setShowAlreadyEnrolledModal] =
     useState<boolean>(false);
@@ -109,6 +120,81 @@ export default function EnrollPage() {
             courseIntroVideo: c?.courseIntroVideo || "",
           };
           setCourse(mapped);
+          // If a promo was marked to be cleared (we're returning from payment),
+          // remove persisted promo BEFORE attempting to restore it. Also check
+          // `returning_from_payment` in case `promo_to_clear` wasn't set.
+          try {
+            if (typeof window !== "undefined") {
+              const promoToClear = sessionStorage.getItem("promo_to_clear");
+              const returningFromPayment = sessionStorage.getItem(
+                "returning_from_payment",
+              );
+              // If there's a returning flag, aggressively clear any persisted
+              // promo_* keys to avoid stale promo showing after payment.
+              if (returningFromPayment) {
+                try {
+                  for (let i = 0; i < sessionStorage.length; i++) {
+                    const key = sessionStorage.key(i);
+                    if (!key) continue;
+                    if (key.startsWith("promo_")) {
+                      try {
+                        sessionStorage.removeItem(key);
+                      } catch (er) {}
+                    }
+                  }
+                } catch (er) {}
+                try {
+                  sessionStorage.removeItem("promo_to_clear");
+                } catch (er) {}
+                try {
+                  sessionStorage.removeItem("returning_from_payment");
+                } catch (er) {}
+                try {
+                  setPromoApplied(null);
+                  setPromoCode("");
+                  setPromoError("");
+                } catch (er) {}
+              }
+
+              const shouldClear =
+                promoToClear === "promo_" + mapped.id ||
+                returningFromPayment === String(mapped.id);
+
+              if (shouldClear) {
+                try {
+                  // always remove the explicit promo_<id> key
+                  sessionStorage.removeItem("promo_" + mapped.id);
+                } catch (err) {}
+                try {
+                  if (promoToClear) sessionStorage.removeItem(promoToClear);
+                } catch (err) {}
+                try {
+                  sessionStorage.removeItem("promo_to_clear");
+                } catch (err) {}
+                try {
+                  sessionStorage.removeItem("returning_from_payment");
+                } catch (err) {}
+                try {
+                  setPromoApplied(null);
+                  setPromoCode("");
+                  setPromoError("");
+                } catch (err) {}
+              }
+            }
+          } catch (err) {}
+
+          // restore promo if saved in sessionStorage for this course (only if not cleared)
+          try {
+            const saved =
+              typeof window !== "undefined" &&
+              sessionStorage.getItem("promo_" + mapped.id);
+            if (saved) {
+              const parsed = JSON.parse(saved as string);
+              if (parsed && parsed.code) setPromoApplied(parsed);
+            }
+          } catch (err) {
+            // ignore
+          }
         }
       } catch (e: any) {
         setError(e?.message || "Failed to load course.");
@@ -157,9 +243,20 @@ export default function EnrollPage() {
         course.discountPrice &&
         course.price &&
         Number(course.discountPrice) < Number(course.price);
-      const finalAmount = hasDiscount
-        ? Number(course.discountPrice)
-        : Number(course.price ?? 0);
+      const basePrice = Number(
+        hasDiscount ? course.discountPrice : (course.price ?? 0),
+      );
+
+      const finalAmount = (() => {
+        if (!promoApplied) return basePrice;
+        if (promoApplied.type === PromoType.PERCENTAGE) {
+          return Math.max(
+            0,
+            Math.round(basePrice * (1 - promoApplied.amount / 100)),
+          );
+        }
+        return Math.max(0, Math.round(basePrice - promoApplied.amount));
+      })();
 
       // Validate required fields
       if (!user.email) {
@@ -170,7 +267,7 @@ export default function EnrollPage() {
         throw new Error("Invalid course price");
       }
 
-      // Initialize SSLCommerz payment
+      // Initialize SSLCommerz payment (include promoCode so backend can validate/apply)
       const paymentResponse = await paymentService.initSSLCommerzPayment({
         courseId: course.id,
         amount: finalAmount,
@@ -181,21 +278,52 @@ export default function EnrollPage() {
             : user.email.split("@")[0] || "Student",
         customerEmail: user.email,
         customerPhone: user.phone || "01700000000",
+        productName: course.title,
+        productCategory: promoApplied?.code || "",
+        promoCode: promoApplied?.code || undefined,
       });
 
       // Check if payment initialization was successful
       if (paymentResponse.success && paymentResponse.data) {
-        // Check if the backend returned a failure (e.g., already enrolled)
+        // Check if the backend returned a failure (e.g., already enrolled or promo invalid)
         if (paymentResponse.data.success === false) {
-          throw new Error(
-            paymentResponse.data.message || "Payment initialization failed",
-          );
+          const msg =
+            paymentResponse.data.message || "Payment initialization failed";
+          // if it's a promo-related error, surface it in the promo UI and clear persisted promo
+          if (
+            msg.toLowerCase().includes("promo") ||
+            msg.toLowerCase().includes("invalid")
+          ) {
+            setPromoError(msg);
+            // remove persisted promo for this course to avoid stuck UI
+            try {
+              if (course?.id) {
+                sessionStorage.removeItem("promo_" + course.id);
+              }
+              sessionStorage.removeItem("promo_to_clear");
+            } catch (err) {}
+            setPromoApplied(null);
+            setEnrolling(false);
+            return;
+          }
+          throw new Error(msg);
         }
 
         // Check if gateway URL exists
         if (!paymentResponse.data.GatewayPageURL) {
           throw new Error("Payment gateway URL not found");
         }
+
+        // Mark that we're redirecting to payment for this course so we can detect return
+        try {
+          if (course?.id) {
+            sessionStorage.setItem("returning_from_payment", String(course.id));
+            // store the promo session key so we can reliably clear it when the user returns
+            try {
+              sessionStorage.setItem("promo_to_clear", "promo_" + course.id);
+            } catch (err) {}
+          }
+        } catch (err) {}
 
         // Redirect to SSLCommerz payment gateway
         window.location.href = paymentResponse.data.GatewayPageURL;
@@ -220,6 +348,59 @@ export default function EnrollPage() {
       setEnrolling(false);
     }
   };
+
+  // Detect when user returns from external payment page and reload to refresh state
+  useEffect(() => {
+    const handleReturn = () => {
+      try {
+        const cid = sessionStorage.getItem("returning_from_payment");
+        const promoKey = sessionStorage.getItem("promo_to_clear");
+        if (!cid && !promoKey) return;
+        // remove promo cache for this course (prefer explicit promo_to_clear key)
+        try {
+          if (promoKey) {
+            sessionStorage.removeItem(promoKey);
+          } else if (cid) {
+            sessionStorage.removeItem("promo_" + cid);
+          }
+        } catch (err) {}
+        try {
+          sessionStorage.removeItem("returning_from_payment");
+        } catch (err) {}
+        try {
+          sessionStorage.removeItem("promo_to_clear");
+        } catch (err) {}
+        // clear in-memory promo state before reload (defensive)
+        try {
+          setPromoApplied(null);
+          setPromoCode("");
+          setPromoError("");
+          setApplyingPromo(false);
+        } catch (err) {}
+        // reload to refresh enrollment/payment status
+        window.location.reload();
+      } catch (err) {
+        // fallback: reload anyway
+        try {
+          window.location.reload();
+        } catch (e) {}
+      }
+    };
+
+    const onVisibility = () => {
+      if (document.visibilityState === "visible") handleReturn();
+    };
+
+    window.addEventListener("focus", handleReturn);
+    window.addEventListener("pageshow", handleReturn as any);
+    document.addEventListener("visibilitychange", onVisibility);
+
+    return () => {
+      window.removeEventListener("focus", handleReturn);
+      window.removeEventListener("pageshow", handleReturn as any);
+      document.removeEventListener("visibilitychange", onVisibility);
+    };
+  }, []);
 
   return (
     <MainLayout>
@@ -247,7 +428,6 @@ export default function EnrollPage() {
             </div>
           ) : (
             <div className="bg-white rounded-xl shadow-lg overflow-hidden max-w-sm mx-auto">
-              {/* Thumbnail */}
               <div className="relative h-48 bg-gray-100 overflow-hidden">
                 {course.thumbnail &&
                 course.thumbnail !== "/placeholder-course.jpg" ? (
@@ -301,21 +481,284 @@ export default function EnrollPage() {
                       course.price &&
                       Number(course.discountPrice) < Number(course.price);
 
+                    // Base price considers backend discountPrice if present
+                    const basePrice = Number(
+                      hasDiscount ? course.discountPrice : (course.price ?? 0),
+                    );
+
+                    // Compute displayed price after promo
+                    const displayedPrice = (() => {
+                      if (!promoApplied) return basePrice;
+                      if (promoApplied.type === PromoType.PERCENTAGE) {
+                        const pct = promoApplied.amount; // e.g. 20 means 20%
+                        return Math.max(
+                          0,
+                          Math.round(basePrice * (1 - pct / 100)),
+                        );
+                      }
+                      // flat
+                      return Math.max(
+                        0,
+                        Math.round(basePrice - promoApplied.amount),
+                      );
+                    })();
+
                     return (
-                      <div className="space-y-2">
+                      <div className="space-y-3">
                         {hasDiscount && (
                           <div className="inline-block bg-red-100 text-red-700 px-3 py-1 rounded-full text-sm font-bold">
                             {course.discountPercentage}% OFF
                           </div>
                         )}
+
+                        {/* Promo input (collapsed by default) */}
+                        <div className="pt-2">
+                          {!promoOpen ? (
+                            <button
+                              onClick={() => setPromoOpen(true)}
+                              className="flex items-center gap-2 text-[#51356e] hover:underline text-sm"
+                              aria-expanded={promoOpen}
+                            >
+                              <Tag className="w-4 h-4 text-[#51356e]" />
+                              <span>Add promo code</span>
+                            </button>
+                          ) : (
+                            <div>
+                              <div className="flex items-center justify-between mb-2">
+                                <label className="text-sm text-gray-600 block">
+                                  Promo code
+                                </label>
+                                <button
+                                  onClick={() => setPromoOpen(false)}
+                                  className="text-xs text-gray-500 hover:text-gray-700"
+                                >
+                                  Close
+                                </button>
+                              </div>
+                              <div className="flex gap-2">
+                                <input
+                                  value={promoCode}
+                                  onChange={(e) => setPromoCode(e.target.value)}
+                                  placeholder="XXXXXXXX"
+                                  className="flex-1 border border-[#e6dff6] rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#51356e]/30 text-black placeholder:text-gray-400"
+                                />
+                                <button
+                                  onClick={async () => {
+                                    if (!course) return;
+                                    setApplyingPromo(true);
+                                    setPromoError("");
+                                    const code = String(promoCode || "")
+                                      .trim()
+                                      .toUpperCase();
+                                    await new Promise((r) =>
+                                      setTimeout(r, 250),
+                                    );
+
+                                    if (!code) {
+                                      setPromoError("Enter promo code");
+                                      setPromoApplied(null);
+                                      setApplyingPromo(false);
+                                      return;
+                                    }
+
+                                    try {
+                                      // Call server-side promo validation (send code and courseId; do NOT send price)
+                                      const res =
+                                        await promoService.validatePromo({
+                                          code,
+                                          courseId: course.id,
+                                        });
+
+                                      const data = (res as any)?.data ?? res;
+
+                                      // Expecting server to indicate validity and either
+                                      // a type+value or an appliedAmount (final price)
+                                      if (
+                                        data == null ||
+                                        data.valid === false
+                                      ) {
+                                        setPromoError(
+                                          data?.message || "Invalid promo code",
+                                        );
+                                        setPromoApplied(null);
+                                        setApplyingPromo(false);
+                                        return;
+                                      }
+
+                                      // If server returns finalAmount or discountAmount, trust server-calculated values
+                                      if (
+                                        data.finalAmount != null ||
+                                        data.discountAmount != null
+                                      ) {
+                                        const base = Number(
+                                          course.discountPrice &&
+                                            Number(course.discountPrice) <
+                                              Number(course.price)
+                                            ? course.discountPrice
+                                            : (course.price ?? 0),
+                                        );
+
+                                        if (data.discountAmount != null) {
+                                          const discount = Math.max(
+                                            0,
+                                            Math.round(
+                                              Number(data.discountAmount),
+                                            ),
+                                          );
+                                          const appliedObj = {
+                                            code,
+                                            amount: discount,
+                                            type: PromoType.FIXED,
+                                          };
+                                          setPromoApplied(appliedObj);
+                                          try {
+                                            sessionStorage.setItem(
+                                              "promo_" + course.id,
+                                              JSON.stringify(appliedObj),
+                                            );
+                                          } catch (err) {}
+                                          setApplyingPromo(false);
+                                          return;
+                                        }
+
+                                        if (data.finalAmount != null) {
+                                          const applied = Number(
+                                            data.finalAmount,
+                                          );
+                                          const discount = Math.max(
+                                            0,
+                                            Math.round(base - applied),
+                                          );
+                                          const appliedObj = {
+                                            code,
+                                            amount: discount,
+                                            type: PromoType.FIXED,
+                                          };
+                                          setPromoApplied(appliedObj);
+                                          try {
+                                            sessionStorage.setItem(
+                                              "promo_" + course.id,
+                                              JSON.stringify(appliedObj),
+                                            );
+                                          } catch (err) {}
+                                          setApplyingPromo(false);
+                                          return;
+                                        }
+                                      }
+
+                                      // If server returns appliedAmount (final price), compute flat discount
+                                      if (data.appliedAmount != null) {
+                                        const base = Number(
+                                          course.discountPrice &&
+                                            Number(course.discountPrice) <
+                                              Number(course.price)
+                                            ? course.discountPrice
+                                            : (course.price ?? 0),
+                                        );
+                                        const applied = Number(
+                                          data.appliedAmount,
+                                        );
+                                        const discount = Math.max(
+                                          0,
+                                          Math.round(base - applied),
+                                        );
+                                        const appliedObj = {
+                                          code,
+                                          amount: discount,
+                                          type: PromoType.FIXED,
+                                        };
+                                        setPromoApplied(appliedObj);
+                                        // persist promo across redirect
+                                        try {
+                                          sessionStorage.setItem(
+                                            "promo_" + course.id,
+                                            JSON.stringify(appliedObj),
+                                          );
+                                        } catch (err) {}
+                                        setApplyingPromo(false);
+                                        return;
+                                      }
+
+                                      // If server returns explicit type/value
+                                      const t = String(
+                                        data.type || data.promoType || "",
+                                      ).toLowerCase();
+                                      const val = Number(
+                                        data.value ?? data.amount ?? 0,
+                                      );
+
+                                      let promoType: PromoType =
+                                        PromoType.FIXED;
+                                      if (
+                                        t === "percentage" ||
+                                        t === "percent"
+                                      ) {
+                                        promoType = PromoType.PERCENTAGE;
+                                      } else if (
+                                        t === "fixed" ||
+                                        t === "flat"
+                                      ) {
+                                        promoType = PromoType.FIXED;
+                                      }
+
+                                      if (val > 0) {
+                                        const appliedObj: {
+                                          code: string;
+                                          amount: number;
+                                          type: PromoType;
+                                        } = {
+                                          code,
+                                          amount: val,
+                                          type: promoType,
+                                        };
+                                        setPromoApplied(appliedObj);
+                                        try {
+                                          sessionStorage.setItem(
+                                            "promo_" + course.id,
+                                            JSON.stringify(appliedObj),
+                                          );
+                                        } catch (err) {}
+                                      } else {
+                                        setPromoError(
+                                          data?.message ||
+                                            "Invalid promo response",
+                                        );
+                                        setPromoApplied(null);
+                                      }
+                                    } catch (err: any) {
+                                      setPromoError(
+                                        err?.message ||
+                                          "Failed to validate promo code",
+                                      );
+                                      setPromoApplied(null);
+                                    } finally {
+                                      setApplyingPromo(false);
+                                    }
+                                  }}
+                                  className="bg-[#51356e] hover:bg-[#8e67b6] text-white px-4 rounded-md disabled:opacity-60"
+                                  disabled={applyingPromo}
+                                >
+                                  {applyingPromo ? "Applying..." : "Apply"}
+                                </button>
+                              </div>
+                              {promoError && (
+                                <p className="text-sm text-red-600 mt-2">
+                                  {promoError}
+                                </p>
+                              )}
+                              {promoApplied && (
+                                <p className="text-sm text-[#51356e] mt-2">
+                                  Promo '{promoApplied.code}' applied
+                                </p>
+                              )}
+                            </div>
+                          )}
+                        </div>
+
+                        {/* Price display */}
                         <div className="flex items-baseline gap-3">
-                          <div className="text-3xl font-bold text-blue-600">
-                            ৳
-                            {Number(
-                              hasDiscount
-                                ? course.discountPrice
-                                : (course.price ?? 0),
-                            ).toFixed(0)}
+                          <div className="text-3xl font-bold text-[#51356e]">
+                            ৳{Number(displayedPrice).toFixed(0)}
                           </div>
                           {hasDiscount && (
                             <div className="text-lg line-through text-gray-400">
@@ -323,6 +766,19 @@ export default function EnrollPage() {
                             </div>
                           )}
                         </div>
+
+                        {/* Show discount breakdown if promo applied */}
+                        {promoApplied && (
+                          <div className="text-sm text-gray-700">
+                            <div>Original price: ৳{basePrice.toFixed(0)}</div>
+                            <div className="text-red-700">
+                              Discount:{" "}
+                              {promoApplied.type === PromoType.PERCENTAGE
+                                ? `${promoApplied.amount}%`
+                                : `৳${promoApplied.amount}`}
+                            </div>
+                          </div>
+                        )}
                       </div>
                     );
                   })()}
@@ -377,7 +833,8 @@ export default function EnrollPage() {
                     </Link>
                   ) : (
                     <Button
-                      className="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 disabled:opacity-50 disabled:cursor-not-allowed"
+                      variant="primary"
+                      className="w-full py-3 disabled:opacity-50 disabled:cursor-not-allowed"
                       disabled={enrolling || !agreedToTerms || alreadyEnrolled}
                       onClick={handleEnroll}
                     >

@@ -150,6 +150,13 @@ export const API_CONFIG = {
     PAYMENT_SSLCOMMERZ_FAIL: '/payments/sslcommerz/fail', // POST: SSLCommerz fail callback
     PAYMENT_SSLCOMMERZ_CANCEL: '/payments/sslcommerz/cancel', // POST: SSLCommerz cancel callback
     PAYMENT_SSLCOMMERZ_IPN: '/payments/sslcommerz/ipn', // POST: SSLCommerz IPN (Instant Payment Notification)
+    // Promo codes
+    PROMO_VALIDATE: '/promo/validate', // POST: Validate a promo code
+    PROMO_CREATE: '/promo', // POST: Create a promo code
+    PROMOS: '/promo', // GET: List promos
+    PROMO_BY_ID: (id: string) => `/promo/${id}`, // GET: Get promo by ID
+    PROMO_UPDATE: (id: string) => `/promo/${id}`, // PATCH: Update promo by ID
+    PROMO_DELETE: (id: string) => `/promo/${id}`, // DELETE: Delete promo by ID
   },
   PAGINATION: {
     DEFAULT_PAGE_SIZE: 10,
