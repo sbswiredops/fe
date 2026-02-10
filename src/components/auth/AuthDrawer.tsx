@@ -1026,7 +1026,7 @@ export default function AuthDrawer({
             </div>
           )}
 
-          {(step === "login" || step === "register") && (
+          {/* {(step === "login" || step === "register") && (
             <div className="mt-6">
               <div className="relative">
                 <div className="absolute inset-0 flex items-center">
@@ -1072,7 +1072,7 @@ export default function AuthDrawer({
                 </button>
               </div>
             </div>
-          )}
+          )} */}
         </div>
       </div>
 

@@ -738,7 +738,7 @@ export default function CourseDetailsPage() {
                             <StarRating rating={rating} size="sm" />
                           </div>
                           <p className="text-sm text-gray-600 mt-1">
-                            {reviewCount ? `${reviewCount} reviews` : "No reviews yet"}
+                            {reviewCount ? `${reviewCount} reviews` : "Total ratings"}
                           </p>
                         </div>
                         <div className="w-11 h-11 rounded-xl bg-[#51356e] flex items-center justify-center">
