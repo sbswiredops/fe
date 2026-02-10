@@ -240,10 +240,10 @@ export default function RecordedCoursesSection() {
                   style={{ WebkitTapHighlightColor: "transparent" }}
                 >
                   <div className="w-full bg-white rounded-xl border border-[#e6dcf4] transition-transform duration-300 hover:scale-105 hover:shadow-xl cursor-pointer overflow-hidden">
-                    <div className="relative h-50 overflow-hidden bg-gray-50">
+                    <div className="relative h-48 overflow-hidden bg-gray-50">
                       {course.thumbnail ? (
                         <img
-                          className="w-full h-full object-cover"
+                          className="w-full h-full object-cover object-center"
                           src={course.thumbnail}
                           alt={course.title || "Course thumbnail"}
                           loading="lazy"
